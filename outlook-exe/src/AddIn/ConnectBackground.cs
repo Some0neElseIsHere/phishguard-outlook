@@ -33,10 +33,32 @@ namespace PhishGuard.AddIn
         readonly HashSet<string> loggedKeys = new HashSet<string>();
 
         /// <summary>Réglages qui agissent sur les modules partagés (langue, listes, âge des domaines).</summary>
+        /// <summary>Met à jour la fenêtre d'enquête ouverte quand des résultats externes arrivent.</summary>
+        void RefreshDetailsIfOpen()
+        {
+            if (form == null || form.IsDisposed || !form.Visible || lastMail == null) return;
+            try
+            {
+                var c = AnalyzeCached(lastMail, true);
+                form.RefreshResult(c.Result, c.Data, ListStatus(), config.ShowExplanations, config.AllowUserSettings);
+            }
+            catch (Exception ex) { Log("Mise à jour de la fenêtre : " + ex.Message); }
+        }
+
         void ApplyRuntimeSettings()
         {
             L.SetLanguage(config.Language);
             DomainAge.Enabled = config.DomainAgeLookup;
+            Intel.Settings = new IntelSettings
+            {
+                DnsChecks = config.BetaDnsChecks,
+                CertAge = config.BetaCertAge,
+                VirusTotalKey = config.VirusTotalKey ?? "",
+                AbuseChKey = config.AbuseChKey ?? "",
+                SafeBrowsingKey = config.SafeBrowsingKey ?? "",
+                AbuseIpdbKey = config.AbuseIpdbKey ?? ""
+            };
+            Feeds.Init(config.BetaOpenPhish, config.BetaTranco);
             Blocklists.SharedPath = config.SharedBlocklistPath ?? "";
         }
 
@@ -45,19 +67,23 @@ namespace PhishGuard.AddIn
             tickCount++;
             try
             {
-                if (DomainAge.Changed)
+                if (DomainAge.Changed || Intel.Changed || Feeds.Changed)
                 {
                     DomainAge.Changed = false;
+                    Intel.Changed = false;
+                    Feeds.Changed = false;
                     cache.Clear();
                     cacheOrder.Clear();
                     lastSelectionKey = "\u0001";       // réanalyse du message affiché
                     if (!config.AutoAnalyze) InvalidateRibbons();
+                    RefreshDetailsIfOpen();
                 }
                 if (config.KnownCorrespondents) CorrespondentsStep();
                 if (config.TagCategory && tickCount % 30 == 5) InboxStep();
                 if (tickCount % 5000 == 0)                // environ toutes les heures
                 {
                     Blocklists.Init(config, InstallDir); // recharge la liste partagée et met à jour Red Flag Domains si besoin
+                    Feeds.Init(config.BetaOpenPhish, config.BetaTranco);
                 }
             }
             catch (Exception ex) { Log("Tâche de fond : " + ex.Message); }

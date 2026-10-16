@@ -81,6 +81,8 @@ namespace PhishGuard
             AnalyzeAttachments(e, ctx, findings, attNames);
             AnalyzeContent(e, headers, ctx, findings);
             AnalyzeFilters(e, headers, ctx, findings);
+            var details = Forensics.ParseHeaders(e.RawHeaders);
+            AnalyzeIntel(e, ctx, details, findings, positives, urls, linkDomains);
 
             if (ctx.Internal)
             {
@@ -128,7 +130,7 @@ namespace PhishGuard
                 LinkDomains = linkDomains.Distinct().ToList(),
                 AttachmentNames = attNames,
                 SenderAddress = (e.FromAddress ?? "").ToLowerInvariant(),
-                Details = Forensics.ParseHeaders(e.RawHeaders),
+                Details = details,
                 Attachments = e.Attachments.Where(a => !(a.IsInline && a.IsImage)).ToList(),
                 FirstContact = ctx.FirstContact,
                 SenderDomain = PhishGuard.Domains.DomainOfAddress(e.FromAddress)
@@ -702,6 +704,166 @@ namespace PhishGuard
         // =====================================================================
 
         static readonly Regex Rtlo = new Regex("[\u202a-\u202e\u2066-\u2069]");
+
+        // =====================================================================
+        // Sources externes (bêta) : OpenPhish, Tranco, DNS, crt.sh, VirusTotal, abuse.ch, Safe Browsing, AbuseIPDB
+        // =====================================================================
+
+        static void AnalyzeIntel(EmailData e, Ctx ctx, HeaderDetails details, List<Finding> findings, List<string> positives, List<string> urls, List<string> linkDomains)
+        {
+            var cfg = ctx.Config;
+            var s = Intel.Settings;
+            var waiting = new List<string>();
+            Func<string, string, IntelResult> ask = (key, service) =>
+            {
+                var r = Intel.GetOrRequest(key);
+                if (r == null && !waiting.Contains(service)) waiting.Add(service);
+                return r != null && r.Ok ? r : null;
+            };
+            var byId = new Dictionary<string, Finding>();
+            Action<string, string, Severity, string, string, string> add = (id, cat, sev, title, detail, ev) =>
+            {
+                Finding f;
+                if (!byId.TryGetValue(id, out f)) { f = new Finding(id, cat, sev, title, detail, null); byId[id] = f; findings.Add(f); }
+                else if (sev > f.Severity) f.Severity = sev;
+                if (!string.IsNullOrEmpty(ev) && !f.Evidence.Contains(ev) && f.Evidence.Count < 6) f.Evidence.Add(ev);
+            };
+
+            // ---- Liens : OpenPhish et Safe Browsing (adresse complète) ----
+            int gsbCount = 0;
+            foreach (var u in urls)
+            {
+                string op = Feeds.OpenPhishMatch(u);
+                if (op == "url")
+                    add("links-intel-openphish", "links", Severity.Critical, L.T("Lien vers une page de phishing connue (OpenPhish)"),
+                        L.T("Cette adresse figure dans le flux OpenPhish des pages de phishing actives."), Defang(u));
+                else if (op == "host")
+                    add("links-intel-openphish-host", "links", Severity.High, L.T("Lien vers un serveur qui héberge des pages de phishing (OpenPhish)"), "", Defang(u));
+                if (s.SafeBrowsingKey.Length > 0 && gsbCount < 20)
+                {
+                    gsbCount++;
+                    var g = ask("gsb:" + u, "Google Safe Browsing");
+                    if (g != null && g.Found)
+                        add("links-intel-gsb", "links", Severity.Critical, L.F("Google Safe Browsing signale ce lien ({0})", Intel.ThreatLabel(g.Label)),
+                            L.T("La liste de Google (utilisée par Chrome) classe cette adresse comme dangereuse."), Defang(u));
+                }
+            }
+
+            // ---- Domaines : expéditeur puis liens ----
+            string fromDomain = PhishGuard.Domains.DomainOfAddress(e.FromAddress);
+            string fromOrg = PhishGuard.Domains.RegistrableDomain(fromDomain);
+            var domains = new List<KeyValuePair<string, string>>();   // domaine, catégorie
+            if (fromOrg.Length > 0 && !ctx.Internal) domains.Add(new KeyValuePair<string, string>(fromOrg, "sender"));
+            foreach (var d in linkDomains.Take(8))
+                if (!domains.Any(x => x.Key == d)) domains.Add(new KeyValuePair<string, string>(d, "links"));
+
+            int crtCount = 0;
+            foreach (var kv in domains)
+            {
+                string d = kv.Key, cat = kv.Value;
+                if (PhishGuard.Domains.IsIpHost(d)) continue;
+                bool trusted = ctx.Domains.Legit.Contains(d) || ctx.Domains.CompanyDomains.Contains(d) || Lists.FreemailDomains.Contains(d)
+                    || cfg.TrustedDomains.Contains(d);
+                int rank = Feeds.TrancoRank(d);
+                if (rank > 0 && cat == "sender" && !ctx.Domains.CompanyDomains.Contains(d))
+                    positives.Add(L.F("Domaine très fréquenté : {0} (n° {1} mondial, classement Tranco)", PhishGuard.Domains.ToUnicode(d), rank.ToString("N0")));
+                if (trusted) continue;
+                string shown = PhishGuard.Domains.ToUnicode(d);
+                string where = cat == "sender" ? L.T("Le domaine de l’expéditeur") : L.T("Le domaine d’un lien");
+
+                // DNS : seulement pour l'expéditeur (domaine qui envoie des emails)
+                if (cfg.BetaDnsChecks && cat == "sender" && rank == 0)
+                {
+                    var r = ask("dns:" + fromDomain + "|" + fromOrg, "DNS");
+                    if (r != null)
+                    {
+                        if (!r.Exists)
+                            add("sender-intel-dns-nxdomain", cat, Severity.High, L.T("Le domaine de l’expéditeur n’existe pas"),
+                                L.T("Le DNS ne connaît pas ce domaine : l’adresse d’expédition est inventée."), fromDomain);
+                        else
+                        {
+                            if (!r.HasMx)
+                                add("sender-intel-dns-nomx", cat, Severity.Medium, L.T("Le domaine de l’expéditeur ne peut pas recevoir d’emails (aucun MX)"),
+                                    L.T("Une vraie organisation reçoit des emails sur son domaine ; celui-ci n’a aucun serveur de messagerie."), fromDomain);
+                            if (!r.HasSpf && !r.HasDmarc)
+                                add("sender-intel-dns-noauth", cat, Severity.Low, L.T("Le domaine de l’expéditeur n’a ni SPF ni DMARC"),
+                                    L.T("N’importe qui peut envoyer des emails en son nom."), fromDomain);
+                        }
+                    }
+                }
+
+                // crt.sh : âge du premier certificat HTTPS
+                if (cfg.BetaCertAge && rank == 0 && crtCount < 3)
+                {
+                    crtCount++;
+                    var r = ask("crt:" + d, "crt.sh");
+                    if (r != null && r.Date.HasValue)
+                    {
+                        int days = Math.Max(0, (int)(DateTime.UtcNow - r.Date.Value).TotalDays);
+                        if (days < 30)
+                            add(cat + "-intel-cert-new", cat, days < 7 ? Severity.High : Severity.Medium,
+                                L.F("{0} a obtenu son premier certificat HTTPS il y a {1} jour(s)", where, days),
+                                L.T("Un site tout juste mis en ligne : fréquent pour les pages de phishing."), shown);
+                    }
+                }
+
+                if (s.VirusTotalKey.Length > 0)
+                {
+                    var r = ask("vtd:" + d, "VirusTotal");
+                    if (r != null && r.Found && r.Malicious > 0)
+                        add(cat + "-intel-vt", cat, r.Malicious >= 3 ? Severity.High : Severity.Medium,
+                            L.F("VirusTotal : {0} antivirus sur {1} signalent ce domaine", r.Malicious, r.Total), "", shown);
+                }
+                if (s.AbuseChKey.Length > 0)
+                {
+                    var r = ask("uhh:" + d, "URLhaus");
+                    if (r != null && r.Found)
+                        add(cat + "-intel-urlhaus", cat, Severity.High, L.T("URLhaus : ce domaine diffuse des logiciels malveillants"),
+                            r.Total > 0 ? L.F("{0} adresses malveillantes recensées sur ce domaine.", r.Total) : "", shown);
+                    var t = ask("tfi:" + d, "ThreatFox");
+                    if (t != null && t.Found)
+                        add(cat + "-intel-threatfox", cat, Severity.High, L.T("ThreatFox : domaine connu comme indicateur de menace"),
+                            t.Label.Length > 0 ? L.F("Associé à : {0}.", t.Label) : "", shown);
+                }
+            }
+
+            // ---- Pièces jointes (empreinte SHA-256 : le fichier n'est jamais envoyé) ----
+            foreach (var a in e.Attachments.Where(x => x.Sha256.Length > 0 && !(x.IsInline && x.IsImage)).Take(5))
+            {
+                if (s.VirusTotalKey.Length > 0)
+                {
+                    var r = ask("vtf:" + a.Sha256, "VirusTotal");
+                    if (r != null && r.Found && r.Malicious > 0)
+                        add("att-intel-vt", "attachments", r.Malicious >= 3 ? Severity.Critical : Severity.High,
+                            L.F("VirusTotal : pièce jointe détectée par {0} antivirus sur {1}", r.Malicious, r.Total),
+                            L.T("Le fichier est déjà connu comme malveillant. Ne l’ouvrez pas."), a.Name);
+                }
+                if (s.AbuseChKey.Length > 0)
+                {
+                    var r = ask("uhp:" + a.Sha256, "URLhaus");
+                    var t = ask("tfh:" + a.Sha256, "ThreatFox");
+                    if ((r != null && r.Found) || (t != null && t.Found))
+                    {
+                        string fam = t != null && t.Found && t.Label.Length > 0 ? t.Label : (r != null ? r.Label : "");
+                        add("att-intel-abusech", "attachments", Severity.Critical, L.T("Pièce jointe identifiée comme logiciel malveillant (abuse.ch)"),
+                            fam.Length > 0 ? L.F("Famille : {0}.", fam) : "", a.Name);
+                    }
+                }
+            }
+
+            // ---- IP d'origine ----
+            if (s.AbuseIpdbKey.Length > 0 && details != null && details.OriginIp.Length > 0 && Forensics.IsPublicIp(details.OriginIp))
+            {
+                var r = ask("ip:" + details.OriginIp, "AbuseIPDB");
+                if (r != null && r.Malicious >= 25)
+                    add("sender-intel-abuseipdb", "sender", r.Malicious >= 75 ? Severity.High : Severity.Medium,
+                        L.F("L’IP d’origine est signalée pour abus (AbuseIPDB : {0}/100, {1} signalements)", r.Malicious, r.Total), "", details.OriginIp);
+            }
+
+            if (waiting.Count > 0)
+                findings.Add(new Finding("intel-pending", "links", Severity.Info, L.T("Vérifications externes en cours"),
+                    L.T("Le résultat s’affichera automatiquement dans quelques secondes."), waiting));
+        }
 
         static void AnalyzeAttachments(EmailData e, Ctx ctx, List<Finding> findings, List<string> names)
         {

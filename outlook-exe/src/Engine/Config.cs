@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace PhishGuard
@@ -31,6 +32,16 @@ namespace PhishGuard
         public string SharedBlocklistPath = "";  // liste de blocage partagée (ex. \\serveur\partage\phishguard.txt)
         public List<string> TrustedSenders = new List<string>();
         public string Language = "auto";         // auto (langue de Windows), fr ou en
+
+        // Bêta : sources externes (désactivées par défaut)
+        public bool BetaOpenPhish = false;       // flux OpenPhish (sans clé)
+        public bool BetaTranco = false;          // classement Tranco des sites les plus visités (sans clé)
+        public bool BetaDnsChecks = false;       // MX / SPF / DMARC du domaine expéditeur (DNS de Windows)
+        public bool BetaCertAge = false;         // âge du premier certificat HTTPS (crt.sh, sans clé)
+        public string VirusTotalKey = "";        // clés gratuites ; chiffrées pour l'utilisateur Windows dans config.user.ini
+        public string AbuseChKey = "";
+        public string SafeBrowsingKey = "";
+        public string AbuseIpdbKey = "";
 
         public static PhishGuardConfig Load(string path)
         {
@@ -80,6 +91,14 @@ namespace PhishGuard
                     case "sharedblocklistpath": c.SharedBlocklistPath = val; break;
                     case "trustedsenders": c.TrustedSenders = SplitList(val, true); break;
                     case "language": c.Language = val.Trim().ToLowerInvariant(); break;
+                    case "betaopenphish": c.BetaOpenPhish = IsTrue(val); break;
+                    case "betatranco": c.BetaTranco = IsTrue(val); break;
+                    case "betadnschecks": c.BetaDnsChecks = IsTrue(val); break;
+                    case "betacertage": c.BetaCertAge = IsTrue(val); break;
+                    case "virustotalkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.VirusTotalKey = k; } break;
+                    case "abusechkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.AbuseChKey = k; } break;
+                    case "safebrowsingkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.SafeBrowsingKey = k; } break;
+                    case "abuseipdbkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.AbuseIpdbKey = k; } break;
                     case "allowusersettings": if (isAdminFile) c.AllowUserSettings = !IsFalse(val); break;
                 }
             }
@@ -109,6 +128,16 @@ namespace PhishGuard
             sb.AppendLine("SharedBlocklistPath = " + (SharedBlocklistPath ?? "").Replace("\r", "").Replace("\n", "").Trim());
             sb.AppendLine("TrustedSenders = " + string.Join(", ", TrustedSenders.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("Language = " + Clean(Language));
+            sb.AppendLine("# Bêta : sources externes");
+            sb.AppendLine("BetaOpenPhish = " + (BetaOpenPhish ? "true" : "false"));
+            sb.AppendLine("BetaTranco = " + (BetaTranco ? "true" : "false"));
+            sb.AppendLine("BetaDnsChecks = " + (BetaDnsChecks ? "true" : "false"));
+            sb.AppendLine("BetaCertAge = " + (BetaCertAge ? "true" : "false"));
+            sb.AppendLine("# Clés d'API chiffrées pour ce compte Windows (DPAPI) : inutilisables sur un autre poste ou par un autre utilisateur.");
+            sb.AppendLine("VirusTotalKey = " + Protect(VirusTotalKey));
+            sb.AppendLine("AbuseChKey = " + Protect(AbuseChKey));
+            sb.AppendLine("SafeBrowsingKey = " + Protect(SafeBrowsingKey));
+            sb.AppendLine("AbuseIpdbKey = " + Protect(AbuseIpdbKey));
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
         }
@@ -116,6 +145,29 @@ namespace PhishGuard
         static string Clean(string s)
         {
             return (s ?? "").Replace("\r", " ").Replace("\n", " ").Replace(",", " ").Trim();
+        }
+
+        static bool IsTrue(string val)
+        {
+            return val == "1" || val.Equals("true", StringComparison.OrdinalIgnoreCase) || val.Equals("oui", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>Chiffre une clé pour l'utilisateur Windows courant (préfixe « dpapi: »).</summary>
+        public static string Protect(string key)
+        {
+            string k = (key ?? "").Trim();
+            if (k.Length == 0) return "";
+            try { return "dpapi:" + Convert.ToBase64String(ProtectedData.Protect(Encoding.UTF8.GetBytes(k), null, DataProtectionScope.CurrentUser)); }
+            catch (Exception) { return ""; }
+        }
+
+        /// <summary>Clé en clair (config.ini de l'administrateur) ou chiffrée (« dpapi: »).</summary>
+        public static string Unprotect(string val)
+        {
+            string v = (val ?? "").Trim();
+            if (!v.StartsWith("dpapi:", StringComparison.OrdinalIgnoreCase)) return v;
+            try { return Encoding.UTF8.GetString(ProtectedData.Unprotect(Convert.FromBase64String(v.Substring(6)), null, DataProtectionScope.CurrentUser)); }
+            catch (Exception) { return ""; }
         }
 
         static bool IsFalse(string val)
