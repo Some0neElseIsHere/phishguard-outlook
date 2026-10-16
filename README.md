@@ -70,14 +70,15 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 
 **Prérequis** : Windows 10/11, **Outlook classique** (Microsoft 365, 2019, 2021…), .NET Framework 4.6 ou plus (présent par défaut).
 
-1. Téléchargez la dernière version dans [Releases](../../releases) : `PhishGuard-Outlook-vX.Y.Z.zip`.
-2. Décompressez-la.
-3. (Facultatif) Ouvrez `config.ini` pour régler les valeurs par défaut (domaines de l'entreprise, adresse de signalement…). Tout reste modifiable ensuite depuis Outlook.
-4. **Fermez Outlook**, puis double-cliquez sur `installer.cmd`.
-5. Ouvrez Outlook : le groupe **PhishGuard** apparaît dans l'onglet Accueil.
+1. Téléchargez **`PhishGuard-Outlook-vX.Y.Z-installeur.exe`** dans [Releases](../../releases).
+2. **Fermez Outlook**, lancez l'exe et cliquez sur **Installer** (aucun droit administrateur demandé).
+3. Ouvrez Outlook : le score PhishGuard apparaît dans l'onglet Accueil. Les réglages (domaines de l'entreprise,
+   adresse de signalement, langue…) se font depuis Outlook : cliquez sur le score, puis **Paramètres**.
 
-Un installeur `.exe` est aussi fourni quand il a pu être généré. Il n'est pas signé : Windows peut afficher
-« Windows a protégé votre ordinateur » → *Informations complémentaires* → *Exécuter quand même*.
+L'exe n'est pas signé : Windows peut afficher « Windows a protégé votre ordinateur » → *Informations
+complémentaires* → *Exécuter quand même*. Si votre antivirus ou AppLocker bloque l'exe, prenez le zip
+`PhishGuard-Outlook-vX.Y.Z.zip`, décompressez-le et lancez `installer.cmd` (même installation, en script).
+Pour imposer des valeurs par défaut à toute l'entreprise, modifiez `config.ini` dans le zip avant de l'installer.
 
 **Désinstaller** : Paramètres Windows → Applications → *PhishGuard pour Outlook*, ou `%LOCALAPPDATA%\PhishGuard\desinstaller.cmd`.
 
@@ -125,7 +126,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 
 ## Déploiement en entreprise
 
-- **Installation silencieuse** (script de connexion, GPO, outil de déploiement) : `installer.cmd /quiet`.
+- **Installation silencieuse** (script de connexion, GPO, outil de déploiement) : `PhishGuard-Outlook-vX.Y.Z-installeur.exe /quiet` ou `installer.cmd /quiet`.
 - **Configuration imposée** : adaptez `config.ini` avant de distribuer le dossier, avec `AllowUserSettings = false`.
 - **Liste de blocage commune** : un fichier texte sur un partage réseau (`SharedBlocklistPath`), rechargé toutes les heures.
 - **Signature** : signer `PhishGuard.dll` avec le certificat de signature de code de l'entreprise évite les blocages par l'antivirus, AppLocker ou la stratégie « compléments signés uniquement ».
@@ -157,7 +158,7 @@ construire.bat
 ```
 
 Le script compile et lance les tests du moteur, compile `PhishGuard.dll`, prépare `build\package\`
-(installation) et tente de créer un installeur `.exe` avec IExpress.
+(installation) et crée l'installeur `build\PhishGuard-Outlook.exe` (fichiers intégrés à l'exe).
 
 L'intégration continue ([`.github/workflows/build.yml`](.github/workflows/build.yml)) fait la même chose
 sur un serveur Windows de GitHub à chaque modification, et publie une release pour chaque tag `v*`.

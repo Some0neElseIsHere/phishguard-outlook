@@ -33,7 +33,7 @@ Double-cliquez sur **`construire.bat`**. Il utilise le compilateur C# fourni ave
 
 1. compile et lance les tests du moteur d'analyse ;
 2. compile `PhishGuard.dll` ;
-3. fabrique **`build\PhishGuard-Outlook.exe`** avec IExpress (outil intégré à Windows).
+3. fabrique l'installeur **`build\PhishGuard-Outlook.exe`** (programme C# qui contient tous les fichiers).
 
 Si une étape échoue, la fenêtre affiche l'erreur : copiez-la pour correction.
 
@@ -119,5 +119,5 @@ src\Engine\                  Moteur d'analyse (portage C# du moteur JavaScript)
 src\AddIn\                   Complément Outlook : ruban, lecture du message, fenêtre, signalement
 tests\Tests.cs               Tests lancés à chaque construction
 installer\                   Installation / désinstallation par utilisateur (copy + reg, sans PowerShell)
-tools\make-installer.ps1     Création de l'exe avec IExpress
+installer\Setup.cs           Installeur .exe (installer, /quiet, /uninstall)
 ```

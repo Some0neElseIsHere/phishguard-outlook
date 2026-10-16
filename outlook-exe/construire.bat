@@ -53,10 +53,20 @@ if errorlevel 1 goto compilefail
 echo [3/4] Preparation de l'installation...
 for %%F in (config.ini custom.txt assets\phishguard.ico installer\installer.cmd installer\desinstaller.cmd) do copy /y "%%F" build\package\ >nul
 
-echo [4/4] Creation de PhishGuard-Outlook.exe...
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "tools\make-installer.ps1" -PackageDir "build\package" -Target "%~dp0build\PhishGuard-Outlook.exe"
+echo [4/4] Creation de l'installeur PhishGuard-Outlook.exe...
+rem Programme d'installation en C# : les fichiers du complement sont integres a l'exe.
+if not defined PG_VERSION set "PG_VERSION=1.0.0"
+>build\version.txt echo %PG_VERSION%
+"%CSC%" /nologo /codepage:65001 /target:winexe /out:build\PhishGuard-Outlook.exe ^
+  /win32icon:assets\phishguard.ico /win32manifest:installer\app.manifest ^
+  /r:System.dll /r:System.Windows.Forms.dll /r:System.Drawing.dll ^
+  /resource:build\package\PhishGuard.dll,Setup.PhishGuard.dll /resource:build\package\config.ini,Setup.config.ini ^
+  /resource:build\package\custom.txt,Setup.custom.txt /resource:build\package\phishguard.ico,Setup.phishguard.ico ^
+  /resource:build\version.txt,Setup.version.txt /resource:build\package\installer.cmd,Setup.installer.cmd /resource:build\package\desinstaller.cmd,Setup.desinstaller.cmd ^
+  installer\Setup.cs
 if errorlevel 1 (
   echo       L'exe n'a pas pu etre cree. L'installation reste possible avec build\package\installer.cmd
+  if defined CI goto fail
 )
 
 echo.
