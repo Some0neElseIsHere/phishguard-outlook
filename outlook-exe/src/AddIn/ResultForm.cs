@@ -157,14 +157,36 @@ namespace PhishGuard.AddIn
             return b;
         }
 
+        string shownSignature = "";
+
+        /// <summary>Empreinte du résultat affiché : évite de recharger la page si rien n'a changé.</summary>
+        static string Signature(AnalysisResult r)
+        {
+            return r.Score + "|" + string.Join(",", r.Findings.Select(f => f.Id + ":" + f.Severity + ":" + f.Evidence.Count).ToArray()) + "|" + r.Positives.Count;
+        }
+
+        /// <summary>Mise à jour silencieuse (résultats externes arrivés) : sans prendre le focus.</summary>
+        public void RefreshResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations, bool canChangeSettings)
+        {
+            if (!Visible || Signature(r) == shownSignature) return;
+            ShowResult(r, e, listStatus, showExplanations, canChangeSettings, false);
+        }
+
         public void ShowResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations, bool canChangeSettings)
         {
+            ShowResult(r, e, listStatus, showExplanations, canChangeSettings, true);
+        }
+
+        void ShowResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations, bool canChangeSettings, bool activate)
+        {
             result = r; email = e;
+            shownSignature = Signature(r);
             ApplyTexts();
             btnTrust.Visible = canChangeSettings && r.Level != "safe";
             btnSettings.Visible = canChangeSettings;
             status.Text = listStatus;
             browser.DocumentText = BuildHtml(r, e, showExplanations);
+            if (!activate) return;
             if (!Visible) Show();
             if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
             Activate();

@@ -342,6 +342,61 @@ namespace PhishGuard.Tests
             // ---------- Explications ----------
             Check("explication par préfixe", Lessons.For("sender-lookalike-typo") != null && Lessons.For("filter-orange") != null && Lessons.For("inconnu") == null);
 
+            // ---------- Sources externes (bêta) : lecture des réponses ----------
+            var vt = Intel.ParseVirusTotal("{\"data\":{\"attributes\":{\"last_analysis_stats\":{\"harmless\":60,\"malicious\":5,\"suspicious\":1,\"undetected\":4,\"timeout\":0}}}}");
+            Check("VirusTotal : statistiques", vt.Found && vt.Malicious == 5 && vt.Suspicious == 1 && vt.Total == 70, vt.Malicious + "/" + vt.Total);
+            Check("VirusTotal : inconnu", !Intel.ParseVirusTotal("{\"notfound\":true}").Found);
+            var crt = Intel.ParseCrt("[{\"not_before\":\"2026-10-10T08:00:00\"},{\"not_before\":\"2019-03-01T00:00:00\"}]");
+            Check("crt.sh : premier certificat", crt.Date.HasValue && crt.Date.Value.Year == 2019, crt.Date.HasValue ? crt.Date.Value.ToString("s") : "null");
+            var uh = Intel.ParseUrlhaus("{\"query_status\":\"ok\",\"url_count\":\"12\",\"urls\":[]}");
+            Check("URLhaus : domaine listé", uh.Found && uh.Total == 12);
+            Check("URLhaus : rien", !Intel.ParseUrlhaus("{\"query_status\":\"no_results\"}").Found);
+            var tf = Intel.ParseThreatFox("{\"query_status\":\"ok\",\"data\":[{\"ioc\":\"x.top\",\"malware_printable\":\"Emotet\"}]}");
+            Check("ThreatFox : indicateur", tf.Found && tf.Label == "Emotet", tf.Label);
+            var ab = Intel.ParseAbuseIpdb("{\"data\":{\"ipAddress\":\"1.2.3.4\",\"abuseConfidenceScore\":87,\"countryCode\":\"RU\",\"totalReports\":41}}");
+            Check("AbuseIPDB : score", ab.Malicious == 87 && ab.Total == 41 && ab.Label == "RU");
+            var gsb = Intel.ParseSafeBrowsing("{\"matches\":[{\"threatType\":\"SOCIAL_ENGINEERING\",\"platformType\":\"ANY_PLATFORM\",\"threat\":{\"url\":\"https://bad.example/login\"},\"cacheDuration\":\"300s\"}]}");
+            Check("Safe Browsing : correspondance", gsb.ContainsKey("https://bad.example/login") && gsb["https://bad.example/login"] == "SOCIAL_ENGINEERING");
+            Check("Safe Browsing : rien", Intel.ParseSafeBrowsing("{}").Count == 0);
+            Check("clé chiffrée (DPAPI)", PhishGuardConfig.Unprotect(PhishGuardConfig.Protect("cle-secrete-123")) == "cle-secrete-123" && PhishGuardConfig.Protect("abc").StartsWith("dpapi:"));
+
+            // ---------- Sources externes (bêta) : listes et résultats dans l'analyse ----------
+            Feeds.LoadOpenPhish("https://evil-login.top/office365/\nhttps://sites.google.com/view/fake-sso\n", DateTime.Now);
+            Feeds.OpenPhishEnabled = true;
+            Check("OpenPhish : adresse exacte", Feeds.OpenPhishMatch("https://evil-login.top/office365") == "url");
+            Check("OpenPhish : sous-page", Feeds.OpenPhishMatch("https://evil-login.top/office365/step2?x=1") == "url");
+            Check("OpenPhish : même serveur", Feeds.OpenPhishMatch("https://evil-login.top/autre") == "host");
+            Check("OpenPhish : hébergeur partagé ignoré", Feeds.OpenPhishMatch("https://sites.google.com/view/autre-site") == null);
+            Feeds.LoadTranco(new[] { "1,google.com", "2,microsoft.com", "57,exemple-pme.fr" }, DateTime.Now);
+            Feeds.TrancoEnabled = true;
+            Check("Tranco : rang", Feeds.TrancoRank("microsoft.com") == 2 && Feeds.TrancoRank("inconnu-xyz.fr") == 0);
+
+            var eI = Base();
+            eI.Links.Add(new LinkInfo("https://evil-login.top/office365/", "Se connecter"));
+            eI.Links.Add(new LinkInfo("https://malware-cdn.xyz/f.zip", "Télécharger"));
+            var cfgI = new PhishGuardConfig { CompanyDomains = new List<string> { "acmetech.fr" }, BetaDnsChecks = true, BetaCertAge = true };
+            Intel.Settings = new IntelSettings { VirusTotalKey = "test" };
+            Intel.SetForTests("dns:exemple-pme.fr|exemple-pme.fr", new IntelResult { Ok = true, Exists = false });
+            Intel.SetForTests("crt:evil-login.top", new IntelResult { Ok = true, Found = true, Date = DateTime.UtcNow.AddDays(-2) });
+            Intel.SetForTests("crt:malware-cdn.xyz", new IntelResult { Ok = true, Found = false });
+            Intel.SetForTests("crt:exemple-pme.fr", new IntelResult { Ok = true, Found = true, Date = DateTime.UtcNow.AddYears(-5) });
+            Intel.SetForTests("vtd:exemple-pme.fr", new IntelResult { Ok = true, Found = false });
+            Intel.SetForTests("vtd:evil-login.top", new IntelResult { Ok = true, Found = false });
+            Intel.SetForTests("vtd:malware-cdn.xyz", new IntelResult { Ok = true, Found = true, Malicious = 9, Total = 90 });
+            var rI = Analyzer.Analyze(eI, cfgI);
+            foreach (var id in new[] { "links-intel-openphish", "links-intel-cert-new", "links-intel-vt" })
+                Check("bêta : " + id, Ids(rI).Contains(id), string.Join(",", Ids(rI).ToArray()));
+            Check("bêta : Tranco ignore les vérifications d’un domaine très fréquenté", !Ids(rI).Contains("sender-intel-dns-nxdomain") && rI.Positives.Any(p => p.Contains("Tranco")),
+                string.Join(",", Ids(rI).ToArray()));
+            Feeds.LoadTranco(new string[0], DateTime.Now);
+            var rI2 = Analyzer.Analyze(eI, cfgI);
+            Check("bêta : domaine expéditeur inexistant", Ids(rI2).Contains("sender-intel-dns-nxdomain"), string.Join(",", Ids(rI2).ToArray()));
+            Check("bêta : aucune vérification en attente", !Ids(rI2).Contains("intel-pending"), string.Join(",", Ids(rI2).ToArray()));
+            Intel.Settings = new IntelSettings();
+            Intel.ClearForTests();
+            Feeds.OpenPhishEnabled = false;
+            Feeds.TrancoEnabled = false;
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);
