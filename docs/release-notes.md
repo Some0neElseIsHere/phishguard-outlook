@@ -1,4 +1,4 @@
-Première version publique de **PhishGuard pour Outlook** : analyse anti-phishing locale, dans le ruban d'Outlook classique.
+**PhishGuard pour Outlook** : analyse anti-phishing locale, dans le ruban d'Outlook classique.
 
 ### Installation
 
@@ -7,7 +7,17 @@ Première version publique de **PhishGuard pour Outlook** : analyse anti-phishin
 3. Réglages depuis Outlook : cliquez sur le score PhishGuard, puis **Paramètres**.
 
 Aucun droit administrateur requis. Installation silencieuse : `PhishGuard-Outlook-vX.Y.Z-installeur.exe /quiet`.
-Si l'exe est bloqué par l'antivirus ou AppLocker : prenez le zip et lancez `installer.cmd`. Désinstallation : Paramètres Windows → Applications.
+Si l'exe est bloqué par l'antivirus ou AppLocker : prenez le zip et lancez `installer.cmd`.
+Une version déjà installée est simplement mise à jour (vos réglages sont conservés).
+
+### Nouveautés de cette version
+
+- Onglet **Bêta** dans les paramètres (tout est désactivé par défaut) :
+  - sans clé : liste OpenPhish, classement Tranco, vérifications DNS du domaine expéditeur (MX, SPF, DMARC), âge du premier certificat HTTPS (crt.sh) ;
+  - avec une clé gratuite : VirusTotal, abuse.ch (URLhaus + ThreatFox), Google Safe Browsing, AbuseIPDB. Les clés sont chiffrées pour votre compte Windows.
+- La fenêtre d'analyse se met à jour toute seule quand les vérifications externes répondent.
+- Bouton « Copier les en-têtes » retiré (copie possible depuis l'onglet Source).
+- Option de catégorie de couleur renommée pour être plus claire.
 
 ### Points forts
 
@@ -18,13 +28,12 @@ Si l'exe est bloqué par l'antivirus ou AppLocker : prenez le zip et lancez `ins
 - Liens réécrits par les passerelles de sécurité (Proofpoint, Safe Links, Barracuda, Sophos…) décodés et analysés.
 - Inspection du contenu des pièces jointes : ZIP, macros, PDF, HTML.
 - IBAN et demandes de changement de RIB, fraude au président.
-- Signaler, « Ce n'est pas du phishing » et paramètres depuis la fenêtre d'analyse ; explications pédagogiques désactivables.
-- Interface en français ou en anglais (automatique selon Windows).
+- Interface en français ou en anglais.
 
 ### À savoir
 
 - Outlook classique pour Windows uniquement.
-- Fichiers non signés : votre antivirus ou AppLocker peut les bloquer ; faites-les autoriser ou signez la DLL.
+- Fichiers non signés : Windows peut afficher « Windows a protégé votre ordinateur » → *Informations complémentaires* → *Exécuter quand même*.
 - Liste Red Flag Domains sous licence CC BY-NC-SA 4.0 : vérifiez que votre usage est couvert, ou désactivez-la.
 
 `SHA256SUMS.txt` contient les empreintes des fichiers de cette release.
