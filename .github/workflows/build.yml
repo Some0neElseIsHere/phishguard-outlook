@@ -1,0 +1,66 @@
+# Compile le complément Outlook avec le compilateur C# fourni par Windows (.NET Framework 4),
+# lance les tests, puis publie une release GitHub quand un tag "v*" est poussé.
+
+name: Construction et release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  complement-outlook:
+    name: Complément Outlook (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compiler, tester et créer l'installeur
+        shell: cmd
+        working-directory: outlook-exe
+        env:
+          CI: "true"
+        run: construire.bat
+
+      - name: Préparer les fichiers de la release
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME } else { "dev-$($env:GITHUB_SHA.Substring(0,7))" }
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item outlook-exe/LISEZMOI.md outlook-exe/build/package/
+          Compress-Archive -Path outlook-exe/build/package/* -DestinationPath "dist/PhishGuard-Outlook-$version.zip" -Force
+          if (Test-Path outlook-exe/build/PhishGuard-Outlook.exe) {
+            Copy-Item outlook-exe/build/PhishGuard-Outlook.exe "dist/PhishGuard-Outlook-$version-installeur.exe"
+          }
+          Get-ChildItem dist | ForEach-Object {
+            (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower() + "  " + $_.Name
+          } | Set-Content dist/SHA256SUMS.txt -Encoding ascii
+          Get-Content dist/SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PhishGuard-Outlook
+          path: dist/*
+
+      - name: Publier la release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: PhishGuard pour Outlook ${{ github.ref_name }}
+          body_path: docs/release-notes.md
+          files: dist/*
+
+  moteur-web:
+    name: Moteur du complément web (Node.js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --test test/engine.test.js

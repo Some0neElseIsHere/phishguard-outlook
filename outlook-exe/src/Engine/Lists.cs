@@ -1,0 +1,86 @@
+﻿// FICHIER GÉNÉRÉ par tools/gen-lists.mjs à partir de src/engine/lists.js - ne pas modifier à la main.
+using System.Collections.Generic;
+
+namespace PhishGuard
+{
+    public class Brand
+    {
+        public string Name; public string[] Domains; public string[] Keywords; public string[] Names; public bool Generic;
+        public Brand(string name, string[] domains, string[] keywords, string[] names, bool generic)
+        { Name = name; Domains = domains; Keywords = keywords; Names = names; Generic = generic; }
+    }
+
+    public static class Lists
+    {
+        public static readonly Brand[] Brands = new Brand[]
+        {
+            new Brand("Microsoft", new string[] { "microsoft.com", "office.com", "office365.com", "outlook.com", "outlook.fr", "live.com", "live.fr", "hotmail.com", "hotmail.fr", "microsoftonline.com", "sharepoint.com", "onedrive.com", "windows.net", "azure.com", "msn.com", "bing.com", "skype.com", "microsoft365.com", "msauth.net", "msftauth.net", "aka.ms", "cloud.microsoft", "office.net", "microsoftstore.com" }, new string[] { "microsoft", "office365", "outlook", "onedrive", "sharepoint", "microsoft365" }, new string[] { "microsoft", "office 365", "microsoft 365", "outlook", "onedrive", "sharepoint", "microsoft teams" }, false),
+            new Brand("Google", new string[] { "google.com", "google.fr", "gmail.com", "googleusercontent.com", "gstatic.com", "googleapis.com", "googleadservices.com", "googletagmanager.com", "googlesyndication.com", "google-analytics.com", "googlegroups.com", "doubleclick.net", "youtube.com", "goo.gl", "g.co" }, new string[] { "google", "gmail" }, new string[] { "google", "gmail", "google workspace" }, false),
+            new Brand("Apple", new string[] { "apple.com", "icloud.com", "me.com", "mac.com", "apple.fr" }, new string[] { "apple", "icloud", "appleid" }, new string[] { "apple", "icloud", "apple id", "itunes" }, false),
+            new Brand("PayPal", new string[] { "paypal.com", "paypal.fr", "paypal.me", "paypalobjects.com" }, new string[] { "paypal" }, new string[] { "paypal" }, false),
+            new Brand("Amazon", new string[] { "amazon.com", "amazon.fr", "amazon.de", "amazon.co.uk", "amazon.es", "amazon.it", "amazonaws.com", "amazonses.com", "primevideo.com" }, new string[] { "amazon" }, new string[] { "amazon", "prime video" }, false),
+            new Brand("DocuSign", new string[] { "docusign.com", "docusign.net" }, new string[] { "docusign" }, new string[] { "docusign" }, false),
+            new Brand("Adobe", new string[] { "adobe.com", "adobesign.com", "adobelogin.com" }, new string[] { "adobe" }, new string[] { "adobe", "adobe sign", "acrobat" }, false),
+            new Brand("Dropbox", new string[] { "dropbox.com", "dropboxusercontent.com", "dropboxmail.com" }, new string[] { "dropbox" }, new string[] { "dropbox" }, false),
+            new Brand("WeTransfer", new string[] { "wetransfer.com", "we.tl" }, new string[] { "wetransfer" }, new string[] { "wetransfer" }, false),
+            new Brand("LinkedIn", new string[] { "linkedin.com", "lnkd.in" }, new string[] { "linkedin" }, new string[] { "linkedin" }, false),
+            new Brand("Meta", new string[] { "facebook.com", "facebookmail.com", "fb.com", "meta.com", "instagram.com", "whatsapp.com" }, new string[] { "facebook", "instagram", "whatsapp" }, new string[] { "facebook", "instagram", "whatsapp" }, false),
+            new Brand("Netflix", new string[] { "netflix.com" }, new string[] { "netflix" }, new string[] { "netflix" }, false),
+            new Brand("Zoom", new string[] { "zoom.us", "zoom.com" }, new string[] {  }, new string[] {  }, true),
+            new Brand("DHL", new string[] { "dhl.com", "dhl.fr", "dhl.de" }, new string[] { "dhl" }, new string[] { "dhl" }, false),
+            new Brand("UPS", new string[] { "ups.com" }, new string[] { "ups" }, new string[] {  }, false),
+            new Brand("FedEx", new string[] { "fedex.com" }, new string[] { "fedex" }, new string[] { "fedex" }, false),
+            new Brand("La Poste", new string[] { "laposte.fr", "laposte.net", "colissimo.fr", "chronopost.fr", "labanquepostale.fr" }, new string[] { "laposte", "colissimo", "chronopost", "labanquepostale" }, new string[] { "la poste", "colissimo", "chronopost", "banque postale" }, false),
+            new Brand("Assurance Maladie (ameli)", new string[] { "ameli.fr" }, new string[] { "ameli" }, new string[] { "ameli", "assurance maladie" }, false),
+            new Brand("Impots.gouv", new string[] { "impots.gouv.fr" }, new string[] { "impots", "dgfip" }, new string[] { "impots", "dgfip", "finances publiques" }, false),
+            new Brand("ANTAI", new string[] { "antai.gouv.fr" }, new string[] { "antai" }, new string[] { "antai", "amende" }, false),
+            new Brand("ANTS", new string[] { "ants.gouv.fr" }, new string[] { "ants" }, new string[] {  }, false),
+            new Brand("CAF", new string[] { "caf.fr" }, new string[] { "caf" }, new string[] { "caf", "allocations familiales" }, false),
+            new Brand("France Travail", new string[] { "francetravail.fr", "pole-emploi.fr" }, new string[] { "francetravail", "poleemploi", "pole-emploi" }, new string[] { "france travail", "pole emploi" }, false),
+            new Brand("Crédit Agricole", new string[] { "credit-agricole.fr", "credit-agricole.com" }, new string[] { "credit-agricole", "creditagricole" }, new string[] { "credit agricole" }, false),
+            new Brand("Société Générale", new string[] { "societegenerale.fr", "societegenerale.com" }, new string[] { "societegenerale", "societe-generale" }, new string[] { "societe generale" }, false),
+            new Brand("BNP Paribas", new string[] { "bnpparibas.com", "bnpparibas.fr", "mabanque.bnpparibas" }, new string[] { "bnpparibas", "bnp-paribas" }, new string[] { "bnp paribas", "bnp" }, false),
+            new Brand("LCL", new string[] { "lcl.fr" }, new string[] { "lcl" }, new string[] {  }, false),
+            new Brand("Boursorama / BoursoBank", new string[] { "boursorama.com", "boursobank.com", "boursorama-banque.com" }, new string[] { "boursorama", "boursobank" }, new string[] { "boursorama", "boursobank" }, false),
+            new Brand("Caisse d'Epargne", new string[] { "caisse-epargne.fr" }, new string[] { "caisse-epargne", "caisseepargne" }, new string[] { "caisse d epargne", "caisse epargne" }, false),
+            new Brand("Banque Populaire", new string[] { "banquepopulaire.fr" }, new string[] { "banquepopulaire", "banque-populaire" }, new string[] { "banque populaire" }, false),
+            new Brand("Crédit Mutuel / CIC", new string[] { "creditmutuel.fr", "cic.fr" }, new string[] { "creditmutuel", "credit-mutuel" }, new string[] { "credit mutuel" }, false),
+            new Brand("Revolut", new string[] { "revolut.com" }, new string[] { "revolut" }, new string[] { "revolut" }, false),
+            new Brand("Orange", new string[] { "orange.fr", "orange.com", "wanadoo.fr", "orange-business.com" }, new string[] {  }, new string[] { "orange" }, true),
+            new Brand("SFR", new string[] { "sfr.fr" }, new string[] { "sfr" }, new string[] {  }, false),
+            new Brand("Free", new string[] { "free.fr" }, new string[] {  }, new string[] {  }, true),
+            new Brand("Bouygues Telecom", new string[] { "bouyguestelecom.fr" }, new string[] { "bouyguestelecom", "bouygues" }, new string[] { "bouygues telecom" }, false),
+            new Brand("EDF", new string[] { "edf.fr", "edf.com" }, new string[] { "edf" }, new string[] {  }, false),
+            new Brand("Engie", new string[] { "engie.fr", "engie.com" }, new string[] { "engie" }, new string[] { "engie" }, false),
+            new Brand("TotalEnergies", new string[] { "totalenergies.fr", "totalenergies.com" }, new string[] { "totalenergies" }, new string[] { "totalenergies" }, false),
+            new Brand("Binance", new string[] { "binance.com" }, new string[] { "binance" }, new string[] { "binance" }, false),
+            new Brand("Coinbase", new string[] { "coinbase.com" }, new string[] { "coinbase" }, new string[] { "coinbase" }, false),
+            new Brand("Salesforce", new string[] { "salesforce.com", "force.com" }, new string[] { "salesforce" }, new string[] { "salesforce" }, false),
+            new Brand("Okta", new string[] { "okta.com", "oktacdn.com" }, new string[] { "okta" }, new string[] {  }, false)
+        };
+
+        public static readonly HashSet<string> MultiLabelSuffixes = new HashSet<string>(new string[] { "co.uk", "org.uk", "ac.uk", "gov.uk", "me.uk", "com.au", "net.au", "org.au", "co.nz", "co.jp", "ne.jp", "com.br", "com.cn", "com.hk", "co.in", "co.za", "com.mx", "com.ar", "com.tr", "co.kr", "com.sg", "com.my", "gouv.fr", "asso.fr", "nom.fr", "gouv.ci", "com.ng", "com.pk", "com.ua", "com.ru", "co.il", "github.io", "web.app", "firebaseapp.com", "pages.dev", "workers.dev", "herokuapp.com", "azurewebsites.net", "blogspot.com", "netlify.app", "vercel.app", "ngrok.io", "ngrok-free.app", "ngrok.app", "glitch.me", "repl.co", "replit.app", "r2.dev", "onrender.com", "fly.dev", "surge.sh", "wixsite.com", "weebly.com", "webflow.io", "godaddysites.com", "square.site", "myshopify.com", "framer.website", "framer.app", "carrd.co", "gitbook.io", "notion.site", "translate.goog", "appspot.com", "web.core.windows.net", "blob.core.windows.net", "trycloudflare.com" });
+        public static readonly string[] AbusedHosting = new string[] { "firebasestorage.googleapis.com", "storage.googleapis.com", "sites.google.com", "docs.google.com", "forms.gle", "forms.office.com", "forms.microsoft.com", "sway.office.com", "sway.cloud.microsoft", "onedrive.live.com", "1drv.ms", "web.app", "firebaseapp.com", "pages.dev", "workers.dev", "r2.dev", "blob.core.windows.net", "web.core.windows.net", "azurewebsites.net", "herokuapp.com", "netlify.app", "vercel.app", "github.io", "glitch.me", "repl.co", "replit.app", "ngrok.io", "ngrok-free.app", "ngrok.app", "trycloudflare.com", "ipfs.io", "dweb.link", "cloudflare-ipfs.com", "weebly.com", "wixsite.com", "webflow.io", "godaddysites.com", "square.site", "notion.site", "canva.site", "framer.website", "framer.app", "carrd.co", "gitbook.io", "appspot.com", "translate.goog", "onrender.com", "fly.dev", "surge.sh", "jotform.com", "typeform.com", "formstack.com", "dropboxusercontent.com" };
+        public static readonly string[] Shorteners = new string[] { "bit.ly", "bitly.com", "tinyurl.com", "t.co", "ow.ly", "is.gd", "buff.ly", "rebrand.ly", "cutt.ly", "shorturl.at", "rb.gy", "t.ly", "tiny.cc", "s.id", "v.gd", "qrco.de", "qr.link", "bl.ink", "short.io", "shorte.st", "adf.ly", "goo.su", "clck.ru", "u.to", "lnkd.in", "surl.li", "urlz.fr", "link.infini.fr", "me-qr.com" };
+        public static readonly HashSet<string> SuspiciousTlds = new HashSet<string>(new string[] { "zip", "mov", "top", "xyz", "click", "link", "live", "icu", "cyou", "rest", "cfd", "sbs", "buzz", "monster", "quest", "bond", "beauty", "hair", "makeup", "skin", "lat", "autos", "boats", "yachts", "motorcycles", "tk", "ml", "ga", "cf", "gq", "pw", "cc", "su", "ru", "cn", "work", "support", "online", "site", "website", "fun", "shop", "store", "win", "bid", "loan", "date", "kim", "country", "stream", "download", "racing", "review", "accountant", "science", "party", "trade", "webcam", "men", "help", "digital", "today", "life", "world", "mom" });
+        public static readonly HashSet<string> FreemailDomains = new HashSet<string>(new string[] { "gmail.com", "googlemail.com", "outlook.com", "outlook.fr", "hotmail.com", "hotmail.fr", "live.com", "live.fr", "msn.com", "yahoo.com", "yahoo.fr", "ymail.com", "aol.com", "aol.fr", "icloud.com", "me.com", "mac.com", "gmx.com", "gmx.fr", "gmx.de", "web.de", "mail.com", "protonmail.com", "proton.me", "pm.me", "tutanota.com", "tuta.io", "yandex.com", "yandex.ru", "mail.ru", "zoho.com", "laposte.net", "orange.fr", "wanadoo.fr", "free.fr", "sfr.fr", "neuf.fr", "bbox.fr", "numericable.fr", "aliceadsl.fr", "qq.com", "163.com" });
+
+        public class ContentRule { public string Key; public string Label; public string[] Patterns; public ContentRule(string k, string l, string[] p) { Key = k; Label = l; Patterns = p; } }
+        public static readonly ContentRule[] ContentRules = new ContentRule[]
+        {
+            new ContentRule("urgency", "Pression ou urgence", new string[] { "urgent", "immediatement", "sans delai", "dans les 24 h", "dans les 24h", "dans les 48 h", "dans les 48h", "sous 24 h", "sous 24h", "sous 48h", "dernier avertissement", "dernier rappel", "derniere relance", "action requise", "action immediate", "expire aujourd hui", "expirera", "sera suspendu", "sera supprime", "sera desactive", "sera bloque", "compte suspendu", "compte bloque", "acces restreint", "avant la fin de la journee", "immediately", "within 24 hours", "within 48 hours", "act now", "final notice", "final warning", "action required", "account suspended", "will be suspended", "will be deleted", "will be closed", "expires today" }),
+            new ContentRule("credentials", "Demande d’identifiants", new string[] { "mot de passe", "identifiant", "identifiants", "verifiez votre compte", "verifier votre compte", "confirmez votre identite", "confirmer votre identite", "mettre a jour vos informations", "mettez a jour vos informations", "reactiver votre compte", "connectez-vous", "connectez vous", "code de verification", "code de securite", "authentification", "boite mail est pleine", "boite aux lettres est pleine", "quota de stockage", "espace de stockage", "messages en attente", "courriers en attente", "verify your account", "confirm your identity", "update your information", "password", "sign in to", "log in to", "mailbox is full", "storage quota", "pending messages", "unusual sign-in", "unusual activity", "activite inhabituelle", "connexion inhabituelle" }),
+            new ContentRule("financial", "Demande financière ou bancaire", new string[] { "virement", "rib", "iban", "coordonnees bancaires", "changement de banque", "nouveau compte bancaire", "nouvelles coordonnees", "facture impayee", "paiement en attente", "regler la facture", "carte cadeau", "cartes cadeaux", "remboursement", "numero de carte", "carte bancaire", "frais de livraison", "frais de douane", "amende", "bitcoin", "wire transfer", "bank details", "gift card", "invoice overdue", "payment pending", "refund", "crypto" }),
+            new ContentRule("secrecy", "Demande de discrétion (fraude au président)", new string[] { "confidentiel", "en toute discretion", "discretion absolue", "n en parlez a personne", "ne pas en parler", "reste entre nous", "operation confidentielle", "es-tu disponible", "etes-vous disponible", "es tu disponible", "etes vous disponible", "j ai besoin d un service", "pouvez-vous me rendre un service", "mon telephone ne marche pas", "je suis en reunion", "keep this confidential", "are you available", "quick favor", "i need a favor" }),
+            new ContentRule("lure", "Prétexte classique d’hameçonnage", new string[] { "votre colis", "livraison en attente", "echec de livraison", "document partage", "a partage un fichier", "a partage un document", "message vocal", "nouveau message vocal", "fax recu", "telecharger le document", "consulter le document", "facture disponible", "signature electronique", "document a signer", "docusign", "votre abonnement", "renouvellement", "gagnant", "felicitations", "vous avez gagne", "impots", "remboursement d impot", "shared a file", "shared a document", "voicemail", "your package", "delivery failed", "review the document", "you have won", "congratulations" }),
+            new ContentRule("qrcode", "Invitation à scanner un QR code", new string[] { "qr code", "qrcode", "code qr", "scannez", "scanner le code", "scan the code", "scan the qr" })
+        };
+        public static readonly HashSet<string> ExtExecutable = new HashSet<string>(new string[] { "exe", "scr", "com", "pif", "bat", "cmd", "ps1", "psm1", "vbs", "vbe", "js", "jse", "wsf", "wsh", "hta", "msi", "msp", "msix", "appx", "appxbundle", "lnk", "cpl", "jar", "reg", "chm", "dll", "gadget", "inf", "scf", "url", "website", "application", "xll", "xbap", "iqy", "slk", "settingcontent-ms", "library-ms", "search-ms" });
+        public static readonly HashSet<string> ExtDiskImage = new HashSet<string>(new string[] { "iso", "img", "vhd", "vhdx" });
+        public static readonly HashSet<string> ExtHtml = new HashSet<string>(new string[] { "html", "htm", "shtml", "xhtml", "mht", "mhtml", "svg" });
+        public static readonly HashSet<string> ExtMacro = new HashSet<string>(new string[] { "docm", "dotm", "xlsm", "xltm", "xlam", "pptm", "potm", "ppam", "ppsm", "sldm" });
+        public static readonly HashSet<string> ExtOneNote = new HashSet<string>(new string[] { "one", "onepkg" });
+        public static readonly HashSet<string> ExtArchive = new HashSet<string>(new string[] { "zip", "rar", "7z", "gz", "tgz", "tar", "bz2", "xz", "cab", "ace", "arj", "lzh", "z", "uue", "r00" });
+        public static readonly HashSet<string> ExtDocument = new HashSet<string>(new string[] { "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "rtf", "odt", "ods", "txt", "csv", "jpg", "jpeg", "png", "gif", "bmp", "tif", "tiff", "heic", "mp3", "mp4", "wav", "ics", "eml", "msg", "vcf", "xml", "json" });
+    }
+}

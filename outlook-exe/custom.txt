@@ -1,0 +1,5 @@
+# Liste interne de domaines malveillants (gérée par l'équipe sécurité).
+# Un domaine par ligne ; les sous-domaines sont couverts automatiquement.
+# Chaque utilisateur peut aussi ajouter ses domaines dans %LOCALAPPDATA%\PhishGuard\custom.txt
+#
+# exemple-de-domaine-frauduleux.fr

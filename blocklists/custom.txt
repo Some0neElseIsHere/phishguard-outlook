@@ -1,0 +1,5 @@
+# Liste interne de domaines malveillants (gérée par l'équipe sécurité).
+# Un domaine par ligne. Les sous-domaines sont couverts automatiquement.
+# Après modification, relancez : npm run update-lists
+#
+# exemple-de-domaine-frauduleux.fr
