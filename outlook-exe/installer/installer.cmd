@@ -83,7 +83,7 @@ reg add "%UK%" /v NoRepair /t REG_DWORD /d 1 /f >nul
 
 echo.
 echo PhishGuard est installe.
-echo Ouvrez Outlook : les boutons "Analyser" et "Signaler" sont dans l'onglet Accueil.
+echo Ouvrez Outlook : le score PhishGuard s'affiche dans l'onglet Accueil.
 if not defined QUIET pause
 exit /b 0
 

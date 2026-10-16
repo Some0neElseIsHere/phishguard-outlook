@@ -2,11 +2,12 @@ Première version publique de **PhishGuard pour Outlook** : analyse anti-phishin
 
 ### Installation
 
-1. Téléchargez `PhishGuard-Outlook-vX.Y.Z.zip` ci-dessous et décompressez-le.
-2. (Facultatif) Réglez `config.ini` : domaines de l'entreprise, adresse de signalement…
-3. Fermez Outlook, lancez `installer.cmd`, rouvrez Outlook.
+1. Téléchargez **`PhishGuard-Outlook-vX.Y.Z-installeur.exe`** ci-dessous.
+2. Fermez Outlook, lancez l'exe, cliquez sur **Installer**, rouvrez Outlook.
+3. Réglages depuis Outlook : cliquez sur le score PhishGuard, puis **Paramètres**.
 
-Aucun droit administrateur requis. Désinstallation : Paramètres Windows → Applications.
+Aucun droit administrateur requis. Installation silencieuse : `PhishGuard-Outlook-vX.Y.Z-installeur.exe /quiet`.
+Si l'exe est bloqué par l'antivirus ou AppLocker : prenez le zip et lancez `installer.cmd`. Désinstallation : Paramètres Windows → Applications.
 
 ### Points forts
 
