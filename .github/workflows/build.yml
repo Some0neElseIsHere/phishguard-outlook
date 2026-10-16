@@ -9,6 +9,11 @@ on:
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version à publier (ex. v1.0.0) ; vide = simple construction"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -29,8 +34,10 @@ jobs:
 
       - name: Préparer les fichiers de la release
         shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ github.event.inputs.version }}
         run: |
-          $version = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME } else { "dev-$($env:GITHUB_SHA.Substring(0,7))" }
+          $version = if ($env:RELEASE_VERSION) { $env:RELEASE_VERSION } elseif ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME } else { "dev-$($env:GITHUB_SHA.Substring(0,7))" }
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           Copy-Item outlook-exe/LISEZMOI.md outlook-exe/build/package/
           Compress-Archive -Path outlook-exe/build/package/* -DestinationPath "dist/PhishGuard-Outlook-$version.zip" -Force
@@ -48,10 +55,12 @@ jobs:
           path: dist/*
 
       - name: Publier la release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.version != ''
         uses: softprops/action-gh-release@v2
         with:
-          name: PhishGuard pour Outlook ${{ github.ref_name }}
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
+          target_commitish: ${{ github.sha }}
+          name: PhishGuard pour Outlook ${{ github.event.inputs.version || github.ref_name }}
           body_path: docs/release-notes.md
           files: dist/*
 
