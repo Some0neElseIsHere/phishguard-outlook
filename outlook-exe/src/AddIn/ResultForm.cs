@@ -23,7 +23,7 @@ namespace PhishGuard.AddIn
     internal class ResultForm : Form
     {
         readonly WebBrowser browser;
-        readonly Button btnReport, btnCopy, btnCopyHeaders, btnClose, btnTrust, btnSettings;
+        readonly Button btnReport, btnCopy, btnClose, btnTrust, btnSettings;
         readonly Label status;
         AnalysisResult result;
         EmailData email;
@@ -72,10 +72,9 @@ namespace PhishGuard.AddIn
             btnReport = MakeButton(true);
             btnTrust = MakeButton(false);
             btnCopy = MakeButton(false);
-            btnCopyHeaders = MakeButton(false);
             btnSettings = MakeButton(false);
             btnClose = MakeButton(false);
-            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnCopy, btnCopyHeaders, btnSettings, btnClose });
+            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnCopy, btnSettings, btnClose });
 
             status = new Label
             {
@@ -94,7 +93,6 @@ namespace PhishGuard.AddIn
 
             btnClose.Click += (s, e) => Hide();
             btnCopy.Click += (s, e) => CopyText(result == null ? null : Analyzer.FormatReport(result, email), L.T("Rapport complet copié dans le presse-papiers."));
-            btnCopyHeaders.Click += (s, e) => CopyText(email == null ? null : email.RawHeaders, L.T("En-têtes copiés dans le presse-papiers."));
             btnReport.Click += (s, e) => Raise(ReportRequested);
             btnTrust.Click += (s, e) => Raise(NotPhishingRequested);
             btnSettings.Click += (s, e) => Raise(SettingsRequested);
@@ -113,7 +111,6 @@ namespace PhishGuard.AddIn
             btnReport.Text = L.T("Signaler à la sécurité");
             btnTrust.Text = L.T("Ce n’est pas du phishing");
             btnCopy.Text = L.T("Copier le rapport");
-            btnCopyHeaders.Text = L.T("Copier les en-têtes");
             btnSettings.Text = L.T("Paramètres");
             btnClose.Text = L.T("Fermer");
         }
@@ -166,7 +163,6 @@ namespace PhishGuard.AddIn
             ApplyTexts();
             btnTrust.Visible = canChangeSettings && r.Level != "safe";
             btnSettings.Visible = canChangeSettings;
-            btnCopyHeaders.Enabled = !string.IsNullOrEmpty(e.RawHeaders);
             status.Text = listStatus;
             browser.DocumentText = BuildHtml(r, e, showExplanations);
             if (!Visible) Show();
