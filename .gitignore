@@ -1,0 +1,16 @@
+# Construction
+outlook-exe/build/
+dist/
+
+# Données locales générées
+certs/
+src/data/
+blocklists/redflagdomains.txt
+logs/*
+!logs/.gitkeep
+node_modules/
+
+# Divers
+*.log
+.DS_Store
+Thumbs.db
