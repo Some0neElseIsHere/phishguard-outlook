@@ -14,9 +14,11 @@ Aucun droit administrateur requis. Désinstallation : Paramètres Windows → Ap
 - Fenêtre d'enquête façon PhishTool : en-têtes, parcours et IP d'origine, URL, pièces jointes avec empreintes, observables et liens VirusTotal/AbuseIPDB.
 - Domaines sosies (marques, votre entreprise, vos correspondants), premier contact, âge du domaine.
 - SPF/DKIM/DMARC (y compris via ARC), filtres antispam, Red Flag Domains.
+- Liens réécrits par les passerelles de sécurité (Proofpoint, Safe Links, Barracuda, Sophos…) décodés et analysés.
 - Inspection du contenu des pièces jointes : ZIP, macros, PDF, HTML.
 - IBAN et demandes de changement de RIB, fraude au président.
-- Signaler en un clic, « Ce n'est pas du phishing », explications pédagogiques désactivables, paramètres depuis Outlook.
+- Signaler, « Ce n'est pas du phishing » et paramètres depuis la fenêtre d'analyse ; explications pédagogiques désactivables.
+- Interface en français ou en anglais (automatique selon Windows).
 
 ### À savoir
 
