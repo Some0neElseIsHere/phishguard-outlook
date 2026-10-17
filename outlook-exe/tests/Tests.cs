@@ -544,6 +544,13 @@ namespace PhishGuard.Tests
             Check("rapport HTML : texte échappé", !ReportHtml.Build(rh, new EmailData { FromName = "<script>x</script>", FromAddress = "a@b.fr" }, "").Contains("<script>"));
             Check("désarmement du texte", ReportHtml.DefangText("voir http://a.b/c et https://x.y") == "voir hxxp://a[.]b/c et hxxps://x[.]y");
 
+            // ---------- Plusieurs Authentication-Results du même serveur ----------
+            var hd = Forensics.ParseHeaders("Authentication-Results: mx.lorema.com; dkim=pass header.d=x.fr\r\nAuthentication-Results: mx.lorema.com; spf=pass smtp.mailfrom=x.fr; dmarc=pass header.from=x.fr\r\nAuthentication-Results: mx.attaquant.net; spf=pass");
+            Check("AR multiples : regroupés", hd.Auth.Spf == "pass" && hd.Auth.Dkim == "pass" && hd.Auth.Dmarc == "pass", hd.Auth.Spf + "/" + hd.Auth.Dkim + "/" + hd.Auth.Dmarc);
+            var hd2 = Forensics.ParseHeaders("Authentication-Results: mx.lorema.com; dkim=pass header.d=x.fr\r\nAuthentication-Results: mx.attaquant.net; spf=pass; dmarc=pass");
+            Check("AR d'un autre serveur ignoré", hd2.Auth.Spf == null && hd2.Auth.Dmarc == null);
+            Check("rapport HTML : contrôles séparés", ReportHtml.Build(Analyzer.Analyze(Base(), cfg), Base(), "").Contains("</span>&nbsp;&nbsp; "));
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);

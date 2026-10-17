@@ -535,6 +535,13 @@ namespace PhishGuard.AddIn
                     sb.Append(Row("SHA1", "<span class='mono'>" + H(att.Sha1) + "</span>"));
                     sb.Append(Row("SHA256", "<span class='mono'>" + H(att.Sha256) + "</span>"));
                     sb.Append(Row(L.T("Vérifier"), Links(Forensics.LookupsForHash(att.Sha256))));
+                    var vt = Intel.Get("vtf:" + att.Sha256);
+                    if (vt != null && vt.Ok)
+                        sb.Append(Row("VirusTotal", !vt.Found ? H(L.T("inconnu : ce fichier n’a jamais été analysé par VirusTotal"))
+                            : vt.Malicious > 0 ? "<span class='b bad'>" + H(L.F("{0} détection(s) sur {1}", vt.Malicious, vt.Total)) + "</span>"
+                            : "<span class='b ok'>" + H(L.F("aucune détection sur {0} antivirus", vt.Total)) + "</span>"));
+                    if (att.IsEmbeddedMessage)
+                        sb.Append(Row("", "<span class='muted'>" + H(L.T("Message joint : son empreinte change à chaque enregistrement, VirusTotal ne le connaîtra pas.")) + "</span>"));
                 }
                 else sb.Append(Row(L.T("Empreintes"), "<span class='muted'>" + H(L.T("non calculées (fichier trop volumineux ou illisible)")) + "</span>"));
                 if (att.ContentFindings.Count > 0)
@@ -545,7 +552,8 @@ namespace PhishGuard.AddIn
                     sb.Append(Row(L.T("Liens dans le fichier"), "<span class='mono'>" + string.Join("<br>", att.EmbeddedUrls.Take(15).Select(x => H(Analyzer.Defang(x))).ToArray()) + "</span>"));
                 sb.Append("</table></div>");
             }
-            if (nAtt > 0) sb.Append("<p class='note'>" + H(L.T("La recherche par empreinte n’envoie pas le fichier : VirusTotal indique seulement s’il connaît déjà ce fichier.")) + "</p>");
+            if (nAtt > 0) sb.Append("<p class='note'>" + H(L.T("La recherche par empreinte n’envoie pas le fichier : VirusTotal indique seulement s’il connaît déjà ce fichier.")) + " "
+                + H(L.T("« Item not found » signifie qu’il ne l’a jamais analysé : ce n’est ni un bon ni un mauvais signe. C’est normal pour un document propre à votre échange (facture, devis…), mais un logiciel malveillant récent peut aussi être inconnu. N’envoyez pas sur VirusTotal un document confidentiel : il deviendrait accessible à ses abonnés.")) + "</p>");
             sb.Append("</div>");
 
             // ---------------- Observables ----------------

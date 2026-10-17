@@ -380,6 +380,16 @@ namespace PhishGuard
             source = "Authentication-Results";
             string id = AuthServId(ar, false);
             var sb = new StringBuilder(ar);
+            // Certains serveurs écrivent un en-tête par contrôle (SPF, puis DKIM, puis DMARC) : on regroupe ceux
+            // du même serveur (même identifiant). Ceux d'autres serveurs, plus bas, ont pu être ajoutés par l'expéditeur.
+            // (RFC 8601 §5 : un serveur supprime à la réception les en-têtes qui portent déjà son identifiant.)
+            bool firstSeen = false;
+            foreach (var kv in h)
+            {
+                if (kv.Key != "authentication-results") continue;
+                if (!firstSeen) { firstSeen = true; continue; }
+                if (id.Length > 0 && AuthServId(kv.Value, false) == id) { sb.Append("; ").Append(kv.Value); source = "Authentication-Results (" + id + ")"; }
+            }
             foreach (var kv in h)
             {
                 if (kv.Key != "arc-authentication-results") continue;
