@@ -12,14 +12,10 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **v1.5.1** : pour un expéditeur vérifié, la fenêtre rappelle que le contenu a bien été analysé (texte, liens, pièces jointes) et la preuve « déjà écrit » indique l'adresse.
-
-- **Expéditeur vérifié** : pastille verte avec une coche dans le ruban quand le message est authentifié pour le domaine affiché **et** vient d'un contact déjà connu, sans aucun indice. Les preuves sont listées dans la fenêtre (« Preuves de légitimité ») et ne compensent jamais un indice grave.
-- **Alignement DKIM/SPF** : une signature du domaine de l'expéditeur compte comme preuve ; une signature d'un prestataire (outil d'emailing) est simplement signalée.
-- **Codes de raison Microsoft (compauth)** : 001 devient « authentification insuffisante » (moyen), 002 « envoi interdit », 010/6xx « usurpation de votre propre domaine » (critique), 1xx/130 comptent comme preuve.
-- **Réponse à vos messages** : une vraie réponse à un message que vous avez envoyé est reconnue ; une « réponse » venant d'une autre organisation que celle à qui vous aviez écrit est signalée comme **détournement de fil** (élevé).
-- **Envois en nombre conformes** (désabonnement en un clic + DMARC) : le ton commercial n'est plus compté comme un indice faible.
-- **Bêta, DNS** : politique DMARC (p=reject/quarantine = domaine protégé, p=none signalé) et **BIMI** (logo de marque avec certificat VMC/CMC).
+- **Dirigeants trouvés automatiquement** : dans Paramètres → Entreprise, le bouton **Rechercher** interroge l'Annuaire des Entreprises (API publique de l'État, sans clé) à partir du nom ou du SIREN, vous laisse choisir parmi les homonymes et ajoute les dirigeants à la liste « fraude au président ».
+- **Domaine de l'entreprise** : le domaine de votre adresse Outlook est proposé en un clic.
+- L'onglet **Bêta** devient **Réputation** (paramètres et fenêtre d'analyse).
+- Depuis la v1.5 : « Expéditeur vérifié », alignement DKIM/SPF, codes compauth, détection des détournements de fil, DMARC et BIMI.
 
 ### Points forts
 

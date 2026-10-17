@@ -169,7 +169,7 @@ namespace PhishGuard
             sb.AppendLine("SharedBlocklistPath = " + (SharedBlocklistPath ?? "").Replace("\r", "").Replace("\n", "").Trim());
             sb.AppendLine("TrustedSenders = " + string.Join(", ", TrustedSenders.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("Language = " + Clean(Language));
-            sb.AppendLine("# Bêta : sources externes");
+            sb.AppendLine("# Réputation : sources externes");
             sb.AppendLine("BetaOpenPhish = " + (BetaOpenPhish ? "true" : "false"));
             sb.AppendLine("BetaTranco = " + (BetaTranco ? "true" : "false"));
             sb.AppendLine("BetaDnsChecks = " + (BetaDnsChecks ? "true" : "false"));

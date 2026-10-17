@@ -27,9 +27,16 @@ namespace PhishGuard.AddIn
         static readonly string[] AlertValues = { "dangerous", "suspicious", "none" };
         static readonly string[] LangValues = { "auto", "fr", "en" };
 
-        public SettingsForm(PhishGuardConfig current, Icon icon)
+        readonly string mailboxDomain;
+        Button btnLookup;
+
+        public SettingsForm(PhishGuardConfig current, Icon icon) : this(current, icon, "") { }
+
+        /// <param name="mailboxDomain">domaine de l'adresse de la boîte Outlook (proposé comme domaine de l'entreprise)</param>
+        public SettingsForm(PhishGuardConfig current, Icon icon, string mailboxDomain)
         {
             cfg = current;
+            this.mailboxDomain = (mailboxDomain ?? "").Trim().ToLowerInvariant();
             Text = L.T("PhishGuard - Paramètres");
             var alertLabels = new[] { L.T("Messages dangereux uniquement"), L.T("Messages suspects et dangereux"), L.T("Aucune alerte") };
             var langLabels = new[] { L.T("Automatique (langue de Windows)"), "Français", "English" };
@@ -48,9 +55,20 @@ namespace PhishGuard.AddIn
             var pGeneral = Page(L.T("Entreprise"));
             var y = 12;
             txtCompany = AddText(pGeneral, ref y, L.T("Nom de l’entreprise"), cfg.CompanyName, false, 0,
-                L.T("Repéré dans le nom affiché des expéditeurs externes."));
+                L.T("Repéré dans le nom affiché des expéditeurs externes. « Rechercher » retrouve ses dirigeants dans l’Annuaire des Entreprises."));
+            txtCompany.Width = 390;
+            btnLookup = new Button { Text = L.T("Rechercher…"), Location = new Point(410, txtCompany.Top - 1), Width = 102, Height = txtCompany.Height + 2, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            btnLookup.Click += (s, e) => LookupCompany();
+            pGeneral.Controls.Add(btnLookup);
+            int yDomains = y;
             txtDomains = AddText(pGeneral, ref y, L.T("Domaines de l’entreprise (un par ligne)"), string.Join(Environment.NewLine, cfg.CompanyDomains.ToArray()), true, 70,
                 L.T("Un domaine qui les imite (mon-entreprlse.fr, mon-entreprise-fr.com...) est classé critique."));
+            if (this.mailboxDomain.Length > 0 && !Lists.FreemailDomains.Contains(this.mailboxDomain))
+            {
+                var addDom = new LinkLabel { Text = L.F("Ajouter {0} (votre adresse)", this.mailboxDomain), Location = new Point(300, yDomains), AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+                addDom.LinkClicked += (s, e) => AddLines(txtDomains, new[] { this.mailboxDomain });
+                pGeneral.Controls.Add(addDom);
+            }
             txtVips = AddText(pGeneral, ref y, L.T("Dirigeants et personnes sensibles (un nom par ligne)"), string.Join(Environment.NewLine, cfg.VipNames.ToArray()), true, 70,
                 L.T("Un email externe affichant l’un de ces noms est signalé (fraude au président)."));
             txtReport = AddText(pGeneral, ref y, L.T("Adresse de l’équipe sécurité (bouton « Signaler »)"), cfg.ReportAddress, false, 0,
@@ -125,9 +143,9 @@ namespace PhishGuard.AddIn
             tabs.TabPages.Add(pLists);
 
             // ---------------- Bêta ----------------
-            var pBeta = Page(L.T("Bêta"));
+            var pBeta = Page(L.T("Réputation"));
             y = 12;
-            AddHint(pBeta, ref y, L.T("Sources externes en test. Elles n’envoient jamais le contenu des messages : seulement des noms de domaine, des adresses de liens, des empreintes de fichiers ou une adresse IP."));
+            AddHint(pBeta, ref y, L.T("Sources de réputation externes. Elles n’envoient jamais le contenu des messages : seulement des noms de domaine, des adresses de liens, des empreintes de fichiers ou une adresse IP."));
             y += 18;
             pBeta.Controls.Add(new Label { Text = L.T("Sans clé"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
             y += 24;
@@ -173,6 +191,71 @@ namespace PhishGuard.AddIn
 
             Controls.Add(tabs);
             Controls.Add(bar);
+        }
+
+        /// <summary>Ajoute des lignes absentes (sans tenir compte de la casse) à une zone de texte multiligne.</summary>
+        static int AddLines(TextBox t, IEnumerable<string> values)
+        {
+            var existing = Lines(t, false);
+            int added = 0;
+            foreach (var v in values)
+            {
+                if (existing.Any(x => string.Equals(x, v, StringComparison.OrdinalIgnoreCase))) continue;
+                string cur = t.Text.TrimEnd();
+                t.Text = cur.Length == 0 ? v : cur + Environment.NewLine + v;
+                existing.Add(v);
+                added++;
+            }
+            return added;
+        }
+
+        /// <summary>Recherche l'entreprise dans l'Annuaire des Entreprises et propose ses dirigeants.</summary>
+        void LookupCompany()
+        {
+            string name = txtCompany.Text.Trim();
+            if (name.Length < 2)
+            {
+                MessageBox.Show(this, L.T("Saisissez d’abord le nom de l’entreprise (ou son SIREN)."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            btnLookup.Enabled = false;
+            btnLookup.Text = L.T("Recherche…");
+            var t = new System.Threading.Thread(() =>
+            {
+                List<CompanyInfo> found = null;
+                string error = null;
+                try { found = CompanyLookup.Search(name); }
+                catch (Exception ex) { error = ex.Message; }
+                try { BeginInvoke(new Action(() => LookupDone(name, found, error))); } catch (Exception) { }
+            });
+            t.IsBackground = true;
+            t.Start();
+        }
+
+        void LookupDone(string name, List<CompanyInfo> found, string error)
+        {
+            btnLookup.Enabled = true;
+            btnLookup.Text = L.T("Rechercher…");
+            if (error != null)
+            {
+                MessageBox.Show(this, L.T("L’Annuaire des Entreprises est injoignable :") + "\n" + error, "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (found == null || found.Count == 0)
+            {
+                MessageBox.Show(this, L.F("Aucune entreprise trouvée pour « {0} ».", name), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            CompanyInfo pick;
+            using (var f = new CompanyPickForm(found)) { if (f.ShowDialog(this) != DialogResult.OK || f.Selected == null) return; pick = f.Selected; }
+            int n = AddLines(txtVips, pick.Directors);
+            var msg = new List<string>();
+            msg.Add(pick.Directors.Count == 0 ? L.T("Aucun dirigeant (personne physique) n’est publié pour cette entreprise.")
+                : L.F("{0} dirigeant(s) ajouté(s) : {1}", n, string.Join(", ", pick.Directors.ToArray())));
+            if (mailboxDomain.Length > 0 && !Lists.FreemailDomains.Contains(mailboxDomain) && AddLines(txtDomains, new[] { mailboxDomain }) > 0)
+                msg.Add(L.F("Domaine de votre adresse ajouté : {0}", mailboxDomain));
+            msg.Add(L.T("Vérifiez la liste, complétez-la (directeur financier, comptabilité…), puis cliquez sur « Enregistrer »."));
+            MessageBox.Show(this, string.Join("\n\n", msg.ToArray()), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         void RefreshListStatus()
@@ -315,6 +398,53 @@ namespace PhishGuard.AddIn
                 MessageBox.Show(this, L.T("Enregistrement impossible :") + "\n" + ex.Message, "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
+        }
+    }
+
+    /// <summary>Choix de l'entreprise parmi les homonymes de l'Annuaire des Entreprises.</summary>
+    internal class CompanyPickForm : Form
+    {
+        readonly ListView list;
+        readonly List<CompanyInfo> items;
+        public CompanyInfo Selected;
+
+        public CompanyPickForm(List<CompanyInfo> found)
+        {
+            items = found;
+            Text = L.T("PhishGuard - Choisir l’entreprise");
+            Size = new Size(760, 380);
+            StartPosition = FormStartPosition.CenterParent;
+            Font = new Font("Segoe UI", 9f);
+            MinimizeBox = false; MaximizeBox = false; ShowInTaskbar = false;
+            var hint = new Label { Text = L.T("Source : Annuaire des Entreprises (INSEE, RNE). Choisissez la bonne entreprise : ses dirigeants seront ajoutés à la liste."), Dock = DockStyle.Top, Height = 34, Padding = new Padding(8, 8, 8, 0), ForeColor = SystemColors.GrayText };
+            list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, MultiSelect = false, HideSelection = false };
+            list.Columns.Add(L.T("Entreprise"), 190);
+            list.Columns.Add(L.T("Ville"), 110);
+            list.Columns.Add("SIREN", 85);
+            list.Columns.Add(L.T("Dirigeants"), 330);
+            foreach (var c in found)
+            {
+                var it = new ListViewItem(new[] { c.Name + (c.Active ? "" : " " + L.T("(fermée)")), c.City, c.Siren, string.Join(", ", c.Roles.ToArray()) });
+                if (!c.Active) it.ForeColor = SystemColors.GrayText;
+                list.Items.Add(it);
+            }
+            if (list.Items.Count > 0) list.Items[0].Selected = true;
+            var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 44, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8) };
+            var cancel = new Button { Text = L.T("Annuler"), DialogResult = DialogResult.Cancel, AutoSize = true };
+            var ok = new Button { Text = L.T("Ajouter les dirigeants"), AutoSize = true };
+            ok.Click += (s, e) => Accept();
+            list.DoubleClick += (s, e) => Accept();
+            bar.Controls.AddRange(new Control[] { cancel, ok });
+            AcceptButton = ok; CancelButton = cancel;
+            Controls.Add(list); Controls.Add(hint); Controls.Add(bar);
+        }
+
+        void Accept()
+        {
+            if (list.SelectedIndices.Count == 0) return;
+            Selected = items[list.SelectedIndices[0]];
+            DialogResult = DialogResult.OK;
+            Close();
         }
     }
 }

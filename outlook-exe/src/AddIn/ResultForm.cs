@@ -354,7 +354,7 @@ namespace PhishGuard.AddIn
             Tab(sb, "s-ioc", L.T("Observables"), -1);
             Tab(sb, "s-raw", L.T("Source"), -1);
             Tab(sb, "s-body", L.T("Corps"), -1);
-            Tab(sb, "s-beta", L.T("Bêta"), beta.Count);
+            Tab(sb, "s-beta", L.T("Réputation"), beta.Count);
             sb.Append("</div><div class='page'>");
 
             // ---------------- Résumé ----------------
@@ -406,9 +406,9 @@ namespace PhishGuard.AddIn
             {
                 var worst = beta.Max(f => f.Severity);
                 sb.Append("<div class='f " + worst + "'><div><span class='pill " + worst + "'>" + H(Analyzer.SeverityLabel(worst)) + "</span><span class='ft'>"
-                    + H(beta.Count == 1 ? L.T("1 résultat des sources Bêta") : L.F("{0} résultats des sources Bêta", beta.Count)) + "</span></div>");
+                    + H(beta.Count == 1 ? L.T("1 résultat des sources de réputation") : L.F("{0} résultats des sources de réputation", beta.Count)) + "</span></div>");
                 sb.Append("<p class='fd'>" + H(string.Join(" · ", beta.Take(3).Select(f => f.Title).ToArray())) + "</p>");
-                sb.Append("<p class='fd'><a href='#' onclick=\"return show('s-beta')\">" + H(L.T("Voir l’onglet Bêta")) + "</a></p></div>");
+                sb.Append("<p class='fd'><a href='#' onclick=\"return show('s-beta')\">" + H(L.T("Voir l’onglet Réputation")) + "</a></p></div>");
             }
             if (visible.Count == 0 && beta.Count == 0) sb.Append(Empty(L.T("Aucun indice suspect détecté.")));
             foreach (var cat in Analyzer.CategoryLabels.Keys)
@@ -611,7 +611,7 @@ namespace PhishGuard.AddIn
 
             // ---------------- Bêta (sources externes) ----------------
             sb.Append("<div class='sec' id='s-beta'>");
-            sb.Append("<p class='note'>" + H(L.T("Résultats des sources externes activées dans Paramètres → Bêta. Elles reçoivent seulement des domaines, des empreintes de fichiers ou une IP, jamais le contenu du message.")) + "</p>");
+            sb.Append("<p class='note'>" + H(L.T("Résultats des sources externes activées dans Paramètres → Réputation. Elles reçoivent seulement des domaines, des empreintes de fichiers ou une IP, jamais le contenu du message.")) + "</p>");
             if (r.Sources.Count > 0)
             {
                 sb.Append("<h2>" + H(L.T("Sources")) + "</h2><div class='tw'><table><thead><tr><th>" + H(L.T("Source")) + "</th><th>" + H(L.T("État")) + "</th><th>" + H(L.T("Détail")) + "</th></tr></thead><tbody>");
