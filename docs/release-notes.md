@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.8.5** : vérification des liens avec ESET Link Checker (l'adresse est copiée au clic, collez-la dans la page) à la place de Google Safe Browsing ; bouton « Copier le rapport » retiré (le signalement envoie déjà le rapport complet).
+
 - **v1.8.4** : liens de vérification sans compte à créer : urlscan (qui demande désormais un compte) est remplacé par Google Safe Browsing et Cisco Talos ; pour les IP, AbuseIPDB et Talos passent en premier.
 
 - **v1.8.3** : liens piégés qui imitent un fichier : texte en forme de chemin (`C:\…`) ou de document (`facture.pdf`) qui ouvre autre chose, liens vers un fichier local ou un partage réseau (`file:`, `\\serveur\…`), protocoles qui lancent une fonction de Windows (`search-ms:`, `ms-msdt:`…). Paramètres : les textes d'aide sur deux lignes ne chevauchent plus le champ suivant.
