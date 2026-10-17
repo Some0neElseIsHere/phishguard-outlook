@@ -495,11 +495,19 @@ namespace PhishGuard
             var replyTo = new List<string>();
             foreach (var r in e.ReplyTo) if (!string.IsNullOrEmpty(r)) replyTo.Add(r.ToLowerInvariant());
             replyTo.AddRange(AddressesIn(string.Join(",", HeaderValues(headers, "reply-to"))));
+            var listPost = AddressesIn(string.Join(",", HeaderValues(headers, "list-post")));
             foreach (var rt in replyTo.Distinct())
             {
                 string rtDomain = PhishGuard.Domains.DomainOfAddress(rt);
                 string rtOrg = PhishGuard.Domains.RegistrableDomain(rtDomain);
                 if (rtOrg.Length == 0 || rtOrg == fromOrg) continue;
+                // Liste de diffusion : les réponses vont à la liste elle-même (son adresse de publication)
+                if (listPost.Contains(rt))
+                {
+                    findings.Add(new Finding("sender-replyto-list", "sender", Severity.Info, L.T("Les réponses partiront vers la liste de diffusion"),
+                        "", new[] { L.T("Réponse vers : ") + rt }));
+                    continue;
+                }
                 bool rtFree = Lists.FreemailDomains.Contains(rtDomain);
                 findings.Add(new Finding("sender-replyto", "sender", rtFree || isCompany ? Severity.High : Severity.Medium,
                     L.T("Les réponses partiront vers une autre adresse (Reply-To)"),
@@ -1235,6 +1243,31 @@ namespace PhishGuard
             }
 
             bool cred = hits["credentials"].Count > 0, urg = hits["urgency"].Count > 0, fin = hits["financial"].Count > 0, sec = hits["secrecy"].Count > 0;
+            bool mailbox = hits["mailbox"].Count > 0;
+            if (mailbox && (cred || urg))
+                findings.Add(new Finding("content-combo-mailbox", "content", Severity.High, L.T("Fausse alerte de votre messagerie"),
+                    L.T("Messages bloqués, boîte pleine, mot de passe qui expire : prétexte n° 1 pour voler les identifiants. Votre service informatique ne vous demande jamais de vous reconnecter par un lien."), null));
+
+            // Votre propre adresse dans l'objet ou en guise de salutation : personnalisation automatique typique des campagnes
+            if (!ctx.Internal)
+            {
+                var rcpts = new List<string>();
+                foreach (var h in new[] { "delivered-to", "x-original-to", "envelope-to", "to" })
+                    foreach (var a in AddressesIn(string.Join(",", HeaderValues(headers, h))))
+                        if (!rcpts.Contains(a) && a.IndexOf('@') >= 3) rcpts.Add(a);
+                string rawSubject = (e.Subject ?? "").ToLowerInvariant();
+                string inSubject = rcpts.FirstOrDefault(a => rawSubject.Contains(a));
+                if (inSubject != null)
+                    findings.Add(new Finding("content-recipient-subject", "content", Severity.Medium, L.T("Votre adresse email figure dans l’objet"),
+                        L.T("Les vrais services vous appellent par votre nom ; les campagnes d’hameçonnage insèrent automatiquement l’adresse pour faire « officiel »."), new[] { inSubject }));
+                else
+                {
+                    string greet = rcpts.FirstOrDefault(a => Regex.IsMatch(body, @"(^|[\s,.;:])(dear|hello|hi|bonjour|cher|chere|hola|estimado|attention|attn)\s*:?,?\s*" + Regex.Escape(a)));
+                    if (greet != null)
+                        findings.Add(new Finding("content-recipient-greeting", "content", Severity.Low, L.T("Le message vous salue par votre adresse email"),
+                            L.T("Un expéditeur qui vous connaît utilise votre nom, pas votre adresse."), new[] { greet }));
+                }
+            }
             if (cred && urg)
                 findings.Add(new Finding("content-combo-cred", "content", Severity.High, L.T("Demande d’identifiants sous pression"),
                     L.T("Un vrai service ne vous demande jamais de vous reconnecter « en urgence » par email."), null));
