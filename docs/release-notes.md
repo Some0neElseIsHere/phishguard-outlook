@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.10.1** : entreprises absentes des annuaires (filiale étrangère, Monaco…) : « Ajouter sans recherche » et « Modifier… » permettent de saisir le pays, l'identifiant et les dirigeants à la main ; Wikidata propose aussi les fiches peu renseignées.
+
 - **Plusieurs entreprises** (Paramètres → Entreprise) : groupe, filiales, y compris à l'étranger. **Ajouter une entreprise…** cherche dans l'Annuaire des Entreprises (France) ou dans Wikidata (autres pays) et récupère ses dirigeants ; pour Wikidata, le site officiel est ajouté aux domaines. Le nom de chaque entreprise est repéré dans le nom affiché des expéditeurs externes.
 - **Dirigeants** : la liste est maintenant remplie automatiquement à partir des entreprises et n'est plus modifiable à la main. Les noms saisis dans les versions précédentes sont repris dans la première entreprise.
 - **Red Flag Domains** passe dans l'onglet Réputation, avec les autres sources externes.
