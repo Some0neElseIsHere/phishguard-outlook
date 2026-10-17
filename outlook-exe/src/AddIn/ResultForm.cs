@@ -219,7 +219,10 @@ namespace PhishGuard.AddIn
         {
             string v = (value ?? "").ToLowerInvariant();
             string cls = v == "pass" ? "ok" : (v == "fail" || v == "softfail" || v == "permerror" || v == "temperror") ? "bad" : v.Length == 0 ? "na" : "mid";
-            return "<span class='ac " + cls + "'><span class='an'>" + H(name) + "</span>" + H(v.Length == 0 ? L.T("absent") : v) + "</span>";
+            string mark = cls == "ok" ? "\u2713" : cls == "bad" ? "\u2717" : "?";
+            string meaning = cls == "ok" ? L.T("vérification réussie") : cls == "bad" ? L.T("vérification en échec") : L.T("pas de résultat");
+            string tip = name + " : " + (v.Length == 0 ? L.T("absent") : v) + " (" + meaning + ")";
+            return "<span class='ac " + cls + "' title='" + H(tip) + "'>" + H(name + " " + mark) + "</span>";
         }
 
         static string Row(string label, string valueHtml)
@@ -249,34 +252,34 @@ namespace PhishGuard.AddIn
             ".tab .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:#eef1f5;color:#5f6b7a;font-size:11px;text-align:center;font-weight:600}" +
             ".tab.on .n{background:#e3effa;color:#0f6cbd}" +
             ".page{padding:60px 18px 18px;max-width:1000px;margin:0 auto}" +
-            ".hero{background:#fff;border:1px solid #e3e7ed;border-radius:12px;padding:18px 20px;overflow:hidden;position:relative}" +
+            ".hero{background:#fff;border:1px solid #e3e7ed;border-radius:12px;padding:12px 16px;overflow:hidden;position:relative}" +
             ".hero:before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px}" +
             ".hero.dangerous{background:#fff7f7}.hero.dangerous:before{background:#c4262e}" +
             ".hero.suspicious{background:#fffaf2}.hero.suspicious:before{background:#c26a00}" +
             ".hero.safe{background:#f6fbf8}.hero.safe:before{background:#13804a}" +
-            ".gauge{float:left;width:96px;height:96px;margin-right:18px;position:relative}" +
-            ".gauge .num{position:absolute;left:0;right:0;top:27px;text-align:center;font-size:28px;font-weight:700;line-height:30px}" +
-            ".gauge .of{position:absolute;left:0;right:0;top:58px;text-align:center;font-size:11px;color:#5f6b7a}" +
+            ".gauge{float:left;width:72px;height:72px;margin-right:16px;position:relative}" +
+            ".gauge .num{position:absolute;left:0;right:0;top:18px;text-align:center;font-size:22px;font-weight:700;line-height:24px}" +
+            ".gauge .of{position:absolute;left:0;right:0;top:42px;text-align:center;font-size:10px;color:#5f6b7a}" +
             ".dangerous .num,.dangerous h1{color:#c4262e}.suspicious .num,.suspicious h1{color:#a85b00}.safe .num,.safe h1{color:#13804a}" +
             ".eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#5f6b7a;margin:6px 0 2px;font-weight:600}" +
-            "h1{font-size:22px;margin:0;line-height:1.25}.advice{margin:6px 0 0;color:#2b3542;font-size:14px}" +
-            ".counts{margin-top:10px}.cnt{display:inline-block;margin:0 6px 4px 0;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:600;background:#fff;border:1px solid #e3e7ed}" +
+            "h1{font-size:19px;margin:0;line-height:1.25}.advice{margin:3px 0 0;color:#2b3542;font-size:13px}" +
+            ".counts{margin-top:6px}.cnt{display:inline-block;margin:0 6px 4px 0;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:600;background:#fff;border:1px solid #e3e7ed}" +
             ".cnt i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:0}" +
             ".card{background:#fff;border:1px solid #e3e7ed;border-radius:12px;padding:14px 16px;margin-top:12px}" +
-            ".msg .who{font-size:15px;font-weight:600}.msg .addr{color:#5f6b7a}.msg .subj{margin-top:6px;font-size:14px}" +
-            ".meta{margin-top:10px;color:#5f6b7a;font-size:12px}.meta span{margin-right:14px;display:inline-block}" +
-            ".auth{margin-top:10px}.ac{display:inline-block;margin:0 6px 4px 0;border-radius:6px;font-size:12px;font-weight:600;padding:2px 8px}" +
-            ".ac .an{font-weight:700;margin-right:6px;opacity:.75}" +
+            ".msg{padding:10px 14px}.msg .row{margin:2px 0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.msg .k{display:inline-block;width:118px;color:#5f6b7a;font-size:12px}" +
+            ".meta{color:#5f6b7a;font-size:12px}.hv{overflow:hidden}" +
+            ".ac{display:inline-block;margin:0 4px 0 0;border-radius:5px;font-size:12px;font-weight:600;padding:1px 7px;line-height:18px;cursor:help}" +
             ".ac.ok{background:#e7f5ee;color:#13804a}.ac.bad{background:#fdeced;color:#c4262e}.ac.mid{background:#fff3e0;color:#a85b00}.ac.na{background:#eef1f5;color:#5f6b7a}" +
-            "h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#5f6b7a;margin:22px 0 8px;font-weight:700}" +
+            "h2{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:#5f6b7a;margin:14px 0 6px;font-weight:700}" +
             "h2 .c{display:inline-block;margin-left:6px;padding:0 6px;border-radius:9px;background:#e7ebf0;color:#5f6b7a;font-size:11px;letter-spacing:0}" +
-            ".f{background:#fff;border:1px solid #e3e7ed;border-left:4px solid #8a95a3;border-radius:10px;padding:10px 14px;margin-bottom:8px}" +
+            ".f{background:#fff;border:1px solid #e3e7ed;border-left:4px solid #8a95a3;border-radius:8px;padding:7px 12px;margin-bottom:6px}" +
+            ".why{display:inline-block;width:16px;height:16px;margin-left:6px;border-radius:50%;background:#e3effa;color:#0f6cbd;font-size:11px;font-weight:700;text-align:center;line-height:16px;cursor:help;vertical-align:1px}" +
             ".f.Critical{border-left-color:#a1141c}.f.High{border-left-color:#d13438}.f.Medium{border-left-color:#d47b00}.f.Low{border-left-color:#8a95a3}" +
             ".pill{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:10px;color:#fff;background:#8a95a3;margin-right:8px;vertical-align:1px}" +
             ".pill.Critical{background:#a1141c}.pill.High{background:#d13438}.pill.Medium{background:#d47b00}.pill.Low{background:#8a95a3}" +
             ".dot.Critical{background:#a1141c}.dot.High{background:#d13438}.dot.Medium{background:#d47b00}.dot.Low{background:#8a95a3}" +
-            ".ft{font-weight:600;font-size:13.5px}.fd{color:#4a5563;margin:4px 0 0}" +
-            ".evs{margin-top:6px}.ev{display:inline-block;max-width:100%;background:#f3f5f8;border:1px solid #e9edf2;border-radius:6px;padding:1px 7px;margin:0 6px 4px 0;font:12px Consolas,'Courier New',monospace;word-wrap:break-word;word-break:break-all}" +
+            ".ft{font-weight:600;font-size:13px}.fd{color:#4a5563;margin:2px 0 0;font-size:12.5px}" +
+            ".evs{margin-top:3px}.ev{display:inline-block;max-width:100%;background:#f3f5f8;border:1px solid #e9edf2;border-radius:6px;padding:1px 7px;margin:0 6px 4px 0;font:12px Consolas,'Courier New',monospace;word-wrap:break-word;word-break:break-all}" +
             ".lesson{margin:8px 0 2px;padding:8px 10px 8px 34px;background:#eef5fc;border-radius:8px;color:#1b3a57;font-size:12.5px;position:relative}" +
             ".lesson .q{position:absolute;left:10px;top:8px;width:16px;height:16px;border-radius:50%;background:#0f6cbd;color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:16px}" +
             ".lesson b{font-weight:600}" +
@@ -321,7 +324,7 @@ namespace PhishGuard.AddIn
             double len = c * Math.Max(0, Math.Min(100, score)) / 100.0;
             string color = level == "dangerous" ? "#c4262e" : level == "suspicious" ? "#d47b00" : "#13804a";
             var ci = System.Globalization.CultureInfo.InvariantCulture;
-            return "<div class='gauge'><svg width='96' height='96' viewBox='0 0 96 96'>"
+            return "<div class='gauge'><svg width='72' height='72' viewBox='0 0 96 96'>"
                 + "<circle cx='48' cy='48' r='40' fill='#fff' stroke='#e7ebf0' stroke-width='8'/>"
                 + "<circle cx='48' cy='48' r='40' fill='none' stroke='" + color + "' stroke-width='8' stroke-linecap='round' "
                 + "stroke-dasharray='" + len.ToString("0.##", ci) + " " + c.ToString("0.##", ci) + "' transform='rotate(-90 48 48)'/>"
@@ -354,7 +357,7 @@ namespace PhishGuard.AddIn
             // ---------------- Résumé ----------------
             sb.Append("<div class='sec' id='s-resume'>");
             sb.Append("<div class='hero " + H(r.Level) + "'>" + Gauge(r.Score, r.Level));
-            sb.Append("<p class='eyebrow'>" + H(L.T("Risque de phishing")) + "</p><h1>" + H(r.LevelLabel) + "</h1><p class='advice'>" + H(r.Advice) + "</p>");
+            sb.Append("<div class='hv'><p class='eyebrow'>" + H(L.T("Risque de phishing")) + "</p><h1>" + H(r.LevelLabel) + "</h1><p class='advice'>" + H(r.Advice) + "</p>");
             if (allVisible.Count > 0)
             {
                 sb.Append("<div class='counts'>");
@@ -365,22 +368,22 @@ namespace PhishGuard.AddIn
                 }
                 sb.Append("</div>");
             }
-            sb.Append("</div>");
+            sb.Append("</div></div>");
 
-            // Carte du message
-            sb.Append("<div class='card msg'><div class='who'>" + H(string.IsNullOrEmpty(e.FromName) ? L.T("(sans nom)") : e.FromName) + "</div>");
-            sb.Append("<div class='addr mono'>" + H(e.FromAddress) + "</div>");
-            sb.Append("<div class='subj'>" + H(string.IsNullOrEmpty(e.Subject) ? L.T("(sans objet)") : e.Subject) + "</div>");
-            sb.Append("<div class='meta'>");
-            if (d.OriginIp.Length > 0)
-                sb.Append("<span>" + H(L.T("IP d’origine")) + " : <span class='mono'>" + H(d.OriginIp) + "</span>" + (d.Country.Length > 0 ? " (" + H(d.Country) + ")" : "") + "</span>");
-            if (nHops > 0) sb.Append("<span>" + H(nHops == 1 ? L.T("1 serveur traversé") : L.F("{0} serveurs traversés", nHops)) + "</span>");
-            if (nUrls > 0) sb.Append("<span>" + H(nUrls == 1 ? L.T("1 lien") : L.F("{0} liens", nUrls)) + "</span>");
-            if (nAtt > 0) sb.Append("<span>" + H(nAtt == 1 ? L.T("1 pièce jointe") : L.F("{0} pièces jointes", nAtt)) + "</span>");
-            sb.Append("</div>");
+            // Carte du message : l'essentiel sur quatre lignes
+            sb.Append("<div class='card msg'>");
+            sb.Append("<div class='row'><span class='k'>" + H(L.T("De")) + "</span><b>" + H(string.IsNullOrEmpty(e.FromName) ? L.T("(sans nom)") : e.FromName)
+                + "</b> <span class='mono muted'>&lt;" + H(e.FromAddress) + "&gt;</span></div>");
+            sb.Append("<div class='row'><span class='k'>" + H(L.T("Objet")) + "</span>" + H(string.IsNullOrEmpty(e.Subject) ? L.T("(sans objet)") : e.Subject) + "</div>");
             if (d.All.Count > 0)
-                sb.Append("<div class='auth'>" + AuthChip("SPF", d.Auth.Spf) + AuthChip("DKIM", d.Auth.Dkim) + AuthChip("DMARC", d.Auth.Dmarc)
-                    + (string.IsNullOrEmpty(d.Auth.CompAuth) ? "" : AuthChip("compauth", d.Auth.CompAuth)) + "</div>");
+                sb.Append("<div class='row'><span class='k'>" + H(L.T("Authentification")) + "</span>" + AuthChip("SPF", d.Auth.Spf) + AuthChip("DKIM", d.Auth.Dkim) + AuthChip("DMARC", d.Auth.Dmarc)
+                    + (string.IsNullOrEmpty(d.Auth.CompAuth) ? "" : AuthChip("Microsoft", d.Auth.CompAuth)) + "</div>");
+            var meta = new List<string>();
+            if (d.OriginIp.Length > 0) meta.Add(H(L.T("IP d’origine")) + " <span class='mono'>" + H(d.OriginIp) + "</span>" + (d.Country.Length > 0 ? " (" + H(d.Country) + ")" : ""));
+            if (nHops > 0) meta.Add(H(nHops == 1 ? L.T("1 serveur traversé") : L.F("{0} serveurs traversés", nHops)));
+            if (nUrls > 0) meta.Add(H(nUrls == 1 ? L.T("1 lien") : L.F("{0} liens", nUrls)));
+            if (nAtt > 0) meta.Add(H(nAtt == 1 ? L.T("1 pièce jointe") : L.F("{0} pièces jointes", nAtt)));
+            if (meta.Count > 0) sb.Append("<div class='row meta'><span class='k'>" + H(L.T("Détails")) + "</span>" + string.Join(" &middot; ", meta.ToArray()) + "</div>");
             sb.Append("</div>");
 
             if (beta.Count > 0)
@@ -399,17 +402,11 @@ namespace PhishGuard.AddIn
                 sb.Append("<h2>" + H(Analyzer.CategoryLabel(cat)) + "<span class='c'>" + list.Count + "</span></h2>");
                 foreach (var f in list) FindingCard(sb, f, showExplanations);
             }
-            if (r.Positives.Count > 0)
-            {
-                sb.Append("<h2>" + H(L.T("Points rassurants")) + "</h2><div class='card'><ul class='list'>");
-                foreach (var p in r.Positives) sb.Append("<li><span class='ic okc'>&#10003;</span>" + H(p) + "</li>");
-                sb.Append("</ul></div>");
-            }
-            InfoList(sb, r.Findings.Where(f => f.Severity == Severity.Info && !Analyzer.IsBetaFinding(f)).ToList(), showExplanations);
             sb.Append("</div>");
 
             // ---------------- En-têtes ----------------
             sb.Append("<div class='sec' id='s-headers'>");
+            InfoList(sb, r.Findings.Where(f => f.Severity == Severity.Info && !Analyzer.IsBetaFinding(f)).ToList(), showExplanations);
             if (d.All.Count == 0)
                 sb.Append(Empty(L.T("Aucun en-tête Internet : message interne, ou envoyé depuis cette boîte.")));
             else
@@ -626,18 +623,16 @@ namespace PhishGuard.AddIn
         static void FindingCard(StringBuilder sb, Finding f, bool showExplanations)
         {
             string sev = f.Severity.ToString();
-            sb.Append("<div class='f " + sev + "'><div><span class='pill " + sev + "'>" + H(Analyzer.SeverityLabel(f.Severity)) + "</span><span class='ft'>" + H(f.Title) + "</span></div>");
+            // Explication pédagogique : au survol du « ? » (gain de place)
+            string lesson = showExplanations ? Lessons.For(f.Id) : null;
+            sb.Append("<div class='f " + sev + "'><div><span class='pill " + sev + "'>" + H(Analyzer.SeverityLabel(f.Severity)) + "</span><span class='ft'>" + H(f.Title) + "</span>"
+                + (lesson != null ? "<span class='why' title='" + H(L.T("Pourquoi c’est important :") + " " + lesson) + "'>?</span>" : "") + "</div>");
             if (!string.IsNullOrEmpty(f.Detail)) sb.Append("<p class='fd'>" + H(f.Detail) + "</p>");
             if (f.Evidence.Count > 0)
             {
                 sb.Append("<div class='evs'>");
                 foreach (var ev in f.Evidence) sb.Append("<span class='ev'>" + H(ev) + "</span>");
                 sb.Append("</div>");
-            }
-            if (showExplanations)
-            {
-                string lesson = Lessons.For(f.Id);
-                if (lesson != null) sb.Append("<div class='lesson'><span class='q'>?</span><b>" + H(L.T("Pourquoi c’est important :")) + "</b> " + H(lesson) + "</div>");
             }
             sb.Append("</div>");
         }

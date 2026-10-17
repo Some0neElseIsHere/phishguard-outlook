@@ -19,6 +19,7 @@ for %%V in (64 32) do (
   reg delete "HKCU\Software\Classes\CLSID\{8B1E4F52-3C7A-4D9E-A1F6-2E5B7C9D0A43}" /f /reg:%%V >nul 2>&1
 )
 reg delete "HKCU\Software\Microsoft\Office\Outlook\Addins\%PROGID%" /f >nul 2>&1
+reg delete "HKCU\Software\Microsoft\Office\Outlook\FormRegions\IPM.Note" /v PhishGuardZone /f >nul 2>&1
 reg delete "HKCU\Software\Microsoft\Office\16.0\Outlook\Resiliency\DoNotDisableAddinList" /v %PROGID% /f >nul 2>&1
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\PhishGuard" /f >nul 2>&1
 echo PhishGuard a ete desinstalle.

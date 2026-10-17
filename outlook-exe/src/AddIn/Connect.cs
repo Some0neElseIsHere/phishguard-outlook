@@ -105,7 +105,7 @@ namespace PhishGuard.AddIn
                 {
                     if (config.AutoAnalyze) CheckSelection();
                     if (!busy) BackgroundTick();
-                    if (!busy) { busy = true; try { BannerTick(); } catch (Exception ex) { Log("Bandeau : " + ex.Message); } finally { busy = false; } }
+                    if (!busy) { busy = true; try { ZoneTick(); BannerTick(); } catch (Exception ex) { Log("Bandeau : " + ex.Message); } finally { busy = false; } }
                 };
                 selectionTimer.Start();
                 Log("Surveillance démarrée (analyse automatique : " + config.AutoAnalyze + ")");
