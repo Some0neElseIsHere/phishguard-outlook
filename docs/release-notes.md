@@ -12,9 +12,10 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **Analyser mon domaine** (Paramètres → Entreprise) : à partir de votre domaine, PhishGuard fait le bilan de la sécurité email (SPF, DKIM, DMARC, BIMI, MTA-STS, services autorisés à envoyer en votre nom, avec quoi corriger), lit le SIREN dans les mentions légales du site pour retrouver les dirigeants, liste les **sosies déjà enregistrés** (environ 170 variantes vérifiées dans le DNS), les certificats récents contenant votre marque et les domaines liés à vos certificats. Un clic les ajoute à la liste de blocage ou aux domaines de l'entreprise.
-- **Surveillance hebdomadaire des sosies** : les sosies de vos domaines apparus depuis la dernière vérification sont bloqués automatiquement (indice Élevé). Ceux qui existaient déjà ne sont jamais bloqués sans votre accord : il peut s'agir d'homonymes légitimes.
-- Recherche des dirigeants par nom ou SIREN, onglet Bêta renommé Réputation (v1.6).
+- **Signalement à la sécurité refait** : le rapport envoyé est maintenant un email HTML lisible : verdict en bandeau, « En bref », chaque point de doute avec sa gravité, son explication et ses preuves, authentification et origine (SPF/DKIM/DMARC, IP, parcours), liens et texte affiché, pièces jointes avec empreintes, observables à copier, preuves de légitimité, et une copie du texte du message d'origine. Toutes les adresses sont désarmées (hxxps://exemple[.]com) : rien n'est cliquable.
+- Le **message d'origine reste joint** (.msg avec tous ses en-têtes) pour l'analyse.
+- **Double confirmation** avant l'envoi, puis envoi direct (si Outlook refuse l'envoi automatique, le message s'ouvre pour être envoyé à la main). Le message n'est déplacé dans Courrier indésirable qu'une fois le signalement parti.
+- v1.7 : Analyser mon domaine et surveillance hebdomadaire des sosies.
 
 ### Points forts
 

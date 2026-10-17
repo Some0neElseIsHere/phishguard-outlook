@@ -39,7 +39,7 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 | **Score permanent** | Un seul bouton dans le ruban : il affiche le verdict et le score (pastille verte, orange ou rouge) du message sélectionné ou ouvert, sans clic. |
 | **Alerte** | Une notification discrète en bas à droite de l'écran pour les messages dangereux (ou suspects, au choix). |
 | **Fenêtre d'enquête** | Jauge de risque, indices classés par gravité, parcours des serveurs en frise ; onglets Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps. Les boutons Signaler et Paramètres sont en bas de cette fenêtre. |
-| **Signaler** | Envoie le message (en pièce jointe) et le rapport complet à l'équipe sécurité, puis le déplace dans Courrier indésirable. |
+| **Signaler** | Après une double confirmation, envoie à l'équipe sécurité un rapport HTML (verdict, points de doute détaillés, authentification et origine, liens désarmés, pièces jointes et empreintes, observables à copier, copie du texte du message) avec le message d'origine joint (.msg avec tous ses en-têtes), puis le déplace dans Courrier indésirable. |
 | **Ce n'est pas du phishing** | Ajoute l'expéditeur ou son domaine aux expéditeurs de confiance (une usurpation reste toujours signalée). |
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
 | **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier. Onglet Entreprise : **Rechercher** retrouve les dirigeants de l'entreprise dans l'[Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) (API publique de l'État, sans clé) et le domaine de votre adresse est proposé comme domaine de l'entreprise. |
