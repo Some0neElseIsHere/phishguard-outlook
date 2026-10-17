@@ -34,7 +34,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 
 | Signalement envoyé à l'équipe sécurité | Assistant de démarrage | Paramètres |
 |---|---|---|
-| <img src="docs/images/signalement.png" alt="Rapport de signalement de phishing en HTML envoyé à l'équipe sécurité" width="280"> | <img src="docs/images/assistant.png" alt="Assistant de premier lancement de PhishGuard" width="280"> | <img src="docs/images/parametres.png" alt="Paramètres de PhishGuard : entreprise, dirigeants, analyse du domaine" width="280"> |
+| <img src="docs/images/signalement.png" alt="Rapport de signalement de phishing en HTML envoyé à l'équipe sécurité" width="280"> | <img src="docs/images/assistant.png" alt="Assistant de premier lancement de PhishGuard" width="280"> | <img src="docs/images/parametres.png" alt="Paramètres de PhishGuard : plusieurs entreprises, dirigeants, domaines, analyse du domaine" width="280"> |
 
 *Captures générées automatiquement par le vrai moteur d'analyse, sur des messages d'exemple fictifs.*
 
