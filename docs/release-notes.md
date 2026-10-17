@@ -12,6 +12,7 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **Adresses automatiques** (noreply@, notifications@…) : le « premier message d'un expéditeur inconnu » n'est plus compté comme un indice quand l'expéditeur est authentifié (simple information).
 - **Clés d'API conservées** : elles sont désormais rangées dans le Gestionnaire d'identification de Windows (chiffrées pour votre compte, jamais en clair sur le disque) et ne sont plus à retaper après une mise à jour. Les clés déjà saisies y sont déplacées automatiquement.
 - Bandeau et zone d'alerte retirés (le score reste dans le ruban, l'alerte en bas à droite reste disponible).
 - Résumé compact, authentification lisible (SPF ✓, DKIM ✓, DMARC ✓), explications au survol.

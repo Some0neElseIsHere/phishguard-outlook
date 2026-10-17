@@ -284,6 +284,8 @@ namespace PhishGuard
             { "DMARC valide pour ", "Valid DMARC for " },
             { "Adresse de retour différente de l’expéditeur", "Return address differs from the sender" },
             { "Courant pour les envois de masse (newsletters), mais à garder en tête si d’autres indices existent.", "Common for bulk mailings (newsletters), but worth keeping in mind if there are other signs." },
+            { "Premier message de cette adresse automatique", "First message from this automated address" },
+            { "Adresse d’envoi automatique authentifiée : ne pas lui avoir écrit est normal.", "Authenticated automated sending address: it is normal never to have written to it." },
             { "Premier message d’un expéditeur inconnu", "First message from an unknown sender" },
             { "Vous n’avez jamais écrit à cette adresse ni à ce domaine.", "You have never written to this address or this domain." },
             { "Nouvelle adresse d’un domaine connu", "New address from a known domain" },
