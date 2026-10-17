@@ -480,21 +480,6 @@ namespace PhishGuard.AddIn
                     }
                     catch (Exception ex) { form.SetStatus(L.T("Signalement impossible : ") + ex.Message); }
                 };
-                form.DeleteRequested += (s, e) =>
-                {
-                    try
-                    {
-                        if (lastMail == null) return;
-                        if (MessageBox.Show(form, L.T("Déplacer ce message dans « Éléments supprimés » ?"), "PhishGuard",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
-                        cache.Remove(KeyOf(lastMail));
-                        ((dynamic)lastMail).Delete();   // va dans Éléments supprimés (récupérable)
-                        lastMail = null;
-                        Log("Message supprimé depuis la fenêtre d'analyse");
-                        form.Hide();
-                    }
-                    catch (Exception ex) { form.SetStatus(L.T("Suppression impossible : ") + ex.Message); }
-                };
                 form.ModeChanged += (s, e) =>
                 {
                     try

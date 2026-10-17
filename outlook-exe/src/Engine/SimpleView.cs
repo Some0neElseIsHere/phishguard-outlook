@@ -31,7 +31,12 @@ namespace PhishGuard
             ".dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:1px}" +
             ".Critical{background:#a1141c}.High{background:#d13438}.Medium{background:#d47b00}.Low{background:#8a95a3}" +
             ".wt{font-weight:600}.wd{color:#4a5563;font-size:13px;margin:2px 0 0 18px}" +
-            ".more{color:#5f6b7a;font-size:12.5px;padding:8px 0 10px;border-top:1px solid #eef1f5}" +
+            ".chip{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:#fff;padding:1px 8px;border-radius:9px;margin-right:8px;vertical-align:1px}" +
+            ".cd{background:#c4262e}.cs{background:#c26a00}" +
+            ".wl{color:#1b3a57;background:#eef5fc;border-radius:8px;font-size:12.5px;margin:6px 0 2px;padding:6px 10px}" +
+            ".evs{margin:4px 0 0}.ev{display:inline-block;max-width:100%;background:#f3f5f8;border:1px solid #e9edf2;border-radius:6px;padding:0 7px;margin:0 6px 4px 0;font:12px Consolas,'Courier New',monospace;word-wrap:break-word;word-break:break-all}" +
+            ".mh{color:#8a95a3;font-size:13px}.minor{padding:0 4px}.mi{color:#8a95a3;font-size:12.5px;padding:2px 0 2px 16px;position:relative}" +
+            ".mi:before{content:'\\2022';position:absolute;left:4px}" +
             ".todo{background:#fff;border:1px solid #e3e7ed;border-radius:12px;padding:8px 18px;counter-reset:n}" +
             ".step{padding:9px 0 9px 38px;position:relative;border-top:1px solid #eef1f5}.step:first-child{border-top:0}" +
             ".step:before{counter-increment:n;content:counter(n);position:absolute;left:0;top:8px;width:26px;height:26px;border-radius:50%;background:#0f6cbd;color:#fff;font-weight:700;text-align:center;line-height:26px;font-size:13px}" +
@@ -54,6 +59,9 @@ namespace PhishGuard
                 case "auth-spf": case "auth-spf-soft": return L.T("Le message vient d’un serveur que l’expéditeur n’a pas autorisé");
                 case "auth-dkim": return L.T("La signature du message est invalide : il a pu être falsifié");
                 case "auth-missing": return L.T("L’identité de l’expéditeur ne peut pas être vérifiée");
+                case "auth-dkim-thirdparty": return L.T("Message envoyé par un prestataire pour le compte de l’expéditeur");
+                case "sender-intel-dmarc-none": return L.T("Le domaine de l’expéditeur ne demande pas de bloquer les usurpations");
+                case "sender-intel-dns-noauth": return L.T("Le domaine de l’expéditeur n’est pas protégé contre l’usurpation");
             }
             return f.Title;
         }
@@ -110,21 +118,35 @@ namespace PhishGuard
                 + H(string.IsNullOrEmpty(e.Subject) ? L.T("(sans objet)") : e.Subject) + "</div>");
             sb.Append("</div></div>");
 
-            // ---- Pourquoi ----
-            var doubts = r.Findings.Where(f => f.Severity >= Severity.Low).OrderByDescending(f => (int)f.Severity).ToList();
-            if (doubts.Count > 0)
+            // ---- Pourquoi : points dangereux et suspects en détail, le reste en gris ----
+            var important = r.Findings.Where(f => f.Severity >= Severity.Medium).OrderByDescending(f => (int)f.Severity).ToList();
+            var minor = r.Findings.Where(f => f.Severity < Severity.Medium).OrderByDescending(f => (int)f.Severity).ToList();
+            if (important.Count > 0)
             {
                 sb.Append("<h2>" + H(L.T("Pourquoi ?")) + "</h2><div class='card'>");
-                foreach (var f in doubts.Take(4))
+                foreach (var f in important)
                 {
-                    sb.Append("<div class='why'><span class='dot " + f.Severity + "'></span><span class='wt'>" + H(PlainTitle(f)) + "</span>");
-                    // Les explications d'authentification sont techniques : le titre simplifié suffit
+                    bool danger = f.Severity >= Severity.High;
+                    sb.Append("<div class='why'><span class='chip " + (danger ? "cd" : "cs") + "'>" + H(danger ? L.T("Dangereux") : L.T("Suspect")) + "</span>"
+                        + "<span class='wt'>" + H(PlainTitle(f)) + "</span>");
+                    // Le détail technique de l'authentification (compauth, SPF…) n'est pas affiché : le titre simplifié suffit
+                    if (f.Category != "auth" && f.Detail.Length > 0) sb.Append("<div class='wd'>" + H(f.Detail) + "</div>");
+                    if (f.Evidence.Count > 0)
+                    {
+                        sb.Append("<div class='evs'>");
+                        foreach (var ev in f.Evidence.Take(4)) sb.Append("<span class='ev'>" + H(ReportHtml.DefangText(ev)) + "</span>");
+                        sb.Append("</div>");
+                    }
                     string lesson = showExplanations && f.Category != "auth" ? Lessons.For(f.Id) : "";
-                    if (!string.IsNullOrEmpty(lesson)) sb.Append("<div class='wd'>" + H(lesson) + "</div>");
+                    if (!string.IsNullOrEmpty(lesson)) sb.Append("<div class='wl'>" + H(lesson) + "</div>");
                     sb.Append("</div>");
                 }
-                if (doubts.Count > 4)
-                    sb.Append("<div class='more'>" + H(L.F("… et {0} autre(s) élément(s), visibles dans l’analyse détaillée.", doubts.Count - 4)) + "</div>");
+                sb.Append("</div>");
+            }
+            if (minor.Count > 0)
+            {
+                sb.Append("<h2 class='mh'>" + H(L.T("Autres informations")) + "</h2><div class='minor'>");
+                foreach (var f in minor) sb.Append("<div class='mi'>" + H(PlainTitle(f)) + "</div>");
                 sb.Append("</div>");
             }
 

@@ -24,7 +24,7 @@ namespace PhishGuard.AddIn
     internal class ResultForm : Form
     {
         readonly WebBrowser browser;
-        readonly Button btnReport, btnClose, btnTrust, btnSettings, btnDelete, btnMode;
+        readonly Button btnReport, btnClose, btnTrust, btnSettings, btnMode;
         readonly Label status;
         AnalysisResult result;
         EmailData email;
@@ -32,7 +32,6 @@ namespace PhishGuard.AddIn
         public event EventHandler ReportRequested;
         public event EventHandler NotPhishingRequested;
         public event EventHandler SettingsRequested;
-        public event EventHandler DeleteRequested;
         /// <summary>L'utilisateur a changé de mode (Expert contient le nouveau mode).</summary>
         public event EventHandler ModeChanged;
 
@@ -80,11 +79,10 @@ namespace PhishGuard.AddIn
 
             btnReport = MakeButton(true);
             btnTrust = MakeButton(false);
-            btnDelete = MakeButton(false);
             btnSettings = MakeButton(false);
             btnMode = MakeButton(false);
             btnClose = MakeButton(false);
-            bar.Controls.AddRange(new Control[] { btnReport, btnDelete, btnTrust, btnMode, btnSettings, btnClose });
+            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnMode, btnSettings, btnClose });
 
             status = new Label
             {
@@ -105,7 +103,6 @@ namespace PhishGuard.AddIn
             btnReport.Click += (s, e) => Raise(ReportRequested);
             btnTrust.Click += (s, e) => Raise(NotPhishingRequested);
             btnSettings.Click += (s, e) => Raise(SettingsRequested);
-            btnDelete.Click += (s, e) => Raise(DeleteRequested);
             btnMode.Click += (s, e) =>
             {
                 Expert = !Expert;
@@ -128,7 +125,6 @@ namespace PhishGuard.AddIn
             btnTrust.Text = L.T("Ce n’est pas du phishing");
             btnSettings.Text = L.T("Paramètres");
             btnClose.Text = L.T("Fermer");
-            btnDelete.Text = L.T("Supprimer le message");
             btnMode.Text = Expert ? L.T("Mode simple") : L.T("Analyse détaillée");
         }
 
@@ -215,7 +211,6 @@ namespace PhishGuard.AddIn
             ApplyTexts();
             btnTrust.Visible = canChangeSettings && r.Level != "safe";
             btnSettings.Visible = canChangeSettings;
-            btnDelete.Visible = !Expert && r.Level != "safe";
             status.Text = Expert ? listStatus : "";
             browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations) : SimpleView.Build(r, e, showExplanations);
             if (!activate) return;
