@@ -1030,8 +1030,8 @@ namespace PhishGuard
                 else { st.State = "ok"; st.Detail = L.F("{0} élément(s) vérifié(s)", c.Checked); }
                 sources.Add(st);
             };
-            string notEnabled = L.T("Désactivé (Paramètres → Bêta)");
-            string noKey = L.T("Pas de clé (Paramètres → Bêta)");
+            string notEnabled = L.T("Désactivé (Paramètres → Réputation)");
+            string noKey = L.T("Pas de clé (Paramètres → Réputation)");
             sources.Add(new SourceStatus
             {
                 Name = "OpenPhish",

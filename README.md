@@ -42,8 +42,8 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 | **Signaler** | Envoie le message (en pièce jointe) et le rapport complet à l'équipe sécurité, puis le déplace dans Courrier indésirable. |
 | **Ce n'est pas du phishing** | Ajoute l'expéditeur ou son domaine aux expéditeurs de confiance (une usurpation reste toujours signalée). |
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
-| **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier. |
-| **Bêta** | Sources externes optionnelles : OpenPhish, Tranco, DNS (MX, SPF, politique DMARC, BIMI avec certificat VMC/CMC), crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Bêta de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
+| **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier. Onglet Entreprise : **Rechercher** retrouve les dirigeants de l'entreprise dans l'[Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) (API publique de l'État, sans clé) et le domaine de votre adresse est proposé comme domaine de l'entreprise. |
+| **Réputation** | Sources externes optionnelles : OpenPhish, Tranco, DNS (MX, SPF, politique DMARC, BIMI avec certificat VMC/CMC), crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Réputation de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
 | **Expéditeur vérifié** | Pastille verte avec une coche quand le message est authentifié pour le domaine affiché (DMARC, DKIM aligné ou compauth Microsoft) **et** vient de quelqu'un avec qui vous êtes déjà en relation (correspondant connu, réponse à l'un de vos messages, expéditeur de confiance), sans aucun indice. Les preuves sont listées dans la fenêtre ; elles ne compensent jamais un indice Élevé ou Critique. |
 | **Français / anglais** | Langue de l'interface au choix, ou automatique selon Windows. |
 
@@ -144,6 +144,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | Contenu, objet, pièces jointes des messages | **Nulle part** : analyse sur le poste |
 | Noms de domaine (âge du domaine) | `rdap.org` puis le registre du domaine (désactivable) |
 | Liste Red Flag Domains | Téléchargée depuis `dl.red.flag.domains` (aucune donnée envoyée) |
+| Nom de l'entreprise (bouton « Rechercher » des paramètres) | `recherche-entreprises.api.gouv.fr`, uniquement au clic |
 | Liens de vérification (VirusTotal…) | Uniquement si vous cliquez, et seulement l'élément vérifié |
 
 Fichiers créés dans `%LOCALAPPDATA%\PhishGuard` : réglages, correspondants (`correspondants.txt`),

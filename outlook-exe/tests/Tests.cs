@@ -476,6 +476,19 @@ namespace PhishGuard.Tests
             Intel.Settings = new IntelSettings();
             Intel.ClearForTests();
 
+            // ---------- Annuaire des Entreprises ----------
+            const string ANNUAIRE = "{\"results\":[{\"siren\":\"111\",\"nom_complet\":\"ACME (FERMEE)\",\"etat_administratif\":\"C\",\"siege\":{\"libelle_commune\":\"LYON\"},\"dirigeants\":[]},"
+                + "{\"siren\":\"123456782\",\"nom_complet\":\"LOREMA\",\"etat_administratif\":\"A\",\"siege\":{\"libelle_commune\":\"FREJUS\"},\"dirigeants\":["
+                + "{\"nom\":\"DUFOURCQ\",\"prenoms\":\"CHARLES AUGUSTIN MARIE\",\"qualite\":\"Gérant\",\"type_dirigeant\":\"personne physique\"},"
+                + "{\"siren\":\"999\",\"denomination\":\"HOLDING X\",\"qualite\":\"Président\",\"type_dirigeant\":\"personne morale\"},"
+                + "{\"nom\":\"GORIN-TRIANA\",\"prenoms\":\"JEAN-PIERRE\",\"type_dirigeant\":\"personne physique\"}]}],\"total_results\":2}";
+            var co = CompanyLookup.Parse(ANNUAIRE);
+            Check("annuaire : entreprises lues", co.Count == 2, co.Count.ToString());
+            Check("annuaire : active en premier", co.Count == 2 && co[0].Name == "LOREMA" && co[0].City == "Frejus" && !co[1].Active);
+            Check("annuaire : dirigeants personnes physiques", co.Count == 2 && co[0].Directors.Count == 2 && co[0].Directors[0] == "Claire Martin"
+                && co[0].Directors[1] == "Jean-Paul Durand-Triana" && co[0].Roles[0] == "Claire Martin (Gérant)", co.Count > 0 ? string.Join(" | ", co[0].Directors.ToArray()) : "");
+            Check("annuaire : réponse vide", CompanyLookup.Parse("{}").Count == 0 && CompanyLookup.Parse("{\"results\":[]}").Count == 0);
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);

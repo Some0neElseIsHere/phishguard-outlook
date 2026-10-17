@@ -59,8 +59,8 @@ namespace PhishGuard
             { "content-form-password", "Aucun service sérieux ne vous demande votre mot de passe dans le corps d’un email." },
             { "content-qrcode", "Le « quishing » : un QR code vous emmène vers un faux site sur votre téléphone, hors de la protection de votre entreprise." },
             { "content-fake-reply", "Un faux « RE: » donne l’impression d’une conversation existante pour gagner votre confiance." },
-            { "links-intel-", "Ce résultat vient d’un service de réputation externe (activé dans l’onglet Bêta des paramètres) : d’autres analystes ou robots ont déjà repéré ce lien ou ce domaine comme dangereux." },
-            { "sender-intel-", "Ce résultat vient d’une vérification externe (DNS, réputation) activée dans l’onglet Bêta des paramètres. Un expéditeur légitime a un domaine réel, configuré pour l’email et sans mauvaise réputation." },
+            { "links-intel-", "Ce résultat vient d’un service de réputation externe (activé dans l’onglet Réputation des paramètres) : d’autres analystes ou robots ont déjà repéré ce lien ou ce domaine comme dangereux." },
+            { "sender-intel-", "Ce résultat vient d’une vérification externe (DNS, réputation) activée dans l’onglet Réputation des paramètres. Un expéditeur légitime a un domaine réel, configuré pour l’email et sans mauvaise réputation." },
             { "att-intel-", "L’empreinte du fichier (pas le fichier lui-même) a été comparée aux bases de logiciels malveillants connus : ce fichier y figure déjà." },
             { "filter-", "Le filtre antispam de votre entreprise ou de votre fournisseur a déjà jugé ce message douteux. Ne l’ignorez pas." },
         };

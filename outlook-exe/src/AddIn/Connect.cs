@@ -358,6 +358,21 @@ namespace PhishGuard.AddIn
             catch (Exception ex) { Log("Icône : " + ex.Message); return null; }
         }
 
+        /// <summary>Domaine de l'adresse SMTP de la boîte Outlook principale ("" si inconnu).</summary>
+        string MailboxDomain()
+        {
+            try
+            {
+                dynamic outlook = application;
+                dynamic entry = outlook.Session.CurrentUser.AddressEntry;
+                string smtp = "";
+                try { dynamic ex = entry.GetExchangeUser(); if (ex != null) smtp = Convert.ToString(ex.PrimarySmtpAddress); } catch (Exception) { }
+                if (string.IsNullOrEmpty(smtp) || !smtp.Contains("@")) smtp = Convert.ToString(entry.Address);
+                return PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(smtp));
+            }
+            catch (Exception) { return ""; }
+        }
+
         /// <summary>Ouvre les paramètres (depuis la fenêtre d'enquête). Renvoie true si l'utilisateur a enregistré.</summary>
         bool OpenSettings(IWin32Window owner)
         {
@@ -367,7 +382,7 @@ namespace PhishGuard.AddIn
                 Icon icon = null;
                 try { var b = LoadBitmap("settings-32.png"); if (b != null) icon = Icon.FromHandle(b.GetHicon()); } catch (Exception) { }
                 bool redFlagBefore = config.RedFlagEnabled;
-                using (var f = new SettingsForm(PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath), icon))
+                using (var f = new SettingsForm(PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath), icon, MailboxDomain()))
                 {
                     if ((owner == null ? f.ShowDialog() : f.ShowDialog(owner)) != DialogResult.OK) return false;
                 }
