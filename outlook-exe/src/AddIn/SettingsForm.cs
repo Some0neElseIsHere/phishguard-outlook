@@ -42,7 +42,7 @@ namespace PhishGuard.AddIn
             Text = L.T("PhishGuard - Paramètres");
             var alertLabels = new[] { L.T("Messages dangereux uniquement"), L.T("Messages suspects et dangereux"), L.T("Aucune alerte") };
             var langLabels = new[] { L.T("Automatique (langue de Windows)"), "Français", "English" };
-            Size = new Size(580, 680);
+            Size = new Size(580, 760);
             MinimumSize = new Size(480, 520);
             StartPosition = FormStartPosition.CenterScreen;
             Font = new Font("Segoe UI", 9f);
