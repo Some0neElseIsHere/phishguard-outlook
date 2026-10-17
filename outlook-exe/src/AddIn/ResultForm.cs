@@ -23,7 +23,7 @@ namespace PhishGuard.AddIn
     internal class ResultForm : Form
     {
         readonly WebBrowser browser;
-        readonly Button btnReport, btnCopy, btnClose, btnTrust, btnSettings;
+        readonly Button btnReport, btnClose, btnTrust, btnSettings;
         readonly Label status;
         AnalysisResult result;
         EmailData email;
@@ -71,10 +71,9 @@ namespace PhishGuard.AddIn
 
             btnReport = MakeButton(true);
             btnTrust = MakeButton(false);
-            btnCopy = MakeButton(false);
             btnSettings = MakeButton(false);
             btnClose = MakeButton(false);
-            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnCopy, btnSettings, btnClose });
+            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnSettings, btnClose });
 
             status = new Label
             {
@@ -92,7 +91,6 @@ namespace PhishGuard.AddIn
             ApplyTexts();
 
             btnClose.Click += (s, e) => Hide();
-            btnCopy.Click += (s, e) => CopyText(result == null ? null : Analyzer.FormatReport(result, email), L.T("Rapport complet copié dans le presse-papiers."));
             btnReport.Click += (s, e) => Raise(ReportRequested);
             btnTrust.Click += (s, e) => Raise(NotPhishingRequested);
             btnSettings.Click += (s, e) => Raise(SettingsRequested);
@@ -110,7 +108,6 @@ namespace PhishGuard.AddIn
             Text = L.T("PhishGuard - Analyse du message");
             btnReport.Text = L.T("Signaler à la sécurité");
             btnTrust.Text = L.T("Ce n’est pas du phishing");
-            btnCopy.Text = L.T("Copier le rapport");
             btnSettings.Text = L.T("Paramètres");
             btnClose.Text = L.T("Fermer");
         }
@@ -131,6 +128,19 @@ namespace PhishGuard.AddIn
             Uri u = e.Url;
             if ((u.Scheme == "https") && Forensics.LookupHosts.Contains(u.Host.ToLowerInvariant()))
             {
+                // Vérificateur sans paramètre d'adresse (ESET) : l'adresse est copiée, l'utilisateur la colle dans la page
+                if (u.Fragment.StartsWith("#" + Forensics.CopyMarker))
+                {
+                    string toCopy = Uri.UnescapeDataString(u.Fragment.Substring(1 + Forensics.CopyMarker.Length));
+                    try
+                    {
+                        Clipboard.SetText(toCopy);
+                        Process.Start(new ProcessStartInfo(u.GetLeftPart(UriPartial.Query)) { UseShellExecute = true });
+                        status.Text = L.F("Adresse copiée : collez-la dans la page {0} (Ctrl+V).", u.Host);
+                    }
+                    catch (Exception ex) { status.Text = L.T("Impossible d’ouvrir le navigateur : ") + ex.Message; }
+                    return;
+                }
                 try { Process.Start(new ProcessStartInfo(u.AbsoluteUri) { UseShellExecute = true }); status.Text = L.T("Ouvert dans le navigateur : ") + u.Host; }
                 catch (Exception ex) { status.Text = L.T("Impossible d’ouvrir le navigateur : ") + ex.Message; }
             }

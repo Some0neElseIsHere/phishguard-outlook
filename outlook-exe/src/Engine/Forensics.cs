@@ -598,13 +598,17 @@ namespace PhishGuard
         // Liens de vérification (ouverts dans le navigateur à la demande)
         // -----------------------------------------------------------------
 
-        public static readonly string[] LookupHosts = { "www.virustotal.com", "www.abuseipdb.com", "talosintelligence.com", "transparencyreport.google.com", "who.is", "mxtoolbox.com" };
+        public static readonly string[] LookupHosts = { "www.virustotal.com", "www.abuseipdb.com", "talosintelligence.com", "www.eset.com", "who.is", "mxtoolbox.com" };
+
+        /// <summary>Fragment ajouté aux liens dont l'adresse à vérifier doit être copiée (pages sans paramètre d'adresse).</summary>
+        public const string CopyMarker = "pg-copy=";
 
         static string Enc(string s) { return Uri.EscapeDataString(s ?? ""); }
 
-        static KeyValuePair<string, string> SafeBrowsing(string target)
+        /// <summary>ESET Link Checker : la page n'accepte pas l'adresse en paramètre, elle est copiée au clic.</summary>
+        static KeyValuePair<string, string> Eset(string target)
         {
-            return new KeyValuePair<string, string>("Google Safe Browsing", "https://transparencyreport.google.com/safe-browsing/search?url=" + Enc(target));
+            return new KeyValuePair<string, string>(L.T("ESET (adresse copiée)"), "https://www.eset.com/fr/link-checker/#" + CopyMarker + Enc(target));
         }
 
         static KeyValuePair<string, string> Talos(string target)
@@ -617,7 +621,7 @@ namespace PhishGuard
         {
             return new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/domain/" + Enc(d)),
-                SafeBrowsing(d),
+                Eset(d),
                 Talos(d),
                 new KeyValuePair<string, string>("WHOIS", "https://who.is/whois/" + Enc(d)) };
         }
@@ -636,7 +640,7 @@ namespace PhishGuard
         {
             return new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/search/" + Enc(Enc(url))),
-                SafeBrowsing(url) };
+                Eset(url) };
         }
 
         public static List<KeyValuePair<string, string>> LookupsForHash(string sha256)
