@@ -355,6 +355,13 @@ namespace PhishGuard.Tests
             Check("ThreatFox : indicateur", tf.Found && tf.Label == "Emotet", tf.Label);
             var ab = Intel.ParseAbuseIpdb("{\"data\":{\"ipAddress\":\"1.2.3.4\",\"abuseConfidenceScore\":87,\"countryCode\":\"RU\",\"totalReports\":41}}");
             Check("AbuseIPDB : score", ab.Malicious == 87 && ab.Total == 41 && ab.Label == "RU");
+            // Coffre de Windows : indisponible sur certains serveurs d'intégration (pas de session interactive)
+            if (Secrets.Set("Test-PhishGuard", "cle-de-test-456"))
+            {
+                Check("coffre Windows : lecture", Secrets.Get("Test-PhishGuard") == "cle-de-test-456");
+                Secrets.Set("Test-PhishGuard", "");
+                Check("coffre Windows : suppression", Secrets.Get("Test-PhishGuard") == "");
+            }
             Check("clé chiffrée (DPAPI)", PhishGuardConfig.Unprotect(PhishGuardConfig.Protect("cle-secrete-123")) == "cle-secrete-123" && PhishGuardConfig.Protect("abc").StartsWith("dpapi:"));
 
             // ---------- Sources externes (bêta) : listes et résultats dans l'analyse ----------

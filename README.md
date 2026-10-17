@@ -37,14 +37,13 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 | | |
 |---|---|
 | **Score permanent** | Un seul bouton dans le ruban : il affiche le verdict et le score (pastille verte, orange ou rouge) du message sélectionné ou ouvert, sans clic. |
-| **Zone d'alerte** | Pour les messages dangereux uniquement : une zone rouge dans l'en-tête du message (sous l'expéditeur) avec le score, les principaux indices et les boutons Détails et Signaler. |
 | **Alerte** | Une notification discrète en bas à droite de l'écran pour les messages dangereux (ou suspects, au choix). |
 | **Fenêtre d'enquête** | Jauge de risque, indices classés par gravité, parcours des serveurs en frise ; onglets Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps. Les boutons Signaler et Paramètres sont en bas de cette fenêtre. |
 | **Signaler** | Envoie le message (en pièce jointe) et le rapport complet à l'équipe sécurité, puis le déplace dans Courrier indésirable. |
 | **Ce n'est pas du phishing** | Ajoute l'expéditeur ou son domaine aux expéditeurs de confiance (une usurpation reste toujours signalée). |
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
 | **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier. |
-| **Bêta** | Sources externes optionnelles : OpenPhish, Tranco, DNS, crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Bêta de la fenêtre. |
+| **Bêta** | Sources externes optionnelles : OpenPhish, Tranco, DNS, crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Bêta de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
 | **Français / anglais** | Langue de l'interface au choix, ou automatique selon Windows. |
 
 ### Contrôles effectués
@@ -109,7 +108,6 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `CompanyName`, `CompanyDomains` | Votre entreprise ; ses sosies sont classés critiques | — |
 | `VipNames` | Dirigeants et personnes sensibles (fraude au président) | — |
 | `ReportAddress` | Adresse de l'équipe sécurité pour **Signaler** | — |
-| `ShowBanner` | Zone d'alerte dans l'en-tête des messages dangereux | `true` |
 | `Language` | `auto` (langue de Windows), `fr` ou `en` | `auto` |
 | `TrustedDomains`, `TrustedSenders` | Domaines et adresses de confiance | — |
 | `AutoAnalyze` | Score automatique du message sélectionné | `true` |
@@ -126,19 +124,6 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `AllowUserSettings` | Bouton Paramètres de la fenêtre d'analyse ; `false` impose `config.ini` à tous | `true` |
 
 ---
-
-## Zone d'alerte dans l'en-tête (zone.ofs)
-
-Outlook n'affiche une zone dans l'en-tête des messages qu'à partir d'une mise en page créée avec son concepteur
-de formulaires. À faire une seule fois :
-
-1. Fichier → Options → Personnaliser le ruban → cocher **Développeur**.
-2. Onglet Développeur → **Créer un formulaire** → **Message** → Ouvrir.
-3. Onglet Développeur → **Zone de formulaire** → **Nouvelle zone de formulaire** (laisser vide ; réduire sa hauteur à environ 2 cm).
-4. **Zone de formulaire** → **Enregistrer la zone de formulaire sous…** → `zone.ofs` dans `%LOCALAPPDATA%\PhishGuard`.
-5. Fermer le formulaire sans l'enregistrer, puis redémarrer Outlook.
-
-Sans ce fichier, PhishGuard affiche un bandeau en haut de la fenêtre pour les messages dangereux.
 
 ## Déploiement en entreprise
 

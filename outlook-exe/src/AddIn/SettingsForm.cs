@@ -17,7 +17,7 @@ namespace PhishGuard.AddIn
         readonly PhishGuardConfig cfg;
         readonly TextBox txtCompany, txtDomains, txtReport, txtVips, txtTrusted, txtCustom, txtTrustedSenders, txtShared;
         readonly CheckBox chkAuto, chkRedFlag, chkExplain, chkCorr, chkAge, chkTag, chkMove, chkLog;
-        readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert, chkBanner;
+        readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert;
         readonly TextBox txtVt, txtAbuseCh, txtAbuseIpdb;
         readonly Label lblBeta;
         readonly ComboBox cboAlert, cboLang;
@@ -94,8 +94,6 @@ namespace PhishGuard.AddIn
                 L.F("Utilise les adresses de vos éléments envoyés et de vos contacts ({0} connues), sans rien envoyer à l’extérieur.", Correspondents.Count));
             chkAge = AddCheck(pAnalyse, ref y, L.T("Vérifier l’âge des domaines (RDAP)"), cfg.DomainAgeLookup,
                 L.T("Envoie uniquement le nom du domaine à rdap.org et au registre concerné, jamais le contenu des messages."));
-            chkBanner = AddCheck(pAnalyse, ref y, L.T("Afficher une zone d’alerte dans l’en-tête des messages dangereux"), cfg.ShowBanner,
-                L.T("Score, verdict et principaux indices juste sous l’expéditeur, avec les boutons Détails et Signaler."));
             chkTag = AddCheck(pAnalyse, ref y, L.T("Marquer les messages suspects d’une couleur dans l’en-tête et la liste (catégorie Outlook)"), cfg.TagCategory,
                 L.T("Ajoute une catégorie au message : bande de couleur dans son en-tête et dans la liste des messages."));
             chkMove = AddCheck(pAnalyse, ref y, L.T("Déplacer le message dans « Courrier indésirable » après l’avoir signalé"), cfg.MoveAfterReport, null);
@@ -143,7 +141,9 @@ namespace PhishGuard.AddIn
                 L.T("Envoie le nom du domaine à crt.sh (journaux publics des certificats)."));
             y += 6;
             pBeta.Controls.Add(new Label { Text = L.T("Avec une clé gratuite (laisser vide pour désactiver)"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
-            y += 24;
+            y += 22;
+            AddHint(pBeta, ref y, L.T("Les clés sont rangées dans le Gestionnaire d’identification de Windows : chiffrées pour votre compte, jamais écrites en clair, et conservées lors des mises à jour."));
+            y += 14;
             txtVt = AddKey(pBeta, ref y, "VirusTotal", cfg.VirusTotalKey, "https://www.virustotal.com/gui/join-us",
                 L.T("Réputation des pièces jointes (empreinte SHA-256 seulement, le fichier n’est jamais envoyé). Version gratuite : 4 requêtes par minute."));
             txtAbuseCh = AddKey(pBeta, ref y, "abuse.ch (URLhaus + ThreatFox)", cfg.AbuseChKey, "https://auth.abuse.ch/",
@@ -290,7 +290,6 @@ namespace PhishGuard.AddIn
             cfg.KnownCorrespondents = chkCorr.Checked;
             cfg.DomainAgeLookup = chkAge.Checked;
             cfg.TagCategory = chkTag.Checked;
-            cfg.ShowBanner = chkBanner.Checked;
             cfg.MoveAfterReport = chkMove.Checked;
             cfg.ScoreLog = chkLog.Checked;
             cfg.TrustedSenders = Lines(txtTrustedSenders, true).Where(x => x.Contains("@")).ToList();
