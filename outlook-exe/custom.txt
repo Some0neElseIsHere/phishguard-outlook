@@ -1,5 +1,6 @@
 # Liste interne de domaines malveillants (gérée par l'équipe sécurité).
 # Un domaine par ligne ; les sous-domaines sont couverts automatiquement.
-# Chaque utilisateur peut aussi ajouter ses domaines dans %LOCALAPPDATA%\PhishGuard\custom.txt
+# Chaque utilisateur peut aussi ajouter les siens depuis Outlook (Paramètres → Listes),
+# enregistrés dans %LOCALAPPDATA%\PhishGuard\custom.user.txt.
 #
 # exemple-de-domaine-frauduleux.fr

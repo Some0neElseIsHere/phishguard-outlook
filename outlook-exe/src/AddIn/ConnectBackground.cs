@@ -47,8 +47,23 @@ namespace PhishGuard.AddIn
             catch (Exception ex) { Log("Mise à jour de la fenêtre : " + ex.Message); }
         }
 
+        bool sessionReady;      // Outlook a fini de démarrer : la session (adresse de la boîte) est disponible
+
+        /// <summary>Sans domaine d'entreprise configuré, celui de l'adresse Outlook est utilisé (non enregistré).</summary>
+        void CompleteConfig()
+        {
+            if (!sessionReady || config.CompanyDomains.Count > 0) return;
+            string d = MailboxDomain();
+            if (d.Length > 0 && !Lists.FreemailDomains.Contains(d))
+            {
+                config.CompanyDomains.Add(d);
+                Log("Domaine de l'entreprise déduit de l'adresse Outlook : " + d);
+            }
+        }
+
         void ApplyRuntimeSettings()
         {
+            CompleteConfig();
             L.SetLanguage(config.Language);
             DomainAge.Enabled = config.DomainAgeLookup;
             Intel.Settings = new IntelSettings
@@ -344,6 +359,7 @@ namespace PhishGuard.AddIn
             else { if (!cfg.TrustedSenders.Contains(addr)) cfg.TrustedSenders.Add(addr); }
             cfg.SaveUser(UserConfigPath);
             config = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
+            CompleteConfig();
             cache.Clear(); cacheOrder.Clear();
             lastSelectionKey = "\u0001";
             Log("Ajouté aux expéditeurs de confiance : " + (choice == DialogResult.Yes ? domain : addr));

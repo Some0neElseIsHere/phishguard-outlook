@@ -1,95 +1,73 @@
-# PhishGuard pour Outlook — version installable (.exe)
+# PhishGuard pour Outlook — notice d'installation
 
-Complément « COM » pour **Outlook classique sous Windows** (comme le plugin FortiMail).
-Il ajoute dans le ruban un bouton qui affiche le score du message, et une entrée
-« Analyser avec PhishGuard » dans le menu clic droit d'un email. Le signalement et les
-paramètres sont dans la fenêtre d'analyse (clic sur le score). Interface en français ou en anglais.
+Complément « COM » pour **Outlook classique sous Windows**. Il affiche dans le ruban le score de risque
+du message sélectionné ou ouvert, alerte en cas de danger, et ouvre sur demande une fenêtre d'enquête
+détaillée. Il ajoute aussi « Analyser avec PhishGuard » au menu clic droit d'un email.
+Interface en français ou en anglais.
 
-- Aucun droit administrateur : installation dans le profil de l'utilisateur.
+- Aucun droit administrateur : installation dans le profil de l'utilisateur (`%LOCALAPPDATA%\PhishGuard`).
 - Aucun serveur, aucun certificat, aucune fenêtre à laisser ouverte.
-- Fonctionne avec Exchange interne : les en-têtes SPF/DKIM/DMARC sont lus directement dans le message.
-- Liste **Red Flag Domains** téléchargée une fois par jour au démarrage d'Outlook (proxy et certificats Windows).
+- Le contenu des messages est analysé sur le poste et n'en sort jamais.
 
-## 1. Configurer
+Documentation complète : <https://github.com/Some0neElseIsHere/phishguard-outlook>
 
-Ouvrez `config.ini` avec le Bloc-notes :
+## 1. Configurer (facultatif)
+
+Les réglages se font **depuis Outlook** après l'installation. Pour imposer des valeurs à toute
+l'entreprise, ouvrez `config.ini` avec le Bloc-notes **avant** d'installer :
 
 | Clé | Rôle |
 |---|---|
-| `CompanyName` | Nom de l'entreprise |
-| `CompanyDomains` | Vos domaines (protégés contre les sosies, niveau critique) |
+| `CompanyName`, `CompanyDomains` | Votre entreprise et ses domaines (leurs sosies sont classés critiques) |
 | `VipNames` | Dirigeants et personnes sensibles (fraude au président) |
-| `TrustedDomains` | Partenaires de confiance |
-| `ReportAddress` | Adresse de l'équipe sécurité (bouton **Signaler** de la fenêtre d'analyse) |
+| `TrustedDomains`, `TrustedSenders` | Partenaires et adresses de confiance |
+| `ReportAddress` | Adresse de l'équipe sécurité (bouton **Signaler à la sécurité**) |
 | `Language` | `auto` (langue de Windows), `fr` ou `en` |
 | `RedFlagEnabled` | `true` / `false` pour la liste Red Flag Domains |
+| `WatchDomains` | Surveillance hebdomadaire des sosies de vos domaines |
+| `AllowUserSettings` | `false` : configuration imposée, le bouton Paramètres disparaît |
 
-La liste interne de domaines malveillants est dans `custom.txt` (un domaine par ligne).
+Les autres clés sont décrites dans `config.ini`. La liste de domaines malveillants de l'équipe sécurité
+est dans `custom.txt` (un domaine par ligne).
 
-## 2. Construire l'installeur (une fois)
+## 2. Installer
 
-Double-cliquez sur **`construire.bat`**. Il utilise le compilateur C# fourni avec Windows
-(.NET Framework 4), donc rien à installer :
-
-1. compile et lance les tests du moteur d'analyse ;
-2. compile `PhishGuard.dll` ;
-3. fabrique l'installeur **`build\PhishGuard-Outlook.exe`** (programme C# qui contient tous les fichiers).
-
-Si une étape échoue, la fenêtre affiche l'erreur : copiez-la pour correction.
-
-## 3. Installer
-
-Fermez Outlook, puis double-cliquez sur **`build\PhishGuard-Outlook.exe`**.
-Windows peut afficher « Windows a protégé votre ordinateur » (fichier non signé) :
-**Informations complémentaires → Exécuter quand même**.
-
-Si l'exe ne peut pas être créé ou lancé, la même installation est possible avec
-`build\package\installer.cmd`.
+1. Fermez Outlook.
+2. Double-cliquez sur **`installer.cmd`**.
+3. Rouvrez Outlook : le score PhishGuard apparaît dans l'onglet Accueil.
 
 Déploiement silencieux (script de connexion, GPO) : `installer.cmd /quiet`.
+Une version déjà installée est mise à jour ; les réglages de l'utilisateur sont conservés.
 
-## 4. Utiliser
+## 3. Utiliser
 
-Dès qu'un email est sélectionné ou ouvert, le bouton PhishGuard du ruban (onglet Accueil, ou ruban
-du message ouvert) affiche **le score et le verdict**, avec une pastille verte, orange ou rouge.
-Le survol du bouton montre les principaux indices ; un clic ouvre la fenêtre d'enquête détaillée
-(en-têtes, parcours, URL, pièces jointes, observables...).
+- **Le bouton du ruban** affiche le verdict et le score (pastille verte, orange ou rouge), ou
+  « Expéditeur vérifié » avec une coche. Le survol montre les principaux indices ; un clic ouvre la fenêtre d'enquête.
+- **Alerte** en bas à droite de l'écran pour les messages dangereux (cliquez dessus pour le détail).
+- **Signaler à la sécurité** (en bas de la fenêtre d'enquête) : après une double confirmation, envoie à
+  l'équipe sécurité un rapport HTML détaillé avec le message d'origine joint, puis déplace le message
+  dans Courrier indésirable (désactivable). Si l'adresse n'est pas configurée, PhishGuard propose de l'indiquer.
+- **Ce n'est pas du phishing** : ajoute l'expéditeur ou son domaine aux expéditeurs de confiance.
+  Un échec d'authentification (usurpation) reste toujours signalé.
+- **Paramètres** (en bas de la fenêtre d'enquête) :
+  - *Entreprise* : nom, domaines, dirigeants (bouton **Rechercher…** dans l'Annuaire des Entreprises),
+    adresse de l'équipe sécurité, **Analyser mon domaine…** (sécurité email, sosies enregistrés) ;
+  - *Analyse* : langue, analyse automatique, alertes, explications, correspondants, âge des domaines ;
+  - *Listes* : domaines et expéditeurs de confiance, domaines à bloquer, liste partagée, Red Flag Domains ;
+  - *Réputation* : sources externes optionnelles (OpenPhish, Tranco, DNS, crt.sh, VirusTotal, abuse.ch, AbuseIPDB).
+    Les clés d'API sont rangées dans le Gestionnaire d'identification de Windows.
 
-Pour un message dangereux, une alerte apparaît en bas à droite de l'écran (cliquez dessus pour le détail).
-
-**Paramètres** (en bas de la fenêtre d'analyse) : langue, domaines de l'entreprise, dirigeants, adresse de signalement,
-analyse automatique, niveau d'alerte, domaines de confiance, domaines à bloquer, liste Red Flag Domains.
-Les réglages sont propres à chaque utilisateur (`%LOCALAPPDATA%\PhishGuard\config.user.ini` et
-`custom.user.txt`) et survivent aux réinstallations. Pour imposer la configuration de `config.ini`
-à tous, mettez `AllowUserSettings = false` : le bouton disparaît.
-
-**Signaler à la sécurité** (en bas de la fenêtre d'analyse) prépare un email vers l'équipe sécurité avec le message suspect en pièce
-jointe et le rapport complet, puis déplace le message dans Courrier indésirable (désactivable).
-Si l'adresse de l'équipe sécurité n'est pas encore configurée, PhishGuard propose de l'indiquer.
-
-**Ce n'est pas du phishing** (fenêtre d'enquête) ajoute l'expéditeur ou son domaine aux expéditeurs de
-confiance. Un échec d'authentification (usurpation) reste toujours signalé.
-
-### Contrôles
-
-| Contrôle | Détail |
-|---|---|
-| Authentification | SPF, DKIM, DMARC, compauth ; lecture d'ARC-Authentication-Results écrit par votre propre serveur |
-| Filtres de messagerie | Objet marqué « SPAM »/« PHISHING », en-têtes Exchange (SCL), SpamAssassin, Orange, FortiMail (meilleur effort) |
-| Expéditeur | Domaines sosies (marques, votre entreprise, **vos correspondants**), **premier contact**, **âge du domaine**, nom affiché trompeur, Reply-To, dirigeants |
-| Liens | Sosies, listes de blocage, texte trompeur, redirections, raccourcisseurs, hébergeurs détournés, âge des domaines, liens contenus dans les PDF et pièces jointes HTML |
-| Pièces jointes | Extension, type réel, empreintes, **contenu** : programmes dans un ZIP, archive chiffrée, macros (même cachées dans un .docx), JavaScript dans un PDF, fausse page de connexion HTML, objet RTF |
-| Contenu | Urgence, identifiants, demande financière, **IBAN** (et changement de RIB), discrétion, QR code, faux « RE: » |
-
-### Fichiers créés sur le poste (`%LOCALAPPDATA%\PhishGuard`)
+## Fichiers créés sur le poste (`%LOCALAPPDATA%\PhishGuard`)
 
 | Fichier | Contenu |
 |---|---|
 | `config.user.ini`, `custom.user.txt` | Réglages et domaines bloqués par l'utilisateur |
-| `correspondants.txt` | Adresses de vos correspondants (éléments envoyés + contacts), recalculées chaque jour |
+| `correspondants.txt` | Adresses de vos correspondants (éléments envoyés et contacts), recalculées chaque jour |
+| `fils.txt` | Identifiants de vos messages envoyés et domaines de leurs destinataires (détection des réponses et des détournements de fil) |
+| `surveillance.txt` | Sosies de vos domaines déjà vus, et ceux bloqués par la surveillance |
 | `domaines-age.txt` | Dates de création des domaines déjà vérifiés |
-| `redflagdomains.txt` | Liste Red Flag Domains |
-| `scores.csv` | Journal des scores (si activé) |
+| `redflagdomains.txt`, `openphish.txt`, `tranco.txt` | Listes téléchargées |
+| `scores.csv` | Journal des scores (si activé ; ni objet ni contenu) |
 | `phishguard.log` | Journal technique |
 
 ## Désinstaller
@@ -101,23 +79,10 @@ ou `%LOCALAPPDATA%\PhishGuard\desinstaller.cmd`.
 
 | Symptôme | Cause probable |
 |---|---|
-| Les boutons n'apparaissent pas | Outlook → Fichier → Options → Compléments → en bas « Gérer : Compléments COM » → **Atteindre** : cocher PhishGuard. S'il est dans « Éléments désactivés », le réactiver. |
+| Le bouton n'apparaît pas | Outlook → Fichier → Options → Compléments → en bas « Gérer : Compléments COM » → **Atteindre** : cocher PhishGuard. S'il est dans « Éléments désactivés », le réactiver. |
 | PhishGuard est décoché à chaque démarrage | Une stratégie de groupe n'autorise que certains compléments, ou exige des compléments signés : voir le service informatique. |
-| L'exe est bloqué ou supprimé | Antivirus / EDR / AppLocker : utiliser `build\package\installer.cmd`, ou faire autoriser l'exe par le service informatique (fichier non signé). |
-| `construire.bat` : « Windows refuse de lancer le compilateur » | Le compilateur C# est bloqué sur ce poste : lancer la construction sur un poste où il est autorisé, puis copier le dossier `build`. |
+| `installer.cmd` est bloqué | Antivirus / EDR / AppLocker : faire autoriser le dossier par le service informatique. |
 | « Liste Red Flag Domains non chargée » | Le proxy bloque `dl.red.flag.domains` ; l'analyse fonctionne sans la liste. |
+| Le signalement s'ouvre au lieu de partir | Outlook a refusé l'envoi automatique : cliquez sur Envoyer. |
 
 Journal d'erreurs : `%LOCALAPPDATA%\PhishGuard\phishguard.log`.
-
-## Structure
-
-```
-config.ini, custom.txt       Configuration (intégrée à l'installeur)
-construire.bat               Compilation + tests + création de l'exe
-src\Engine\                  Moteur d'analyse (portage C# du moteur JavaScript)
-  Lists.cs                   Généré depuis ..\src\engine\lists.js (tools\gen-lists.mjs)
-src\AddIn\                   Complément Outlook : ruban, lecture du message, fenêtre, signalement
-tests\Tests.cs               Tests lancés à chaque construction
-installer\                   Installation / désinstallation par utilisateur (copy + reg, sans PowerShell)
-installer\Setup.cs           Installeur .exe (installer, /quiet, /uninstall)
-```
