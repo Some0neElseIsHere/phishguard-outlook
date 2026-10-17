@@ -1,5 +1,6 @@
 # Compile le complément Outlook avec le compilateur C# fourni par Windows (.NET Framework 4),
-# lance les tests, puis publie une release GitHub quand un tag "v*" est poussé.
+# lance les tests, puis publie une release GitHub quand un tag "v*" est poussé
+# ou quand le workflow est lancé à la main avec un numéro de version.
 
 name: Construction et release
 

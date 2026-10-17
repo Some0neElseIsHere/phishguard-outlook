@@ -190,7 +190,7 @@ namespace PhishGuard.AddIn
             lblStatus.Text = L.F("Terminé : {0} problème(s), {1} point(s) à améliorer, {2} domaine(s) suspect(s).", bad, warn, susp);
 
             // Point de départ de la surveillance hebdomadaire
-            try { DomainAudit.RecordBaseline(r.Lookalikes); } catch (Exception) { }
+            try { DomainAudit.RecordBaseline(r.Domain, r.Lookalikes); } catch (Exception) { }
         }
 
         void ApplyBlock()

@@ -64,13 +64,15 @@ namespace PhishGuard.AddIn
                 Blocklists.Init(config, InstallDir);
                 Log("Configuration chargée, listes : " + Blocklists.RedFlagCount + " domaines en cache, analyse auto : " + config.AutoAnalyze);
                 // Chargé après le démarrage d'Outlook (activé à la main) : OnStartupComplete ne sera pas appelé
-                if (ConnectMode == ext_ConnectMode.ext_cm_AfterStartup) StartWatching();
+                if (ConnectMode == ext_ConnectMode.ext_cm_AfterStartup) { sessionReady = true; CompleteConfig(); StartWatching(); }
             }
             catch (Exception ex) { Log("Démarrage : " + ex); }
         }
 
         public void OnStartupComplete(ref Array custom)
         {
+            sessionReady = true;
+            CompleteConfig();
             StartWatching();
         }
 

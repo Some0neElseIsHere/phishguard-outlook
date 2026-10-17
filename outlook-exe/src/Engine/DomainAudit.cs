@@ -620,13 +620,14 @@ namespace PhishGuard
         }
 
         /// <summary>Enregistre le résultat d'une analyse manuelle comme point de départ de la surveillance.</summary>
-        public static void RecordBaseline(IEnumerable<FoundDomain> lookalikes)
+        public static void RecordBaseline(string domain, IEnumerable<FoundDomain> lookalikes)
         {
             var map = LoadWatch();
+            string org = Domains.RegistrableDomain(domain);
+            if (org.Length > 0 && !map.ContainsKey("*:" + org)) map["*:" + org] = new WatchEntry { Domain = "*:" + org, Status = "check", Date = DateTime.Today };
             foreach (var f in lookalikes)
                 if (!map.ContainsKey(f.Domain))
                     map[f.Domain] = new WatchEntry { Domain = f.Domain, Status = f.LikelyOwned ? "owned" : "baseline", Date = DateTime.Today, Detail = f.Technique };
-            if (!map.ContainsKey("*")) map["*"] = new WatchEntry { Domain = "*", Status = "check", Date = DateTime.Today };
             SaveWatch(map);
         }
 
@@ -647,10 +648,13 @@ namespace PhishGuard
         {
             var orgs = companyDomains.Select(Domains.RegistrableDomain).Where(x => x.Length > 0).Distinct().Take(3).ToList();
             var map = LoadWatch();
-            bool first = !map.ContainsKey("*");
             var added = new List<string>();
             foreach (var org in orgs)
             {
+                // Premier passage pour ce domaine (sosies) ou pour la recherche de certificats : simple point de référence
+                bool first = !map.ContainsKey("*:" + org);
+                bool firstCrt = !map.ContainsKey("*crt:" + org);
+                map["*:" + org] = new WatchEntry { Domain = "*:" + org, Status = "check", Date = DateTime.Today };
                 foreach (var f in ScanLookalikes(org, null))
                 {
                     if (map.ContainsKey(f.Domain) || orgs.Contains(f.Domain)) continue;
@@ -666,9 +670,10 @@ namespace PhishGuard
                         foreach (var f in BrandCertsOnline(brand, orgs, DateTime.UtcNow.AddDays(-10)))
                         {
                             if (map.ContainsKey(f.Domain) || isKnown(f.Domain)) continue;
-                            map[f.Domain] = new WatchEntry { Domain = f.Domain, Status = first ? "baseline" : "cert", Date = DateTime.Today, Detail = L.F("certificat {0}", f.Technique) };
-                            if (!first) added.Add(f.Domain);
+                            map[f.Domain] = new WatchEntry { Domain = f.Domain, Status = firstCrt ? "baseline" : "cert", Date = DateTime.Today, Detail = L.F("certificat {0}", f.Technique) };
+                            if (!firstCrt) added.Add(f.Domain);
                         }
+                        map["*crt:" + org] = new WatchEntry { Domain = "*crt:" + org, Status = "check", Date = DateTime.Today };
                     }
                     catch (Exception ex) { LastWatchError = "crt.sh : " + ex.Message; }
                 }

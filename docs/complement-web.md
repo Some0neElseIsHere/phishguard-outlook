@@ -1,4 +1,8 @@
-# PhishGuard — complément Outlook anti-phishing
+# PhishGuard — version « complément web » (Office.js)
+
+> Version expérimentale pour le nouvel Outlook et Outlook sur le web. Pour Outlook classique sous Windows,
+> utilisez le complément COM décrit dans le [README](../README.md) : il est plus complet (âge des domaines,
+> correspondants, sources de réputation, analyse de votre domaine, signalement HTML…).
 
 Un bouton **Analyser** dans Outlook ouvre un panneau qui donne un verdict (sûr / suspect / dangereux),
 un score sur 100 et la liste des indices trouvés. Tout est calculé **localement** dans le panneau :

@@ -151,7 +151,7 @@ namespace PhishGuard.AddIn
             pLists.Controls.Add(btnUpdate);
             tabs.TabPages.Add(pLists);
 
-            // ---------------- Bêta ----------------
+            // ---------------- Réputation ----------------
             var pBeta = Page(L.T("Réputation"));
             y = 12;
             AddHint(pBeta, ref y, L.T("Sources de réputation externes. Elles n’envoient jamais le contenu des messages : seulement des noms de domaine, des adresses de liens, des empreintes de fichiers ou une adresse IP."));
@@ -162,7 +162,7 @@ namespace PhishGuard.AddIn
                 L.T("Téléchargée toutes les 12 h depuis openphish.com ; la comparaison des liens se fait sur votre poste."));
             chkTranco = AddCheck(pBeta, ref y, L.T("Classement Tranco des sites les plus visités"), cfg.BetaTranco,
                 L.T("Téléchargé chaque semaine (environ 10 Mo) : reconnaît les domaines très fréquentés et réduit les faux positifs."));
-            chkDns = AddCheck(pBeta, ref y, L.T("Vérifier le domaine de l’expéditeur dans le DNS (existence, MX, SPF, DMARC)"), cfg.BetaDnsChecks,
+            chkDns = AddCheck(pBeta, ref y, L.T("Vérifier le domaine de l’expéditeur dans le DNS (existence, MX, SPF, DMARC, BIMI)"), cfg.BetaDnsChecks,
                 L.T("Utilise le serveur DNS de votre entreprise, comme une navigation normale."));
             chkCert = AddCheck(pBeta, ref y, L.T("Âge du premier certificat HTTPS des domaines (crt.sh)"), cfg.BetaCertAge,
                 L.T("Envoie le nom du domaine à crt.sh (journaux publics des certificats)."));
