@@ -361,7 +361,7 @@ namespace PhishGuard.AddIn
                 + "</svg><div class='num'>" + score + "</div><div class='of'>/ 100</div></div>";
         }
 
-        static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations)
+        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations)
         {
             var d = r.Details ?? new HeaderDetails();
             var sb = new StringBuilder();
