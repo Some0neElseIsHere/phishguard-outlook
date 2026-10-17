@@ -659,7 +659,7 @@ namespace PhishGuard.Tests
             Check("wikidata : recherche", wdIds.Count == 2 && wdIds[0] == "Q2311");
             Check("wikidata : dirigeants actuels seulement", CompanyLookup.ReferencedIds(WD_ENT).Contains("Q100") && !CompanyLookup.ReferencedIds(WD_ENT).Contains("Q101"));
             var wdRes = CompanyLookup.ParseWikidata(wdIds, WD_ENT, WD_LAB, "fr");
-            Check("wikidata : entreprise, pays, site, dirigeant", wdRes.Count == 1 && wdRes[0].Name == "Airbus" && wdRes[0].Country == "France" && wdRes[0].Website == "airbus.com"
+            Check("wikidata : entreprise, pays, site, dirigeant (fiche renseignée en premier)", wdRes.Count == 2 && wdRes[1].Name == "Airbus (homonyme)" && wdRes[0].Name == "Airbus" && wdRes[0].Country == "France" && wdRes[0].Website == "airbus.com"
                 && wdRes[0].Directors.Count == 1 && wdRes[0].Directors[0] == "Guillaume Faury", wdRes.Count > 0 ? wdRes[0].Name + "|" + wdRes[0].Country + "|" + wdRes[0].Website + "|" + string.Join(",", wdRes[0].Directors.ToArray()) : "aucun");
 
             // ---------- Langue anglaise ----------

@@ -76,10 +76,14 @@ namespace PhishGuard.AddIn
                 companies.RemoveAt(lvCompanies.SelectedIndices[0]);
                 RefreshCompanies();
             };
+            var btnEditCompany = new Button { Text = L.T("Modifier…"), Location = new Point(270, y), AutoSize = true };
+            btnEditCompany.Click += (s, e) => EditCompany();
+            lvCompanies.DoubleClick += (s, e) => EditCompany();
             pGeneral.Controls.Add(btnAddCompany);
             pGeneral.Controls.Add(btnRemoveCompany);
+            pGeneral.Controls.Add(btnEditCompany);
             y += 32;
-            AddHint(pGeneral, ref y, L.T("Le nom de chaque entreprise est repéré dans le nom affiché des expéditeurs externes. Recherche dans l’Annuaire des Entreprises (France) ou Wikidata (autres pays)."));
+            AddHint(pGeneral, ref y, L.T("Le nom de chaque entreprise est repéré dans le nom affiché des expéditeurs externes. Recherche dans l’Annuaire des Entreprises (France) ou Wikidata (autres pays) ; « Modifier… » complète les dirigeants à la main."));
             y += 10;
             int yDomains = y;
             txtDomains = AddText(pGeneral, ref y, L.T("Domaines de l’entreprise (un par ligne)"), string.Join(Environment.NewLine, cfg.CompanyDomains.ToArray()), true, 70,
@@ -304,6 +308,14 @@ namespace PhishGuard.AddIn
             RefreshCompanies();
         }
 
+        /// <summary>Modifier une entreprise : nom, pays, identifiant et dirigeants (ceux que les annuaires ne connaissent pas).</summary>
+        void EditCompany()
+        {
+            if (lvCompanies.SelectedIndices.Count == 0) return;
+            using (var m = new CompanyEditForm(companies[lvCompanies.SelectedIndices[0]]))
+                if (m.ShowDialog(this) == DialogResult.OK) RefreshCompanies();
+        }
+
         void AddCompanyDialog()
         {
             using (var f = new CompanyAddForm())
@@ -312,7 +324,10 @@ namespace PhishGuard.AddIn
                 if (f.Selected != null) AddCompanyInfo(f.Selected);
                 else if (f.ManualName.Length > 0)
                 {
-                    companies.Add(new CompanyEntry { Name = f.ManualName });
+                    var entry = new CompanyEntry { Name = f.ManualName };
+                    using (var m = new CompanyEditForm(entry))
+                        if (m.ShowDialog(this) != DialogResult.OK) return;
+                    companies.Add(entry);
                     RefreshCompanies();
                 }
             }
@@ -579,6 +594,57 @@ namespace PhishGuard.AddIn
             Selected = items[list.SelectedIndices[0]];
             DialogResult = DialogResult.OK;
             Close();
+        }
+    }
+
+    /// <summary>Saisie ou modification d'une entreprise à la main (filiale étrangère, entreprise absente des annuaires).</summary>
+    internal class CompanyEditForm : Form
+    {
+        readonly CompanyEntry entry;
+        readonly TextBox txtName, txtCountry, txtId, txtDirectors;
+
+        public CompanyEditForm(CompanyEntry e)
+        {
+            entry = e;
+            Text = L.T("PhishGuard - Entreprise");
+            Size = new Size(460, 400);
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            Font = new Font("Segoe UI", 9f);
+            MinimizeBox = false; MaximizeBox = false; ShowInTaskbar = false;
+            int y = 12;
+            txtName = Field(L.T("Nom de l’entreprise"), e.Name, ref y, false);
+            txtCountry = Field(L.T("Pays"), e.Country, ref y, false);
+            txtId = Field(L.T("Identifiant (SIREN, numéro du registre…), facultatif"), e.Id, ref y, false);
+            txtDirectors = Field(L.T("Dirigeants (un nom par ligne)"), string.Join(Environment.NewLine, e.Directors.ToArray()), ref y, true);
+            var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 44, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8) };
+            var cancel = new Button { Text = L.T("Annuler"), DialogResult = DialogResult.Cancel, AutoSize = true };
+            var ok = new Button { Text = L.T("Enregistrer"), AutoSize = true };
+            ok.Click += (s, ev) =>
+            {
+                if (txtName.Text.Trim().Length == 0) return;
+                entry.Name = txtName.Text.Trim();
+                entry.Country = txtCountry.Text.Trim();
+                entry.Id = txtId.Text.Trim();
+                entry.Directors = txtDirectors.Text.Split(new[] { '\r', '\n', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(d => d.Trim()).Where(d => d.Length > 0).Distinct().ToList();
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            bar.Controls.AddRange(new Control[] { cancel, ok });
+            Controls.Add(bar);
+            AcceptButton = ok; CancelButton = cancel;
+        }
+
+        TextBox Field(string label, string value, ref int y, bool multiline)
+        {
+            Controls.Add(new Label { Text = label, Location = new Point(12, y), AutoSize = true });
+            y += 20;
+            var t = new TextBox { Text = value ?? "", Location = new Point(12, y), Width = 420, Multiline = multiline, AcceptsReturn = multiline, ScrollBars = multiline ? ScrollBars.Vertical : ScrollBars.None };
+            if (multiline) t.Height = 110;
+            Controls.Add(t);
+            y += t.Height + 12;
+            return t;
         }
     }
 }

@@ -181,7 +181,7 @@ namespace PhishGuard
             return "";
         }
 
-        /// <summary>Entreprises trouvées (seules celles qui ont un dirigeant ou un site officiel : pas les homonymes sans rapport).</summary>
+        /// <summary>Entreprises trouvées, celles qui ont un dirigeant ou un site officiel en premier.</summary>
         public static List<CompanyInfo> ParseWikidata(List<string> ids, string entitiesJson, string labelsJson, string lang)
         {
             var list = new List<CompanyInfo>();
@@ -213,9 +213,10 @@ namespace PhishGuard
                         c.Directors.Add(person);
                         c.Roles.Add(person + " (" + L.T(role[1]) + ")");
                     }
-                if (c.Name.Length > 0 && (c.Directors.Count > 0 || c.Website.Length > 0)) list.Add(c);
+                if (c.Name.Length > 0) list.Add(c);
             }
-            return list;
+            // Les fiches avec dirigeants ou site officiel d'abord ; les autres restent proposées (petites entreprises peu renseignées)
+            return list.OrderBy(x => x.Directors.Count > 0 || x.Website.Length > 0 ? 0 : 1).ToList();
         }
 
         static object Get(Dictionary<string, object> d, string key)
