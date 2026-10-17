@@ -459,6 +459,7 @@ namespace PhishGuard.AddIn
             var c = AnalyzeCached(mail, true);
             Log("Analyse détaillée : " + c.Result.Level + " (" + c.Result.Score + "), " + c.Data.Links.Count + " liens, " + c.Data.Attachments.Count + " pièces jointes");
             lastMail = mail;
+            if (config.AllowUserSettings && !File.Exists(UserConfigPath)) FirstRun();
             if (form == null || form.IsDisposed)
             {
                 Icon icon = null;
@@ -479,6 +480,33 @@ namespace PhishGuard.AddIn
                     }
                     catch (Exception ex) { form.SetStatus(L.T("Signalement impossible : ") + ex.Message); }
                 };
+                form.DeleteRequested += (s, e) =>
+                {
+                    try
+                    {
+                        if (lastMail == null) return;
+                        if (MessageBox.Show(form, L.T("Déplacer ce message dans « Éléments supprimés » ?"), "PhishGuard",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                        cache.Remove(KeyOf(lastMail));
+                        ((dynamic)lastMail).Delete();   // va dans Éléments supprimés (récupérable)
+                        lastMail = null;
+                        Log("Message supprimé depuis la fenêtre d'analyse");
+                        form.Hide();
+                    }
+                    catch (Exception ex) { form.SetStatus(L.T("Suppression impossible : ") + ex.Message); }
+                };
+                form.ModeChanged += (s, e) =>
+                {
+                    try
+                    {
+                        config.ExpertMode = form.Expert;
+                        if (!config.AllowUserSettings) return;   // configuration imposée : le choix vaut pour la session
+                        var cfg = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
+                        cfg.ExpertMode = form.Expert;
+                        cfg.SaveUser(UserConfigPath);
+                    }
+                    catch (Exception ex) { Log("Mode d'affichage : " + ex.Message); }
+                };
                 form.SettingsRequested += (s, e) =>
                 {
                     try
@@ -490,8 +518,26 @@ namespace PhishGuard.AddIn
                     catch (Exception ex) { Log("Paramètres depuis la fenêtre : " + ex); }
                 };
             }
+            form.Expert = config.ExpertMode;
             form.ShowResult(c.Result, c.Data, ListStatus(), config.ShowExplanations, config.AllowUserSettings);
             InvalidateRibbons();
+        }
+
+        /// <summary>Premier lancement : quelques réglages essentiels, une seule fois.</summary>
+        void FirstRun()
+        {
+            try
+            {
+                var cfg = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
+                Icon icon = null;
+                try { var b = LoadBitmap("icon-32.png"); if (b != null) icon = Icon.FromHandle(b.GetHicon()); } catch (Exception) { }
+                using (var f = new FirstRunForm(cfg, MailboxDomain(), icon)) f.ShowDialog();
+                cfg.SaveUser(UserConfigPath);   // enregistré même avec « Plus tard » : l'assistant ne revient pas
+                config = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
+                ApplyRuntimeSettings();
+                cache.Clear(); cacheOrder.Clear();
+            }
+            catch (Exception ex) { Log("Premier lancement : " + ex.Message); }
         }
 
         void Report(object mail, EmailData data, AnalysisResult result)

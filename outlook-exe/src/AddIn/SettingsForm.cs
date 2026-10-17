@@ -20,7 +20,7 @@ namespace PhishGuard.AddIn
         readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert;
         readonly TextBox txtVt, txtAbuseCh, txtAbuseIpdb;
         readonly Label lblBeta;
-        readonly ComboBox cboAlert, cboLang;
+        readonly ComboBox cboAlert, cboLang, cboMode;
         readonly NumericUpDown numHash;
         readonly Label lblLists;
 
@@ -70,14 +70,17 @@ namespace PhishGuard.AddIn
                 addDom.LinkClicked += (s, e) => AddLines(txtDomains, new[] { this.mailboxDomain });
                 pGeneral.Controls.Add(addDom);
             }
-            var btnAudit = new Button { Text = L.T("Analyser mon domaine…"), Location = new Point(12, y - 6), AutoSize = true };
-            btnAudit.Click += (s, e) => OpenAudit();
-            pGeneral.Controls.Add(btnAudit);
             chkWatch = new CheckBox { Text = L.T("Surveiller chaque semaine les nouveaux sosies"), Checked = cfg.WatchDomains, Location = new Point(200, y - 2), AutoSize = true };
-            pGeneral.Controls.Add(chkWatch);
-            y += 26;
-            AddHint(pGeneral, ref y, WatchStatus());
-            y += 14;
+            if (cfg.ExpertMode)
+            {
+                var btnAudit = new Button { Text = L.T("Analyser mon domaine…"), Location = new Point(12, y - 6), AutoSize = true };
+                btnAudit.Click += (s, e) => OpenAudit();
+                pGeneral.Controls.Add(btnAudit);
+                pGeneral.Controls.Add(chkWatch);
+                y += 26;
+                AddHint(pGeneral, ref y, WatchStatus());
+                y += 14;
+            }
             txtVips = AddText(pGeneral, ref y, L.T("Dirigeants et personnes sensibles (un nom par ligne)"), string.Join(Environment.NewLine, cfg.VipNames.ToArray()), true, 70,
                 L.T("Un email externe affichant l’un de ces noms est signalé (fraude au président)."));
             txtReport = AddText(pGeneral, ref y, L.T("Adresse de l’équipe sécurité (bouton « Signaler »)"), cfg.ReportAddress, false, 0,
@@ -94,7 +97,16 @@ namespace PhishGuard.AddIn
             int li = Array.IndexOf(LangValues, (cfg.Language ?? "auto").ToLowerInvariant());
             cboLang.SelectedIndex = li < 0 ? 0 : li;
             pAnalyse.Controls.Add(cboLang);
-            y += 40;
+            y += 36;
+            pAnalyse.Controls.Add(new Label { Text = L.T("Affichage"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
+            y += 22;
+            cboMode = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
+            cboMode.Items.AddRange(new object[] { L.T("Simple : le verdict et quoi faire (recommandé)"), L.T("Expert : analyse technique détaillée") });
+            cboMode.SelectedIndex = cfg.ExpertMode ? 1 : 0;
+            pAnalyse.Controls.Add(cboMode);
+            y += 28;
+            AddHint(pAnalyse, ref y, L.T("En mode expert, les onglets Listes et Réputation et l’analyse de votre domaine apparaissent ici (rouvrez les paramètres après avoir changé)."));
+            y += 12;
             chkAuto = new CheckBox { Text = L.T("Analyser automatiquement le message sélectionné ou ouvert"), Checked = cfg.AutoAnalyze, Location = new Point(12, y), AutoSize = true };
             pAnalyse.Controls.Add(chkAuto);
             y += 26;
@@ -149,7 +161,7 @@ namespace PhishGuard.AddIn
             var btnUpdate = new Button { Text = L.T("Mettre à jour"), Location = new Point(410, y - 2), AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right };
             btnUpdate.Click += (s, e) => { Blocklists.StartDownload(cfg.RedFlagUrl); lblLists.Text = L.T("Téléchargement en cours…"); };
             pLists.Controls.Add(btnUpdate);
-            tabs.TabPages.Add(pLists);
+            if (cfg.ExpertMode) tabs.TabPages.Add(pLists);
 
             // ---------------- Réputation ----------------
             var pBeta = Page(L.T("Réputation"));
@@ -179,7 +191,7 @@ namespace PhishGuard.AddIn
                 L.T("Réputation de l’adresse IP d’origine du message."));
             lblBeta = new Label { Location = new Point(12, y), Size = new Size(500, 70), ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
             pBeta.Controls.Add(lblBeta);
-            tabs.TabPages.Add(pBeta);
+            if (cfg.ExpertMode) tabs.TabPages.Add(pBeta);
             RefreshBetaStatus();
             RefreshListStatus();
             var listTimer = new Timer { Interval = 1500 };
@@ -422,6 +434,7 @@ namespace PhishGuard.AddIn
             cfg.TrustedSenders = Lines(txtTrustedSenders, true).Where(x => x.Contains("@")).ToList();
             cfg.SharedBlocklistPath = txtShared.Text.Trim();
             cfg.WatchDomains = chkWatch.Checked;
+            cfg.ExpertMode = cboMode.SelectedIndex == 1;
             cfg.BetaOpenPhish = chkOpenPhish.Checked;
             cfg.BetaTranco = chkTranco.Checked;
             cfg.BetaDnsChecks = chkDns.Checked;

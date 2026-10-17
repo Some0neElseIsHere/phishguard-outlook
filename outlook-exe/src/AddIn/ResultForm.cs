@@ -1,5 +1,6 @@
-﻿// PhishGuard - fenêtre d'analyse, organisée en onglets comme PhishTool :
-// Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps.
+﻿// PhishGuard - fenêtre d'analyse, en deux modes :
+// - simple (par défaut) : verdict en clair, les raisons principales et « Que dois-je faire ? » ;
+// - expert : onglets comme PhishTool (Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps, Réputation).
 //
 // Sécurité de l'affichage (le rapport est une page HTML locale affichée par le moteur d'Internet Explorer) :
 // - tout texte venant du message est encodé (H) avant affichage : aucun code du message ne peut s'exécuter ;
@@ -23,7 +24,7 @@ namespace PhishGuard.AddIn
     internal class ResultForm : Form
     {
         readonly WebBrowser browser;
-        readonly Button btnReport, btnClose, btnTrust, btnSettings;
+        readonly Button btnReport, btnClose, btnTrust, btnSettings, btnDelete, btnMode;
         readonly Label status;
         AnalysisResult result;
         EmailData email;
@@ -31,6 +32,14 @@ namespace PhishGuard.AddIn
         public event EventHandler ReportRequested;
         public event EventHandler NotPhishingRequested;
         public event EventHandler SettingsRequested;
+        public event EventHandler DeleteRequested;
+        /// <summary>L'utilisateur a changé de mode (Expert contient le nouveau mode).</summary>
+        public event EventHandler ModeChanged;
+
+        /// <summary>true : analyse détaillée (onglets) ; false : mode simple.</summary>
+        public bool Expert;
+        string lastListStatus = "";
+        bool lastShowExplanations = true, lastCanChange = true;
         public AnalysisResult CurrentResult { get { return result; } }
 
         static readonly Color Accent = Color.FromArgb(15, 108, 189);
@@ -71,9 +80,11 @@ namespace PhishGuard.AddIn
 
             btnReport = MakeButton(true);
             btnTrust = MakeButton(false);
+            btnDelete = MakeButton(false);
             btnSettings = MakeButton(false);
+            btnMode = MakeButton(false);
             btnClose = MakeButton(false);
-            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnSettings, btnClose });
+            bar.Controls.AddRange(new Control[] { btnReport, btnDelete, btnTrust, btnMode, btnSettings, btnClose });
 
             status = new Label
             {
@@ -94,6 +105,13 @@ namespace PhishGuard.AddIn
             btnReport.Click += (s, e) => Raise(ReportRequested);
             btnTrust.Click += (s, e) => Raise(NotPhishingRequested);
             btnSettings.Click += (s, e) => Raise(SettingsRequested);
+            btnDelete.Click += (s, e) => Raise(DeleteRequested);
+            btnMode.Click += (s, e) =>
+            {
+                Expert = !Expert;
+                Raise(ModeChanged);
+                if (result != null) ShowResult(result, email, lastListStatus, lastShowExplanations, lastCanChange, false);
+            };
             FormClosing += (s, e) => { if (e.CloseReason == CloseReason.UserClosing) { e.Cancel = true; Hide(); } };
         }
 
@@ -110,6 +128,8 @@ namespace PhishGuard.AddIn
             btnTrust.Text = L.T("Ce n’est pas du phishing");
             btnSettings.Text = L.T("Paramètres");
             btnClose.Text = L.T("Fermer");
+            btnDelete.Text = L.T("Supprimer le message");
+            btnMode.Text = Expert ? L.T("Mode simple") : L.T("Analyse détaillée");
         }
 
         void CopyText(string text, string ok)
@@ -178,7 +198,7 @@ namespace PhishGuard.AddIn
         /// <summary>Mise à jour silencieuse (résultats externes arrivés) : sans prendre le focus.</summary>
         public void RefreshResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations, bool canChangeSettings)
         {
-            if (!Visible || Signature(r) == shownSignature) return;
+            if (!Visible || Signature(r) + "|" + Expert == shownSignature) return;
             ShowResult(r, e, listStatus, showExplanations, canChangeSettings, false);
         }
 
@@ -190,12 +210,14 @@ namespace PhishGuard.AddIn
         void ShowResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations, bool canChangeSettings, bool activate)
         {
             result = r; email = e;
-            shownSignature = Signature(r);
+            lastListStatus = listStatus; lastShowExplanations = showExplanations; lastCanChange = canChangeSettings;
+            shownSignature = Signature(r) + "|" + Expert;
             ApplyTexts();
             btnTrust.Visible = canChangeSettings && r.Level != "safe";
             btnSettings.Visible = canChangeSettings;
-            status.Text = listStatus;
-            browser.DocumentText = BuildHtml(r, e, showExplanations);
+            btnDelete.Visible = !Expert && r.Level != "safe";
+            status.Text = Expert ? listStatus : "";
+            browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations) : SimpleView.Build(r, e, showExplanations);
             if (!activate) return;
             if (!Visible) Show();
             if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;

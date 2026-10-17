@@ -564,6 +564,16 @@ namespace PhishGuard.Tests
             Check("lien search-ms:", hasSev(withLink(@"search-ms:query=facture&crumb=location:\\attaquant.net@SSL\DavWWWRoot", "Voir la facture"), "link-protocol", Severity.Critical));
             Check("lien ms-word distant", Ids(withLink("ms-word:ofe|u|https://attaquant.net/doc.docx", "Contrat")).Contains("link-office-remote"));
 
+            // ---------- Mode simple ----------
+            var sv = SimpleView.Build(r2, e2, true);
+            Check("mode simple : verdict en clair", sv.Contains("Ce message est dangereux") && sv.Contains("Que dois-je faire ?") && sv.Contains("Pourquoi ?"));
+            Check("mode simple : pas de jargon", !sv.Contains("DKIM") && !sv.Contains("SPF") && !sv.Contains("DMARC") && !sv.Contains("s-headers"));
+            Check("mode simple : texte du message échappé", !SimpleView.Build(r2, new EmailData { FromName = "<script>x</script>", FromAddress = "a@b.fr" }, true).Contains("<script>x"));
+            var eMoney = Base(); eMoney.BodyText = "Suite à un changement de banque, merci d'utiliser notre nouveau RIB : DE89 3704 0044 0532 0130 00";
+            var rMoney = Analyzer.Analyze(eMoney, cfg);
+            Check("mode simple : conseil coordonnées bancaires", rMoney.Level == "safe" || SimpleView.Actions(rMoney).Any(x => x.Key.Contains("bancaires")), rMoney.Level);
+            Check("mode simple : message sain", SimpleView.Build(Analyzer.Analyze(Base(), cfg), Base(), true).Contains("Aucun danger détecté"));
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);
