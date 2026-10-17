@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.8.4** : liens de vérification sans compte à créer : urlscan (qui demande désormais un compte) est remplacé par Google Safe Browsing et Cisco Talos ; pour les IP, AbuseIPDB et Talos passent en premier.
+
 - **v1.8.3** : liens piégés qui imitent un fichier : texte en forme de chemin (`C:\…`) ou de document (`facture.pdf`) qui ouvre autre chose, liens vers un fichier local ou un partage réseau (`file:`, `\\serveur\…`), protocoles qui lancent une fonction de Windows (`search-ms:`, `ms-msdt:`…). Paramètres : les textes d'aide sur deux lignes ne chevauchent plus le champ suivant.
 
 - **v1.8.2** : rapport de signalement : les contrôles SPF / DKIM / DMARC ne sont plus collés dans Outlook. Onglet Pièces jointes : « Item not found » de VirusTotal expliqué, et résultat VirusTotal affiché directement si une clé est configurée. Les serveurs qui écrivent un en-tête Authentication-Results par contrôle sont maintenant lus en entier (SPF et DMARC n'apparaissent plus « absents » à tort).
