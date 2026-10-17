@@ -572,7 +572,7 @@ namespace PhishGuard.Tests
             var eMoney = Base(); eMoney.BodyText = "Suite à un changement de banque, merci d'utiliser notre nouveau RIB : DE89 3704 0044 0532 0130 00";
             var rMoney = Analyzer.Analyze(eMoney, cfg);
             Check("mode simple : conseil coordonnées bancaires", rMoney.Level == "safe" || SimpleView.Actions(rMoney).Any(x => x.Key.Contains("bancaires")), rMoney.Level);
-            Check("mode simple : message sain", SimpleView.Build(Analyzer.Analyze(Base(), cfg), Base(), true).Contains("Aucun danger détecté"));
+            Check("mode simple : message sain", SimpleView.Build(Analyzer.Analyze(Base(), cfg), Base(), true).Contains("Aucun danger"));   // HtmlEncode transforme les accents en entités
 
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
