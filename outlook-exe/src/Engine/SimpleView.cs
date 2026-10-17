@@ -36,7 +36,7 @@ namespace PhishGuard
             ".wl{color:#1b3a57;background:#eef5fc;border-radius:8px;font-size:12.5px;margin:6px 0 2px;padding:6px 10px}" +
             ".evs{margin:4px 0 0}.ev{display:inline-block;max-width:100%;background:#f3f5f8;border:1px solid #e9edf2;border-radius:6px;padding:0 7px;margin:0 6px 4px 0;font:12px Consolas,'Courier New',monospace;word-wrap:break-word;word-break:break-all}" +
             ".mh{color:#8a95a3;font-size:13px}.minor{padding:0 4px}.mi{color:#8a95a3;font-size:12.5px;padding:2px 0 2px 16px;position:relative}" +
-            ".mi:before{content:'\\2022';position:absolute;left:4px}" +
+            ".mi:before{content:'\\2022';position:absolute;left:4px}.mi.ok{color:#3d6b52}.mi.ok:before{content:'\\2713';color:#13804a}" +
             ".todo{background:#fff;border:1px solid #e3e7ed;border-radius:12px;padding:8px 18px;counter-reset:n}" +
             ".step{padding:9px 0 9px 38px;position:relative;border-top:1px solid #eef1f5}.step:first-child{border-top:0}" +
             ".step:before{counter-increment:n;content:counter(n);position:absolute;left:0;top:8px;width:26px;height:26px;border-radius:50%;background:#0f6cbd;color:#fff;font-weight:700;text-align:center;line-height:26px;font-size:13px}" +
@@ -141,6 +141,13 @@ namespace PhishGuard
                     if (!string.IsNullOrEmpty(lesson)) sb.Append("<div class='wl'>" + H(lesson) + "</div>");
                     sb.Append("</div>");
                 }
+                sb.Append("</div>");
+            }
+            // Message sain : ce qui confirme l'expéditeur
+            if (r.Level == "safe" && r.Trust.Count > 0)
+            {
+                sb.Append("<h2 class='mh'>" + H(L.T("Ce qui le confirme")) + "</h2><div class='minor'>");
+                foreach (var t in r.Trust.Take(5)) sb.Append("<div class='mi ok'>" + H(t) + "</div>");
                 sb.Append("</div>");
             }
             if (minor.Count > 0)

@@ -47,14 +47,15 @@ namespace PhishGuard.Tools
             p.Links.Add(new LinkInfo("https://micros0ft-support.com/owa/login.php?u=claire", "https://login.microsoftonline.com"));
             var rp = Analyzer.Analyze(p, cfg);
 
-            // 2. Suspect : changement de RIB depuis un sosie de fournisseur
+            // 2. Suspect : premier message d'un inconnu, lien raccourci
             Correspondents.Set(new[] { "compta@fournisseur-alpha.fr" }, false);
             var s = new EmailData
             {
-                FromName = "Comptabilité Fournisseur Alpha", FromAddress = "compta@fournisseur-alpba.fr", Subject = "RE: Facture 2026-0412 - nouvelles coordonnées bancaires",
-                BodyText = "Bonjour,\n\nSuite à un changement de banque, merci d'utiliser désormais notre nouveau RIB pour le règlement de la facture 2026-0412 :\nFR76 3000 6000 0112 3456 7890 189\n\nMerci de traiter ce paiement rapidement.\nCordialement",
-                RawHeaders = ALIGNED.Replace("fournisseur-alpha.fr", "fournisseur-alpba.fr")
+                FromName = "Service Livraison", FromAddress = "suivi@colis-livraison-express.fr", Subject = "Votre colis est en attente de livraison",
+                BodyText = "Bonjour,\n\nVotre colis n'a pas pu être livré. Choisissez un nouveau créneau de livraison en suivant le lien ci-dessous.\n\nService client",
+                RawHeaders = ALIGNED.Replace("fournisseur-alpha.fr", "colis-livraison-express.fr")
             };
+            s.Links.Add(new LinkInfo("https://bit.ly/3xYzAbC", "Choisir un créneau"));
             var rs = Analyzer.Analyze(s, cfg);
 
             // 3. Expéditeur vérifié : correspondant connu, authentifié
