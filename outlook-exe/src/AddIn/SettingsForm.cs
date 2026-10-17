@@ -15,7 +15,7 @@ namespace PhishGuard.AddIn
     internal class SettingsForm : Form
     {
         readonly PhishGuardConfig cfg;
-        readonly TextBox txtCompany, txtDomains, txtReport, txtVips, txtTrusted, txtCustom, txtTrustedSenders, txtShared;
+        readonly TextBox txtDomains, txtReport, txtVips, txtTrusted, txtCustom, txtTrustedSenders, txtShared;
         readonly CheckBox chkAuto, chkRedFlag, chkExplain, chkCorr, chkAge, chkTag, chkMove, chkLog;
         readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert;
         readonly TextBox txtVt, txtAbuseCh, txtAbuseIpdb;
@@ -28,7 +28,8 @@ namespace PhishGuard.AddIn
         static readonly string[] LangValues = { "auto", "fr", "en" };
 
         readonly string mailboxDomain;
-        Button btnLookup;
+        readonly ListView lvCompanies;
+        readonly List<CompanyEntry> companies;
         CheckBox chkWatch;
 
         public SettingsForm(PhishGuardConfig current, Icon icon) : this(current, icon, "") { }
@@ -55,12 +56,31 @@ namespace PhishGuard.AddIn
             // ---------------- Entreprise ----------------
             var pGeneral = Page(L.T("Entreprise"));
             var y = 12;
-            txtCompany = AddText(pGeneral, ref y, L.T("Nom de l’entreprise"), cfg.CompanyName, false, 0,
-                L.T("Repéré dans le nom affiché des expéditeurs externes. « Rechercher » retrouve ses dirigeants dans l’Annuaire des Entreprises."));
-            txtCompany.Width = 390;
-            btnLookup = new Button { Text = L.T("Rechercher…"), Location = new Point(410, txtCompany.Top - 1), Width = 102, Height = txtCompany.Height + 2, Anchor = AnchorStyles.Top | AnchorStyles.Right };
-            btnLookup.Click += (s, e) => LookupCompany();
-            pGeneral.Controls.Add(btnLookup);
+            companies = cfg.Companies.Select(c => new CompanyEntry { Name = c.Name, Country = c.Country, Id = c.Id, Directors = new List<string>(c.Directors) }).ToList();
+            pGeneral.Controls.Add(new Label { Text = L.T("Entreprises"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
+            y += 22;
+            lvCompanies = new ListView { Location = new Point(12, y), Size = new Size(500, 96), View = View.Details, FullRowSelect = true, HideSelection = false,
+                HeaderStyle = ColumnHeaderStyle.Nonclickable, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
+            lvCompanies.Columns.Add(L.T("Entreprise"), 160);
+            lvCompanies.Columns.Add(L.T("Pays"), 70);
+            lvCompanies.Columns.Add(L.T("Identifiant"), 80);
+            lvCompanies.Columns.Add(L.T("Dirigeants"), 180);
+            pGeneral.Controls.Add(lvCompanies);
+            y += 100;
+            var btnAddCompany = new Button { Text = L.T("Ajouter une entreprise…"), Location = new Point(12, y), AutoSize = true };
+            btnAddCompany.Click += (s, e) => AddCompanyDialog();
+            var btnRemoveCompany = new Button { Text = L.T("Retirer"), Location = new Point(190, y), AutoSize = true };
+            btnRemoveCompany.Click += (s, e) =>
+            {
+                if (lvCompanies.SelectedIndices.Count == 0) return;
+                companies.RemoveAt(lvCompanies.SelectedIndices[0]);
+                RefreshCompanies();
+            };
+            pGeneral.Controls.Add(btnAddCompany);
+            pGeneral.Controls.Add(btnRemoveCompany);
+            y += 32;
+            AddHint(pGeneral, ref y, L.T("Le nom de chaque entreprise est repéré dans le nom affiché des expéditeurs externes. Recherche dans l’Annuaire des Entreprises (France) ou Wikidata (autres pays)."));
+            y += 10;
             int yDomains = y;
             txtDomains = AddText(pGeneral, ref y, L.T("Domaines de l’entreprise (un par ligne)"), string.Join(Environment.NewLine, cfg.CompanyDomains.ToArray()), true, 70,
                 L.T("Un domaine qui les imite (mon-entreprlse.fr, mon-entreprise-fr.com...) est classé critique."));
@@ -81,8 +101,11 @@ namespace PhishGuard.AddIn
                 AddHint(pGeneral, ref y, WatchStatus());
                 y += 14;
             }
-            txtVips = AddText(pGeneral, ref y, L.T("Dirigeants et personnes sensibles (un nom par ligne)"), string.Join(Environment.NewLine, cfg.VipNames.ToArray()), true, 70,
-                L.T("Un email externe affichant l’un de ces noms est signalé (fraude au président)."));
+            txtVips = AddText(pGeneral, ref y, L.T("Dirigeants"), "", true, 60,
+                L.T("Rempli à partir des entreprises ci-dessus. Un email externe affichant l’un de ces noms est signalé (fraude au président)."));
+            txtVips.ReadOnly = true;
+            txtVips.BackColor = SystemColors.Control;
+            RefreshCompanies();
             txtReport = AddText(pGeneral, ref y, L.T("Adresse de l’équipe sécurité (bouton « Signaler »)"), cfg.ReportAddress, false, 0,
                 L.T("Le bouton « Signaler » de la fenêtre d’analyse lui transfère le message avec le rapport."));
             tabs.TabPages.Add(pGeneral);
@@ -153,14 +176,6 @@ namespace PhishGuard.AddIn
                 L.T("Tout message ou lien vers ces domaines (et leurs sous-domaines) est classé critique."));
             txtShared = AddText(pLists, ref y, L.T("Liste de blocage partagée (chemin réseau, facultatif)"), cfg.SharedBlocklistPath, false, 0,
                 L.T("Ex. : \\\\serveur\\securite\\phishguard.txt — gérée par l’équipe sécurité, un domaine par ligne."));
-            chkRedFlag = new CheckBox { Text = L.T("Utiliser la liste Red Flag Domains (nouveaux domaines .fr suspects)"), Checked = cfg.RedFlagEnabled, Location = new Point(12, y), AutoSize = true };
-            pLists.Controls.Add(chkRedFlag);
-            y += 26;
-            lblLists = new Label { Location = new Point(28, y), Size = new Size(380, 34), ForeColor = SystemColors.GrayText };
-            pLists.Controls.Add(lblLists);
-            var btnUpdate = new Button { Text = L.T("Mettre à jour"), Location = new Point(410, y - 2), AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right };
-            btnUpdate.Click += (s, e) => { Blocklists.StartDownload(cfg.RedFlagUrl); lblLists.Text = L.T("Téléchargement en cours…"); };
-            pLists.Controls.Add(btnUpdate);
             if (cfg.ExpertMode) tabs.TabPages.Add(pLists);
 
             // ---------------- Réputation ----------------
@@ -170,6 +185,15 @@ namespace PhishGuard.AddIn
             y += 18;
             pBeta.Controls.Add(new Label { Text = L.T("Sans clé"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
             y += 24;
+            chkRedFlag = new CheckBox { Text = L.T("Utiliser la liste Red Flag Domains (nouveaux domaines .fr suspects)"), Checked = cfg.RedFlagEnabled, Location = new Point(12, y), AutoSize = true };
+            pBeta.Controls.Add(chkRedFlag);
+            y += 26;
+            lblLists = new Label { Location = new Point(30, y), Size = new Size(370, 34), ForeColor = SystemColors.GrayText };
+            pBeta.Controls.Add(lblLists);
+            var btnUpdate = new Button { Text = L.T("Mettre à jour"), Location = new Point(410, y - 2), AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            btnUpdate.Click += (s, e) => { Blocklists.StartDownload(cfg.RedFlagUrl); lblLists.Text = L.T("Téléchargement en cours…"); };
+            pBeta.Controls.Add(btnUpdate);
+            y += 40;
             chkOpenPhish = AddCheck(pBeta, ref y, L.T("Liste OpenPhish des pages de phishing actives"), cfg.BetaOpenPhish,
                 L.T("Téléchargée toutes les 12 h depuis openphish.com ; la comparaison des liens se fait sur votre poste."));
             chkTranco = AddCheck(pBeta, ref y, L.T("Classement Tranco des sites les plus visités"), cfg.BetaTranco,
@@ -248,62 +272,50 @@ namespace PhishGuard.AddIn
             {
                 f.BlockDomains = list => AddLines(txtCustom, list);
                 f.AddCompanyDomains = list => AddLines(txtDomains, list);
-                f.AddCompany = c =>
-                {
-                    AddLines(txtVips, c.Directors);
-                    if (txtCompany.Text.Trim().Length == 0) txtCompany.Text = CompanyLookup.Title(c.Name);
-                };
+                f.AddCompany = c => AddCompanyInfo(c);
                 f.ShowDialog(this);
             }
         }
 
-        /// <summary>Recherche l'entreprise dans l'Annuaire des Entreprises et propose ses dirigeants.</summary>
-        void LookupCompany()
+        /// <summary>Liste des entreprises et, en lecture seule, l'ensemble de leurs dirigeants.</summary>
+        void RefreshCompanies()
         {
-            string name = txtCompany.Text.Trim();
-            if (name.Length < 2)
-            {
-                MessageBox.Show(this, L.T("Saisissez d’abord le nom de l’entreprise (ou son SIREN)."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            btnLookup.Enabled = false;
-            btnLookup.Text = L.T("Recherche…");
-            var t = new System.Threading.Thread(() =>
-            {
-                List<CompanyInfo> found = null;
-                string error = null;
-                try { found = CompanyLookup.Search(name); }
-                catch (Exception ex) { error = ex.Message; }
-                try { BeginInvoke(new Action(() => LookupDone(name, found, error))); } catch (Exception) { }
-            });
-            t.IsBackground = true;
-            t.Start();
+            lvCompanies.Items.Clear();
+            foreach (var c in companies)
+                lvCompanies.Items.Add(new ListViewItem(new[] { c.Name, c.Country, c.Id, string.Join(", ", c.Directors.ToArray()) }));
+            var vips = new List<string>();
+            foreach (var d in companies.SelectMany(c => c.Directors))
+                if (!vips.Any(v => string.Equals(v, d, StringComparison.OrdinalIgnoreCase))) vips.Add(d);
+            txtVips.Text = string.Join(Environment.NewLine, vips.ToArray());
         }
 
-        void LookupDone(string name, List<CompanyInfo> found, string error)
+        /// <summary>Ajoute (ou met à jour) une entreprise trouvée, et propose ses domaines.</summary>
+        void AddCompanyInfo(CompanyInfo c)
         {
-            btnLookup.Enabled = true;
-            btnLookup.Text = L.T("Rechercher…");
-            if (error != null)
+            var existing = companies.FirstOrDefault(x => (x.Id.Length > 0 && x.Id == c.Siren) || string.Equals(x.Name, c.Name, StringComparison.OrdinalIgnoreCase));
+            if (existing == null) { existing = new CompanyEntry(); companies.Add(existing); }
+            existing.Name = c.Country == "FR" ? CompanyLookup.Title(c.Name) : c.Name;
+            existing.Country = c.Country;
+            existing.Id = c.Siren;
+            existing.Directors = new List<string>(c.Directors);
+            if (c.Website.Length > 0) AddLines(txtDomains, new[] { c.Website });
+            else if (c.Country == "FR" && companies.Count == 1 && mailboxDomain.Length > 0 && !Lists.FreemailDomains.Contains(mailboxDomain))
+                AddLines(txtDomains, new[] { mailboxDomain });
+            RefreshCompanies();
+        }
+
+        void AddCompanyDialog()
+        {
+            using (var f = new CompanyAddForm())
             {
-                MessageBox.Show(this, L.T("L’Annuaire des Entreprises est injoignable :") + "\n" + error, "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                if (f.ShowDialog(this) != DialogResult.OK) return;
+                if (f.Selected != null) AddCompanyInfo(f.Selected);
+                else if (f.ManualName.Length > 0)
+                {
+                    companies.Add(new CompanyEntry { Name = f.ManualName });
+                    RefreshCompanies();
+                }
             }
-            if (found == null || found.Count == 0)
-            {
-                MessageBox.Show(this, L.F("Aucune entreprise trouvée pour « {0} ».", name), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            CompanyInfo pick;
-            using (var f = new CompanyPickForm(found)) { if (f.ShowDialog(this) != DialogResult.OK || f.Selected == null) return; pick = f.Selected; }
-            int n = AddLines(txtVips, pick.Directors);
-            var msg = new List<string>();
-            msg.Add(pick.Directors.Count == 0 ? L.T("Aucun dirigeant (personne physique) n’est publié pour cette entreprise.")
-                : L.F("{0} dirigeant(s) ajouté(s) : {1}", n, string.Join(", ", pick.Directors.ToArray())));
-            if (mailboxDomain.Length > 0 && !Lists.FreemailDomains.Contains(mailboxDomain) && AddLines(txtDomains, new[] { mailboxDomain }) > 0)
-                msg.Add(L.F("Domaine de votre adresse ajouté : {0}", mailboxDomain));
-            msg.Add(L.T("Vérifiez la liste, complétez-la (directeur financier, comptabilité…), puis cliquez sur « Enregistrer »."));
-            MessageBox.Show(this, string.Join("\n\n", msg.ToArray()), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         void RefreshListStatus()
@@ -415,9 +427,10 @@ namespace PhishGuard.AddIn
                 MessageBox.Show(this, L.T("L’adresse de l’équipe sécurité n’est pas valide."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
-            cfg.CompanyName = txtCompany.Text.Trim();
+            cfg.Companies = companies;
+            cfg.CompanyName = "";
             cfg.CompanyDomains = Lines(txtDomains, true).Select(d => d.TrimStart('@')).ToList();
-            cfg.VipNames = Lines(txtVips, false);
+            cfg.VipNames = new List<string>();   // recalculés à partir des entreprises (NormalizeCompanies)
             cfg.ReportAddress = report;
             cfg.TrustedDomains = Lines(txtTrusted, true);
             cfg.AutoAnalyze = chkAuto.Checked;
@@ -459,42 +472,105 @@ namespace PhishGuard.AddIn
         }
     }
 
-    /// <summary>Choix de l'entreprise parmi les homonymes de l'Annuaire des Entreprises.</summary>
-    internal class CompanyPickForm : Form
+    /// <summary>Ajout d'une entreprise : recherche dans l'Annuaire des Entreprises (France) ou Wikidata (autres pays).</summary>
+    internal class CompanyAddForm : Form
     {
+        readonly TextBox txtName;
+        readonly ComboBox cboSource;
+        readonly Button btnSearch, btnOk;
         readonly ListView list;
-        readonly List<CompanyInfo> items;
+        readonly Label lblInfo;
+        List<CompanyInfo> items = new List<CompanyInfo>();
         public CompanyInfo Selected;
+        public string ManualName = "";
 
-        public CompanyPickForm(List<CompanyInfo> found)
+        public CompanyAddForm()
         {
-            items = found;
-            Text = L.T("PhishGuard - Choisir l’entreprise");
-            Size = new Size(760, 380);
+            Text = L.T("PhishGuard - Ajouter une entreprise");
+            Size = new Size(780, 440);
             StartPosition = FormStartPosition.CenterParent;
             Font = new Font("Segoe UI", 9f);
             MinimizeBox = false; MaximizeBox = false; ShowInTaskbar = false;
-            var hint = new Label { Text = L.T("Source : Annuaire des Entreprises (INSEE, RNE). Choisissez la bonne entreprise : ses dirigeants seront ajoutés à la liste."), Dock = DockStyle.Top, Height = 34, Padding = new Padding(8, 8, 8, 0), ForeColor = SystemColors.GrayText };
+
+            var top = new Panel { Dock = DockStyle.Top, Height = 74 };
+            top.Controls.Add(new Label { Text = L.T("Nom de l’entreprise (ou SIREN)"), Location = new Point(10, 12), AutoSize = true });
+            txtName = new TextBox { Location = new Point(10, 34), Width = 300 };
+            cboSource = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(320, 33), Width = 290 };
+            cboSource.Items.AddRange(new object[] { L.T("France (Annuaire des Entreprises)"), L.T("Autre pays (Wikidata)") });
+            cboSource.SelectedIndex = 0;
+            btnSearch = new Button { Text = L.T("Rechercher"), Location = new Point(620, 32), AutoSize = true };
+            btnSearch.Click += (s, e) => Search();
+            top.Controls.AddRange(new Control[] { txtName, cboSource, btnSearch });
+
+            lblInfo = new Label { Dock = DockStyle.Top, Height = 26, Padding = new Padding(10, 4, 10, 0), ForeColor = SystemColors.GrayText,
+                Text = L.T("Choisissez la bonne entreprise parmi les résultats : son nom et ses dirigeants seront surveillés.") };
             list = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, MultiSelect = false, HideSelection = false };
-            list.Columns.Add(L.T("Entreprise"), 190);
-            list.Columns.Add(L.T("Ville"), 110);
-            list.Columns.Add("SIREN", 85);
+            list.Columns.Add(L.T("Entreprise"), 210);
+            list.Columns.Add(L.T("Lieu"), 110);
+            list.Columns.Add(L.T("Identifiant"), 90);
             list.Columns.Add(L.T("Dirigeants"), 330);
-            foreach (var c in found)
+            list.DoubleClick += (s, e) => Accept();
+
+            var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 44, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8) };
+            var cancel = new Button { Text = L.T("Annuler"), DialogResult = DialogResult.Cancel, AutoSize = true };
+            btnOk = new Button { Text = L.T("Ajouter"), AutoSize = true, Enabled = false };
+            btnOk.Click += (s, e) => Accept();
+            var manual = new Button { Text = L.T("Ajouter sans recherche"), AutoSize = true };
+            manual.Click += (s, e) =>
+            {
+                ManualName = txtName.Text.Trim();
+                if (ManualName.Length == 0) return;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            bar.Controls.AddRange(new Control[] { cancel, btnOk, manual });
+            AcceptButton = btnSearch; CancelButton = cancel;
+            Controls.Add(list); Controls.Add(lblInfo); Controls.Add(top); Controls.Add(bar);
+        }
+
+        void Search()
+        {
+            string name = txtName.Text.Trim();
+            if (name.Length < 2) return;
+            bool world = cboSource.SelectedIndex == 1;
+            btnSearch.Enabled = false;
+            lblInfo.Text = L.T("Recherche…");
+            list.Items.Clear();
+            string lang = L.English ? "en" : "fr";
+            var t = new System.Threading.Thread(() =>
+            {
+                List<CompanyInfo> found = null;
+                string error = null;
+                try { found = world ? CompanyLookup.SearchWorld(name, lang) : CompanyLookup.Search(name); }
+                catch (Exception ex) { error = ex.Message; }
+                try { BeginInvoke(new Action(() => ShowResults(found, error, world))); } catch (Exception) { }
+            });
+            t.IsBackground = true;
+            t.Start();
+        }
+
+        void ShowResults(List<CompanyInfo> found, string error, bool world)
+        {
+            btnSearch.Enabled = true;
+            items = found ?? new List<CompanyInfo>();
+            if (error != null) { lblInfo.Text = (world ? L.T("Wikidata est injoignable : ") : L.T("L’Annuaire des Entreprises est injoignable :") + " ") + error; return; }
+            if (items.Count == 0)
+            {
+                lblInfo.Text = world ? L.T("Aucune entreprise trouvée. Wikidata ne connaît que les entreprises assez connues : utilisez « Ajouter sans recherche ».")
+                    : L.T("Aucune entreprise trouvée. Vérifiez le nom ou utilisez « Ajouter sans recherche ».");
+                return;
+            }
+            lblInfo.Text = world ? L.T("Source : Wikidata. Choisissez la bonne entreprise ; son site officiel sera ajouté aux domaines.")
+                : L.T("Source : Annuaire des Entreprises (INSEE, RNE). Choisissez la bonne entreprise.");
+            foreach (var c in items)
             {
                 var it = new ListViewItem(new[] { c.Name + (c.Active ? "" : " " + L.T("(fermée)")), c.City, c.Siren, string.Join(", ", c.Roles.ToArray()) });
                 if (!c.Active) it.ForeColor = SystemColors.GrayText;
                 list.Items.Add(it);
             }
-            if (list.Items.Count > 0) list.Items[0].Selected = true;
-            var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 44, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8) };
-            var cancel = new Button { Text = L.T("Annuler"), DialogResult = DialogResult.Cancel, AutoSize = true };
-            var ok = new Button { Text = L.T("Ajouter les dirigeants"), AutoSize = true };
-            ok.Click += (s, e) => Accept();
-            list.DoubleClick += (s, e) => Accept();
-            bar.Controls.AddRange(new Control[] { cancel, ok });
-            AcceptButton = ok; CancelButton = cancel;
-            Controls.Add(list); Controls.Add(hint); Controls.Add(bar);
+            list.Items[0].Selected = true;
+            btnOk.Enabled = true;
+            AcceptButton = btnOk;
         }
 
         void Accept()
