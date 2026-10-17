@@ -29,6 +29,7 @@ namespace PhishGuard.AddIn
 
         readonly string mailboxDomain;
         Button btnLookup;
+        CheckBox chkWatch;
 
         public SettingsForm(PhishGuardConfig current, Icon icon) : this(current, icon, "") { }
 
@@ -69,6 +70,14 @@ namespace PhishGuard.AddIn
                 addDom.LinkClicked += (s, e) => AddLines(txtDomains, new[] { this.mailboxDomain });
                 pGeneral.Controls.Add(addDom);
             }
+            var btnAudit = new Button { Text = L.T("Analyser mon domaine…"), Location = new Point(12, y - 6), AutoSize = true };
+            btnAudit.Click += (s, e) => OpenAudit();
+            pGeneral.Controls.Add(btnAudit);
+            chkWatch = new CheckBox { Text = L.T("Surveiller chaque semaine les nouveaux sosies"), Checked = cfg.WatchDomains, Location = new Point(200, y - 2), AutoSize = true };
+            pGeneral.Controls.Add(chkWatch);
+            y += 26;
+            AddHint(pGeneral, ref y, WatchStatus());
+            y += 14;
             txtVips = AddText(pGeneral, ref y, L.T("Dirigeants et personnes sensibles (un nom par ligne)"), string.Join(Environment.NewLine, cfg.VipNames.ToArray()), true, 70,
                 L.T("Un email externe affichant l’un de ces noms est signalé (fraude au président)."));
             txtReport = AddText(pGeneral, ref y, L.T("Adresse de l’équipe sécurité (bouton « Signaler »)"), cfg.ReportAddress, false, 0,
@@ -207,6 +216,33 @@ namespace PhishGuard.AddIn
                 added++;
             }
             return added;
+        }
+
+        static string WatchStatus()
+        {
+            var map = DomainAudit.LoadWatch();
+            DomainAudit.WatchEntry last;
+            if (!map.TryGetValue("*", out last))
+                return L.T("Sécurité email, dirigeants, sosies déjà enregistrés. La surveillance bloque ensuite les sosies qui apparaissent (DNS uniquement).");
+            int blocked = map.Values.Count(x => x.Status == "new" || x.Status == "cert");
+            return L.F("Dernière vérification des sosies : {0} — {1} domaine(s) bloqué(s) par la surveillance.", last.Date.ToString("dd/MM/yyyy"), blocked);
+        }
+
+        void OpenAudit()
+        {
+            var domains = Lines(txtDomains, true).Select(d => d.TrimStart('@')).ToList();
+            if (domains.Count == 0 && mailboxDomain.Length > 0 && !Lists.FreemailDomains.Contains(mailboxDomain)) domains.Add(mailboxDomain);
+            using (var f = new DomainAuditForm(domains, Icon))
+            {
+                f.BlockDomains = list => AddLines(txtCustom, list);
+                f.AddCompanyDomains = list => AddLines(txtDomains, list);
+                f.AddCompany = c =>
+                {
+                    AddLines(txtVips, c.Directors);
+                    if (txtCompany.Text.Trim().Length == 0) txtCompany.Text = CompanyLookup.Title(c.Name);
+                };
+                f.ShowDialog(this);
+            }
         }
 
         /// <summary>Recherche l'entreprise dans l'Annuaire des Entreprises et propose ses dirigeants.</summary>
@@ -377,6 +413,7 @@ namespace PhishGuard.AddIn
             cfg.ScoreLog = chkLog.Checked;
             cfg.TrustedSenders = Lines(txtTrustedSenders, true).Where(x => x.Contains("@")).ToList();
             cfg.SharedBlocklistPath = txtShared.Text.Trim();
+            cfg.WatchDomains = chkWatch.Checked;
             cfg.BetaOpenPhish = chkOpenPhish.Checked;
             cfg.BetaTranco = chkTranco.Checked;
             cfg.BetaDnsChecks = chkDns.Checked;

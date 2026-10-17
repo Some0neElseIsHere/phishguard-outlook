@@ -32,6 +32,7 @@ namespace PhishGuard
         public string SharedBlocklistPath = "";  // liste de blocage partagée (ex. \\serveur\partage\phishguard.txt)
         public List<string> TrustedSenders = new List<string>();
         public string Language = "auto";         // auto (langue de Windows), fr ou en
+        public bool WatchDomains = true;         // surveillance hebdomadaire des nouveaux sosies de vos domaines (DNS)
 
         // Bêta : sources externes (désactivées par défaut)
         public bool BetaOpenPhish = false;       // flux OpenPhish (sans clé)
@@ -133,6 +134,7 @@ namespace PhishGuard
                     case "sharedblocklistpath": c.SharedBlocklistPath = val; break;
                     case "trustedsenders": c.TrustedSenders = SplitList(val, true); break;
                     case "language": c.Language = val.Trim().ToLowerInvariant(); break;
+                    case "watchdomains": c.WatchDomains = !IsFalse(val); break;
                     case "betaopenphish": c.BetaOpenPhish = IsTrue(val); break;
                     case "betatranco": c.BetaTranco = IsTrue(val); break;
                     case "betadnschecks": c.BetaDnsChecks = IsTrue(val); break;
@@ -169,6 +171,7 @@ namespace PhishGuard
             sb.AppendLine("SharedBlocklistPath = " + (SharedBlocklistPath ?? "").Replace("\r", "").Replace("\n", "").Trim());
             sb.AppendLine("TrustedSenders = " + string.Join(", ", TrustedSenders.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("Language = " + Clean(Language));
+            sb.AppendLine("WatchDomains = " + (WatchDomains ? "true" : "false"));
             sb.AppendLine("# Réputation : sources externes");
             sb.AppendLine("BetaOpenPhish = " + (BetaOpenPhish ? "true" : "false"));
             sb.AppendLine("BetaTranco = " + (BetaTranco ? "true" : "false"));
