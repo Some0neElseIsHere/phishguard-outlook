@@ -662,6 +662,37 @@ namespace PhishGuard.Tests
             Check("wikidata : entreprise, pays, site, dirigeant (fiche renseignée en premier)", wdRes.Count == 2 && wdRes[1].Name == "Airbus (homonyme)" && wdRes[0].Name == "Airbus" && wdRes[0].Country == "France" && wdRes[0].Website == "airbus.com"
                 && wdRes[0].Directors.Count == 1 && wdRes[0].Directors[0] == "Guillaume Faury", wdRes.Count > 0 ? wdRes[0].Name + "|" + wdRes[0].Country + "|" + wdRes[0].Website + "|" + string.Join(",", wdRes[0].Directors.ToArray()) : "aucun");
 
+            // ---------- Contrôles issus du banc d'essai (corpus publics) ----------
+            Correspondents.Set(new[] { "client@client-connu.fr" }, false);
+            var bl = Base(); bl.FromAddress = "auteur@exemple-dev.org";
+            bl.RawHeaders = PASS + "\r\nTo: dev@liste.apache.org\r\nList-Id: <dev.liste.apache.org>\r\nList-Post: <mailto:dev@liste.apache.org>\r\nReply-To: dev@liste.apache.org";
+            bl.ReplyTo.Add("dev@liste.apache.org");
+            var rbl = Analyzer.Analyze(bl, cfg);
+            Check("liste de diffusion : ni Reply-To suspect ni premier contact", Ids(rbl).Contains("sender-replyto-list") && Ids(rbl).Contains("sender-first-contact-list")
+                && !Ids(rbl).Contains("sender-replyto") && !Ids(rbl).Contains("sender-first-contact") && rbl.Level == "safe", string.Join(",", Ids(rbl).ToArray()) + " " + rbl.Level);
+            var bl2 = Base(); bl2.FromAddress = "auteur@exemple-dev.org";
+            bl2.RawHeaders = PASS + "\r\nTo: vous@acmetech.fr\r\nList-Id: <fausse.liste>\r\nList-Post: <mailto:attaquant@pirate.example>";
+            Check("fausse liste (adressée à vous) : premier contact conservé", Ids(Analyzer.Analyze(bl2, cfg)).Contains("sender-first-contact"));
+
+            var mb = Base(); mb.FromAddress = "it-desk@serveur-inconnu.example"; mb.Subject = "Incoming messages failed for vous@acmetech.fr";
+            mb.RawHeaders = PASS + "\r\nTo: vous@acmetech.fr";
+            mb.BodyText = "Dear vous@acmetech.fr, 6 incoming messages are placed on hold. Sign in to release pending messages immediately.";
+            mb.Links.Add(new LinkInfo("https://site-pirate.example/owa", "Release messages"));
+            var rmb = Analyzer.Analyze(mb, cfg);
+            Check("fausse alerte de messagerie : adresse dans l'objet, combinaison, dangereux", Ids(rmb).Contains("content-recipient-subject") && Ids(rmb).Contains("content-mailbox")
+                && Ids(rmb).Contains("content-combo-mailbox") && rmb.Level == "dangerous", string.Join(",", Ids(rmb).ToArray()) + " " + rmb.Score);
+            var gr = Base(); gr.FromAddress = "x@inconnu.example"; gr.RawHeaders = PASS + "\r\nTo: vous@acmetech.fr"; gr.BodyText = "Hello vous@acmetech.fr, see attached.";
+            Check("salutation par l'adresse", Ids(Analyzer.Analyze(gr, cfg)).Contains("content-recipient-greeting"));
+            var cap = Base(); cap.FromAddress = "x@inconnu.example"; cap.Subject = "Action requise";
+            cap.BodyText = "Votre compte sera suspendu. Connectez-vous immédiatement pour vérifier votre compte et votre mot de passe.";
+            var rcap = Analyzer.Analyze(cap, cfg);
+            Check("combinaison décisive hors plafond du contenu", Ids(rcap).Contains("content-combo-cred") && rcap.Score > 8 + 30, rcap.Score.ToString());
+            Correspondents.Reset();
+            L.SetLanguage("en");
+            Check("anglais : nouveaux indices traduits", rmb.Findings.Count > 0 && Analyzer.Analyze(mb, cfg).Findings.All(f => !f.Title.Contains("’")),
+                string.Join(" | ", Analyzer.Analyze(mb, cfg).Findings.Select(f => f.Title).ToArray()));
+            L.SetLanguage("fr");
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);
