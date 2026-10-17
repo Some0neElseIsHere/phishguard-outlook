@@ -77,8 +77,8 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 | **Signaler** | Après une double confirmation, envoie à l'équipe sécurité un rapport HTML (verdict, points de doute détaillés, authentification et origine, liens désarmés, pièces jointes et empreintes, observables à copier, copie du texte du message) avec le message d'origine joint (.msg avec tous ses en-têtes), puis le déplace dans Courrier indésirable. |
 | **Ce n'est pas du phishing** | Ajoute l'expéditeur ou son domaine aux expéditeurs de confiance (une usurpation reste toujours signalée). |
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
-| **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier (onglets Entreprise, Analyse, Listes, Réputation). Onglet Entreprise : **Rechercher…** retrouve les dirigeants dans l'[Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) (API publique de l'État, sans clé), et le domaine de votre adresse Outlook est proposé comme domaine de l'entreprise. |
-| **Réputation** | Sources externes optionnelles : OpenPhish, Tranco, DNS (MX, SPF, politique DMARC, BIMI avec certificat VMC/CMC), crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Réputation de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
+| **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier (onglets Entreprise, Analyse, Listes, Réputation). Onglet Entreprise : **plusieurs entreprises** (groupe, filiales, y compris à l'étranger), retrouvées avec leurs dirigeants dans l'[Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) pour la France ou dans [Wikidata](https://www.wikidata.org/) pour les autres pays (sans clé) ; la liste des dirigeants surveillés en découle. Le domaine de votre adresse Outlook est proposé comme domaine de l'entreprise. |
+| **Réputation** | Sources externes optionnelles : Red Flag Domains, OpenPhish, Tranco, DNS (MX, SPF, politique DMARC, BIMI avec certificat VMC/CMC), crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Réputation de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
 | **Analyser mon domaine** | Depuis Paramètres → Entreprise : bilan de la sécurité email de votre domaine (MX, SPF, DKIM, DMARC, BIMI, MTA-STS, services autorisés à envoyer en votre nom), SIREN lu dans les mentions légales du site puis dirigeants, **sosies déjà enregistrés** (≈170 variantes vérifiées dans le DNS), certificats récents contenant votre marque et domaines liés (crt.sh). Les sosies cochés rejoignent la liste de blocage. |
 | **Surveillance des sosies** | Chaque semaine, les variantes de vos domaines sont revérifiées : un sosie apparu depuis la dernière fois est bloqué automatiquement (et un nouveau certificat contenant votre marque, si crt.sh est activé). |
 | **Expéditeur vérifié** | Pastille verte avec une coche quand le message est authentifié pour le domaine affiché (DMARC, DKIM aligné ou compauth Microsoft) **et** vient de quelqu'un avec qui vous êtes déjà en relation (correspondant connu, réponse à l'un de vos messages, expéditeur de confiance), sans aucun indice. Les preuves sont listées dans la fenêtre ; elles ne compensent jamais un indice Élevé ou Critique. |
@@ -147,8 +147,9 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 
 | Clé | Rôle | Défaut |
 |---|---|---|
-| `CompanyName`, `CompanyDomains` | Votre entreprise ; ses sosies sont classés critiques | — (domaines : celui de l'adresse Outlook de l'utilisateur, hors messageries gratuites) |
-| `VipNames` | Dirigeants et personnes sensibles (fraude au président) | — |
+| `Company1`, `Company2`… | Entreprises surveillées : `Nom \| Pays \| Identifiant \| Dirigeant; Dirigeant` (leurs noms et dirigeants servent à détecter l'usurpation et la fraude au président) | — |
+| `CompanyName`, `CompanyDomains` | Nom principal (anciennes versions) et domaines de l'entreprise ; leurs sosies sont classés critiques | — (domaines : celui de l'adresse Outlook de l'utilisateur, hors messageries gratuites) |
+| `VipNames` | Dirigeants (anciennes versions : repris dans la première entreprise) | — |
 | `ReportAddress` | Adresse de l'équipe sécurité pour **Signaler** | — |
 | `Language` | `auto` (langue de Windows), `fr` ou `en` | `auto` |
 | `TrustedDomains`, `TrustedSenders` | Domaines et adresses de confiance | — |
@@ -190,7 +191,7 @@ Une clé d'API écrite dans `config.ini` y est lisible en clair : préférez la 
 | Contenu, objet, pièces jointes des messages | **Nulle part** : analyse sur le poste |
 | Noms de domaine (âge du domaine) | `rdap.org` puis le registre du domaine (désactivable) |
 | Liste Red Flag Domains | Téléchargée depuis `dl.red.flag.domains` (aucune donnée envoyée) |
-| Nom de l'entreprise (bouton « Rechercher » des paramètres) | `recherche-entreprises.api.gouv.fr`, uniquement au clic |
+| Nom d'une entreprise recherchée (bouton « Ajouter une entreprise ») | `recherche-entreprises.api.gouv.fr` (France) ou `wikidata.org` (autres pays), uniquement au clic |
 | Vos domaines et leurs variantes (analyse et surveillance des sosies) | Serveur DNS de votre entreprise ; `crt.sh` pour les certificats ; votre propre site pour les mentions légales |
 | Sources de réputation (si activées) | OpenPhish et Tranco : listes téléchargées, comparaison sur le poste. DNS : serveur DNS de l'entreprise. crt.sh, abuse.ch : noms de domaine. VirusTotal, abuse.ch : empreintes SHA-256 des pièces jointes (jamais le fichier). AbuseIPDB : IP d'origine |
 | Signalement | Le message et le rapport sont envoyés à l'adresse de l'équipe sécurité configurée, et à elle seule |
@@ -309,7 +310,7 @@ Code publié sous licence **GNU GPL v3** (voir [LICENSE](LICENSE)) : vous pouvez
 
 - Liste [Red Flag Domains](https://red.flag.domains/) : données sous licence **CC BY-NC-SA 4.0** (usage non commercial). Elle est téléchargée par chaque poste et n'est pas redistribuée ici. Pour un usage en entreprise, vérifiez que votre cas est couvert (hello@red.flag.domains) ou désactivez-la (`RedFlagEnabled = false`).
 - Âge des domaines : service public [rdap.org](https://rdap.org/) et registres RDAP.
-- Dirigeants : [Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) (données INSEE et RNE).
+- Dirigeants : [Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) (données INSEE et RNE) et [Wikidata](https://www.wikidata.org/) (données sous licence CC0).
 - Sources de réputation optionnelles : [OpenPhish](https://openphish.com/) (flux communautaire, usage non commercial), [Tranco](https://tranco-list.eu/), [crt.sh](https://crt.sh/), [VirusTotal](https://www.virustotal.com/), [abuse.ch](https://abuse.ch/), [AbuseIPDB](https://www.abuseipdb.com/), chacune selon ses propres conditions d'utilisation.
 - Lecture des QR codes : décodeur de [ZXing.Net](https://github.com/micjahn/ZXing.Net) (licence Apache 2.0, voir `outlook-exe/src/ThirdParty/ZXing/LICENSE`).
 - Inspiré par [PhishTool](https://www.phishtool.com/).

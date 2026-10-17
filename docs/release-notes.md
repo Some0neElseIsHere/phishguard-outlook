@@ -12,17 +12,10 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **v1.9.3** : liens de vérification ESET et France Verif retirés (VirusTotal, Cisco Talos, AbuseIPDB, listes noires et WHOIS restent).
-
-- **v1.9.2** : liens de vérification : France Verif ajouté à côté d'ESET ; mode simple : pour un expéditeur vérifié, ce qui le confirme est affiché ; rapport de signalement : IP d'origine sans doublon.
-
-- **v1.9.1** : mode simple : chaque point dangereux ou suspect est détaillé (explication, preuves), les simples informations restent en gris sans détail ; bouton « Supprimer le message » retiré.
-
-- **Mode simple pour les débutants** (par défaut) : la fenêtre d'analyse dit en clair « Ce message est dangereux / suspect / Aucun danger détecté », détaille chaque point dangereux ou suspect sans jargon technique (explication et preuves), laisse les simples informations en gris, et donne **« Que dois-je faire ? »** étape par étape (adapté au cas : paiement, mot de passe, pièce jointe…), avec des conseils pour reconnaître un phishing.
-- **Mode expert** : la fenêtre d'enquête complète d'avant, en un clic sur **Analyse détaillée** ; le choix est mémorisé. En mode simple, les paramètres n'affichent que l'essentiel (les onglets Listes, Réputation et l'analyse de domaine apparaissent en mode expert).
-- **Assistant au démarrage d'Outlook** : à la première installation, il explique la pastille (vert, orange, rouge) et demande la langue, l'entreprise, l'adresse de l'équipe sécurité et le mode d'affichage. Après une mise à jour, il ne pose **que les questions ajoutées** (ici : le mode d'affichage) ; les réponses déjà renseignées ne sont jamais redemandées.
-- **QR codes dans les images** (« quishing ») : les QR codes des images du message sont lus sur le poste ; leur présence est signalée et l'adresse qu'ils contiennent est analysée comme un lien (sosies, listes de blocage, réputation…).
-- Depuis la v1.8 : signalement HTML détaillé, analyse de votre domaine, liens piégés imitant un fichier, liens de vérification sans compte.
+- **Plusieurs entreprises** (Paramètres → Entreprise) : groupe, filiales, y compris à l'étranger. **Ajouter une entreprise…** cherche dans l'Annuaire des Entreprises (France) ou dans Wikidata (autres pays) et récupère ses dirigeants ; pour Wikidata, le site officiel est ajouté aux domaines. Le nom de chaque entreprise est repéré dans le nom affiché des expéditeurs externes.
+- **Dirigeants** : la liste est maintenant remplie automatiquement à partir des entreprises et n'est plus modifiable à la main. Les noms saisis dans les versions précédentes sont repris dans la première entreprise.
+- **Red Flag Domains** passe dans l'onglet Réputation, avec les autres sources externes.
+- Depuis la v1.9 : mode simple et mode expert, assistant de démarrage, QR codes dans les images.
 
 ### Points forts
 

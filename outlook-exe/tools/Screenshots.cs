@@ -32,10 +32,14 @@ namespace PhishGuard.Tools
             {
                 CompanyName = "Exemple SAS",
                 CompanyDomains = new List<string> { "exemple-pme.fr" },
-                VipNames = new List<string> { "Claire Martin" },
+                Companies = new List<CompanyEntry> {
+                    new CompanyEntry { Name = "Exemple SAS", Country = "FR", Id = "552100554", Directors = new List<string> { "Claire Martin", "Hugo Bernard" } },
+                    new CompanyEntry { Name = "Exemple Iberia SL", Country = "Espagne", Directors = new List<string> { "Lucía Gómez" } } },
                 ReportAddress = "securite@exemple-pme.fr",
                 ExpertMode = true
             };
+
+            cfg.NormalizeCompanies();
 
             // 1. Phishing : fausse alerte Microsoft
             var p = new EmailData
