@@ -56,8 +56,8 @@ namespace PhishGuard
             string v = (value ?? "").ToLowerInvariant();
             string bg = v == "pass" ? "#e7f5ee" : v == "fail" || v == "softfail" || v == "permerror" ? "#fdeced" : "#eef1f5";
             string fg = v == "pass" ? "#13804a" : v == "fail" || v == "softfail" || v == "permerror" ? "#c4262e" : "#5f6b7a";
-            return "<span style='background:" + bg + ";color:" + fg + ";" + Font + "font-size:12px;font-weight:bold;padding:2px 8px;margin-right:6px'>"
-                + H(label) + " " + H(string.IsNullOrEmpty(value) ? L.T("absent") : value) + "</span>";
+            return "<span style='background:" + bg + ";color:" + fg + ";" + Font + "font-size:12px;font-weight:bold;padding:2px 8px'>"
+                + H(label) + "&nbsp;" + H(string.IsNullOrEmpty(value) ? L.T("absent") : value) + "</span>&nbsp;&nbsp; ";
         }
 
         /// <summary>Désarme toutes les adresses web d'un texte (copie du message d'origine).</summary>
