@@ -39,7 +39,7 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 |---|---|
 | **Score permanent** | Un seul bouton dans le ruban : il affiche le verdict et le score (pastille verte, orange ou rouge) du message sélectionné ou ouvert, sans clic. |
 | **Alerte** | Une notification discrète en bas à droite de l'écran pour les messages dangereux (ou suspects, au choix). |
-| **Mode simple** (par défaut) | Pour les non-spécialistes : le verdict en clair (« Ce message est dangereux »), les raisons principales sans jargon, **« Que dois-je faire ? »** étape par étape, des conseils pour reconnaître un phishing, et les boutons Signaler et Supprimer. Un assistant de premier lancement explique la pastille et demande l'essentiel. |
+| **Mode simple** (par défaut) | Pour les non-spécialistes : le verdict en clair (« Ce message est dangereux »), les raisons principales sans jargon, **« Que dois-je faire ? »** étape par étape, des conseils pour reconnaître un phishing, et les boutons Signaler et Supprimer. Un assistant au démarrage d'Outlook explique la pastille et demande l'essentiel ; après une mise à jour, il ne pose que les questions nouvelles. |
 | **Mode expert** | Bouton **Analyse détaillée** (ou Paramètres → Analyse → Affichage) : la fenêtre d'enquête complète ci-dessous, et les réglages avancés (Listes, Réputation, Analyser mon domaine). |
 | **Fenêtre d'enquête** (mode expert) | Jauge de risque, indices classés par gravité, parcours des serveurs en frise ; onglets Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps, Réputation. Les boutons Signaler, Ce n'est pas du phishing et Paramètres sont en bas de cette fenêtre. |
 | **Signaler** | Après une double confirmation, envoie à l'équipe sécurité un rapport HTML (verdict, points de doute détaillés, authentification et origine, liens désarmés, pièces jointes et empreintes, observables à copier, copie du texte du message) avec le message d'origine joint (.msg avec tous ses en-têtes), puis le déplace dans Courrier indésirable. |
@@ -61,6 +61,7 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 | **Expéditeur** | Domaines sosies de grandes marques, de **votre entreprise** et de **vos correspondants** (typosquatting, homoglyphes, caractères Unicode, marque + mots ajoutés, marque en sous-domaine). **Premier contact**. **Âge du domaine** (RDAP). Nom affiché trompeur, Reply-To détourné, usurpation d'un dirigeant (fraude au président), tenant `onmicrosoft.com`. |
 | **Liens** | Sosies, texte du lien ≠ destination, **texte qui imite un fichier** (`C:\…`, `facture.pdf` qui télécharge un `.exe` ou un `.lnk`), **liens vers un fichier local ou un partage réseau** (`file:`, `\\serveur\…`), protocoles qui lancent Windows (`search-ms:`, `ms-msdt:`…) ou un document Office distant, liens réécrits par les passerelles (Proofpoint, Safe Links, Barracuda, Sophos, Trend Micro, Symantec, FortiMail) et redirections déballés, adresse IP, `@` dans l'URL, raccourcisseurs, hébergeurs gratuits détournés, extensions à risque, domaines récents, listes de blocage. Les liens contenus dans les PDF et pièces jointes HTML sont aussi analysés. |
 | **Pièces jointes** | Extension, double extension, caractère d'inversion Unicode, **type réel** (programme renommé en `.pdf`…), empreintes MD5/SHA1/SHA256, et **contenu** : programme caché dans un ZIP, archive chiffrée, macros (y compris cachées dans un `.docx`), JavaScript dans un PDF, fausse page de connexion HTML, objet RTF. |
+| **QR codes** | Les QR codes contenus dans les images du message (dans le corps ou en pièce jointe) sont **lus sur le poste** : leur présence est signalée (« quishing ») et l'adresse qu'ils contiennent est analysée comme un lien. |
 | **Contenu** | Urgence, demande d'identifiants, demande financière, **IBAN** et changement de RIB, demande de discrétion, QR code, faux « RE: », formulaire dans le message. |
 | **Filtres de messagerie** | Objet marqué « SPAM »/« PHISHING », SCL d'Exchange, SpamAssassin, Orange, FortiMail (au mieux). |
 | **Listes de blocage** | [Red Flag Domains](https://red.flag.domains/) (nouveaux domaines .fr suspects, mise à jour quotidienne), liste de l'équipe sécurité (`custom.txt`), liste de l'utilisateur (onglet Listes), liste partagée sur le réseau, sosies détectés par la surveillance. |
@@ -196,6 +197,7 @@ outlook-exe/                  Complément Outlook (COM, C# 5, .NET Framework 4)
   src/AddIn/                  Ruban, lecture des messages, fenêtres, tâches de fond
   tests/Tests.cs              Tests du moteur (lancés à chaque construction)
   installer/                  Installeur .exe (Setup.cs) et scripts installer.cmd / desinstaller.cmd
+  src/ThirdParty/ZXing/       Décodeur QR de ZXing.Net (Apache 2.0, non modifié sauf syntaxe C# 5)
   tools/gen-lists.mjs         Génère src/Engine/Lists.cs depuis src/engine/lists.js
   config.ini, custom.txt      Configuration par défaut et liste de blocage de l'équipe sécurité
   LISEZMOI.md                 Notice incluse dans le zip de la release
@@ -242,4 +244,5 @@ Code publié sous licence **GNU GPL v3** (voir [LICENSE](LICENSE)) : vous pouvez
 - Âge des domaines : service public [rdap.org](https://rdap.org/) et registres RDAP.
 - Dirigeants : [Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) (données INSEE et RNE).
 - Sources de réputation optionnelles : [OpenPhish](https://openphish.com/) (flux communautaire, usage non commercial), [Tranco](https://tranco-list.eu/), [crt.sh](https://crt.sh/), [VirusTotal](https://www.virustotal.com/), [abuse.ch](https://abuse.ch/), [AbuseIPDB](https://www.abuseipdb.com/), chacune selon ses propres conditions d'utilisation.
+- Lecture des QR codes : décodeur de [ZXing.Net](https://github.com/micjahn/ZXing.Net) (licence Apache 2.0, voir `outlook-exe/src/ThirdParty/ZXing/LICENSE`).
 - Inspiré par [PhishTool](https://www.phishtool.com/).
