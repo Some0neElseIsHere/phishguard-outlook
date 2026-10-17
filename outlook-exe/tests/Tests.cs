@@ -298,6 +298,13 @@ namespace PhishGuard.Tests
             Check("premier contact", Ids(rc).Contains("sender-first-contact"));
             var ek = Base();  // paul@exemple-pme.fr est connu
             Check("correspondant connu : pas de premier contact", !Ids(Analyzer.Analyze(ek, cfg)).Contains("sender-first-contact"));
+            var en = Base(); en.FromAddress = "noreply@planethoster.info"; en.FromName = "PlanetHoster";
+            var rn = Analyzer.Analyze(en, cfg);
+            Check("noreply authentifié : premier contact en information", !Ids(rn).Contains("sender-first-contact") && Ids(rn).Contains("sender-first-contact-auto"), string.Join(",", Ids(rn).ToArray()));
+            var en2 = Base(); en2.FromAddress = "noreply@planethoster.info"; en2.RawHeaders = FAIL;
+            Check("noreply non authentifié : premier contact signalé", Ids(Analyzer.Analyze(en2, cfg)).Contains("sender-first-contact"));
+            Check("adresses automatiques", Analyzer.IsAutomatedAddress("no-reply@x.fr") && Analyzer.IsAutomatedAddress("account-security-noreply@x.com")
+                && Analyzer.IsAutomatedAddress("notifications@x.com") && !Analyzer.IsAutomatedAddress("paul@x.fr"));
             var ef = Base(); ef.FromAddress = "inconnu@autre-societe.fr"; ef.BodyText = "Merci de régler la facture impayée par virement aujourd'hui.";
             Check("premier contact + demande financière", Ids(Analyzer.Analyze(ef, cfg)).Contains("content-first-contact-request"));
             Check("domaine légitime non signalé comme sosie", Domains.LookalikeOfKnown("fournisseur-alpha.fr", "fournisseur-alpha.fr") == null);

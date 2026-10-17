@@ -59,6 +59,7 @@ namespace PhishGuard
             public bool HasArchive;
             public bool FirstContact;
             public bool SenderTrusted;
+            public bool AuthOk;          // DMARC valide, ou SPF et DKIM valides
         }
 
         // =====================================================================
@@ -290,6 +291,7 @@ namespace PhishGuard
             if (spf == "pass") positives.Add(L.T("SPF valide"));
             if (dkim == "pass") positives.Add(L.T("Signature DKIM valide"));
             if (dmarc == "pass") positives.Add(L.T("DMARC valide pour ") + (headerFrom ?? fromDomain));
+            ctx.AuthOk = dmarc == "pass" || (spf == "pass" && dkim == "pass" && dmarc != "fail");
 
             string rp = AddressesIn(HeaderValues(headers, "return-path").FirstOrDefault()).FirstOrDefault();
             string rpOrg = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(rp));
@@ -325,8 +327,14 @@ namespace PhishGuard
                 if (!knownAddr && !knownDomain)
                 {
                     ctx.FirstContact = true;
-                    findings.Add(new Finding("sender-first-contact", "sender", Severity.Low, L.T("Premier message d’un expéditeur inconnu"),
-                        L.T("Vous n’avez jamais écrit à cette adresse ni à ce domaine."), new[] { fromAddr }));
+                    // Adresse automatique (noreply, notification...) authentifiée : normal de ne jamais lui avoir écrit.
+                    // Le premier contact reste pris en compte si le message demande un paiement ou des identifiants.
+                    if (IsAutomatedAddress(fromAddr) && ctx.AuthOk)
+                        findings.Add(new Finding("sender-first-contact-auto", "sender", Severity.Info, L.T("Premier message de cette adresse automatique"),
+                            L.T("Adresse d’envoi automatique authentifiée : ne pas lui avoir écrit est normal."), new[] { fromAddr }));
+                    else
+                        findings.Add(new Finding("sender-first-contact", "sender", Severity.Low, L.T("Premier message d’un expéditeur inconnu"),
+                            L.T("Vous n’avez jamais écrit à cette adresse ni à ce domaine."), new[] { fromAddr }));
                 }
                 else if (!knownAddr)
                     findings.Add(new Finding("sender-new-address", "sender", Severity.Info, L.T("Nouvelle adresse d’un domaine connu"), "", new[] { fromAddr }));
@@ -412,6 +420,21 @@ namespace PhishGuard
         // =====================================================================
         // Correspondants connus et âge des domaines
         // =====================================================================
+
+        static readonly System.Text.RegularExpressions.Regex AutomatedLocal = new System.Text.RegularExpressions.Regex(
+            @"^(no-?reply|ne-?pas-?repondre|do-?not-?reply|donotreply|noreponse|notifications?|alerts?|mailer-daemon|bounce[s]?|newsletter|news|info|mailing|system|automated|account-security-noreply)([._+-].*)?$",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        /// <summary>Adresse d'envoi automatique (noreply@, notification@...) à laquelle on n'écrit jamais.</summary>
+        public static bool IsAutomatedAddress(string address)
+        {
+            string a = (address ?? "").Trim();
+            int at = a.IndexOf('@');
+            if (at <= 0) return false;
+            string local = a.Substring(0, at);
+            return AutomatedLocal.IsMatch(local) || local.IndexOf("noreply", StringComparison.OrdinalIgnoreCase) >= 0
+                || local.IndexOf("no-reply", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
 
         static void CheckCorrespondentLookalike(string host, string where, List<Finding> findings)
         {
