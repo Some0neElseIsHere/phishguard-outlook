@@ -11,6 +11,7 @@ namespace PhishGuard
         static readonly Dictionary<string, string> Texts = new Dictionary<string, string>
         {
             { "auth-dmarc", "DMARC vérifie que le domaine affiché dans « De » a réellement autorisé cet envoi. En cas d’échec, n’importe qui a pu écrire ce nom : c’est le cœur de l’usurpation d’identité. Ne vous fiez pas au nom affiché." },
+            { "link-qr-image", "Un QR code se scanne avec le téléphone, qui échappe aux protections de l’entreprise (filtrage, antivirus). Les fraudeurs s’en servent pour mener vers une fausse page de connexion. Ne scannez pas un QR code reçu par email sans être sûr de l’expéditeur." },
             { "link-local-file", "Un email ne devrait jamais ouvrir un fichier sur votre poste ou sur un serveur. Un raccourci (.lnk) ou un script peut porter le nom d’un document ordinaire : au clic, il lance un programme. Survolez le lien : si l’adresse en bas de l’écran commence par file:, \\\\ ou une lettre de lecteur, ne cliquez pas." },
             { "link-protocol", "Certains liens ne mènent pas à un site mais ouvrent une fonction de Windows (recherche, dépannage, installation). Les attaquants s’en servent pour afficher un dossier distant rempli de faux documents qui sont en réalité des programmes." },
             { "link-text-path", "Le texte d’un lien peut être n’importe quoi : ici il ressemble à un fichier de votre poste pour inspirer confiance. Seule compte l’adresse réelle, visible en survolant le lien." },

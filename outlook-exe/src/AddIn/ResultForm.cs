@@ -578,6 +578,8 @@ namespace PhishGuard.AddIn
                 else sb.Append(Row(L.T("Empreintes"), "<span class='muted'>" + H(L.T("non calculées (fichier trop volumineux ou illisible)")) + "</span>"));
                 if (att.ContentFindings.Count > 0)
                     sb.Append(Row(L.T("Contenu"), string.Join("<br>", att.ContentFindings.Select(cf => "<span class='pill " + cf.Severity + "'>" + H(Analyzer.SeverityLabel(cf.Severity)) + "</span>" + H(cf.Title)).ToArray())));
+                if (att.QrCodes.Count > 0)
+                    sb.Append(Row(L.T("QR code"), "<span class='mono'>" + string.Join("<br>", att.QrCodes.Select(x => H(Analyzer.Defang(x))).ToArray()) + "</span>"));
                 if (att.ArchiveEntries.Count > 0)
                     sb.Append(Row(L.T("Fichiers de l’archive"), "<span class='mono'>" + string.Join("<br>", att.ArchiveEntries.Select(x => H(x)).ToArray()) + "</span>"));
                 if (att.EmbeddedUrls.Count > 0)

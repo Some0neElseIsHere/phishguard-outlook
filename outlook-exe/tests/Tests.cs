@@ -574,6 +574,50 @@ namespace PhishGuard.Tests
             Check("mode simple : conseil coordonnées bancaires", rMoney.Level == "safe" || SimpleView.Actions(rMoney).Any(x => x.Key.Contains("bancaires")), rMoney.Level);
             Check("mode simple : message sain", SimpleView.Build(Analyzer.Analyze(Base(), cfg), Base(), true).Contains("Aucun danger"));   // HtmlEncode transforme les accents en entités
 
+            // ---------- QR codes dans les images ----------
+            Func<string, System.Drawing.Imaging.ImageFormat, bool, byte[]> qrImage = (text, fmt, inverted) =>
+            {
+                var qm = new ZXing.QrCode.QRCodeWriter().encode(text, ZXing.BarcodeFormat.QR_CODE, 240, 240);
+                using (var qbmp = new System.Drawing.Bitmap(qm.Width + 80, qm.Height + 60))
+                {
+                    for (int qyy = 0; qyy < qbmp.Height; qyy++)
+                        for (int qxx = 0; qxx < qbmp.Width; qxx++)
+                        {
+                            int qmx = qxx - 40, qmy = qyy - 30;
+                            bool black = qmx >= 0 && qmy >= 0 && qmx < qm.Width && qmy < qm.Height && qm[qmx, qmy];
+                            if (inverted) black = !black;
+                            qbmp.SetPixel(qxx, qyy, black ? System.Drawing.Color.Black : System.Drawing.Color.White);
+                        }
+                    using (var qms = new System.IO.MemoryStream()) { qbmp.Save(qms, fmt); return qms.ToArray(); }
+                }
+            };
+            var qd = QrScan.Decode(qrImage("https://quish.attaquant-test.com/login?id=42", System.Drawing.Imaging.ImageFormat.Png, false));
+            Check("QR code lu dans un PNG", qd.Count == 1 && qd[0] == "https://quish.attaquant-test.com/login?id=42", string.Join("|", qd.ToArray()));
+            Check("QR code lu dans un JPEG", QrScan.Decode(qrImage("https://x.fr/a", System.Drawing.Imaging.ImageFormat.Jpeg, false)).Contains("https://x.fr/a"));
+            Check("QR code inversé (clair sur sombre)", QrScan.Decode(qrImage("https://x.fr/b", System.Drawing.Imaging.ImageFormat.Png, true)).Contains("https://x.fr/b"));
+            using (var plain = new System.Drawing.Bitmap(200, 120))
+            using (var ms2 = new System.IO.MemoryStream())
+            {
+                using (var qg = System.Drawing.Graphics.FromImage(plain)) qg.Clear(System.Drawing.Color.SteelBlue);
+                plain.Save(ms2, System.Drawing.Imaging.ImageFormat.Png);
+                Check("image sans QR code", QrScan.Decode(ms2.ToArray()).Count == 0);
+            }
+            Check("données qui ne sont pas une image", QrScan.Decode(new byte[5000]).Count == 0);
+            var eQr = Base(); eQr.BodyText = "Scannez le code ci-dessous pour réactiver votre messagerie.";
+            eQr.Attachments.Add(new AttachmentInfo { Name = "image001.png", IsInline = true, IsImage = true, QrCodes = new List<string> { "https://microsoft-verif.attaquant-test.com/login" } });
+            var rQr = Analyzer.Analyze(eQr, cfg);
+            Check("QR code : finding et lien analysé", Ids(rQr).Contains("link-qr-image") && rQr.Urls.Any(u => u.Contains("microsoft-verif.attaquant-test.com")), string.Join(",", Ids(rQr).ToArray()));
+
+            // ---------- Assistant de démarrage ----------
+            string[] setupSteps = { "intro", "language", "company", "report", "mode" };
+            var cNew = new PhishGuardConfig();
+            Check("assistant : première installation", cNew.PendingSetup(setupSteps, false).Count == 5);
+            var cOld = new PhishGuardConfig { ReportAddress = "secu@x.fr", CompanyDomains = new List<string> { "x.fr" } };
+            var pOld = cOld.PendingSetup(setupSteps, true);
+            Check("assistant : mise à jour, seulement les nouveautés", pOld.Count == 1 && pOld[0] == "mode", string.Join(",", pOld.ToArray()));
+            var cDone = new PhishGuardConfig { SetupKeyPresent = true, SetupDone = new List<string>(setupSteps) };
+            Check("assistant : déjà vu", cDone.PendingSetup(setupSteps, true).Count == 0 && cDone.PendingSetup(setupSteps.Concat(new[] { "nouveau" }), true).SequenceEqual(new[] { "nouveau" }));
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);

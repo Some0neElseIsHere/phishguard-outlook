@@ -22,7 +22,7 @@ mkdir build\package
 if errorlevel 1 goto nowrite
 
 echo [1/4] Compilation des tests du moteur...
-"%CSC%" /nologo /codepage:65001 /target:exe /out:build\PhishGuard-Tests.exe /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs tests\Tests.cs
+"%CSC%" /nologo /codepage:65001 /target:exe /out:build\PhishGuard-Tests.exe /r:System.Drawing.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs /recurse:src\ThirdParty\*.cs /recurse:tests\ZXingEncoder\*.cs tests\Tests.cs
 if errorlevel 1 goto compilefail
 
 echo       Lancement des tests...
@@ -47,7 +47,7 @@ echo [2/4] Compilation du complement Outlook...
 "%CSC%" /nologo /codepage:65001 /target:library /platform:anycpu /out:build\package\PhishGuard.dll ^
   /r:System.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll ^
   /resource:assets\icon-32.png,PhishGuard.icon-32.png /resource:assets\report-32.png,PhishGuard.report-32.png /resource:assets\settings-32.png,PhishGuard.settings-32.png ^
-  src\Engine\*.cs src\AddIn\*.cs
+  src\Engine\*.cs src\AddIn\*.cs /recurse:src\ThirdParty\*.cs
 if errorlevel 1 goto compilefail
 
 echo [3/4] Preparation de l'installation...

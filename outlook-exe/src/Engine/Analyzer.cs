@@ -693,6 +693,22 @@ namespace PhishGuard
             var allLinks = new List<LinkInfo>(e.Links);
             foreach (var att in e.Attachments)
                 foreach (var u in att.EmbeddedUrls) allLinks.Add(new LinkInfo(u, ""));
+            // QR codes trouvés dans les images : l'adresse est analysée comme un lien (« quishing »)
+            foreach (var att in e.Attachments)
+                foreach (var q in att.QrCodes)
+                {
+                    string qt = (q ?? "").Trim();
+                    bool isUrl = Regex.IsMatch(qt, @"^(https?://|www\.)", RegexOptions.IgnoreCase);
+                    string ev = (isUrl ? Defang(qt) : qt).Length > 100 ? (isUrl ? Defang(qt) : qt).Substring(0, 100) + "…" : (isUrl ? Defang(qt) : qt);
+                    if (isUrl)
+                    {
+                        allLinks.Add(new LinkInfo(qt.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? "https://" + qt : qt, ""));
+                        add("link-qr-image", ctx.Internal ? Severity.Low : Severity.Medium, L.T("QR code à scanner dans une image"),
+                            L.T("Scanner un QR code avec son téléphone contourne les protections de l’entreprise : c’est la technique du « quishing ». L’adresse qu’il contient est analysée avec les autres liens."), ev);
+                    }
+                    else
+                        add("link-qr-image-text", Severity.Info, L.T("QR code dans une image (sans adresse web)"), "", ev);
+                }
             var ageChecked = new HashSet<string>();
             var corrChecked = new HashSet<string>();
             var rewrittenBy = new List<string>();
