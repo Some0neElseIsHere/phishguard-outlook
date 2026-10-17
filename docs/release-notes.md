@@ -12,12 +12,10 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- Onglet **Bêta** dans les paramètres (tout est désactivé par défaut) :
-  - sans clé : liste OpenPhish, classement Tranco, vérifications DNS du domaine expéditeur (MX, SPF, DMARC), âge du premier certificat HTTPS (crt.sh) ;
-  - avec une clé gratuite : VirusTotal, abuse.ch (URLhaus + ThreatFox), Google Safe Browsing, AbuseIPDB. Les clés sont chiffrées pour votre compte Windows.
-- La fenêtre d'analyse se met à jour toute seule quand les vérifications externes répondent.
-- Bouton « Copier les en-têtes » retiré (copie possible depuis l'onglet Source).
-- Option de catégorie de couleur renommée pour être plus claire.
+- **Bandeau coloré** en haut de la fenêtre Outlook (et des messages ouverts) : verdict, score, principaux indices, boutons *Voir le détail* et *Signaler*. Désactivable dans Paramètres → Analyse.
+- **Onglet Bêta** dans la fenêtre d'analyse (après *Corps*) : état de chaque source externe (vérifié, en cours, erreur, désactivé) et alertes regroupées.
+- Sources Bêta (désactivées par défaut) : OpenPhish, Tranco, DNS du domaine expéditeur, crt.sh ; avec clé gratuite : VirusTotal (pièces jointes uniquement), abuse.ch, AbuseIPDB.
+- Google Safe Browsing retiré.
 
 ### Points forts
 
