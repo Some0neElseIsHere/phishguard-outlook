@@ -88,5 +88,7 @@ namespace PhishGuard
         public List<AttachmentInfo> Attachments = new List<AttachmentInfo>();
         public bool FirstContact;
         public List<SourceStatus> Sources = new List<SourceStatus>();
+        public List<string> Trust = new List<string>();   // preuves de légitimité
+        public bool Verified;                              // « Expéditeur vérifié »
     }
 }

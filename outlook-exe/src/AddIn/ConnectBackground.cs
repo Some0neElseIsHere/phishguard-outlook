@@ -27,6 +27,8 @@ namespace PhishGuard.AddIn
         object corrItems;
         int corrIndex, corrCount;
         HashSet<string> corrFound = new HashSet<string>();
+        Dictionary<string, HashSet<string>> corrThreads = new Dictionary<string, HashSet<string>>();
+        const string PR_INTERNET_MESSAGE_ID = "http://schemas.microsoft.com/mapi/proptag/0x1035001F";
         DateTime corrNextRun = DateTime.MinValue;
 
         readonly HashSet<string> taggedKeys = new HashSet<string>();
@@ -103,7 +105,7 @@ namespace PhishGuard.AddIn
                 if (Correspondents.LoadCache(out fileDate))
                 {
                     Log("Correspondants : " + Correspondents.Count + " adresses (cache du " + fileDate.ToString("dd/MM/yyyy") + ")");
-                    if (fileDate > DateTime.Now.AddDays(-1)) { corrPhase = 3; corrNextRun = fileDate.AddDays(1); return; }
+                    if (fileDate > DateTime.Now.AddDays(-1) && File.Exists(Correspondents.ThreadsPath)) { corrPhase = 3; corrNextRun = fileDate.AddDays(1); return; }
                 }
                 StartCorrespondentPhase(1);
                 return;
@@ -132,6 +134,8 @@ namespace PhishGuard.AddIn
                 else
                 {
                     Correspondents.Set(corrFound, true);
+                    Correspondents.SetThreads(corrThreads, true);
+                    corrThreads = new Dictionary<string, HashSet<string>>();
                     Log("Correspondants : " + Correspondents.Count + " adresses trouvées dans les éléments envoyés et les contacts");
                     corrFound = new HashSet<string>();
                     corrItems = null;
@@ -167,6 +171,7 @@ namespace PhishGuard.AddIn
             if ((int)it.Class != MailReader.OlMail) return;
             dynamic recips = it.Recipients;
             int n = recips.Count;
+            var orgs = new HashSet<string>();
             for (int i = 1; i <= n && i <= 50; i++)
             {
                 try
@@ -174,10 +179,18 @@ namespace PhishGuard.AddIn
                     dynamic r = recips.Item(i);
                     string addr = Str(() => r.Address);
                     if (!addr.Contains("@")) addr = Str(() => r.PropertyAccessor.GetProperty(PR_SMTP_ADDRESS));
-                    if (addr.Contains("@")) corrFound.Add(addr.ToLowerInvariant());
+                    if (addr.Contains("@"))
+                    {
+                        corrFound.Add(addr.ToLowerInvariant());
+                        string org = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(addr));
+                        if (org.Length > 0) orgs.Add(org);
+                    }
                 }
                 catch (Exception) { }
             }
+            // Message-ID du message envoyé : permet de reconnaître les vraies réponses (et les détournements de fil)
+            string msgId = Str(() => it.PropertyAccessor.GetProperty(PR_INTERNET_MESSAGE_ID));
+            if (msgId.Length > 0 && orgs.Count > 0) corrThreads[Correspondents.NormalizeMessageId(msgId)] = orgs;
         }
 
         void CollectContact(object itemObj)

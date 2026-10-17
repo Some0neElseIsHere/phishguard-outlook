@@ -60,6 +60,11 @@ namespace PhishGuard
             public bool FirstContact;
             public bool SenderTrusted;
             public bool AuthOk;          // DMARC valide, ou SPF et DKIM valides
+            // Preuves de légitimité (affichées dans la fenêtre d'analyse ; ne masquent jamais un indice Élevé ou Critique)
+            public List<string> Trust = new List<string>();
+            public bool AuthProof;       // l'expéditeur affiché est authentifié (DMARC, DKIM aligné, compauth 1xx)
+            public bool RelationProof;   // relation établie avec vous : correspondant connu, réponse à votre message, expéditeur de confiance
+            public bool BulkCompliant;   // envoi en nombre conforme (désabonnement en un clic + DMARC)
         }
 
         // =====================================================================
@@ -75,6 +80,7 @@ namespace PhishGuard
 
             AnalyzeAuth(e, headers, ctx, findings, positives);
             AnalyzeSender(e, headers, ctx, findings, positives);
+            AnalyzeThread(e, headers, ctx, findings);
             var urls = new List<string>();
             var linkDomains = new List<string>();
             AnalyzeLinks(e, ctx, findings, urls, linkDomains);
@@ -85,6 +91,11 @@ namespace PhishGuard
             var details = Forensics.ParseHeaders(e.RawHeaders);
             var sources = new List<SourceStatus>();
             AnalyzeIntel(e, ctx, details, findings, positives, urls, linkDomains, sources);
+
+            // Envoi en nombre conforme aux règles Gmail/Yahoo/Microsoft : le ton commercial n'est pas un indice
+            if (ctx.BulkCompliant && !ctx.Internal)
+                foreach (var f in findings)
+                    if (f.Category == "content" && f.Severity == Severity.Low) f.Severity = Severity.Info;
 
             if (ctx.Internal)
             {
@@ -105,6 +116,8 @@ namespace PhishGuard
                     foreach (var f in findings)
                         if ((f.Category == "sender" || f.Category == "content" || f.Category == "filter") && f.Severity < Severity.Critical) f.Severity = Severity.Info;
                     positives.Add(L.T("Expéditeur marqué de confiance par vous"));
+                    ctx.Trust.Add(L.T("Expéditeur marqué de confiance par vous"));
+                    ctx.RelationProof = true;
                 }
             }
 
@@ -120,6 +133,9 @@ namespace PhishGuard
 
             bool hasCritical = findings.Any(f => f.Severity == Severity.Critical);
             string level = hasCritical || score >= 50 ? "dangerous" : score >= 20 ? "suspicious" : "safe";
+            // « Expéditeur vérifié » : authentifié ET connu (relation ou réputation), sans aucun indice Faible ou plus
+            bool verified = !ctx.Internal && ctx.AuthProof && ctx.RelationProof && level == "safe"
+                && !findings.Any(f => f.Severity >= Severity.Low);
 
             var r = new AnalysisResult
             {
@@ -136,6 +152,8 @@ namespace PhishGuard
                 Sources = sources,
                 Attachments = e.Attachments.Where(a => !(a.IsInline && a.IsImage)).ToList(),
                 FirstContact = ctx.FirstContact,
+                Trust = ctx.Trust.Distinct().ToList(),
+                Verified = verified,
                 SenderDomain = PhishGuard.Domains.DomainOfAddress(e.FromAddress)
             };
             if (level == "dangerous") { r.LevelLabel = L.T("Dangereux"); r.Advice = L.T("Ne cliquez sur aucun lien, n’ouvrez aucune pièce jointe et signalez ce message."); }
@@ -272,9 +290,23 @@ namespace PhishGuard
                 findings.Add(new Finding("auth-dmarc", "auth", fromCompany ? Severity.Critical : Severity.High,
                     fromCompany ? L.T("Usurpation de votre propre domaine (DMARC en échec)") : L.T("Échec DMARC : l’expéditeur affiché n’est pas authentifié"),
                     L.T("Le domaine affiché dans « De » n’a pas autorisé ce message. C’est le signe classique d’une usurpation."), new[] { fromDomain }));
+            string reason = Pick(@"\breason=(\d+)", ar) ?? "";
             if (compauth == "fail")
-                findings.Add(new Finding("auth-compauth", "auth", Severity.High, L.T("Microsoft signale une authentification composite en échec"),
-                    L.T("Exchange (compauth=fail) estime que l’expéditeur ne peut pas être authentifié."), new[] { fromDomain }));
+            {
+                string why = reason.Length > 0 ? L.F(" (raison {0})", reason) : "";
+                if (reason == "010" || reason.StartsWith("6"))
+                    findings.Add(new Finding("auth-compauth-intra", "auth", Severity.Critical, L.T("Microsoft détecte une usurpation de votre propre domaine"),
+                        L.T("Exchange (compauth=fail") + why + L.T(") : le message se présente comme venant de votre organisation sans en venir."), new[] { fromDomain }));
+                else if (reason == "001")
+                    findings.Add(new Finding("auth-compauth", "auth", Severity.Medium, L.T("Authentification Microsoft insuffisante"),
+                        L.T("Exchange (compauth=fail, raison 001) n’a pas pu relier ce message au domaine affiché, qui n’a pas de DMARC strict. Courant pour les petits domaines mal configurés, suspect si d’autres indices existent."), new[] { fromDomain }));
+                else if (reason == "002")
+                    findings.Add(new Finding("auth-compauth", "auth", Severity.High, L.T("Envoi interdit par le propriétaire du domaine"),
+                        L.T("Exchange (compauth=fail, raison 002) : votre organisation bloque explicitement les messages de ce domaine sans authentification."), new[] { fromDomain }));
+                else
+                    findings.Add(new Finding("auth-compauth", "auth", Severity.High, L.T("Microsoft signale une authentification composite en échec"),
+                        L.T("Exchange (compauth=fail") + why + L.T(") estime que l’expéditeur ne peut pas être authentifié."), new[] { fromDomain }));
+            }
             if (spf == "fail")
                 findings.Add(new Finding("auth-spf", "auth", dmarc == "fail" ? Severity.Low : Severity.Medium, L.T("Échec SPF"),
                     L.T("Le serveur qui a envoyé ce message n’est pas autorisé par le domaine de l’expéditeur."), null));
@@ -293,11 +325,82 @@ namespace PhishGuard
             if (dmarc == "pass") positives.Add(L.T("DMARC valide pour ") + (headerFrom ?? fromDomain));
             ctx.AuthOk = dmarc == "pass" || (spf == "pass" && dkim == "pass" && dmarc != "fail");
 
+            // Alignement : la signature DKIM / l'enveloppe SPF appartiennent-elles au domaine affiché ?
+            var dkimPass = new List<string>();
+            foreach (Match m in Regex.Matches(ar, @"\bdkim=pass\b[^;]*?\bheader\.d=([^\s;]+)", RegexOptions.IgnoreCase))
+                dkimPass.Add(m.Groups[1].Value.ToLowerInvariant().TrimEnd('.'));
+            bool dkimAligned = fromOrg.Length > 0 && dkimPass.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg);
+            string mailFrom = Pick(@"smtp\.mailfrom=([^\s;]+)", ar) ?? "";
+            string mailFromDomain = mailFrom.Contains("@") ? PhishGuard.Domains.DomainOfAddress(mailFrom) : mailFrom.TrimEnd('.');
+            bool spfAligned = spf == "pass" && fromOrg.Length > 0 && PhishGuard.Domains.RegistrableDomain(mailFromDomain) == fromOrg;
+            bool dmarcOk = dmarc == "pass";
+            bool compStrong = compauth == "pass" && reason.StartsWith("1");
+
+            if (dkimAligned && dmarc != "fail")
+                ctx.Trust.Add(L.F("Signé (DKIM) par le domaine de l’expéditeur : {0}", dkimPass.First(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg)));
+            else if (dkimPass.Count > 0 && fromOrg.Length > 0)
+                findings.Add(new Finding("auth-dkim-thirdparty", "auth", Severity.Info, L.T("Signature DKIM d’un autre domaine que l’expéditeur"),
+                    L.T("Normal pour un envoi par un prestataire (newsletter, outil d’emailing) : cette signature ne prouve pas l’identité de l’expéditeur affiché."),
+                    dkimPass.Take(3).Select(d => "d=" + d)));
+            if (dmarcOk)
+                ctx.Trust.Add(L.F("DMARC valide : le domaine {0} a autorisé ce message", headerFrom ?? fromDomain));
+            if (spfAligned && dmarc != "fail")
+                ctx.Trust.Add(L.T("Serveur d’envoi autorisé par le domaine de l’expéditeur (SPF aligné)"));
+            if (compStrong)
+                ctx.Trust.Add(reason == "130" ? L.T("Microsoft : authentification validée par une chaîne ARC de confiance (raison 130)")
+                    : L.F("Microsoft : authentification composite réussie (raison {0})", reason));
+            else if ((compauth == "pass" || compauth == "softpass") && reason.StartsWith("7"))
+                ctx.Trust.Add(L.F("Microsoft : expéditeur reconnu d’après son historique d’envoi (raison {0})", reason));
+            ctx.AuthProof = dmarc != "fail" && compauth != "fail" && (dmarcOk || compStrong || dkimAligned);
+
+            // Envoi en nombre conforme : désabonnement en un clic (RFC 8058) et DMARC valide
+            string unsub = string.Join(" ", HeaderValues(headers, "list-unsubscribe").ToArray());
+            string unsubPost = string.Join(" ", HeaderValues(headers, "list-unsubscribe-post").ToArray());
+            if (dmarcOk && unsub.IndexOf("https://", StringComparison.OrdinalIgnoreCase) >= 0
+                && unsubPost.IndexOf("List-Unsubscribe=One-Click", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                ctx.BulkCompliant = true;
+                ctx.Trust.Add(L.T("Envoi en nombre conforme (désabonnement en un clic, DMARC valide)"));
+            }
+
             string rp = AddressesIn(HeaderValues(headers, "return-path").FirstOrDefault()).FirstOrDefault();
             string rpOrg = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(rp));
             if (!string.IsNullOrEmpty(rp) && fromOrg.Length > 0 && rpOrg.Length > 0 && rpOrg != fromOrg)
                 findings.Add(new Finding("auth-returnpath", "auth", Severity.Info, L.T("Adresse de retour différente de l’expéditeur"),
                     L.T("Courant pour les envois de masse (newsletters), mais à garder en tête si d’autres indices existent."), new[] { rp }));
+        }
+
+        // =====================================================================
+        // Fil de discussion : réponse à l'un de vos messages ?
+        // =====================================================================
+
+        static void AnalyzeThread(EmailData e, List<KeyValuePair<string, string>> headers, Ctx ctx, List<Finding> findings)
+        {
+            if (ctx.Internal || ctx.FromOrg.Length == 0) return;
+            var ids = new List<string>();
+            foreach (var h in HeaderValues(headers, "in-reply-to"))
+                foreach (Match m in Regex.Matches(h, @"<([^<>\s]+)>")) ids.Add(m.Groups[1].Value);
+            var refs = new List<string>();
+            foreach (var h in HeaderValues(headers, "references"))
+                foreach (Match m in Regex.Matches(h, @"<([^<>\s]+)>")) refs.Add(m.Groups[1].Value);
+            refs.Reverse();   // le plus récent d'abord
+            ids.AddRange(refs);
+
+            string[] orgs = null;
+            foreach (var id in ids.Take(30)) { orgs = Correspondents.ThreadRecipients(id); if (orgs != null) break; }
+            if (orgs == null) return;
+
+            string fromAddr = (e.FromAddress ?? "").ToLowerInvariant();
+            string sentTo = string.Join(", ", orgs.Take(4).ToArray());
+            if (orgs.Contains(ctx.FromOrg) || ctx.IsCompany)
+            {
+                ctx.Trust.Add(L.F("Réponse à un message que vous avez envoyé ({0})", sentTo));
+                ctx.RelationProof = true;
+            }
+            else if (!ctx.SenderTrusted && !Correspondents.IsKnownAddress(fromAddr) && (ctx.IsFreemail || !Correspondents.IsKnownDomain(ctx.FromOrg)))
+                findings.Add(new Finding("sender-thread-hijack", "sender", Severity.High, L.T("Réponse à votre message, mais depuis une autre organisation"),
+                    L.T("Ce message répond à un email que vous avez envoyé à d’autres destinataires. Les fraudeurs reprennent de vraies conversations pour faire changer un RIB ou payer une facture : vérifiez par téléphone."),
+                    new[] { L.T("Envoyé à : ") + sentTo, L.T("Réponse de : ") + fromAddr }));
         }
 
         // =====================================================================
@@ -338,6 +441,8 @@ namespace PhishGuard
                 }
                 else if (!knownAddr)
                     findings.Add(new Finding("sender-new-address", "sender", Severity.Info, L.T("Nouvelle adresse d’un domaine connu"), "", new[] { fromAddr }));
+                if (knownAddr) { ctx.Trust.Add(L.T("Vous avez déjà écrit à cette adresse")); ctx.RelationProof = true; }
+                else if (knownDomain) { ctx.Trust.Add(L.F("Vous avez déjà écrit à ce domaine ({0})", fromOrg)); ctx.RelationProof = true; }
                 if (!knownDomain && !ctx.Domains.Legit.Contains(fromOrg))
                     CheckCorrespondentLookalike(fromDomain, L.T("Le domaine de l’expéditeur"), findings);
             }
@@ -797,17 +902,39 @@ namespace PhishGuard
                     || cfg.TrustedDomains.Contains(d);
                 int rank = Feeds.TrancoRank(d);
                 if (rank > 0) ranked++;
-                if (rank > 0 && cat == "sender" && !ctx.Domains.CompanyDomains.Contains(d))
-                    positives.Add(L.F("Domaine très fréquenté : {0} (n° {1} mondial, classement Tranco)", PhishGuard.Domains.ToUnicode(d), rank.ToString("N0")));
-                if (trusted) continue;
+                bool personal = Lists.FreemailDomains.Contains(d) || ctx.Domains.CompanyDomains.Contains(d);
+                if (rank > 0 && cat == "sender" && !personal)
+                {
+                    string txt = L.F("Domaine très fréquenté : {0} (n° {1} mondial, classement Tranco)", PhishGuard.Domains.ToUnicode(d), rank.ToString("N0"));
+                    positives.Add(txt);
+                    ctx.Trust.Add(txt);
+                }
                 string shown = PhishGuard.Domains.ToUnicode(d);
                 string where = cat == "sender" ? L.T("Le domaine de l’expéditeur") : L.T("Le domaine d’un lien");
 
-                // DNS : seulement pour l'expéditeur (domaine qui envoie des emails)
-                if (cfg.BetaDnsChecks && cat == "sender" && rank == 0)
+                // DNS : seulement pour l'expéditeur (domaine qui envoie des emails).
+                // Les preuves (DMARC strict, BIMI) valent aussi pour les domaines connus ; les indices négatifs, non.
+                IntelResult dnsR = null;
+                if (cfg.BetaDnsChecks && cat == "sender" && !personal)
                 {
-                    var r = ask("dns:" + fromDomain + "|" + fromOrg, "dns");
-                    if (r != null)
+                    dnsR = ask("dns:" + fromDomain + "|" + fromOrg, "dns");
+                    if (dnsR != null && dnsR.Exists)
+                    {
+                        if (dnsR.DmarcPolicy == "reject" || dnsR.DmarcPolicy == "quarantine")
+                            ctx.Trust.Add(L.F("Domaine protégé contre l’usurpation (DMARC p={0})", dnsR.DmarcPolicy));
+                        if (dnsR.Bimi == "vmc" && ctx.AuthProof)
+                        {
+                            ctx.Trust.Add(L.T("Marque vérifiée : logo BIMI avec certificat VMC/CMC"));
+                        }
+                        else if (dnsR.Bimi == "logo" && ctx.AuthProof)
+                            ctx.Trust.Add(L.T("Logo de marque publié (BIMI, sans certificat)"));
+                    }
+                }
+                if (trusted) continue;
+
+                if (dnsR != null && rank == 0)
+                {
+                    var r = dnsR;
                     {
                         if (!r.Exists)
                             add("sender-intel-dns-nxdomain", cat, Severity.High, L.T("Le domaine de l’expéditeur n’existe pas"),
@@ -820,6 +947,9 @@ namespace PhishGuard
                             if (!r.HasSpf && !r.HasDmarc)
                                 add("sender-intel-dns-noauth", cat, Severity.Low, L.T("Le domaine de l’expéditeur n’a ni SPF ni DMARC"),
                                     L.T("N’importe qui peut envoyer des emails en son nom."), fromDomain);
+                            else if (r.DmarcPolicy == "none")
+                                add("sender-intel-dmarc-none", cat, Severity.Info, L.T("Politique DMARC non appliquée (p=none)"),
+                                    L.T("Le domaine surveille les usurpations mais ne demande pas de les bloquer."), fromDomain);
                         }
                     }
                 }
@@ -918,7 +1048,7 @@ namespace PhishGuard
                     ? L.T("Liste en cours de téléchargement") + (Feeds.LastError.Length > 0 ? " (" + Feeds.LastError + ")" : "")
                     : L.F("{0} domaine(s) parmi les sites les plus visités", ranked)
             });
-            status("dns", L.T("DNS (MX, SPF, DMARC)"), cfg.BetaDnsChecks, notEnabled);
+            status("dns", L.T("DNS (MX, SPF, DMARC, BIMI)"), cfg.BetaDnsChecks, notEnabled);
             status("crt", "crt.sh", cfg.BetaCertAge, notEnabled);
             status("vt", "VirusTotal", s.VirusTotalKey.Length > 0, noKey);
             status("abusech", "abuse.ch (URLhaus, ThreatFox)", s.AbuseChKey.Length > 0, noKey);
@@ -1176,6 +1306,12 @@ namespace PhishGuard
             sb.AppendLine(L.T("--- Indices ---"));
             foreach (var f in r.Findings.Where(x => x.Severity != Severity.Info))
                 sb.AppendLine("- [" + SeverityLabel(f.Severity).ToUpperInvariant() + "] " + f.Title + (f.Evidence.Count > 0 ? " : " + string.Join(" ; ", f.Evidence.ToArray()) : ""));
+            if (r.Trust.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine(r.Verified ? L.T("--- Preuves de légitimité (expéditeur vérifié) ---") : L.T("--- Preuves de légitimité ---"));
+                foreach (var t in r.Trust) sb.AppendLine("+ " + t);
+            }
 
             if (d.Fields.Count > 0)
             {

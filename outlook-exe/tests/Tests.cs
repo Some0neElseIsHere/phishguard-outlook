@@ -410,6 +410,72 @@ namespace PhishGuard.Tests
             Feeds.OpenPhishEnabled = false;
             Feeds.TrancoEnabled = false;
 
+            // ---------- Preuves de légitimité ----------
+            const string ALIGNED = "Authentication-Results: spf=pass (sender IP is 1.2.3.4) smtp.mailfrom=bounce@mail.exemple-pme.fr; dkim=pass (signature was verified) header.d=exemple-pme.fr;dmarc=pass action=none header.from=exemple-pme.fr;compauth=pass reason=100";
+            Correspondents.Set(new[] { "paul@exemple-pme.fr" }, false);
+            var eV = Base(); eV.RawHeaders = ALIGNED;
+            var rV = Analyzer.Analyze(eV, cfg);
+            Check("légitimité : expéditeur vérifié", rV.Verified, string.Join(",", Ids(rV).ToArray()) + " | " + string.Join(" ; ", rV.Trust.ToArray()));
+            Check("légitimité : DKIM aligné", rV.Trust.Any(x => x.Contains("DKIM") && x.Contains("exemple-pme.fr")));
+            Check("légitimité : SPF aligné", rV.Trust.Any(x => x.Contains("SPF aligné")));
+            Check("légitimité : compauth 1xx", rV.Trust.Any(x => x.Contains("raison 100")));
+            Check("légitimité : pas d'indice DKIM tiers", !Ids(rV).Contains("auth-dkim-thirdparty"));
+            var rTp = Analyzer.Analyze(Base(), cfg);   // header.d=x : signature d'un prestataire
+            Check("légitimité : signature DKIM d'un tiers", rTp.Findings.Any(f => f.Id == "auth-dkim-thirdparty" && f.Severity == Severity.Info));
+            var eV2 = Base(); eV2.RawHeaders = ALIGNED; eV2.FromAddress = "contact@exemple-pme.fr";
+            Check("légitimité : domaine connu = vérifié", Analyzer.Analyze(eV2, cfg).Verified);
+            var eV3 = Base(); eV3.RawHeaders = ALIGNED; eV3.BodyText = "Merci de régler la facture impayée par virement aujourd'hui, c'est urgent.";
+            Check("légitimité : un indice empêche la vérification", !Analyzer.Analyze(eV3, cfg).Verified);
+            Correspondents.Reset();
+            Check("légitimité : inconnu non vérifié", !Analyzer.Analyze(eV, cfg).Verified);
+
+            // compauth : codes de raison
+            var eC1 = Base(); eC1.RawHeaders = "Authentication-Results: spf=none; dkim=none; dmarc=none action=none header.from=exemple-pme.fr;compauth=fail reason=001";
+            Check("compauth 001 : moyen", Analyzer.Analyze(eC1, cfg).Findings.Any(f => f.Id == "auth-compauth" && f.Severity == Severity.Medium));
+            var eC2 = Base(); eC2.RawHeaders = "Authentication-Results: spf=none; dkim=none; dmarc=none action=none header.from=exemple-pme.fr;compauth=fail reason=601";
+            Check("compauth 6xx : usurpation interne", Analyzer.Analyze(eC2, cfg).Findings.Any(f => f.Id == "auth-compauth-intra" && f.Severity == Severity.Critical));
+            Check("compauth 000 : élevé", Analyzer.Analyze(e2, cfg).Findings.Any(f => f.Id == "auth-compauth" && f.Severity == Severity.High));
+
+            // Envoi en nombre conforme
+            var eB = Base(); eB.RawHeaders = ALIGNED + "\nList-Unsubscribe: <https://exemple-pme.fr/u?x=1>, <mailto:u@exemple-pme.fr>\nList-Unsubscribe-Post: List-Unsubscribe=One-Click";
+            Check("envoi en nombre conforme", Analyzer.Analyze(eB, cfg).Trust.Any(x => x.Contains("un clic")));
+            var eB2 = Base(); eB2.RawHeaders = FAIL + "\nList-Unsubscribe: <https://x.fr/u>\nList-Unsubscribe-Post: List-Unsubscribe=One-Click";
+            Check("envoi en nombre sans DMARC : non conforme", !Analyzer.Analyze(eB2, cfg).Trust.Any(x => x.Contains("un clic")));
+
+            // Réponse à l'un de vos messages / détournement de fil
+            var sent = new Dictionary<string, HashSet<string>>();
+            sent["<ABC123@mail.acmetech.fr>"] = new HashSet<string> { "fournisseur-alpha.fr" };
+            Correspondents.Set(new[] { "compta@fournisseur-alpha.fr" }, false);
+            Correspondents.SetThreads(sent, false);
+            var eR = Base(); eR.FromAddress = "compta@fournisseur-alpha.fr";
+            eR.RawHeaders = ALIGNED.Replace("exemple-pme.fr", "fournisseur-alpha.fr") + "\nIn-Reply-To: <abc123@mail.acmetech.fr>\nReferences: <old@x> <abc123@mail.acmetech.fr>";
+            var rR = Analyzer.Analyze(eR, cfg);
+            Check("réponse à votre message", rR.Trust.Any(x => x.Contains("vous avez envoyé")) && rR.Verified, string.Join(",", Ids(rR).ToArray()));
+            var eH = Base(); eH.FromAddress = "compta@fournisseur-alpha-fr.com";
+            eH.RawHeaders = ALIGNED.Replace("exemple-pme.fr", "fournisseur-alpha-fr.com") + "\nReferences: <abc123@mail.acmetech.fr>";
+            var rH = Analyzer.Analyze(eH, cfg);
+            Check("détournement de fil", rH.Findings.Any(f => f.Id == "sender-thread-hijack" && f.Severity == Severity.High) && !rH.Verified, string.Join(",", Ids(rH).ToArray()));
+            var eN = Base(); eN.FromAddress = "compta@fournisseur-alpha-fr.com"; eN.RawHeaders = ALIGNED + "\nIn-Reply-To: <inconnu@ailleurs>";
+            Check("fil inconnu : rien", !Ids(Analyzer.Analyze(eN, cfg)).Contains("sender-thread-hijack"));
+            Check("Message-ID normalisé", Correspondents.NormalizeMessageId(" <AbC@X> ") == "abc@x");
+            Correspondents.Reset();
+            Check("fils effacés", Correspondents.ThreadRecipients("abc123@mail.acmetech.fr") == null);
+
+            // DMARC (politique) et BIMI par DNS (bêta)
+            Check("DMARC p=reject", Intel.ParseDmarcPolicy("v=DMARC1; p=reject; rua=mailto:x@y", false) == "reject");
+            Check("DMARC sp= pour un sous-domaine", Intel.ParseDmarcPolicy("v=DMARC1; p=reject; sp=none", true) == "none" && Intel.ParseDmarcPolicy("v=DMARC1; p=quarantine", true) == "quarantine");
+            Check("BIMI avec certificat", Intel.ParseBimi("v=BIMI1; l=https://x/logo.svg; a=https://x/vmc.pem") == "vmc");
+            Check("BIMI sans certificat", Intel.ParseBimi("v=BIMI1; l=https://x/logo.svg; a=;") == "logo" && Intel.ParseBimi("") == "");
+            var cfgD = new PhishGuardConfig { CompanyDomains = new List<string> { "acmetech.fr" }, BetaDnsChecks = true };
+            Intel.Settings = new IntelSettings { DnsChecks = true };
+            Intel.SetForTests("dns:exemple-pme.fr|exemple-pme.fr", new IntelResult { Ok = true, Exists = true, HasMx = true, HasSpf = true, HasDmarc = true, DmarcPolicy = "reject", Bimi = "vmc" });
+            var rD = Analyzer.Analyze(eV, cfgD);
+            Check("bêta : DMARC strict et marque vérifiée", rD.Trust.Any(x => x.Contains("p=reject")) && rD.Trust.Any(x => x.Contains("BIMI")), string.Join(" ; ", rD.Trust.ToArray()));
+            Intel.SetForTests("dns:exemple-pme.fr|exemple-pme.fr", new IntelResult { Ok = true, Exists = true, HasMx = true, HasSpf = true, HasDmarc = true, DmarcPolicy = "none" });
+            Check("bêta : DMARC p=none", Ids(Analyzer.Analyze(eV, cfgD)).Contains("sender-intel-dmarc-none"));
+            Intel.Settings = new IntelSettings();
+            Intel.ClearForTests();
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);

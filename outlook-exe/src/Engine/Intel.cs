@@ -32,6 +32,8 @@ namespace PhishGuard
         public DateTime? Date;       // crt.sh : premier certificat
         public bool Exists = true;   // DNS : le domaine existe
         public bool HasMx, HasSpf, HasDmarc;
+        public string DmarcPolicy = "";   // DNS : none, quarantine, reject (politique appliquée au domaine)
+        public string Bimi = "";          // DNS : "vmc" (logo avec certificat VMC/CMC), "logo" (logo sans certificat), "" (aucun)
         public DateTime When = DateTime.UtcNow;
     }
 
@@ -372,15 +374,58 @@ namespace PhishGuard
             Query(domain, TypeTxt, txt);
             var dmarc = new List<string>();
             Query("_dmarc." + domain, TypeTxt, dmarc);
-            if (dmarc.Count == 0 && org != domain) Query("_dmarc." + org, TypeTxt, dmarc);
+            bool dmarcFromOrg = false;
+            if (!dmarc.Any(IsDmarc) && org != domain) { dmarc.Clear(); Query("_dmarc." + org, TypeTxt, dmarc); dmarcFromOrg = true; }
+            string dmarcRecord = dmarc.FirstOrDefault(IsDmarc) ?? "";
+            var bimi = new List<string>();
+            Query("default._bimi." + domain, TypeTxt, bimi);
+            if (!bimi.Any(IsBimi) && org != domain) { bimi.Clear(); Query("default._bimi." + org, TypeTxt, bimi); }
             return new IntelResult
             {
                 Ok = true,
                 Exists = true,
                 HasMx = mx.Count > 0,
                 HasSpf = txt.Any(t => t.TrimStart().StartsWith("v=spf1", StringComparison.OrdinalIgnoreCase)),
-                HasDmarc = dmarc.Any(t => t.TrimStart().StartsWith("v=DMARC1", StringComparison.OrdinalIgnoreCase))
+                HasDmarc = dmarcRecord.Length > 0,
+                DmarcPolicy = ParseDmarcPolicy(dmarcRecord, dmarcFromOrg),
+                Bimi = ParseBimi(bimi.FirstOrDefault(IsBimi) ?? "")
             };
+        }
+
+        static bool IsDmarc(string t) { return t.TrimStart().StartsWith("v=DMARC1", StringComparison.OrdinalIgnoreCase); }
+        static bool IsBimi(string t) { return t.TrimStart().StartsWith("v=BIMI1", StringComparison.OrdinalIgnoreCase); }
+
+        static Dictionary<string, string> Tags(string record)
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var part in (record ?? "").Split(';'))
+            {
+                int i = part.IndexOf('=');
+                if (i <= 0) continue;
+                string k = part.Substring(0, i).Trim();
+                if (!map.ContainsKey(k)) map[k] = part.Substring(i + 1).Trim();
+            }
+            return map;
+        }
+
+        /// <summary>Politique DMARC d'un enregistrement (« none », « quarantine », « reject » ou "").
+        /// forSubdomain : l'enregistrement est celui du domaine parent, la politique « sp= » s'applique si elle existe.</summary>
+        public static string ParseDmarcPolicy(string record, bool forSubdomain)
+        {
+            var t = Tags(record);
+            string p;
+            if (forSubdomain && t.TryGetValue("sp", out p) && p.Length > 0) return p.ToLowerInvariant();
+            return t.TryGetValue("p", out p) ? p.ToLowerInvariant() : "";
+        }
+
+        /// <summary>BIMI : "vmc" si un certificat de marque (a=) est publié, "logo" si seul un logo (l=) l'est, sinon "".</summary>
+        public static string ParseBimi(string record)
+        {
+            var t = Tags(record);
+            string a, l;
+            if (t.TryGetValue("a", out a) && a.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return "vmc";
+            if (t.TryGetValue("l", out l) && l.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return "logo";
+            return "";
         }
     }
 }
