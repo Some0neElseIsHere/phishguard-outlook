@@ -326,7 +326,7 @@ namespace PhishGuard.AddIn
         }
 
         /// <summary>Pastille 32x32 : fond coloré selon le niveau, score en blanc.</summary>
-        static Bitmap ScoreBadge(AnalysisResult r)
+        internal static Bitmap ScoreBadge(AnalysisResult r)
         {
             Color c = r.Level == "dangerous" ? Color.FromArgb(196, 22, 34) : r.Level == "suspicious" ? Color.FromArgb(214, 120, 0) : Color.FromArgb(16, 124, 65);
             var bmp = new Bitmap(32, 32);

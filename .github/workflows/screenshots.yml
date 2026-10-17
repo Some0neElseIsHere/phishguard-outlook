@@ -1,0 +1,56 @@
+# Génère les captures d'écran du README avec le vrai moteur et les vraies fenêtres (messages fictifs),
+# puis les dépose dans une release brouillon « captures » (non publique) pour relecture.
+
+name: Captures d'écran
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  captures:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compiler le générateur
+        shell: cmd
+        working-directory: outlook-exe
+        run: |
+          set "CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          mkdir build 2>nul
+          "%CSC%" /nologo /codepage:65001 /target:winexe /out:build\Captures.exe /r:System.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs src\AddIn\*.cs /recurse:src\ThirdParty\*.cs tools\Screenshots.cs
+          if errorlevel 1 exit /b 1
+
+      - name: Générer les pages et les fenêtres
+        shell: pwsh
+        working-directory: outlook-exe
+        run: |
+          $p = Start-Process -FilePath build\Captures.exe -ArgumentList "build\shots" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "Captures.exe : code $($p.ExitCode)" }
+          Get-ChildItem build\shots
+
+      - name: Photographier les pages HTML (Chrome sans affichage)
+        shell: pwsh
+        working-directory: outlook-exe
+        run: |
+          $chrome = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+          if (-not (Test-Path $chrome)) { $chrome = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" }
+          $sizes = @{ "simple-dangereux" = "860,1250"; "simple-suspect" = "860,1250"; "simple-verifie" = "860,760"; "expert-dangereux" = "900,1150"; "signalement" = "760,1500" }
+          foreach ($k in $sizes.Keys) {
+            $html = (Resolve-Path "build\shots\$k.html").Path
+            $png = Join-Path (Resolve-Path build\shots).Path "$k.png"
+            & $chrome --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 "--window-size=$($sizes[$k])" "--screenshot=$png" "file:///$($html -replace '\\','/')" | Out-Null
+            Start-Sleep -Seconds 2
+          }
+          Get-ChildItem build\shots\*.png
+
+      - name: Déposer dans une release brouillon
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: captures
+          name: Captures d'écran (brouillon)
+          draft: true
+          files: outlook-exe/build/shots/*.png
