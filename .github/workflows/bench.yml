@@ -1,0 +1,72 @@
+# Banc d'essai du moteur sur des corpus publics : vrais phishings (corpus de Jose Nazario, monkey.org)
+# et vrais messages légitimes (SpamAssassin public corpus, listes de diffusion Apache).
+# Les corpus sont téléchargés sur le runner et ne sont jamais ajoutés au dépôt ; seul le CSV des résultats
+# (indices détectés par message) est déposé dans une release brouillon « bench » (non publique).
+
+name: Banc d'essai
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bench:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compiler le banc d'essai
+        shell: cmd
+        working-directory: outlook-exe
+        run: |
+          set "CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          mkdir build 2>nul
+          "%CSC%" /nologo /codepage:65001 /target:exe /out:build\Bench.exe /r:System.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Drawing.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs /recurse:src\ThirdParty\*.cs tools\Bench.cs
+          if errorlevel 1 exit /b 1
+
+      - name: Télécharger les corpus
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force corpus | Out-Null
+          Set-Location corpus
+          foreach ($y in 2020..2025) { curl.exe -sSfL -o "phishing-$y.mbox" "https://monkey.org/~jose/phishing/phishing-$y" }
+          foreach ($f in "20030228_easy_ham", "20030228_easy_ham_2", "20030228_hard_ham") {
+            curl.exe -sSfL -o "$f.tar.bz2" "https://spamassassin.apache.org/old/publiccorpus/$f.tar.bz2"
+            New-Item -ItemType Directory -Force $f | Out-Null
+            tar -xjf "$f.tar.bz2" -C $f
+          }
+          foreach ($l in "dev@httpd.apache.org", "users@tomcat.apache.org", "dev@kafka.apache.org") {
+            $n = ($l -replace '[@.]', '-')
+            curl.exe -sSL -o "apache-$n.mbox" "https://lists.apache.org/api/mbox.lua?list=$l&date=2025-09"
+          }
+          Get-ChildItem | Format-Table Name, Length
+
+      - name: Analyser
+        shell: pwsh
+        run: |
+          $a = @()
+          foreach ($y in 2020..2025) { $a += "phish-$y=corpus\phishing-$y.mbox|monkey.org" }
+          $a += "ham-easy=corpus\20030228_easy_ham", "ham-easy2=corpus\20030228_easy_ham_2", "ham-hard=corpus\20030228_hard_ham"
+          foreach ($f in Get-ChildItem corpus\apache-*.mbox) { if ($f.Length -gt 1000) { $a += "ham-apache-$($f.BaseName.Substring(7))=$($f.FullName)" } }
+          New-Item -ItemType Directory -Force out | Out-Null
+          & outlook-exe\build\Bench.exe out\bench.csv @a
+          if ($LASTEXITCODE -ne 0) { throw "Bench.exe : code $LASTEXITCODE" }
+          Compress-Archive out\bench.csv out\bench.zip
+
+      - name: Supprimer les brouillons précédents
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $drafts = gh api "repos/${{ github.repository }}/releases" --jq '.[] | select(.draft and (.tag_name | startswith("bench"))) | .id'
+          foreach ($id in $drafts) { if ($id) { gh api -X DELETE "repos/${{ github.repository }}/releases/$id" } }
+
+      - name: Déposer dans une release brouillon
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: bench-${{ github.run_number }}
+          name: Banc d'essai (brouillon)
+          draft: true
+          files: out/bench.zip
