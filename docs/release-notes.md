@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.8.2** : rapport de signalement : les contrôles SPF / DKIM / DMARC ne sont plus collés dans Outlook. Onglet Pièces jointes : « Item not found » de VirusTotal expliqué, et résultat VirusTotal affiché directement si une clé est configurée. Les serveurs qui écrivent un en-tête Authentication-Results par contrôle sont maintenant lus en entier (SPF et DMARC n'apparaissent plus « absents » à tort).
+
 - **v1.8.1** : documentation revue (README, notice du zip), `config.ini` sans valeurs d'exemple : sans domaine configuré, celui de votre adresse Outlook est utilisé ; la surveillance des sosies tient un point de départ par domaine (un second domaine n'est plus bloqué en masse au premier passage).
 
 - **Signalement à la sécurité refait** : le rapport envoyé est maintenant un email HTML lisible : verdict en bandeau, « En bref », chaque point de doute avec sa gravité, son explication et ses preuves, authentification et origine (SPF/DKIM/DMARC, IP, parcours), liens et texte affiché, pièces jointes avec empreintes, observables à copier, preuves de légitimité, et une copie du texte du message d'origine. Toutes les adresses sont désarmées (hxxps://exemple[.]com) : rien n'est cliquable.
