@@ -1,18 +1,49 @@
-# PhishGuard pour Outlook
+# PhishGuard : détecteur de phishing gratuit pour Outlook
 
-**Analyse anti-phishing des emails, directement dans Outlook.** Dès qu'un message est sélectionné,
-PhishGuard affiche un score de risque dans le ruban, alerte en cas de danger, et ouvre sur demande
-une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phishtool.com/).
+[![Dernière version](https://img.shields.io/github/v/release/Some0neElseIsHere/phishguard-outlook?label=version)](../../releases/latest)
+[![Téléchargements](https://img.shields.io/github/downloads/Some0neElseIsHere/phishguard-outlook/total?label=t%C3%A9l%C3%A9chargements)](../../releases)
+[![Licence GPL v3](https://img.shields.io/badge/licence-GPL%20v3-blue)](LICENSE)
+![Outlook classique Windows](https://img.shields.io/badge/Outlook-classique%20Windows-0f6cbd)
+![Contenu analysé sur le poste](https://img.shields.io/badge/contenu-analys%C3%A9%20sur%20le%20poste-13804a)
 
-- **Analyse locale** : le contenu des messages ne quitte jamais le poste. Aucune clé d'API nécessaire ; les sources de réputation externes sont optionnelles et ne reçoivent que des domaines, des empreintes ou une IP.
-- **Sans droits administrateur** : installation dans le profil de l'utilisateur.
-- **Pensé pour l'entreprise** : Exchange interne ou Microsoft 365, proxy et inspection HTTPS, déploiement silencieux, configuration centralisée.
+**Repérez les emails de phishing (hameçonnage) avant de cliquer.** PhishGuard est un complément
+**gratuit et open source pour Outlook** (Microsoft 365, Outlook 2019, 2021) qui analyse chaque email
+**sur votre poste** et affiche un verdict clair dans le ruban : vert, orange ou rouge. Faux emails Microsoft,
+usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, pièces jointes dangereuses,
+**QR codes frauduleux** : il dit en clair **pourquoi** le message est dangereux et **quoi faire**.
 
-> *English summary — PhishGuard is a free phishing analyzer for classic Outlook on Windows
-> (COM add-in, .NET Framework 4). Message content is analyzed locally and never leaves the PC; external
-> reputation sources are optional. It scores every email in the ribbon, detects lookalike domains, spoofing,
-> thread hijacking, malicious links and attachments, offers a PhishTool-like investigation view and sends
-> detailed HTML reports to your security team. The interface is available in French and English.*
+<p align="center">
+  <img src="docs/images/ruban.png" alt="Bouton PhishGuard dans le ruban d'Outlook : dangereux, suspect, expéditeur vérifié" width="720">
+</p>
+
+**[⬇ Télécharger PhishGuard pour Outlook](../../releases/latest)** · installation en un clic, sans droits administrateur.
+
+- **Pour tout le monde** : un mode simple explique le verdict sans jargon, étape par étape. Un mode expert offre une analyse complète des en-têtes, liens et pièces jointes, à la manière de [PhishTool](https://www.phishtool.com/).
+- **Confidentiel** : le contenu des messages ne quitte jamais le poste. Aucune clé d'API nécessaire.
+- **Pensé pour l'entreprise** : Exchange ou Microsoft 365, signalement en un clic à l'équipe sécurité, déploiement silencieux, configuration centralisée, interface en français et en anglais.
+
+## Aperçu
+
+| Message dangereux (mode simple) | Message suspect (mode simple) |
+|---|---|
+| <img src="docs/images/simple-dangereux.png" alt="PhishGuard : faux email Microsoft détecté comme dangereux, avec les raisons et quoi faire" width="420"> | <img src="docs/images/simple-suspect.png" alt="PhishGuard : email suspect avec un lien raccourci, conseils de vérification" width="420"> |
+
+| Expéditeur vérifié | Analyse détaillée (mode expert) |
+|---|---|
+| <img src="docs/images/simple-verifie.png" alt="PhishGuard : expéditeur vérifié, authentifié et déjà connu" width="420"> | <img src="docs/images/expert-dangereux.png" alt="PhishGuard : analyse d'en-têtes SPF DKIM DMARC, liens et indices d'un email de phishing" width="420"> |
+
+| Signalement envoyé à l'équipe sécurité | Assistant de démarrage | Paramètres |
+|---|---|---|
+| <img src="docs/images/signalement.png" alt="Rapport de signalement de phishing en HTML envoyé à l'équipe sécurité" width="280"> | <img src="docs/images/assistant.png" alt="Assistant de premier lancement de PhishGuard" width="280"> | <img src="docs/images/parametres.png" alt="Paramètres de PhishGuard : entreprise, dirigeants, analyse du domaine" width="280"> |
+
+*Captures générées automatiquement par le vrai moteur d'analyse, sur des messages d'exemple fictifs.*
+
+> *English summary — PhishGuard is a **free, open-source phishing detector for Outlook** (classic Outlook
+> for Windows, Microsoft 365). It analyzes every email locally (content never leaves the PC) and shows a
+> clear verdict in the ribbon: spoofing, lookalike domains, CEO fraud, fake bank details, malicious links
+> and attachments, QR code phishing (quishing), thread hijacking. A simple mode explains what to do; an
+> expert mode offers a PhishTool-like investigation view, and one click sends a detailed HTML report to
+> your security team. Interface in French and English.*
 
 ---
 
@@ -24,6 +55,7 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 - [Configuration](#configuration)
 - [Déploiement en entreprise](#déploiement-en-entreprise)
 - [Confidentialité](#confidentialité)
+- [Questions fréquentes](#questions-fréquentes)
 - [Construire depuis les sources](#construire-depuis-les-sources)
 - [Dépannage](#dépannage)
 - [Limites connues](#limites-connues)
@@ -71,7 +103,7 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 
 - **En-têtes** : champs principaux décodés, détail de l'authentification (domaines, sélecteur DKIM), en-têtes des filtres antispam.
 - **Parcours** : chaque serveur traversé, IP, protocole, horodatage et délai entre les sauts ; **IP d'origine**.
-- **Observables** : adresses, domaines, IP et empreintes, avec liens de vérification sans compte à créer : VirusTotal, ESET Link Checker (l'adresse est copiée, il suffit de la coller), Cisco Talos, AbuseIPDB, listes noires (MXToolbox) et WHOIS (ouverts dans le navigateur, seul l'élément vérifié est transmis).
+- **Observables** : adresses, domaines, IP et empreintes, avec liens de vérification sans compte à créer : VirusTotal, ESET Link Checker (l'adresse est copiée, il suffit de la coller), France Verif, Cisco Talos, AbuseIPDB, listes noires (MXToolbox) et WHOIS (ouverts dans le navigateur, seul l'élément vérifié est transmis).
 - **Réputation** : état de chaque source externe et résultats obtenus.
 
 ---
@@ -172,6 +204,40 @@ Les clés d'API ne sont pas dans ce dossier : elles sont dans le Gestionnaire d'
 
 ---
 
+## Questions fréquentes
+
+**Comment savoir si un email est un phishing ?**
+Regardez l'adresse réelle de l'expéditeur (pas seulement son nom), survolez les liens avant de cliquer, méfiez-vous
+de l'urgence et de toute demande de mot de passe, de paiement ou de changement de RIB. PhishGuard fait ces
+vérifications à votre place, et bien d'autres (SPF, DKIM, DMARC, domaines sosies, pièces jointes, QR codes…),
+puis affiche un verdict clair.
+
+**Comment signaler un email de phishing dans Outlook ?**
+Cliquez sur la pastille PhishGuard, puis sur **Signaler à la sécurité** : après confirmation, le message et un
+rapport détaillé partent à l'adresse de votre équipe sécurité, et le message est déplacé dans Courrier indésirable.
+
+**PhishGuard est-il gratuit ?**
+Oui, gratuit et open source (GPL v3), sans abonnement ni clé d'API. Les sources de réputation qui demandent une
+clé (VirusTotal, abuse.ch, AbuseIPDB) sont facultatives et proposent des clés gratuites.
+
+**Mes emails sont-ils envoyés à un service extérieur ?**
+Non. L'analyse se fait sur votre ordinateur. Seuls des noms de domaine, des empreintes de fichiers ou une adresse
+IP peuvent être vérifiés en ligne, et seulement si vous activez ces sources (voir [Confidentialité](#confidentialité)).
+
+**Est-ce que ça marche avec le nouvel Outlook, Outlook sur le web ou Gmail ?**
+PhishGuard fonctionne avec **Outlook classique pour Windows** (Microsoft 365, 2019, 2021). Une version
+expérimentale pour le nouvel Outlook et Outlook sur le web est décrite dans [docs/complement-web.md](docs/complement-web.md).
+
+**Faut-il être administrateur pour l'installer ?**
+Non : l'installation se fait dans le profil de l'utilisateur. Les entreprises peuvent la déployer en silence
+(`/quiet`) et imposer une configuration commune.
+
+**PhishGuard remplace-t-il un antivirus ou une passerelle de messagerie ?**
+Non, il les complète : il analyse ce qui arrive malgré tout dans la boîte de réception et aide chacun à décider,
+au moment où il lit le message.
+
+---
+
 ## Construire depuis les sources
 
 Aucune installation nécessaire : le compilateur C# fourni avec Windows (.NET Framework 4) suffit.
@@ -201,7 +267,8 @@ outlook-exe/                  Complément Outlook (COM, C# 5, .NET Framework 4)
   tools/gen-lists.mjs         Génère src/Engine/Lists.cs depuis src/engine/lists.js
   config.ini, custom.txt      Configuration par défaut et liste de blocage de l'équipe sécurité
   LISEZMOI.md                 Notice incluse dans le zip de la release
-docs/                         Notes de version, documentation du complément web
+  tools/Screenshots.cs        Génère les captures d'écran du README (workflow « Captures d'écran »)
+docs/                         Notes de version, captures d'écran, documentation du complément web
 src/, test/, tools/,          Version « complément web » (Office.js), voir docs/complement-web.md
 manifest.xml, server.js
 .github/workflows/            Construction, tests et releases
