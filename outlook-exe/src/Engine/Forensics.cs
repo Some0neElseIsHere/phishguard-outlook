@@ -598,26 +598,9 @@ namespace PhishGuard
         // Liens de vérification (ouverts dans le navigateur à la demande)
         // -----------------------------------------------------------------
 
-        public static readonly string[] LookupHosts = { "www.virustotal.com", "www.abuseipdb.com", "talosintelligence.com", "www.eset.com", "franceverif.fr", "who.is", "mxtoolbox.com" };
-
-        /// <summary>Fragment ajouté aux liens dont l'adresse à vérifier doit être copiée (pages sans paramètre d'adresse).</summary>
-        public const string CopyMarker = "pg-copy=";
+        public static readonly string[] LookupHosts = { "www.virustotal.com", "www.abuseipdb.com", "talosintelligence.com", "who.is", "mxtoolbox.com" };
 
         static string Enc(string s) { return Uri.EscapeDataString(s ?? ""); }
-
-        /// <summary>France Verif : note de confiance d'un site (domaine), sans compte.</summary>
-        static KeyValuePair<string, string> FranceVerif(string hostOrUrl)
-        {
-            Uri u;
-            string host = Uri.TryCreate(hostOrUrl, UriKind.Absolute, out u) ? u.Host : hostOrUrl;
-            return new KeyValuePair<string, string>("France Verif", "https://franceverif.fr/fr/site/" + Enc(Domains.RegistrableDomain(host)));
-        }
-
-        /// <summary>ESET Link Checker : la page n'accepte pas l'adresse en paramètre, elle est copiée au clic.</summary>
-        static KeyValuePair<string, string> Eset(string target)
-        {
-            return new KeyValuePair<string, string>(L.T("ESET (adresse copiée)"), "https://www.eset.com/fr/link-checker/#" + CopyMarker + Enc(target));
-        }
 
         static KeyValuePair<string, string> Talos(string target)
         {
@@ -629,8 +612,6 @@ namespace PhishGuard
         {
             return new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/domain/" + Enc(d)),
-                Eset(d),
-                FranceVerif(d),
                 Talos(d),
                 new KeyValuePair<string, string>("WHOIS", "https://who.is/whois/" + Enc(d)) };
         }
@@ -648,9 +629,7 @@ namespace PhishGuard
         public static List<KeyValuePair<string, string>> LookupsForUrl(string url)
         {
             return new List<KeyValuePair<string, string>> {
-                new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/search/" + Enc(Enc(url))),
-                Eset(url),
-                FranceVerif(url) };
+                new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/search/" + Enc(Enc(url))) };
         }
 
         public static List<KeyValuePair<string, string>> LookupsForHash(string sha256)
