@@ -31,7 +31,7 @@ namespace PhishGuard.Tools
 
             using (var w = new StreamWriter(args[0], false, new UTF8Encoding(false)))
             {
-                w.WriteLine("corpus,mode,idx,year,auth,level,score,verified,fromdomain,subject,findings");
+                w.WriteLine("corpus,mode,idx,year,auth,level,score,verified,fromdomain,subject,nlinks,natt,bodylen,hosts,atts,findings");
                 for (int a = 1; a < args.Length; a++)
                 {
                     string spec = args[a];
@@ -60,7 +60,9 @@ namespace PhishGuard.Tools
                             catch (Exception ex) { err++; Console.WriteLine(label + " #" + n + " : " + ex.GetType().Name + " " + ex.Message); continue; }
                             string f = string.Join(" ", r.Findings.Select(x => x.Id + ":" + (int)x.Severity + ":" + x.Category).ToArray());
                             w.WriteLine(string.Join(",", new[] { label, mode, n.ToString(), year.ToString(), auth ? "1" : "0", r.Level, r.Score.ToString(),
-                                r.Verified ? "1" : "0", Csv(r.SenderDomain), Csv(Trunc(e.Subject, 90)), Csv(f) }));
+                                r.Verified ? "1" : "0", Csv(r.SenderDomain), Csv(Trunc(e.Subject, 90)), e.Links.Count.ToString(), e.Attachments.Count.ToString(), e.BodyText.Length.ToString(),
+                                Csv(string.Join(" ", e.Links.Select(l => Host(l.Href)).Distinct().Take(4).ToArray())),
+                                Csv(string.Join(" ", e.Attachments.Select(x => x.Name + "/" + x.ContentType + "/" + x.Magic).Take(4).ToArray())), Csv(f) }));
                         }
                     }
                     Console.WriteLine(label + " : " + n + " messages, " + err + " erreurs");
@@ -87,6 +89,12 @@ namespace PhishGuard.Tools
                 c.Attachments.Add(b);
             }
             return c;
+        }
+
+        static string Host(string href)
+        {
+            Uri u;
+            return Uri.TryCreate(href ?? "", UriKind.Absolute, out u) ? u.Scheme + ":" + u.Host : Trunc(href, 30);
         }
 
         static string Trunc(string s, int n) { s = s ?? ""; return s.Length > n ? s.Substring(0, n) : s; }
