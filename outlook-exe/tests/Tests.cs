@@ -532,6 +532,18 @@ namespace PhishGuard.Tests
             Check("surveillance : sosie apparu bloqué", Analyzer.Analyze(eW, cfg).Findings.Any(f => f.Id == "sender-blocklist-watch" && f.Severity == Severity.High), string.Join(",", Ids(Analyzer.Analyze(eW, cfg)).ToArray()));
             Blocklists.SetForTests(new string[0], new string[0]);
 
+            // ---------- Rapport de signalement HTML ----------
+            var e2b = Base(); e2b.FromName = e2.FromName; e2b.FromAddress = e2.FromAddress; e2b.Subject = e2.Subject; e2b.RawHeaders = FAIL;
+            e2b.BodyText = "Connectez-vous ici : https://niicrosoft.com/owa/login.php avant ce soir.";
+            e2b.Links.Add(new LinkInfo("https://niicrosoft.com/owa/login.php", "https://login.microsoftonline.com"));
+            var rh = Analyzer.Analyze(e2b, cfg);
+            string html = ReportHtml.Build(rh, e2b, "Alex Test");
+            Check("rapport HTML : points de doute", html.Contains("Points de doute") && html.Contains("En bref") && html.Contains("Alex Test"));
+            Check("rapport HTML : liens désarmés", html.Contains("hxxps://niicrosoft[.]com") && !html.Contains("https://niicrosoft.com") && !html.Contains("<a "), html.Length.ToString());
+            Check("rapport HTML : copie du message", html.Contains("Copie du message") && html.Contains("Connectez-vous ici"));
+            Check("rapport HTML : texte échappé", !ReportHtml.Build(rh, new EmailData { FromName = "<script>x</script>", FromAddress = "a@b.fr" }, "").Contains("<script>"));
+            Check("désarmement du texte", ReportHtml.DefangText("voir http://a.b/c et https://x.y") == "voir hxxp://a[.]b/c et hxxps://x[.]y");
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);

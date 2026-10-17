@@ -505,16 +505,46 @@ namespace PhishGuard.AddIn
                 else MessageBox.Show(L.T("Aucune adresse de signalement n’est configurée : contactez votre service informatique."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 if (string.IsNullOrEmpty(config.ReportAddress)) return;
             }
+            IWin32Window owner = form != null && !form.IsDisposed && form.Visible ? form : null;
+
+            // Double confirmation : un signalement part vers une autre personne et déplace le message
+            string after = config.MoveAfterReport ? L.T("puis déplacé dans « Courrier indésirable »") : L.T("puis laissé à sa place");
+            string first = L.T("Signaler ce message à l’équipe sécurité ?") + "\n\n"
+                + L.T("De : ") + data.FromName + " <" + data.FromAddress + ">\n"
+                + L.T("Objet : ") + data.Subject + "\n"
+                + L.T("Verdict PhishGuard : ") + result.LevelLabel + " (" + result.Score + "/100)\n\n"
+                + L.F("Il sera transféré à {0} avec le rapport d’analyse, {1}.", config.ReportAddress, after);
+            if (MessageBox.Show(owner, first, L.T("PhishGuard - Signaler (1/2)"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            string second = L.F("Confirmez-vous l’envoi du signalement à {0} ?", config.ReportAddress)
+                + (result.Level == "safe" ? "\n\n" + L.T("PhishGuard n’a relevé aucun indice important sur ce message.") : "");
+            if (MessageBox.Show(owner, second, L.T("PhishGuard - Signaler (2/2)"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+
             dynamic app = application;
+            string reporter = "";
+            try { reporter = Convert.ToString(app.Session.CurrentUser.Name); } catch (Exception) { }
             dynamic msg = app.CreateItem(0); // olMailItem
             msg.To = config.ReportAddress;
-            string subject = L.T("[Signalement phishing] ") + data.Subject;
+            string subject = L.T("[Signalement phishing] ") + "[" + result.LevelLabel + " " + result.Score + "] " + data.Subject;
             msg.Subject = subject.Length > 250 ? subject.Substring(0, 250) : subject;
-            msg.Body = L.T("Message suspect signalé via PhishGuard.") + "\r\n\r\n" + Analyzer.FormatReport(result, data);
-            try { msg.Attachments.Add(mail, 5); } // olEmbeddeditem : le message d'origine en pièce jointe
+            msg.BodyFormat = 2; // olFormatHTML
+            msg.HTMLBody = ReportHtml.Build(result, data, reporter);
+            try { msg.Attachments.Add(mail, 5); } // olEmbeddeditem : le message d'origine joint, avec tous ses en-têtes
             catch (Exception ex) { Log("Pièce jointe du signalement : " + ex.Message); }
-            msg.Display(false);
+            try
+            {
+                msg.Send();
+                Log("Signalement envoyé à " + config.ReportAddress);
+            }
+            catch (Exception ex)
+            {
+                // Envoi refusé (stratégie, compte hors ligne...) : on laisse l'utilisateur envoyer lui-même
+                Log("Envoi du signalement : " + ex.Message);
+                msg.Display(false);
+                if (form != null && !form.IsDisposed) form.SetStatus(L.T("Le signalement est ouvert : cliquez sur « Envoyer » dans Outlook."));
+                return;
+            }
             MoveToJunk(mail);
+            if (form != null && !form.IsDisposed) form.SetStatus(L.F("Signalement envoyé à {0}. Merci !", config.ReportAddress));
         }
 
         /// <summary>Message sélectionné (explorateur, menu contextuel) ou ouvert (inspecteur).</summary>
