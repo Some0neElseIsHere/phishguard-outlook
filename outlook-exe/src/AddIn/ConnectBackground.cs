@@ -55,7 +55,6 @@ namespace PhishGuard.AddIn
                 CertAge = config.BetaCertAge,
                 VirusTotalKey = config.VirusTotalKey ?? "",
                 AbuseChKey = config.AbuseChKey ?? "",
-                SafeBrowsingKey = config.SafeBrowsingKey ?? "",
                 AbuseIpdbKey = config.AbuseIpdbKey ?? ""
             };
             Feeds.Init(config.BetaOpenPhish, config.BetaTranco);

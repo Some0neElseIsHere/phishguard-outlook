@@ -59,6 +59,26 @@ for %%V in (64 32) do (
     reg add %%K /v CodeBase /d "%CODEBASE%" /f /reg:%%V >nul
   )
 )
+rem Bandeau en haut des fenetres : controle ActiveX heberge par Office
+set "BPROGID=PhishGuard.Banner"
+set "BCLSID={8B1E4F52-3C7A-4D9E-A1F6-2E5B7C9D0A43}"
+set "BK=HKCU\Software\Classes\CLSID\%BCLSID%"
+for %%V in (64 32) do (
+  reg add "HKCU\Software\Classes\%BPROGID%" /ve /d "%BPROGID%" /f /reg:%%V >nul
+  reg add "HKCU\Software\Classes\%BPROGID%\CLSID" /ve /d "%BCLSID%" /f /reg:%%V >nul
+  reg add "%BK%" /ve /d "%BPROGID%" /f /reg:%%V >nul
+  reg add "%BK%\ProgId" /ve /d "%BPROGID%" /f /reg:%%V >nul
+  reg add "%BK%\Control" /f /reg:%%V >nul
+  reg add "%BK%\Implemented Categories\{62C8FE65-4EBB-45e7-B440-6E39B2CDBF29}" /f /reg:%%V >nul
+  reg add "%BK%\InprocServer32" /ve /d "mscoree.dll" /f /reg:%%V >nul
+  reg add "%BK%\InprocServer32" /v ThreadingModel /d "Apartment" /f /reg:%%V >nul
+  for %%K in ("%BK%\InprocServer32" "%BK%\InprocServer32\1.0.0.0") do (
+    reg add %%K /v Class /d "PhishGuard.AddIn.BannerControl" /f /reg:%%V >nul
+    reg add %%K /v Assembly /d "%ASM%" /f /reg:%%V >nul
+    reg add %%K /v RuntimeVersion /d "v4.0.30319" /f /reg:%%V >nul
+    reg add %%K /v CodeBase /d "%CODEBASE%" /f /reg:%%V >nul
+  )
+)
 set "AK=HKCU\Software\Microsoft\Office\Outlook\Addins\%PROGID%"
 reg add "%AK%" /v FriendlyName /d "PhishGuard" /f >nul
 reg add "%AK%" /v Description /d "Analyse anti-phishing des emails recus" /f >nul

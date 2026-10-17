@@ -336,7 +336,9 @@ namespace PhishGuard.AddIn
             sb.Append("<style>" + Css + "</style><script>" + Script + "</script></head><body>");
 
             int nUrls = r.Urls.Count, nAtt = r.Attachments.Count, nHops = d.Hops.Count;
-            var visible = r.Findings.Where(f => f.Severity != Severity.Info).ToList();
+            var allVisible = r.Findings.Where(f => f.Severity != Severity.Info).ToList();
+            var visible = allVisible.Where(f => !Analyzer.IsBetaFinding(f)).ToList();
+            var beta = allVisible.Where(f => Analyzer.IsBetaFinding(f)).ToList();
             sb.Append("<div class='tabs'>");
             Tab(sb, "s-resume", L.T("Résumé"), visible.Count);
             Tab(sb, "s-headers", L.T("En-têtes"), -1);
@@ -346,18 +348,19 @@ namespace PhishGuard.AddIn
             Tab(sb, "s-ioc", L.T("Observables"), -1);
             Tab(sb, "s-raw", L.T("Source"), -1);
             Tab(sb, "s-body", L.T("Corps"), -1);
+            Tab(sb, "s-beta", L.T("Bêta"), beta.Count);
             sb.Append("</div><div class='page'>");
 
             // ---------------- Résumé ----------------
             sb.Append("<div class='sec' id='s-resume'>");
             sb.Append("<div class='hero " + H(r.Level) + "'>" + Gauge(r.Score, r.Level));
             sb.Append("<p class='eyebrow'>" + H(L.T("Risque de phishing")) + "</p><h1>" + H(r.LevelLabel) + "</h1><p class='advice'>" + H(r.Advice) + "</p>");
-            if (visible.Count > 0)
+            if (allVisible.Count > 0)
             {
                 sb.Append("<div class='counts'>");
                 foreach (var sev in new[] { Severity.Critical, Severity.High, Severity.Medium, Severity.Low })
                 {
-                    int n = visible.Count(f => f.Severity == sev);
+                    int n = allVisible.Count(f => f.Severity == sev);
                     if (n > 0) sb.Append("<span class='cnt'><i class='dot " + sev + "'></i>" + H(Analyzer.SeverityLabel(sev)) + " <b>" + n + "</b></span>");
                 }
                 sb.Append("</div>");
@@ -380,30 +383,21 @@ namespace PhishGuard.AddIn
                     + (string.IsNullOrEmpty(d.Auth.CompAuth) ? "" : AuthChip("compauth", d.Auth.CompAuth)) + "</div>");
             sb.Append("</div>");
 
-            if (visible.Count == 0) sb.Append(Empty(L.T("Aucun indice suspect détecté.")));
+            if (beta.Count > 0)
+            {
+                var worst = beta.Max(f => f.Severity);
+                sb.Append("<div class='f " + worst + "'><div><span class='pill " + worst + "'>" + H(Analyzer.SeverityLabel(worst)) + "</span><span class='ft'>"
+                    + H(beta.Count == 1 ? L.T("1 résultat des sources Bêta") : L.F("{0} résultats des sources Bêta", beta.Count)) + "</span></div>");
+                sb.Append("<p class='fd'>" + H(string.Join(" · ", beta.Take(3).Select(f => f.Title).ToArray())) + "</p>");
+                sb.Append("<p class='fd'><a href='#' onclick=\"return show('s-beta')\">" + H(L.T("Voir l’onglet Bêta")) + "</a></p></div>");
+            }
+            if (visible.Count == 0 && beta.Count == 0) sb.Append(Empty(L.T("Aucun indice suspect détecté.")));
             foreach (var cat in Analyzer.CategoryLabels.Keys)
             {
                 var list = visible.Where(f => f.Category == cat).ToList();
                 if (list.Count == 0) continue;
                 sb.Append("<h2>" + H(Analyzer.CategoryLabel(cat)) + "<span class='c'>" + list.Count + "</span></h2>");
-                foreach (var f in list)
-                {
-                    string sev = f.Severity.ToString();
-                    sb.Append("<div class='f " + sev + "'><div><span class='pill " + sev + "'>" + H(Analyzer.SeverityLabel(f.Severity)) + "</span><span class='ft'>" + H(f.Title) + "</span></div>");
-                    if (!string.IsNullOrEmpty(f.Detail)) sb.Append("<p class='fd'>" + H(f.Detail) + "</p>");
-                    if (f.Evidence.Count > 0)
-                    {
-                        sb.Append("<div class='evs'>");
-                        foreach (var ev in f.Evidence) sb.Append("<span class='ev'>" + H(ev) + "</span>");
-                        sb.Append("</div>");
-                    }
-                    if (showExplanations)
-                    {
-                        string lesson = Lessons.For(f.Id);
-                        if (lesson != null) sb.Append("<div class='lesson'><span class='q'>?</span><b>" + H(L.T("Pourquoi c’est important :")) + "</b> " + H(lesson) + "</div>");
-                    }
-                    sb.Append("</div>");
-                }
+                foreach (var f in list) FindingCard(sb, f, showExplanations);
             }
             if (r.Positives.Count > 0)
             {
@@ -411,24 +405,7 @@ namespace PhishGuard.AddIn
                 foreach (var p in r.Positives) sb.Append("<li><span class='ic okc'>&#10003;</span>" + H(p) + "</li>");
                 sb.Append("</ul></div>");
             }
-            var infos = r.Findings.Where(f => f.Severity == Severity.Info).ToList();
-            if (infos.Count > 0)
-            {
-                sb.Append("<h2>" + H(L.T("Informations")) + "</h2><div class='card'><ul class='list'>");
-                foreach (var f in infos)
-                {
-                    sb.Append("<li><span class='ic inf'>i</span>" + H(f.Title));
-                    if (!string.IsNullOrEmpty(f.Detail)) sb.Append("<div class='muted'>" + H(f.Detail) + "</div>");
-                    if (f.Evidence.Count > 0) sb.Append("<div class='mono muted'>" + H(string.Join(" ; ", f.Evidence.ToArray())) + "</div>");
-                    if (showExplanations)
-                    {
-                        string lesson = Lessons.For(f.Id);
-                        if (lesson != null) sb.Append("<div class='lesson'><span class='q'>?</span>" + H(lesson) + "</div>");
-                    }
-                    sb.Append("</li>");
-                }
-                sb.Append("</ul></div>");
-            }
+            InfoList(sb, r.Findings.Where(f => f.Severity == Severity.Info && !Analyzer.IsBetaFinding(f)).ToList(), showExplanations);
             sb.Append("</div>");
 
             // ---------------- En-têtes ----------------
@@ -618,9 +595,70 @@ namespace PhishGuard.AddIn
             if (body.Length > 30000) body = body.Substring(0, 30000) + "\n[… " + L.T("tronqué") + "]";
             sb.Append("<div class='sec' id='s-body'><p class='note'>" + H(L.T("Texte brut du message (aucun lien n’est actif ici).")) + "</p><pre>" + H(body) + "</pre></div>");
 
+            // ---------------- Bêta (sources externes) ----------------
+            sb.Append("<div class='sec' id='s-beta'>");
+            sb.Append("<p class='note'>" + H(L.T("Résultats des sources externes activées dans Paramètres → Bêta. Elles reçoivent seulement des domaines, des empreintes de fichiers ou une IP, jamais le contenu du message.")) + "</p>");
+            if (r.Sources.Count > 0)
+            {
+                sb.Append("<h2>" + H(L.T("Sources")) + "</h2><div class='tw'><table><thead><tr><th>" + H(L.T("Source")) + "</th><th>" + H(L.T("État")) + "</th><th>" + H(L.T("Détail")) + "</th></tr></thead><tbody>");
+                foreach (var src in r.Sources)
+                {
+                    string cls = src.State == "ok" ? "ok" : src.State == "error" ? "bad" : src.State == "pending" ? "mid" : "na";
+                    string label = src.State == "ok" ? L.T("Vérifié") : src.State == "error" ? L.T("Erreur") : src.State == "pending" ? L.T("En cours") : L.T("Désactivé");
+                    sb.Append("<tr><td><b>" + H(src.Name) + "</b></td><td><span class='b " + cls + "'>" + H(label) + "</span></td><td class='muted'>" + H(src.Detail) + "</td></tr>");
+                }
+                sb.Append("</tbody></table></div>");
+            }
+            if (beta.Count == 0) sb.Append(Empty(L.T("Aucune alerte des sources externes pour ce message.")));
+            else
+            {
+                sb.Append("<h2>" + H(L.T("Alertes")) + "<span class='c'>" + beta.Count + "</span></h2>");
+                foreach (var f in beta) FindingCard(sb, f, showExplanations);
+            }
+            InfoList(sb, r.Findings.Where(f => f.Severity == Severity.Info && Analyzer.IsBetaFinding(f)).ToList(), showExplanations);
+            sb.Append("</div>");
+
             sb.Append("<p class='foot'>" + H(L.T("Analyse locale : le contenu du message ne quitte pas votre poste.")) + "</p>");
             sb.Append("</div></body></html>");
             return sb.ToString();
+        }
+
+        static void FindingCard(StringBuilder sb, Finding f, bool showExplanations)
+        {
+            string sev = f.Severity.ToString();
+            sb.Append("<div class='f " + sev + "'><div><span class='pill " + sev + "'>" + H(Analyzer.SeverityLabel(f.Severity)) + "</span><span class='ft'>" + H(f.Title) + "</span></div>");
+            if (!string.IsNullOrEmpty(f.Detail)) sb.Append("<p class='fd'>" + H(f.Detail) + "</p>");
+            if (f.Evidence.Count > 0)
+            {
+                sb.Append("<div class='evs'>");
+                foreach (var ev in f.Evidence) sb.Append("<span class='ev'>" + H(ev) + "</span>");
+                sb.Append("</div>");
+            }
+            if (showExplanations)
+            {
+                string lesson = Lessons.For(f.Id);
+                if (lesson != null) sb.Append("<div class='lesson'><span class='q'>?</span><b>" + H(L.T("Pourquoi c’est important :")) + "</b> " + H(lesson) + "</div>");
+            }
+            sb.Append("</div>");
+        }
+
+        static void InfoList(StringBuilder sb, List<Finding> infos, bool showExplanations)
+        {
+            if (infos.Count == 0) return;
+            sb.Append("<h2>" + H(L.T("Informations")) + "</h2><div class='card'><ul class='list'>");
+            foreach (var f in infos)
+            {
+                sb.Append("<li><span class='ic inf'>i</span>" + H(f.Title));
+                if (!string.IsNullOrEmpty(f.Detail)) sb.Append("<div class='muted'>" + H(f.Detail) + "</div>");
+                if (f.Evidence.Count > 0) sb.Append("<div class='mono muted'>" + H(string.Join(" ; ", f.Evidence.ToArray())) + "</div>");
+                if (showExplanations)
+                {
+                    string lesson = Lessons.For(f.Id);
+                    if (lesson != null) sb.Append("<div class='lesson'><span class='q'>?</span>" + H(lesson) + "</div>");
+                }
+                sb.Append("</li>");
+            }
+            sb.Append("</ul></div>");
         }
 
         static void Tab(StringBuilder sb, string id, string label, int count)

@@ -27,6 +27,7 @@ namespace PhishGuard
         public bool KnownCorrespondents = true;  // premier contact et sosies de vos correspondants
         public bool DomainAgeLookup = true;      // âge des domaines (RDAP, sans clé)
         public bool TagCategory = false;         // catégorie de couleur sur les messages suspects/dangereux
+        public bool ShowBanner = true;           // bandeau coloré en haut des fenêtres Outlook
         public bool MoveAfterReport = true;      // déplacer en Courrier indésirable après signalement
         public bool ScoreLog = true;             // journal des scores (scores.csv)
         public string SharedBlocklistPath = "";  // liste de blocage partagée (ex. \\serveur\partage\phishguard.txt)
@@ -40,7 +41,6 @@ namespace PhishGuard
         public bool BetaCertAge = false;         // âge du premier certificat HTTPS (crt.sh, sans clé)
         public string VirusTotalKey = "";        // clés gratuites ; chiffrées pour l'utilisateur Windows dans config.user.ini
         public string AbuseChKey = "";
-        public string SafeBrowsingKey = "";
         public string AbuseIpdbKey = "";
 
         public static PhishGuardConfig Load(string path)
@@ -86,6 +86,7 @@ namespace PhishGuard
                     case "knowncorrespondents": c.KnownCorrespondents = !IsFalse(val); break;
                     case "domainagelookup": c.DomainAgeLookup = !IsFalse(val); break;
                     case "tagcategory": c.TagCategory = !IsFalse(val); break;
+                    case "showbanner": c.ShowBanner = !IsFalse(val); break;
                     case "moveafterreport": c.MoveAfterReport = !IsFalse(val); break;
                     case "scorelog": c.ScoreLog = !IsFalse(val); break;
                     case "sharedblocklistpath": c.SharedBlocklistPath = val; break;
@@ -97,7 +98,6 @@ namespace PhishGuard
                     case "betacertage": c.BetaCertAge = IsTrue(val); break;
                     case "virustotalkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.VirusTotalKey = k; } break;
                     case "abusechkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.AbuseChKey = k; } break;
-                    case "safebrowsingkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.SafeBrowsingKey = k; } break;
                     case "abuseipdbkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.AbuseIpdbKey = k; } break;
                     case "allowusersettings": if (isAdminFile) c.AllowUserSettings = !IsFalse(val); break;
                 }
@@ -123,6 +123,7 @@ namespace PhishGuard
             sb.AppendLine("KnownCorrespondents = " + (KnownCorrespondents ? "true" : "false"));
             sb.AppendLine("DomainAgeLookup = " + (DomainAgeLookup ? "true" : "false"));
             sb.AppendLine("TagCategory = " + (TagCategory ? "true" : "false"));
+            sb.AppendLine("ShowBanner = " + (ShowBanner ? "true" : "false"));
             sb.AppendLine("MoveAfterReport = " + (MoveAfterReport ? "true" : "false"));
             sb.AppendLine("ScoreLog = " + (ScoreLog ? "true" : "false"));
             sb.AppendLine("SharedBlocklistPath = " + (SharedBlocklistPath ?? "").Replace("\r", "").Replace("\n", "").Trim());
@@ -136,7 +137,6 @@ namespace PhishGuard
             sb.AppendLine("# Clés d'API chiffrées pour ce compte Windows (DPAPI) : inutilisables sur un autre poste ou par un autre utilisateur.");
             sb.AppendLine("VirusTotalKey = " + Protect(VirusTotalKey));
             sb.AppendLine("AbuseChKey = " + Protect(AbuseChKey));
-            sb.AppendLine("SafeBrowsingKey = " + Protect(SafeBrowsingKey));
             sb.AppendLine("AbuseIpdbKey = " + Protect(AbuseIpdbKey));
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));

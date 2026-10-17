@@ -37,12 +37,14 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 | | |
 |---|---|
 | **Score permanent** | Un seul bouton dans le ruban : il affiche le verdict et le score (pastille verte, orange ou rouge) du message sélectionné ou ouvert, sans clic. |
+| **Bandeau** | Une bande verte, orange ou rouge en haut de la fenêtre Outlook : verdict, score et principaux indices du message affiché, boutons Détail et Signaler. |
 | **Alerte** | Une notification discrète en bas à droite de l'écran pour les messages dangereux (ou suspects, au choix). |
 | **Fenêtre d'enquête** | Jauge de risque, indices classés par gravité, parcours des serveurs en frise ; onglets Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps. Les boutons Signaler et Paramètres sont en bas de cette fenêtre. |
 | **Signaler** | Envoie le message (en pièce jointe) et le rapport complet à l'équipe sécurité, puis le déplace dans Courrier indésirable. |
 | **Ce n'est pas du phishing** | Ajoute l'expéditeur ou son domaine aux expéditeurs de confiance (une usurpation reste toujours signalée). |
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
 | **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier. |
+| **Bêta** | Sources externes optionnelles : OpenPhish, Tranco, DNS, crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Bêta de la fenêtre. |
 | **Français / anglais** | Langue de l'interface au choix, ou automatique selon Windows. |
 
 ### Contrôles effectués
@@ -107,6 +109,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `CompanyName`, `CompanyDomains` | Votre entreprise ; ses sosies sont classés critiques | — |
 | `VipNames` | Dirigeants et personnes sensibles (fraude au président) | — |
 | `ReportAddress` | Adresse de l'équipe sécurité pour **Signaler** | — |
+| `ShowBanner` | Bandeau coloré en haut des fenêtres | `true` |
 | `Language` | `auto` (langue de Windows), `fr` ou `en` | `auto` |
 | `TrustedDomains`, `TrustedSenders` | Domaines et adresses de confiance | — |
 | `AutoAnalyze` | Score automatique du message sélectionné | `true` |

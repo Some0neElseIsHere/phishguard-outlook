@@ -82,7 +82,8 @@ namespace PhishGuard
             AnalyzeContent(e, headers, ctx, findings);
             AnalyzeFilters(e, headers, ctx, findings);
             var details = Forensics.ParseHeaders(e.RawHeaders);
-            AnalyzeIntel(e, ctx, details, findings, positives, urls, linkDomains);
+            var sources = new List<SourceStatus>();
+            AnalyzeIntel(e, ctx, details, findings, positives, urls, linkDomains, sources);
 
             if (ctx.Internal)
             {
@@ -131,6 +132,7 @@ namespace PhishGuard
                 AttachmentNames = attNames,
                 SenderAddress = (e.FromAddress ?? "").ToLowerInvariant(),
                 Details = details,
+                Sources = sources,
                 Attachments = e.Attachments.Where(a => !(a.IsInline && a.IsImage)).ToList(),
                 FirstContact = ctx.FirstContact,
                 SenderDomain = PhishGuard.Domains.DomainOfAddress(e.FromAddress)
@@ -709,15 +711,27 @@ namespace PhishGuard
         // Sources externes (bêta) : OpenPhish, Tranco, DNS, crt.sh, VirusTotal, abuse.ch, Safe Browsing, AbuseIPDB
         // =====================================================================
 
-        static void AnalyzeIntel(EmailData e, Ctx ctx, HeaderDetails details, List<Finding> findings, List<string> positives, List<string> urls, List<string> linkDomains)
+        /// <summary>true pour les indices issus des sources externes (affichés dans l'onglet Bêta).</summary>
+        public static bool IsBetaFinding(Finding f)
+        {
+            return f.Id == "intel-pending" || f.Id.Contains("-intel-");
+        }
+
+        class SourceCount { public int Checked, Pending, Errors; }
+
+        static void AnalyzeIntel(EmailData e, Ctx ctx, HeaderDetails details, List<Finding> findings, List<string> positives, List<string> urls, List<string> linkDomains, List<SourceStatus> sources)
         {
             var cfg = ctx.Config;
             var s = Intel.Settings;
-            var waiting = new List<string>();
+            var counts = new Dictionary<string, SourceCount>();
             Func<string, string, IntelResult> ask = (key, service) =>
             {
+                SourceCount c;
+                if (!counts.TryGetValue(service, out c)) { c = new SourceCount(); counts[service] = c; }
                 var r = Intel.GetOrRequest(key);
-                if (r == null && !waiting.Contains(service)) waiting.Add(service);
+                if (r == null) c.Pending++;
+                else if (!r.Ok) c.Errors++;
+                else c.Checked++;
                 return r != null && r.Ok ? r : null;
             };
             var byId = new Dictionary<string, Finding>();
@@ -729,24 +743,18 @@ namespace PhishGuard
                 if (!string.IsNullOrEmpty(ev) && !f.Evidence.Contains(ev) && f.Evidence.Count < 6) f.Evidence.Add(ev);
             };
 
-            // ---- Liens : OpenPhish et Safe Browsing (adresse complète) ----
-            int gsbCount = 0;
+            // ---- Liens : OpenPhish (adresse complète, comparée sur le poste) ----
+            int opChecked = 0;
             foreach (var u in urls)
             {
+                if (!Feeds.OpenPhishEnabled) break;
+                opChecked++;
                 string op = Feeds.OpenPhishMatch(u);
                 if (op == "url")
                     add("links-intel-openphish", "links", Severity.Critical, L.T("Lien vers une page de phishing connue (OpenPhish)"),
                         L.T("Cette adresse figure dans le flux OpenPhish des pages de phishing actives."), Defang(u));
                 else if (op == "host")
                     add("links-intel-openphish-host", "links", Severity.High, L.T("Lien vers un serveur qui héberge des pages de phishing (OpenPhish)"), "", Defang(u));
-                if (s.SafeBrowsingKey.Length > 0 && gsbCount < 20)
-                {
-                    gsbCount++;
-                    var g = ask("gsb:" + u, "Google Safe Browsing");
-                    if (g != null && g.Found)
-                        add("links-intel-gsb", "links", Severity.Critical, L.F("Google Safe Browsing signale ce lien ({0})", Intel.ThreatLabel(g.Label)),
-                            L.T("La liste de Google (utilisée par Chrome) classe cette adresse comme dangereuse."), Defang(u));
-                }
             }
 
             // ---- Domaines : expéditeur puis liens ----
@@ -757,7 +765,7 @@ namespace PhishGuard
             foreach (var d in linkDomains.Take(8))
                 if (!domains.Any(x => x.Key == d)) domains.Add(new KeyValuePair<string, string>(d, "links"));
 
-            int crtCount = 0;
+            int crtCount = 0, ranked = 0;
             foreach (var kv in domains)
             {
                 string d = kv.Key, cat = kv.Value;
@@ -765,6 +773,7 @@ namespace PhishGuard
                 bool trusted = ctx.Domains.Legit.Contains(d) || ctx.Domains.CompanyDomains.Contains(d) || Lists.FreemailDomains.Contains(d)
                     || cfg.TrustedDomains.Contains(d);
                 int rank = Feeds.TrancoRank(d);
+                if (rank > 0) ranked++;
                 if (rank > 0 && cat == "sender" && !ctx.Domains.CompanyDomains.Contains(d))
                     positives.Add(L.F("Domaine très fréquenté : {0} (n° {1} mondial, classement Tranco)", PhishGuard.Domains.ToUnicode(d), rank.ToString("N0")));
                 if (trusted) continue;
@@ -774,7 +783,7 @@ namespace PhishGuard
                 // DNS : seulement pour l'expéditeur (domaine qui envoie des emails)
                 if (cfg.BetaDnsChecks && cat == "sender" && rank == 0)
                 {
-                    var r = ask("dns:" + fromDomain + "|" + fromOrg, "DNS");
+                    var r = ask("dns:" + fromDomain + "|" + fromOrg, "dns");
                     if (r != null)
                     {
                         if (!r.Exists)
@@ -796,7 +805,7 @@ namespace PhishGuard
                 if (cfg.BetaCertAge && rank == 0 && crtCount < 3)
                 {
                     crtCount++;
-                    var r = ask("crt:" + d, "crt.sh");
+                    var r = ask("crt:" + d, "crt");
                     if (r != null && r.Date.HasValue)
                     {
                         int days = Math.Max(0, (int)(DateTime.UtcNow - r.Date.Value).TotalDays);
@@ -807,20 +816,13 @@ namespace PhishGuard
                     }
                 }
 
-                if (s.VirusTotalKey.Length > 0)
-                {
-                    var r = ask("vtd:" + d, "VirusTotal");
-                    if (r != null && r.Found && r.Malicious > 0)
-                        add(cat + "-intel-vt", cat, r.Malicious >= 3 ? Severity.High : Severity.Medium,
-                            L.F("VirusTotal : {0} antivirus sur {1} signalent ce domaine", r.Malicious, r.Total), "", shown);
-                }
                 if (s.AbuseChKey.Length > 0)
                 {
-                    var r = ask("uhh:" + d, "URLhaus");
+                    var r = ask("uhh:" + d, "abusech");
                     if (r != null && r.Found)
                         add(cat + "-intel-urlhaus", cat, Severity.High, L.T("URLhaus : ce domaine diffuse des logiciels malveillants"),
                             r.Total > 0 ? L.F("{0} adresses malveillantes recensées sur ce domaine.", r.Total) : "", shown);
-                    var t = ask("tfi:" + d, "ThreatFox");
+                    var t = ask("tfi:" + d, "abusech");
                     if (t != null && t.Found)
                         add(cat + "-intel-threatfox", cat, Severity.High, L.T("ThreatFox : domaine connu comme indicateur de menace"),
                             t.Label.Length > 0 ? L.F("Associé à : {0}.", t.Label) : "", shown);
@@ -832,7 +834,7 @@ namespace PhishGuard
             {
                 if (s.VirusTotalKey.Length > 0)
                 {
-                    var r = ask("vtf:" + a.Sha256, "VirusTotal");
+                    var r = ask("vtf:" + a.Sha256, "vt");
                     if (r != null && r.Found && r.Malicious > 0)
                         add("att-intel-vt", "attachments", r.Malicious >= 3 ? Severity.Critical : Severity.High,
                             L.F("VirusTotal : pièce jointe détectée par {0} antivirus sur {1}", r.Malicious, r.Total),
@@ -840,8 +842,8 @@ namespace PhishGuard
                 }
                 if (s.AbuseChKey.Length > 0)
                 {
-                    var r = ask("uhp:" + a.Sha256, "URLhaus");
-                    var t = ask("tfh:" + a.Sha256, "ThreatFox");
+                    var r = ask("uhp:" + a.Sha256, "abusech");
+                    var t = ask("tfh:" + a.Sha256, "abusech");
                     if ((r != null && r.Found) || (t != null && t.Found))
                     {
                         string fam = t != null && t.Found && t.Label.Length > 0 ? t.Label : (r != null ? r.Label : "");
@@ -854,15 +856,55 @@ namespace PhishGuard
             // ---- IP d'origine ----
             if (s.AbuseIpdbKey.Length > 0 && details != null && details.OriginIp.Length > 0 && Forensics.IsPublicIp(details.OriginIp))
             {
-                var r = ask("ip:" + details.OriginIp, "AbuseIPDB");
+                var r = ask("ip:" + details.OriginIp, "abuseipdb");
                 if (r != null && r.Malicious >= 25)
                     add("sender-intel-abuseipdb", "sender", r.Malicious >= 75 ? Severity.High : Severity.Medium,
                         L.F("L’IP d’origine est signalée pour abus (AbuseIPDB : {0}/100, {1} signalements)", r.Malicious, r.Total), "", details.OriginIp);
+                else if (r != null)
+                    add("sender-intel-abuseipdb-info", "sender", Severity.Info, L.F("AbuseIPDB : IP d’origine {0}, score {1}/100", details.OriginIp, r.Malicious), "", null);
             }
 
-            if (waiting.Count > 0)
+            // ---- État de chaque source (onglet Bêta) ----
+            Action<string, string, bool, string> status = (service, name, enabled, offDetail) =>
+            {
+                SourceCount c;
+                counts.TryGetValue(service, out c);
+                var st = new SourceStatus { Name = name };
+                if (!enabled) { st.State = "off"; st.Detail = offDetail; }
+                else if (c == null) { st.State = "ok"; st.Detail = L.T("Rien à vérifier pour ce message"); }
+                else if (c.Pending > 0) { st.State = "pending"; st.Detail = L.F("{0} vérification(s) en cours", c.Pending); }
+                else if (c.Errors > 0) { st.State = "error"; st.Detail = L.T("Service injoignable ou clé refusée") + (Intel.LastError.Length > 0 ? " (" + Intel.LastError + ")" : ""); }
+                else { st.State = "ok"; st.Detail = L.F("{0} élément(s) vérifié(s)", c.Checked); }
+                sources.Add(st);
+            };
+            string notEnabled = L.T("Désactivé (Paramètres → Bêta)");
+            string noKey = L.T("Pas de clé (Paramètres → Bêta)");
+            sources.Add(new SourceStatus
+            {
+                Name = "OpenPhish",
+                State = !Feeds.OpenPhishEnabled ? "off" : Feeds.OpenPhishCount == 0 ? "pending" : "ok",
+                Detail = !Feeds.OpenPhishEnabled ? notEnabled : Feeds.OpenPhishCount == 0
+                    ? L.T("Liste en cours de téléchargement") + (Feeds.LastError.Length > 0 ? " (" + Feeds.LastError + ")" : "")
+                    : L.F("{0} lien(s) comparé(s) à {1} adresses", opChecked, Feeds.OpenPhishCount.ToString("N0"))
+            });
+            sources.Add(new SourceStatus
+            {
+                Name = "Tranco",
+                State = !Feeds.TrancoEnabled ? "off" : Feeds.TrancoCount == 0 ? "pending" : "ok",
+                Detail = !Feeds.TrancoEnabled ? notEnabled : Feeds.TrancoCount == 0
+                    ? L.T("Liste en cours de téléchargement") + (Feeds.LastError.Length > 0 ? " (" + Feeds.LastError + ")" : "")
+                    : L.F("{0} domaine(s) parmi les sites les plus visités", ranked)
+            });
+            status("dns", L.T("DNS (MX, SPF, DMARC)"), cfg.BetaDnsChecks, notEnabled);
+            status("crt", "crt.sh", cfg.BetaCertAge, notEnabled);
+            status("vt", "VirusTotal", s.VirusTotalKey.Length > 0, noKey);
+            status("abusech", "abuse.ch (URLhaus, ThreatFox)", s.AbuseChKey.Length > 0, noKey);
+            status("abuseipdb", "AbuseIPDB", s.AbuseIpdbKey.Length > 0, noKey);
+
+            int pendingTotal = counts.Values.Sum(c => c.Pending);
+            if (pendingTotal > 0)
                 findings.Add(new Finding("intel-pending", "links", Severity.Info, L.T("Vérifications externes en cours"),
-                    L.T("Le résultat s’affichera automatiquement dans quelques secondes."), waiting));
+                    L.T("Le résultat s’affichera automatiquement dans quelques secondes."), null));
         }
 
         static void AnalyzeAttachments(EmailData e, Ctx ctx, List<Finding> findings, List<string> names)

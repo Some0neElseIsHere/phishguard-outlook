@@ -27,6 +27,8 @@ namespace PhishGuard.Setup
     {
         const string ProgId = "PhishGuard.Connect";
         const string Clsid = "{6C3F2A1E-8B5D-4E7A-9F21-3D4B8C6E2A71}";
+        const string BannerProgId = "PhishGuard.Banner";
+        const string BannerClsid = "{8B1E4F52-3C7A-4D9E-A1F6-2E5B7C9D0A43}";
         const string AssemblyName = "PhishGuard, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
         static string DisplayVersion
         {
@@ -127,21 +129,9 @@ namespace PhishGuard.Setup
             {
                 using (var root = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view))
                 {
-                    Set(root, @"Software\Classes\" + ProgId, null, ProgId);
-                    Set(root, @"Software\Classes\" + ProgId + @"\CLSID", null, Clsid);
-                    string ck = @"Software\Classes\CLSID\" + Clsid;
-                    Set(root, ck, null, ProgId);
-                    Set(root, ck + @"\ProgId", null, ProgId);
-                    using (root.CreateSubKey(ck + @"\Implemented Categories\{62C8FE65-4EBB-45e7-B440-6E39B2CDBF29}")) { }
-                    Set(root, ck + @"\InprocServer32", null, "mscoree.dll");
-                    Set(root, ck + @"\InprocServer32", "ThreadingModel", "Both");
-                    foreach (var k in new[] { ck + @"\InprocServer32", ck + @"\InprocServer32\1.0.0.0" })
-                    {
-                        Set(root, k, "Class", "PhishGuard.AddIn.Connect");
-                        Set(root, k, "Assembly", AssemblyName);
-                        Set(root, k, "RuntimeVersion", "v4.0.30319");
-                        Set(root, k, "CodeBase", codeBase);
-                    }
+                    RegisterClass(root, ProgId, Clsid, "PhishGuard.AddIn.Connect", "Both", false, codeBase);
+                    // Bandeau en haut des fenêtres : contrôle ActiveX hébergé par Office
+                    RegisterClass(root, BannerProgId, BannerClsid, "PhishGuard.AddIn.BannerControl", "Apartment", true, codeBase);
                 }
             }
 
@@ -172,6 +162,26 @@ namespace PhishGuard.Setup
             }
         }
 
+        static void RegisterClass(RegistryKey root, string progId, string clsid, string className, string threading, bool control, string codeBase)
+        {
+            Set(root, @"Software\Classes\" + progId, null, progId);
+            Set(root, @"Software\Classes\" + progId + @"\CLSID", null, clsid);
+            string ck = @"Software\Classes\CLSID\" + clsid;
+            Set(root, ck, null, progId);
+            Set(root, ck + @"\ProgId", null, progId);
+            using (root.CreateSubKey(ck + @"\Implemented Categories\{62C8FE65-4EBB-45e7-B440-6E39B2CDBF29}")) { }
+            if (control) using (root.CreateSubKey(ck + @"\Control")) { }
+            Set(root, ck + @"\InprocServer32", null, "mscoree.dll");
+            Set(root, ck + @"\InprocServer32", "ThreadingModel", threading);
+            foreach (var k in new[] { ck + @"\InprocServer32", ck + @"\InprocServer32\1.0.0.0" })
+            {
+                Set(root, k, "Class", className);
+                Set(root, k, "Assembly", AssemblyName);
+                Set(root, k, "RuntimeVersion", "v4.0.30319");
+                Set(root, k, "CodeBase", codeBase);
+            }
+        }
+
         static void Set(RegistryKey root, string path, string name, string value)
         {
             using (var k = root.CreateSubKey(path)) k.SetValue(name ?? "", value);
@@ -189,6 +199,8 @@ namespace PhishGuard.Setup
                 {
                     root.DeleteSubKeyTree(@"Software\Classes\" + ProgId, false);
                     root.DeleteSubKeyTree(@"Software\Classes\CLSID\" + Clsid, false);
+                    root.DeleteSubKeyTree(@"Software\Classes\" + BannerProgId, false);
+                    root.DeleteSubKeyTree(@"Software\Classes\CLSID\" + BannerClsid, false);
                 }
             }
             Registry.CurrentUser.DeleteSubKeyTree(@"Software\Microsoft\Office\Outlook\Addins\" + ProgId, false);

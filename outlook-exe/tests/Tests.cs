@@ -355,9 +355,6 @@ namespace PhishGuard.Tests
             Check("ThreatFox : indicateur", tf.Found && tf.Label == "Emotet", tf.Label);
             var ab = Intel.ParseAbuseIpdb("{\"data\":{\"ipAddress\":\"1.2.3.4\",\"abuseConfidenceScore\":87,\"countryCode\":\"RU\",\"totalReports\":41}}");
             Check("AbuseIPDB : score", ab.Malicious == 87 && ab.Total == 41 && ab.Label == "RU");
-            var gsb = Intel.ParseSafeBrowsing("{\"matches\":[{\"threatType\":\"SOCIAL_ENGINEERING\",\"platformType\":\"ANY_PLATFORM\",\"threat\":{\"url\":\"https://bad.example/login\"},\"cacheDuration\":\"300s\"}]}");
-            Check("Safe Browsing : correspondance", gsb.ContainsKey("https://bad.example/login") && gsb["https://bad.example/login"] == "SOCIAL_ENGINEERING");
-            Check("Safe Browsing : rien", Intel.ParseSafeBrowsing("{}").Count == 0);
             Check("clé chiffrée (DPAPI)", PhishGuardConfig.Unprotect(PhishGuardConfig.Protect("cle-secrete-123")) == "cle-secrete-123" && PhishGuardConfig.Protect("abc").StartsWith("dpapi:"));
 
             // ---------- Sources externes (bêta) : listes et résultats dans l'analyse ----------
@@ -374,17 +371,16 @@ namespace PhishGuard.Tests
             var eI = Base();
             eI.Links.Add(new LinkInfo("https://evil-login.top/office365/", "Se connecter"));
             eI.Links.Add(new LinkInfo("https://malware-cdn.xyz/f.zip", "Télécharger"));
+            eI.Attachments.Add(new AttachmentInfo { Name = "facture.pdf", Sha256 = "a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90" });
             var cfgI = new PhishGuardConfig { CompanyDomains = new List<string> { "acmetech.fr" }, BetaDnsChecks = true, BetaCertAge = true };
             Intel.Settings = new IntelSettings { VirusTotalKey = "test" };
             Intel.SetForTests("dns:exemple-pme.fr|exemple-pme.fr", new IntelResult { Ok = true, Exists = false });
             Intel.SetForTests("crt:evil-login.top", new IntelResult { Ok = true, Found = true, Date = DateTime.UtcNow.AddDays(-2) });
             Intel.SetForTests("crt:malware-cdn.xyz", new IntelResult { Ok = true, Found = false });
             Intel.SetForTests("crt:exemple-pme.fr", new IntelResult { Ok = true, Found = true, Date = DateTime.UtcNow.AddYears(-5) });
-            Intel.SetForTests("vtd:exemple-pme.fr", new IntelResult { Ok = true, Found = false });
-            Intel.SetForTests("vtd:evil-login.top", new IntelResult { Ok = true, Found = false });
-            Intel.SetForTests("vtd:malware-cdn.xyz", new IntelResult { Ok = true, Found = true, Malicious = 9, Total = 90 });
+            Intel.SetForTests("vtf:a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90", new IntelResult { Ok = true, Found = true, Malicious = 9, Total = 70 });
             var rI = Analyzer.Analyze(eI, cfgI);
-            foreach (var id in new[] { "links-intel-openphish", "links-intel-cert-new", "links-intel-vt" })
+            foreach (var id in new[] { "links-intel-openphish", "links-intel-cert-new", "att-intel-vt" })
                 Check("bêta : " + id, Ids(rI).Contains(id), string.Join(",", Ids(rI).ToArray()));
             Check("bêta : Tranco ignore les vérifications d’un domaine très fréquenté", !Ids(rI).Contains("sender-intel-dns-nxdomain") && rI.Positives.Any(p => p.Contains("Tranco")),
                 string.Join(",", Ids(rI).ToArray()));
@@ -392,6 +388,9 @@ namespace PhishGuard.Tests
             var rI2 = Analyzer.Analyze(eI, cfgI);
             Check("bêta : domaine expéditeur inexistant", Ids(rI2).Contains("sender-intel-dns-nxdomain"), string.Join(",", Ids(rI2).ToArray()));
             Check("bêta : aucune vérification en attente", !Ids(rI2).Contains("intel-pending"), string.Join(",", Ids(rI2).ToArray()));
+            Check("bêta : état des sources", rI2.Sources.Any(x => x.Name == "VirusTotal" && x.State == "ok") && rI2.Sources.Any(x => x.Name == "AbuseIPDB" && x.State == "off")
+                && rI2.Sources.Any(x => x.Name == "OpenPhish" && x.State == "ok"), string.Join(", ", rI2.Sources.Select(x => x.Name + "=" + x.State).ToArray()));
+            Check("bêta : indices regroupés", rI2.Findings.Where(f => Analyzer.IsBetaFinding(f)).Count() >= 3);
             Intel.Settings = new IntelSettings();
             Intel.ClearForTests();
             Feeds.OpenPhishEnabled = false;

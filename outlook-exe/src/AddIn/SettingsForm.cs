@@ -17,8 +17,8 @@ namespace PhishGuard.AddIn
         readonly PhishGuardConfig cfg;
         readonly TextBox txtCompany, txtDomains, txtReport, txtVips, txtTrusted, txtCustom, txtTrustedSenders, txtShared;
         readonly CheckBox chkAuto, chkRedFlag, chkExplain, chkCorr, chkAge, chkTag, chkMove, chkLog;
-        readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert;
-        readonly TextBox txtVt, txtAbuseCh, txtGsb, txtAbuseIpdb;
+        readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert, chkBanner;
+        readonly TextBox txtVt, txtAbuseCh, txtAbuseIpdb;
         readonly Label lblBeta;
         readonly ComboBox cboAlert, cboLang;
         readonly NumericUpDown numHash;
@@ -94,6 +94,8 @@ namespace PhishGuard.AddIn
                 L.F("Utilise les adresses de vos éléments envoyés et de vos contacts ({0} connues), sans rien envoyer à l’extérieur.", Correspondents.Count));
             chkAge = AddCheck(pAnalyse, ref y, L.T("Vérifier l’âge des domaines (RDAP)"), cfg.DomainAgeLookup,
                 L.T("Envoie uniquement le nom du domaine à rdap.org et au registre concerné, jamais le contenu des messages."));
+            chkBanner = AddCheck(pAnalyse, ref y, L.T("Afficher un bandeau coloré en haut de la fenêtre Outlook"), cfg.ShowBanner,
+                L.T("Verdict, score et principaux indices du message affiché, avec les boutons Détail et Signaler."));
             chkTag = AddCheck(pAnalyse, ref y, L.T("Marquer les messages suspects d’une couleur dans l’en-tête et la liste (catégorie Outlook)"), cfg.TagCategory,
                 L.T("Ajoute une catégorie au message : bande de couleur dans son en-tête et dans la liste des messages."));
             chkMove = AddCheck(pAnalyse, ref y, L.T("Déplacer le message dans « Courrier indésirable » après l’avoir signalé"), cfg.MoveAfterReport, null);
@@ -143,11 +145,9 @@ namespace PhishGuard.AddIn
             pBeta.Controls.Add(new Label { Text = L.T("Avec une clé gratuite (laisser vide pour désactiver)"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
             y += 24;
             txtVt = AddKey(pBeta, ref y, "VirusTotal", cfg.VirusTotalKey, "https://www.virustotal.com/gui/join-us",
-                L.T("Réputation des domaines et des pièces jointes (empreinte SHA-256 seulement). Version gratuite : 4 requêtes par minute."));
+                L.T("Réputation des pièces jointes (empreinte SHA-256 seulement, le fichier n’est jamais envoyé). Version gratuite : 4 requêtes par minute."));
             txtAbuseCh = AddKey(pBeta, ref y, "abuse.ch (URLhaus + ThreatFox)", cfg.AbuseChKey, "https://auth.abuse.ch/",
                 L.T("Domaines et fichiers connus pour diffuser des logiciels malveillants."));
-            txtGsb = AddKey(pBeta, ref y, "Google Safe Browsing", cfg.SafeBrowsingKey, "https://developers.google.com/safe-browsing/v4/get-started",
-                L.T("Adresses des liens comparées à la liste utilisée par Chrome."));
             txtAbuseIpdb = AddKey(pBeta, ref y, "AbuseIPDB", cfg.AbuseIpdbKey, "https://www.abuseipdb.com/register",
                 L.T("Réputation de l’adresse IP d’origine du message."));
             lblBeta = new Label { Location = new Point(12, y), Size = new Size(500, 70), ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
@@ -290,6 +290,7 @@ namespace PhishGuard.AddIn
             cfg.KnownCorrespondents = chkCorr.Checked;
             cfg.DomainAgeLookup = chkAge.Checked;
             cfg.TagCategory = chkTag.Checked;
+            cfg.ShowBanner = chkBanner.Checked;
             cfg.MoveAfterReport = chkMove.Checked;
             cfg.ScoreLog = chkLog.Checked;
             cfg.TrustedSenders = Lines(txtTrustedSenders, true).Where(x => x.Contains("@")).ToList();
@@ -300,7 +301,6 @@ namespace PhishGuard.AddIn
             cfg.BetaCertAge = chkCert.Checked;
             cfg.VirusTotalKey = txtVt.Text.Trim();
             cfg.AbuseChKey = txtAbuseCh.Text.Trim();
-            cfg.SafeBrowsingKey = txtGsb.Text.Trim();
             cfg.AbuseIpdbKey = txtAbuseIpdb.Text.Trim();
             try
             {
