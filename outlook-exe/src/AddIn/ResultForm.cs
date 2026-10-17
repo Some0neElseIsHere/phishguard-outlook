@@ -144,19 +144,6 @@ namespace PhishGuard.AddIn
             Uri u = e.Url;
             if ((u.Scheme == "https") && Forensics.LookupHosts.Contains(u.Host.ToLowerInvariant()))
             {
-                // Vérificateur sans paramètre d'adresse (ESET) : l'adresse est copiée, l'utilisateur la colle dans la page
-                if (u.Fragment.StartsWith("#" + Forensics.CopyMarker))
-                {
-                    string toCopy = Uri.UnescapeDataString(u.Fragment.Substring(1 + Forensics.CopyMarker.Length));
-                    try
-                    {
-                        Clipboard.SetText(toCopy);
-                        Process.Start(new ProcessStartInfo(u.GetLeftPart(UriPartial.Query)) { UseShellExecute = true });
-                        status.Text = L.F("Adresse copiée : collez-la dans la page {0} (Ctrl+V).", u.Host);
-                    }
-                    catch (Exception ex) { status.Text = L.T("Impossible d’ouvrir le navigateur : ") + ex.Message; }
-                    return;
-                }
                 try { Process.Start(new ProcessStartInfo(u.AbsoluteUri) { UseShellExecute = true }); status.Text = L.T("Ouvert dans le navigateur : ") + u.Host; }
                 catch (Exception ex) { status.Text = L.T("Impossible d’ouvrir le navigateur : ") + ex.Message; }
             }

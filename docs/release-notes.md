@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.9.3** : liens de vérification ESET et France Verif retirés (VirusTotal, Cisco Talos, AbuseIPDB, listes noires et WHOIS restent).
+
 - **v1.9.2** : liens de vérification : France Verif ajouté à côté d'ESET ; mode simple : pour un expéditeur vérifié, ce qui le confirme est affiché ; rapport de signalement : IP d'origine sans doublon.
 
 - **v1.9.1** : mode simple : chaque point dangereux ou suspect est détaillé (explication, preuves), les simples informations restent en gris sans détail ; bouton « Supprimer le message » retiré.

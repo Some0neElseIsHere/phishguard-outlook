@@ -103,7 +103,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 
 - **En-têtes** : champs principaux décodés, détail de l'authentification (domaines, sélecteur DKIM), en-têtes des filtres antispam.
 - **Parcours** : chaque serveur traversé, IP, protocole, horodatage et délai entre les sauts ; **IP d'origine**.
-- **Observables** : adresses, domaines, IP et empreintes, avec liens de vérification sans compte à créer : VirusTotal, ESET Link Checker (l'adresse est copiée, il suffit de la coller), France Verif, Cisco Talos, AbuseIPDB, listes noires (MXToolbox) et WHOIS (ouverts dans le navigateur, seul l'élément vérifié est transmis).
+- **Observables** : adresses, domaines, IP et empreintes, avec liens de vérification sans compte à créer : VirusTotal, Cisco Talos, AbuseIPDB, listes noires (MXToolbox) et WHOIS (ouverts dans le navigateur, seul l'élément vérifié est transmis).
 - **Réputation** : état de chaque source externe et résultats obtenus.
 
 ---
