@@ -12,7 +12,9 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **Mode simple pour les débutants** (par défaut) : la fenêtre d'analyse dit en clair « Ce message est dangereux / suspect / Aucun danger détecté », donne les raisons principales sans jargon technique et **« Que dois-je faire ? »** étape par étape (adapté au cas : paiement, mot de passe, pièce jointe…), avec des conseils pour reconnaître un phishing et un bouton **Supprimer le message**.
+- **v1.9.1** : mode simple : chaque point dangereux ou suspect est détaillé (explication, preuves), les simples informations restent en gris sans détail ; bouton « Supprimer le message » retiré.
+
+- **Mode simple pour les débutants** (par défaut) : la fenêtre d'analyse dit en clair « Ce message est dangereux / suspect / Aucun danger détecté », détaille chaque point dangereux ou suspect sans jargon technique (explication et preuves), laisse les simples informations en gris, et donne **« Que dois-je faire ? »** étape par étape (adapté au cas : paiement, mot de passe, pièce jointe…), avec des conseils pour reconnaître un phishing.
 - **Mode expert** : la fenêtre d'enquête complète d'avant, en un clic sur **Analyse détaillée** ; le choix est mémorisé. En mode simple, les paramètres n'affichent que l'essentiel (les onglets Listes, Réputation et l'analyse de domaine apparaissent en mode expert).
 - **Assistant au démarrage d'Outlook** : à la première installation, il explique la pastille (vert, orange, rouge) et demande la langue, l'entreprise, l'adresse de l'équipe sécurité et le mode d'affichage. Après une mise à jour, il ne pose **que les questions ajoutées** (ici : le mode d'affichage) ; les réponses déjà renseignées ne sont jamais redemandées.
 - **QR codes dans les images** (« quishing ») : les QR codes des images du message sont lus sur le poste ; leur présence est signalée et l'adresse qu'ils contiennent est analysée comme un lien (sosies, listes de blocage, réputation…).
