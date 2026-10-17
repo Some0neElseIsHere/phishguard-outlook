@@ -127,6 +127,19 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 
 ---
 
+## Zone d'alerte dans l'en-tête (zone.ofs)
+
+Outlook n'affiche une zone dans l'en-tête des messages qu'à partir d'une mise en page créée avec son concepteur
+de formulaires. À faire une seule fois :
+
+1. Fichier → Options → Personnaliser le ruban → cocher **Développeur**.
+2. Onglet Développeur → **Créer un formulaire** → **Message** → Ouvrir.
+3. Onglet Développeur → **Zone de formulaire** → **Nouvelle zone de formulaire** (laisser vide ; réduire sa hauteur à environ 2 cm).
+4. **Zone de formulaire** → **Enregistrer la zone de formulaire sous…** → `zone.ofs` dans `%LOCALAPPDATA%\PhishGuard`.
+5. Fermer le formulaire sans l'enregistrer, puis redémarrer Outlook.
+
+Sans ce fichier, PhishGuard affiche un bandeau en haut de la fenêtre pour les messages dangereux.
+
 ## Déploiement en entreprise
 
 - **Installation silencieuse** (script de connexion, GPO, outil de déploiement) : `PhishGuard-Outlook-vX.Y.Z-installeur.exe /quiet` ou `installer.cmd /quiet`.
