@@ -21,6 +21,8 @@ namespace PhishGuard.AddIn
         bool zoneFailed;
         bool zoneManifestRequested;   // Outlook a bien chargé la zone (sinon le bandeau prend le relais)
         byte[] zoneLayout;
+        DateTime zoneStorageGiven = DateTime.MinValue;   // mise en page fournie, en attente d'affichage
+        bool zoneShownOnce;
 
         class Zone
         {
@@ -62,7 +64,8 @@ namespace PhishGuard.AddIn
                 if (!config.ShowBanner || zoneFailed || Item == null || !IsMail(Item) || !AutoAllowed(Item)) return null;
                 var c = AnalyzeCached(Item, false);
                 if (c == null || c.Result.Level != "dangerous") return null;
-                if (zoneLayout == null) zoneLayout = BuildZoneLayout();
+                if (zoneLayout == null) zoneLayout = LoadZoneOfs() ?? BuildZoneLayout();
+                if (!zoneShownOnce) zoneStorageGiven = DateTime.Now;
                 return zoneLayout;
             }
             catch (Exception ex)
@@ -75,6 +78,9 @@ namespace PhishGuard.AddIn
 
         public void BeforeFormRegionShow(object FormRegion)
         {
+            zoneShownOnce = true;
+            zoneStorageGiven = DateTime.MinValue;
+            Log("Zone : affichage");
             try
             {
                 dynamic region = FormRegion;
@@ -116,6 +122,14 @@ namespace PhishGuard.AddIn
         /// <summary>Minuterie : suit la largeur du volet de lecture et oublie les zones fermées.</summary>
         void ZoneTick()
         {
+            // Outlook a reçu la mise en page mais n'a jamais affiché la zone : mise en page refusée, le bandeau prend le relais
+            if (!zoneShownOnce && zoneStorageGiven != DateTime.MinValue && DateTime.Now - zoneStorageGiven > TimeSpan.FromSeconds(4))
+            {
+                zoneStorageGiven = DateTime.MinValue;
+                zoneFailed = true;
+                Log("Zone refusée par Outlook (mise en page " + (zoneOfsSource ?? "générée") + ") : le bandeau prend le relais. "
+                    + "Pour l'activer, enregistrez une zone de formulaire vide sous " + System.IO.Path.Combine(Blocklists.DataDir, "zone.ofs") + ".");
+            }
             for (int i = zones.Count - 1; i >= 0; i--)
             {
                 var z = zones[i];
@@ -146,6 +160,30 @@ namespace PhishGuard.AddIn
 
         const uint StgmCreate = 0x1000, StgmReadWrite = 0x2, StgmShareExclusive = 0x10;
         static readonly Guid FormClsid = new Guid("C62A69F0-16DC-11CE-9E98-00AA00574A4F"); // Forms.Form.1 (FM20.DLL)
+
+        string zoneOfsSource;
+
+        /// <summary>
+        /// Mise en page enregistrée depuis le concepteur de formulaires d'Outlook (zone.ofs), si présente :
+        /// dans %LOCALAPPDATA%\PhishGuard (poste) ou dans le dossier d'installation (fournie avec l'installeur).
+        /// </summary>
+        byte[] LoadZoneOfs()
+        {
+            foreach (var dir in new[] { Blocklists.DataDir, InstallDir })
+            {
+                try
+                {
+                    string path = System.IO.Path.Combine(dir, "zone.ofs");
+                    if (!System.IO.File.Exists(path)) continue;
+                    var data = System.IO.File.ReadAllBytes(path);
+                    zoneOfsSource = path;
+                    Log("Zone : mise en page chargée depuis " + path + " (" + data.Length + " octets)");
+                    return data;
+                }
+                catch (Exception ex) { Log("Zone : lecture de zone.ofs impossible : " + ex.Message); }
+            }
+            return null;
+        }
 
         static byte[] BuildZoneLayout()
         {
