@@ -441,7 +441,7 @@ namespace PhishGuard
                 }
                 else if (!knownAddr)
                     findings.Add(new Finding("sender-new-address", "sender", Severity.Info, L.T("Nouvelle adresse d’un domaine connu"), "", new[] { fromAddr }));
-                if (knownAddr) { ctx.Trust.Add(L.T("Vous avez déjà écrit à cette adresse")); ctx.RelationProof = true; }
+                if (knownAddr) { ctx.Trust.Add(L.F("Vous avez déjà écrit à {0}", fromAddr)); ctx.RelationProof = true; }
                 else if (knownDomain) { ctx.Trust.Add(L.F("Vous avez déjà écrit à ce domaine ({0})", fromOrg)); ctx.RelationProof = true; }
                 if (!knownDomain && !ctx.Domains.Legit.Contains(fromOrg))
                     CheckCorrespondentLookalike(fromDomain, L.T("Le domaine de l’expéditeur"), findings);
