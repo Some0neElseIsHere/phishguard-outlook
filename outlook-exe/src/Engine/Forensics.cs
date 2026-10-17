@@ -600,6 +600,8 @@ namespace PhishGuard
 
         public static readonly string[] LookupHosts = { "www.virustotal.com", "www.abuseipdb.com", "talosintelligence.com", "transparencyreport.google.com", "who.is", "mxtoolbox.com" };
 
+        static string Enc(string s) { return Uri.EscapeDataString(s ?? ""); }
+
         static KeyValuePair<string, string> SafeBrowsing(string target)
         {
             return new KeyValuePair<string, string>("Google Safe Browsing", "https://transparencyreport.google.com/safe-browsing/search?url=" + Enc(target));
