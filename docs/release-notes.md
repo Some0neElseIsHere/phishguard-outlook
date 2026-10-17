@@ -12,8 +12,9 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **Zone d'alerte dans l'en-tête** des messages dangereux (juste sous l'expéditeur, dans le volet de lecture et les messages ouverts) : score, principaux indices, boutons *Détails* et *Signaler*. Elle n'apparaît que pour les messages dangereux. Si elle ne peut pas s'afficher sur un poste, un bandeau en haut de la fenêtre prend le relais (messages dangereux uniquement).
-- **Résumé plus compact** : expéditeur, objet, authentification et détails sur quatre lignes ; authentification lisible (SPF ✓, DKIM ✓, DMARC ✓, détail au survol) ; explications pédagogiques au survol du « ? » ; « Points rassurants » retirés ; informations secondaires déplacées dans l'onglet En-têtes.
+- **Zone d'alerte dans l'en-tête** des messages dangereux : PhishGuard utilise la mise en page `zone.ofs` si elle est présente dans `%LOCALAPPDATA%\PhishGuard` (créée une fois avec le concepteur de formulaires d'Outlook, voir le README).
+- Si Outlook refuse la zone, le **bandeau** en haut de la fenêtre s'affiche automatiquement à la place (messages dangereux uniquement).
+- Résumé compact, authentification lisible (SPF ✓, DKIM ✓, DMARC ✓), explications au survol, points rassurants retirés.
 
 ### Points forts
 
