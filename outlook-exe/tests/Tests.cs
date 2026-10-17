@@ -537,10 +537,10 @@ namespace PhishGuard.Tests
             e2b.BodyText = "Connectez-vous ici : https://niicrosoft.com/owa/login.php avant ce soir.";
             e2b.Links.Add(new LinkInfo("https://niicrosoft.com/owa/login.php", "https://login.microsoftonline.com"));
             var rh = Analyzer.Analyze(e2b, cfg);
-            string html = ReportHtml.Build(rh, e2b, "Alex Test");
-            Check("rapport HTML : points de doute", html.Contains("Points de doute") && html.Contains("En bref") && html.Contains("Alex Test"));
-            Check("rapport HTML : liens désarmés", html.Contains("hxxps://niicrosoft[.]com") && !html.Contains("https://niicrosoft.com") && !html.Contains("<a "), html.Length.ToString());
-            Check("rapport HTML : copie du message", html.Contains("Copie du message") && html.Contains("Connectez-vous ici"));
+            string rhtml = ReportHtml.Build(rh, e2b, "Alex Test");
+            Check("rapport HTML : points de doute", rhtml.Contains("Points de doute") && rhtml.Contains("En bref") && rhtml.Contains("Alex Test"));
+            Check("rapport HTML : liens désarmés", rhtml.Contains("hxxps://niicrosoft[.]com") && !rhtml.Contains("https://niicrosoft.com") && !rhtml.Contains("<a "), rhtml.Length.ToString());
+            Check("rapport HTML : copie du message", rhtml.Contains("Copie du message") && rhtml.Contains("Connectez-vous ici"));
             Check("rapport HTML : texte échappé", !ReportHtml.Build(rh, new EmailData { FromName = "<script>x</script>", FromAddress = "a@b.fr" }, "").Contains("<script>"));
             Check("désarmement du texte", ReportHtml.DefangText("voir http://a.b/c et https://x.y") == "voir hxxp://a[.]b/c et hxxps://x[.]y");
 
