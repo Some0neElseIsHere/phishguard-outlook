@@ -12,9 +12,9 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **Zone d'alerte dans l'en-tête** des messages dangereux : PhishGuard utilise la mise en page `zone.ofs` si elle est présente dans `%LOCALAPPDATA%\PhishGuard` (créée une fois avec le concepteur de formulaires d'Outlook, voir le README).
-- Si Outlook refuse la zone, le **bandeau** en haut de la fenêtre s'affiche automatiquement à la place (messages dangereux uniquement).
-- Résumé compact, authentification lisible (SPF ✓, DKIM ✓, DMARC ✓), explications au survol, points rassurants retirés.
+- **Clés d'API conservées** : elles sont désormais rangées dans le Gestionnaire d'identification de Windows (chiffrées pour votre compte, jamais en clair sur le disque) et ne sont plus à retaper après une mise à jour. Les clés déjà saisies y sont déplacées automatiquement.
+- Bandeau et zone d'alerte retirés (le score reste dans le ruban, l'alerte en bas à droite reste disponible).
+- Résumé compact, authentification lisible (SPF ✓, DKIM ✓, DMARC ✓), explications au survol.
 
 ### Points forts
 

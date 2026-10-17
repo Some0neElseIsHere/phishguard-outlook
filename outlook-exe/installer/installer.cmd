@@ -59,26 +59,12 @@ for %%V in (64 32) do (
     reg add %%K /v CodeBase /d "%CODEBASE%" /f /reg:%%V >nul
   )
 )
-rem Bandeau en haut des fenetres : controle ActiveX heberge par Office
-set "BPROGID=PhishGuard.Banner"
-set "BCLSID={8B1E4F52-3C7A-4D9E-A1F6-2E5B7C9D0A43}"
-set "BK=HKCU\Software\Classes\CLSID\%BCLSID%"
+rem Nettoyage du bandeau et de la zone des versions 1.2 a 1.3 (retires)
 for %%V in (64 32) do (
-  reg add "HKCU\Software\Classes\%BPROGID%" /ve /d "%BPROGID%" /f /reg:%%V >nul
-  reg add "HKCU\Software\Classes\%BPROGID%\CLSID" /ve /d "%BCLSID%" /f /reg:%%V >nul
-  reg add "%BK%" /ve /d "%BPROGID%" /f /reg:%%V >nul
-  reg add "%BK%\ProgId" /ve /d "%BPROGID%" /f /reg:%%V >nul
-  reg add "%BK%\Control" /f /reg:%%V >nul
-  reg add "%BK%\Implemented Categories\{62C8FE65-4EBB-45e7-B440-6E39B2CDBF29}" /f /reg:%%V >nul
-  reg add "%BK%\InprocServer32" /ve /d "mscoree.dll" /f /reg:%%V >nul
-  reg add "%BK%\InprocServer32" /v ThreadingModel /d "Apartment" /f /reg:%%V >nul
-  for %%K in ("%BK%\InprocServer32" "%BK%\InprocServer32\1.0.0.0") do (
-    reg add %%K /v Class /d "PhishGuard.AddIn.BannerControl" /f /reg:%%V >nul
-    reg add %%K /v Assembly /d "%ASM%" /f /reg:%%V >nul
-    reg add %%K /v RuntimeVersion /d "v4.0.30319" /f /reg:%%V >nul
-    reg add %%K /v CodeBase /d "%CODEBASE%" /f /reg:%%V >nul
-  )
+  reg delete "HKCU\Software\Classes\PhishGuard.Banner" /f /reg:%%V >nul 2>&1
+  reg delete "HKCU\Software\Classes\CLSID\{8B1E4F52-3C7A-4D9E-A1F6-2E5B7C9D0A43}" /f /reg:%%V >nul 2>&1
 )
+reg delete "HKCU\Software\Microsoft\Office\Outlook\FormRegions\IPM.Note" /v PhishGuardZone /f >nul 2>&1
 set "AK=HKCU\Software\Microsoft\Office\Outlook\Addins\%PROGID%"
 reg add "%AK%" /v FriendlyName /d "PhishGuard" /f >nul
 reg add "%AK%" /v Description /d "Analyse anti-phishing des emails recus" /f >nul
@@ -87,8 +73,6 @@ if errorlevel 1 (
   echo [!] Ecriture dans le registre refusee.
   goto fail
 )
-rem Zone d'alerte dans l'en-tete des messages (zone de formulaire fournie par le complement)
-reg add "HKCU\Software\Microsoft\Office\Outlook\FormRegions\IPM.Note" /v PhishGuardZone /d "=%PROGID%" /f >nul
 rem Evite qu'Outlook desactive le complement s'il juge son demarrage trop lent
 reg add "HKCU\Software\Microsoft\Office\16.0\Outlook\Resiliency\DoNotDisableAddinList" /v %PROGID% /t REG_DWORD /d 1 /f >nul 2>&1
 

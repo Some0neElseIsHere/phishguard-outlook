@@ -130,8 +130,9 @@ namespace PhishGuard.Setup
                 using (var root = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view))
                 {
                     RegisterClass(root, ProgId, Clsid, "PhishGuard.AddIn.Connect", "Both", false, codeBase);
-                    // Bandeau en haut des fenêtres : contrôle ActiveX hébergé par Office
-                    RegisterClass(root, BannerProgId, BannerClsid, "PhishGuard.AddIn.BannerControl", "Apartment", true, codeBase);
+                    // Nettoyage du bandeau des versions 1.2 à 1.3 (retiré)
+                    root.DeleteSubKeyTree(@"Software\Classes\" + BannerProgId, false);
+                    root.DeleteSubKeyTree(@"Software\Classes\CLSID\" + BannerClsid, false);
                 }
             }
 
@@ -141,9 +142,13 @@ namespace PhishGuard.Setup
                 ak.SetValue("Description", T("Analyse anti-phishing des emails reçus", "Anti-phishing analysis of received emails"));
                 ak.SetValue("LoadBehavior", 3, RegistryValueKind.DWord);
             }
-            // Zone d'alerte dans l'en-tête des messages (zone de formulaire fournie par le complément)
-            using (var fr = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Office\Outlook\FormRegions\IPM.Note"))
-                fr.SetValue("PhishGuardZone", "=" + ProgId);
+            // Nettoyage de la zone d'alerte des versions 1.3 (retirée)
+            try
+            {
+                using (var fr = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Office\Outlook\FormRegions\IPM.Note", true))
+                    if (fr != null) fr.DeleteValue("PhishGuardZone", false);
+            }
+            catch (Exception) { }
             // Évite qu'Outlook désactive le complément s'il juge son démarrage trop lent
             try
             {

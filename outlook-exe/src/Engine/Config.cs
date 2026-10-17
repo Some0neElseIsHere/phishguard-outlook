@@ -27,7 +27,6 @@ namespace PhishGuard
         public bool KnownCorrespondents = true;  // premier contact et sosies de vos correspondants
         public bool DomainAgeLookup = true;      // âge des domaines (RDAP, sans clé)
         public bool TagCategory = false;         // catégorie de couleur sur les messages suspects/dangereux
-        public bool ShowBanner = true;           // bandeau coloré en haut des fenêtres Outlook
         public bool MoveAfterReport = true;      // déplacer en Courrier indésirable après signalement
         public bool ScoreLog = true;             // journal des scores (scores.csv)
         public string SharedBlocklistPath = "";  // liste de blocage partagée (ex. \\serveur\partage\phishguard.txt)
@@ -39,9 +38,41 @@ namespace PhishGuard
         public bool BetaTranco = false;          // classement Tranco des sites les plus visités (sans clé)
         public bool BetaDnsChecks = false;       // MX / SPF / DMARC du domaine expéditeur (DNS de Windows)
         public bool BetaCertAge = false;         // âge du premier certificat HTTPS (crt.sh, sans clé)
-        public string VirusTotalKey = "";        // clés gratuites ; chiffrées pour l'utilisateur Windows dans config.user.ini
+        public string VirusTotalKey = "";        // clés gratuites : rangées dans le Gestionnaire d'identification de Windows
         public string AbuseChKey = "";
         public string AbuseIpdbKey = "";
+
+        // Clés d'API : nom dans le coffre de Windows et nom de la clé dans les fichiers .ini
+        static readonly string[][] ApiKeys = { new[] { "VirusTotal", "VirusTotalKey" }, new[] { "AbuseCh", "AbuseChKey" }, new[] { "AbuseIpdb", "AbuseIpdbKey" } };
+        readonly Dictionary<string, string> adminKeys = new Dictionary<string, string>();   // clés imposées par config.ini
+        readonly HashSet<string> legacyUserKeys = new HashSet<string>();                    // clés trouvées dans config.user.ini (anciennes versions)
+
+        string GetKey(string name)
+        {
+            switch (name)
+            {
+                case "VirusTotal": return VirusTotalKey ?? "";
+                case "AbuseCh": return AbuseChKey ?? "";
+                default: return AbuseIpdbKey ?? "";
+            }
+        }
+
+        void SetKey(string name, string value)
+        {
+            switch (name)
+            {
+                case "VirusTotal": VirusTotalKey = value; break;
+                case "AbuseCh": AbuseChKey = value; break;
+                default: AbuseIpdbKey = value; break;
+            }
+        }
+
+        static void ReadKey(PhishGuardConfig c, string name, string val, bool isAdminFile)
+        {
+            string k = Unprotect(val);
+            if (isAdminFile) { c.adminKeys[name] = k; c.SetKey(name, k); }
+            else if (k.Length > 0) { c.SetKey(name, k); c.legacyUserKeys.Add(name); }
+        }
 
         public static PhishGuardConfig Load(string path)
         {
@@ -54,7 +85,18 @@ namespace PhishGuard
         public static PhishGuardConfig LoadMerged(string installPath, string userPath)
         {
             var c = Load(installPath);
-            if (c.AllowUserSettings) Apply(c, userPath, false);
+            if (c.AllowUserSettings)
+            {
+                Apply(c, userPath, false);
+                // Clés de l'utilisateur : coffre de Windows (prioritaire). Les clés des anciennes versions,
+                // trouvées dans config.user.ini, y sont déplacées ; elles disparaîtront du fichier au prochain enregistrement.
+                foreach (var k in ApiKeys)
+                {
+                    string stored = Secrets.Get(k[0]);
+                    if (stored.Length > 0) c.SetKey(k[0], stored);
+                    else if (c.legacyUserKeys.Contains(k[0])) Secrets.Set(k[0], c.GetKey(k[0]));
+                }
+            }
             return c;
         }
 
@@ -86,7 +128,6 @@ namespace PhishGuard
                     case "knowncorrespondents": c.KnownCorrespondents = !IsFalse(val); break;
                     case "domainagelookup": c.DomainAgeLookup = !IsFalse(val); break;
                     case "tagcategory": c.TagCategory = !IsFalse(val); break;
-                    case "showbanner": c.ShowBanner = !IsFalse(val); break;
                     case "moveafterreport": c.MoveAfterReport = !IsFalse(val); break;
                     case "scorelog": c.ScoreLog = !IsFalse(val); break;
                     case "sharedblocklistpath": c.SharedBlocklistPath = val; break;
@@ -96,9 +137,9 @@ namespace PhishGuard
                     case "betatranco": c.BetaTranco = IsTrue(val); break;
                     case "betadnschecks": c.BetaDnsChecks = IsTrue(val); break;
                     case "betacertage": c.BetaCertAge = IsTrue(val); break;
-                    case "virustotalkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.VirusTotalKey = k; } break;
-                    case "abusechkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.AbuseChKey = k; } break;
-                    case "abuseipdbkey": { string k = Unprotect(val); if (k.Length > 0 || isAdminFile) c.AbuseIpdbKey = k; } break;
+                    case "virustotalkey": ReadKey(c, "VirusTotal", val, isAdminFile); break;
+                    case "abusechkey": ReadKey(c, "AbuseCh", val, isAdminFile); break;
+                    case "abuseipdbkey": ReadKey(c, "AbuseIpdb", val, isAdminFile); break;
                     case "allowusersettings": if (isAdminFile) c.AllowUserSettings = !IsFalse(val); break;
                 }
             }
@@ -123,7 +164,6 @@ namespace PhishGuard
             sb.AppendLine("KnownCorrespondents = " + (KnownCorrespondents ? "true" : "false"));
             sb.AppendLine("DomainAgeLookup = " + (DomainAgeLookup ? "true" : "false"));
             sb.AppendLine("TagCategory = " + (TagCategory ? "true" : "false"));
-            sb.AppendLine("ShowBanner = " + (ShowBanner ? "true" : "false"));
             sb.AppendLine("MoveAfterReport = " + (MoveAfterReport ? "true" : "false"));
             sb.AppendLine("ScoreLog = " + (ScoreLog ? "true" : "false"));
             sb.AppendLine("SharedBlocklistPath = " + (SharedBlocklistPath ?? "").Replace("\r", "").Replace("\n", "").Trim());
@@ -134,10 +174,17 @@ namespace PhishGuard
             sb.AppendLine("BetaTranco = " + (BetaTranco ? "true" : "false"));
             sb.AppendLine("BetaDnsChecks = " + (BetaDnsChecks ? "true" : "false"));
             sb.AppendLine("BetaCertAge = " + (BetaCertAge ? "true" : "false"));
-            sb.AppendLine("# Clés d'API chiffrées pour ce compte Windows (DPAPI) : inutilisables sur un autre poste ou par un autre utilisateur.");
-            sb.AppendLine("VirusTotalKey = " + Protect(VirusTotalKey));
-            sb.AppendLine("AbuseChKey = " + Protect(AbuseChKey));
-            sb.AppendLine("AbuseIpdbKey = " + Protect(AbuseIpdbKey));
+            // Clés d'API : dans le Gestionnaire d'identification de Windows (jamais en clair, conservées entre deux
+            // installations). Repli sur ce fichier, chiffré pour ce compte Windows, seulement si le coffre est indisponible.
+            foreach (var k in ApiKeys)
+            {
+                string admin;
+                adminKeys.TryGetValue(k[0], out admin);
+                string value = GetKey(k[0]).Trim();
+                string userValue = value == (admin ?? "") ? "" : value;   // la clé de config.ini n'est pas recopiée
+                if (!Secrets.Set(k[0], userValue) && userValue.Length > 0)
+                    sb.AppendLine(k[1] + " = " + Protect(userValue));
+            }
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
         }
