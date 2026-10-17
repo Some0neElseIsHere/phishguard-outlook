@@ -336,7 +336,7 @@ namespace PhishGuard.AddIn
             if (!string.IsNullOrEmpty(hint))
             {
                 page.Controls.Add(new Label { Text = hint, Location = new Point(30, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(480, 0) });
-                y += 34;
+                y += Math.Max(20, TextHeight(hint, 480) + 10);
             }
             else y += 6;
             return c;
@@ -369,10 +369,18 @@ namespace PhishGuard.AddIn
             return t;
         }
 
+        static readonly Font UiFont = new Font("Segoe UI", 9f);
+
+        /// <summary>Hauteur réelle d'un texte replié sur la largeur donnée (évite les chevauchements).</summary>
+        static int TextHeight(string text, int width)
+        {
+            return TextRenderer.MeasureText(text ?? "", UiFont, new Size(width, 0), TextFormatFlags.WordBreak).Height;
+        }
+
         static void AddHint(Control page, ref int y, string text)
         {
             page.Controls.Add(new Label { Text = text, Location = new Point(12, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(500, 0) });
-            y += 20;
+            y += Math.Max(20, TextHeight(text, 500) + 4);
         }
 
         static List<string> Lines(TextBox t, bool lower)

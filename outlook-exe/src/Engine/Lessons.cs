@@ -11,6 +11,10 @@ namespace PhishGuard
         static readonly Dictionary<string, string> Texts = new Dictionary<string, string>
         {
             { "auth-dmarc", "DMARC vérifie que le domaine affiché dans « De » a réellement autorisé cet envoi. En cas d’échec, n’importe qui a pu écrire ce nom : c’est le cœur de l’usurpation d’identité. Ne vous fiez pas au nom affiché." },
+            { "link-local-file", "Un email ne devrait jamais ouvrir un fichier sur votre poste ou sur un serveur. Un raccourci (.lnk) ou un script peut porter le nom d’un document ordinaire : au clic, il lance un programme. Survolez le lien : si l’adresse en bas de l’écran commence par file:, \\\\ ou une lettre de lecteur, ne cliquez pas." },
+            { "link-protocol", "Certains liens ne mènent pas à un site mais ouvrent une fonction de Windows (recherche, dépannage, installation). Les attaquants s’en servent pour afficher un dossier distant rempli de faux documents qui sont en réalité des programmes." },
+            { "link-text-path", "Le texte d’un lien peut être n’importe quoi : ici il ressemble à un fichier de votre poste pour inspirer confiance. Seule compte l’adresse réelle, visible en survolant le lien." },
+            { "link-text-filename", "Le lien se présente comme un document, mais le fichier téléchargé est d’un autre type (programme, raccourci, archive). N’ouvrez jamais un fichier dont l’extension ne correspond pas à ce qui était annoncé." },
             { "sender-thread-hijack", "Un fraudeur qui a piraté la boîte d’un de vos contacts, ou qui a intercepté un échange, peut répondre à une vraie conversation depuis un domaine proche. Vérifiez toujours un changement de coordonnées bancaires par téléphone, avec un numéro que vous connaissez déjà." },
             { "auth-compauth-intra", "Votre propre domaine est protégé par DMARC : un message qui s’en réclame sans passer par vos serveurs est presque toujours une usurpation." },
             { "auth-compauth", "Microsoft combine plusieurs contrôles (SPF, DKIM, DMARC, réputation). Un échec signifie que l’expéditeur affiché n’est probablement pas le vrai." },

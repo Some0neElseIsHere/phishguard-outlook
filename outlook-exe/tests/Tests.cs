@@ -551,6 +551,19 @@ namespace PhishGuard.Tests
             Check("AR d'un autre serveur ignoré", hd2.Auth.Spf == null && hd2.Auth.Dmarc == null);
             Check("rapport HTML : contrôles séparés", ReportHtml.Build(Analyzer.Analyze(Base(), cfg), Base(), "").Contains("</span>&nbsp;&nbsp; "));
 
+            // ---------- Liens qui imitent un fichier ----------
+            Func<string, string, AnalysisResult> withLink = (href, text) => { var x = Base(); x.Links.Add(new LinkInfo(href, text)); return Analyzer.Analyze(x, cfg); };
+            Func<AnalysisResult, string, Severity, bool> hasSev = (rr, id, sev) => rr.Findings.Any(f => f.Id == id && f.Severity == sev);
+            var lf1 = withLink("file://partage.attaquant.net/docs/fichier.txt.lnk", @"C:\hahkauz\fichier.txt");
+            Check("lien file:// vers un raccourci", hasSev(lf1, "link-local-file", Severity.Critical), string.Join(",", Ids(lf1).ToArray()));
+            Check("lien UNC externe", hasSev(withLink(@"\\srv.attaquant.net\partage\doc.docx", ""), "link-local-file", Severity.High));
+            var lf2 = withLink("https://cdn.attaquant.xyz/f/fichier.lnk", @"C:\hahkauz\fichier.txt");
+            Check("texte en forme de chemin", hasSev(lf2, "link-text-path", Severity.Critical), string.Join(",", Ids(lf2).ToArray()));
+            Check("texte fichier .pdf, téléchargement .exe", hasSev(withLink("https://x-transfert.com/dl/facture.exe", "facture.pdf"), "link-text-filename", Severity.Critical));
+            Check("document annoncé = document téléchargé", !Ids(withLink("https://x-transfert.com/dl/rapport.pdf", "rapport.pdf")).Contains("link-text-filename"));
+            Check("lien search-ms:", hasSev(withLink(@"search-ms:query=facture&crumb=location:\\attaquant.net@SSL\DavWWWRoot", "Voir la facture"), "link-protocol", Severity.Critical));
+            Check("lien ms-word distant", Ids(withLink("ms-word:ofe|u|https://attaquant.net/doc.docx", "Contrat")).Contains("link-office-remote"));
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);
