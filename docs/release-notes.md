@@ -12,10 +12,12 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **Adresses automatiques** (noreply@, notifications@…) : le « premier message d'un expéditeur inconnu » n'est plus compté comme un indice quand l'expéditeur est authentifié (simple information).
-- **Clés d'API conservées** : elles sont désormais rangées dans le Gestionnaire d'identification de Windows (chiffrées pour votre compte, jamais en clair sur le disque) et ne sont plus à retaper après une mise à jour. Les clés déjà saisies y sont déplacées automatiquement.
-- Bandeau et zone d'alerte retirés (le score reste dans le ruban, l'alerte en bas à droite reste disponible).
-- Résumé compact, authentification lisible (SPF ✓, DKIM ✓, DMARC ✓), explications au survol.
+- **Expéditeur vérifié** : pastille verte avec une coche dans le ruban quand le message est authentifié pour le domaine affiché **et** vient d'un contact déjà connu, sans aucun indice. Les preuves sont listées dans la fenêtre (« Preuves de légitimité ») et ne compensent jamais un indice grave.
+- **Alignement DKIM/SPF** : une signature du domaine de l'expéditeur compte comme preuve ; une signature d'un prestataire (outil d'emailing) est simplement signalée.
+- **Codes de raison Microsoft (compauth)** : 001 devient « authentification insuffisante » (moyen), 002 « envoi interdit », 010/6xx « usurpation de votre propre domaine » (critique), 1xx/130 comptent comme preuve.
+- **Réponse à vos messages** : une vraie réponse à un message que vous avez envoyé est reconnue ; une « réponse » venant d'une autre organisation que celle à qui vous aviez écrit est signalée comme **détournement de fil** (élevé).
+- **Envois en nombre conformes** (désabonnement en un clic + DMARC) : le ton commercial n'est plus compté comme un indice faible.
+- **Bêta, DNS** : politique DMARC (p=reject/quarantine = domaine protégé, p=none signalé) et **BIMI** (logo de marque avec certificat VMC/CMC).
 
 ### Points forts
 

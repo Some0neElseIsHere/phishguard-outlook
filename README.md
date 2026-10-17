@@ -43,14 +43,16 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 | **Ce n'est pas du phishing** | Ajoute l'expéditeur ou son domaine aux expéditeurs de confiance (une usurpation reste toujours signalée). |
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
 | **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier. |
-| **Bêta** | Sources externes optionnelles : OpenPhish, Tranco, DNS, crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Bêta de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
+| **Bêta** | Sources externes optionnelles : OpenPhish, Tranco, DNS (MX, SPF, politique DMARC, BIMI avec certificat VMC/CMC), crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Bêta de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
+| **Expéditeur vérifié** | Pastille verte avec une coche quand le message est authentifié pour le domaine affiché (DMARC, DKIM aligné ou compauth Microsoft) **et** vient de quelqu'un avec qui vous êtes déjà en relation (correspondant connu, réponse à l'un de vos messages, expéditeur de confiance), sans aucun indice. Les preuves sont listées dans la fenêtre ; elles ne compensent jamais un indice Élevé ou Critique. |
 | **Français / anglais** | Langue de l'interface au choix, ou automatique selon Windows. |
 
 ### Contrôles effectués
 
 | Domaine | Contrôles |
 |---|---|
-| **Authentification** | SPF, DKIM, DMARC, compauth (Microsoft), y compris via `ARC-Authentication-Results` écrit par votre propre serveur. Usurpation de votre propre domaine. |
+| **Authentification** | SPF, DKIM, DMARC, compauth (Microsoft, avec ses codes de raison : 001 insuffisant, 002 interdit, 010/6xx usurpation interne, 1xx/130 réussite), y compris via `ARC-Authentication-Results` écrit par votre propre serveur. **Alignement** DKIM et SPF avec le domaine affiché. Usurpation de votre propre domaine. Envoi en nombre conforme (désabonnement en un clic + DMARC). |
+| **Fil de discussion** | Réponse réelle à l'un de vos messages envoyés (Message-ID), et **détournement de fil** : une « réponse » qui vient d'une autre organisation que celle à qui vous aviez écrit. |
 | **Expéditeur** | Domaines sosies de grandes marques, de **votre entreprise** et de **vos correspondants** (typosquatting, homoglyphes, caractères Unicode, marque + mots ajoutés, marque en sous-domaine). **Premier contact**. **Âge du domaine** (RDAP). Nom affiché trompeur, Reply-To détourné, usurpation d'un dirigeant (fraude au président), tenant `onmicrosoft.com`. |
 | **Liens** | Sosies, texte du lien ≠ destination, Safe Links et redirections déballés, adresse IP, `@` dans l'URL, raccourcisseurs, hébergeurs gratuits détournés, extensions à risque, domaines récents, listes de blocage. Les liens contenus dans les PDF et pièces jointes HTML sont aussi analysés. |
 | **Pièces jointes** | Extension, double extension, caractère d'inversion Unicode, **type réel** (programme renommé en `.pdf`…), empreintes MD5/SHA1/SHA256, et **contenu** : programme caché dans un ZIP, archive chiffrée, macros (y compris cachées dans un `.docx`), JavaScript dans un PDF, fausse page de connexion HTML, objet RTF. |
@@ -145,6 +147,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | Liens de vérification (VirusTotal…) | Uniquement si vous cliquez, et seulement l'élément vérifié |
 
 Fichiers créés dans `%LOCALAPPDATA%\PhishGuard` : réglages, correspondants (`correspondants.txt`),
+identifiants techniques de vos messages envoyés et domaines de leurs destinataires (`fils.txt`, sans objet ni contenu),
 âge des domaines déjà vérifiés, liste Red Flag Domains, journal des scores (sans objet ni contenu), journal technique.
 
 ---

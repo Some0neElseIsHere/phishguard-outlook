@@ -162,7 +162,7 @@ namespace PhishGuard.AddIn
         /// <summary>Empreinte du résultat affiché : évite de recharger la page si rien n'a changé.</summary>
         static string Signature(AnalysisResult r)
         {
-            return r.Score + "|" + string.Join(",", r.Findings.Select(f => f.Id + ":" + f.Severity + ":" + f.Evidence.Count).ToArray()) + "|" + r.Positives.Count;
+            return r.Score + "|" + string.Join(",", r.Findings.Select(f => f.Id + ":" + f.Severity + ":" + f.Evidence.Count).ToArray()) + "|" + r.Positives.Count + "|" + r.Trust.Count + "|" + r.Verified;
         }
 
         /// <summary>Mise à jour silencieuse (résultats externes arrivés) : sans prendre le focus.</summary>
@@ -308,6 +308,9 @@ namespace PhishGuard.AddIn
             ".origin{border-left:4px solid #0f6cbd}" +
             ".att{background:#fff;border:1px solid #e3e7ed;border-radius:12px;margin-top:12px;overflow:hidden}" +
             ".att .ah{padding:10px 14px;border-bottom:1px solid #eef1f5;background:#f7f9fb}.att .an{font-weight:600;font-size:14px;word-wrap:break-word}" +
+            ".vb{display:inline-block;margin:6px 0 0;padding:2px 10px 2px 6px;border-radius:12px;background:#13804a;color:#fff;font-size:12px;font-weight:700}" +
+            ".vb i{display:inline-block;width:16px;height:16px;margin-right:5px;border-radius:50%;background:#fff;color:#13804a;font-style:normal;text-align:center;line-height:16px;font-size:11px}" +
+            ".trust{padding:8px 14px}.trust .list li{padding:3px 0 3px 24px}.trust .list li .ic{top:3px}" +
             ".foot{font-size:11px;text-align:center;color:#8a95a3;margin:22px 0 4px}";
 
         const string Script =
@@ -357,7 +360,9 @@ namespace PhishGuard.AddIn
             // ---------------- Résumé ----------------
             sb.Append("<div class='sec' id='s-resume'>");
             sb.Append("<div class='hero " + H(r.Level) + "'>" + Gauge(r.Score, r.Level));
-            sb.Append("<div class='hv'><p class='eyebrow'>" + H(L.T("Risque de phishing")) + "</p><h1>" + H(r.LevelLabel) + "</h1><p class='advice'>" + H(r.Advice) + "</p>");
+            sb.Append("<div class='hv'><p class='eyebrow'>" + H(L.T("Risque de phishing")) + "</p><h1>" + H(r.Verified ? L.T("Expéditeur vérifié") : r.LevelLabel) + "</h1><p class='advice'>"
+                + H(r.Verified ? L.T("Authentifié et déjà en relation avec vous. Restez attentif à toute demande inhabituelle (changement de RIB, paiement urgent).") : r.Advice) + "</p>");
+            if (r.Verified) sb.Append("<span class='vb' title='" + H(string.Join(" · ", r.Trust.ToArray())) + "'><i>&#10003;</i>" + H(L.T("Authentifié · relation connue")) + "</span>");
             if (allVisible.Count > 0)
             {
                 sb.Append("<div class='counts'>");
@@ -386,6 +391,9 @@ namespace PhishGuard.AddIn
             if (meta.Count > 0) sb.Append("<div class='row meta'><span class='k'>" + H(L.T("Détails")) + "</span>" + string.Join(" &middot; ", meta.ToArray()) + "</div>");
             sb.Append("</div>");
 
+            // Preuves de légitimité : affichées ici seulement si aucun indice notable (elles ne compensent jamais un indice)
+            if (r.Trust.Count > 0 && r.Level == "safe") TrustCard(sb, r);
+
             if (beta.Count > 0)
             {
                 var worst = beta.Max(f => f.Severity);
@@ -406,6 +414,7 @@ namespace PhishGuard.AddIn
 
             // ---------------- En-têtes ----------------
             sb.Append("<div class='sec' id='s-headers'>");
+            if (r.Trust.Count > 0 && r.Level != "safe") TrustCard(sb, r);
             InfoList(sb, r.Findings.Where(f => f.Severity == Severity.Info && !Analyzer.IsBetaFinding(f)).ToList(), showExplanations);
             if (d.All.Count == 0)
                 sb.Append(Empty(L.T("Aucun en-tête Internet : message interne, ou envoyé depuis cette boîte.")));
@@ -634,6 +643,15 @@ namespace PhishGuard.AddIn
                 foreach (var ev in f.Evidence) sb.Append("<span class='ev'>" + H(ev) + "</span>");
                 sb.Append("</div>");
             }
+            sb.Append("</div>");
+        }
+
+        static void TrustCard(StringBuilder sb, AnalysisResult r)
+        {
+            sb.Append("<h2>" + H(L.T("Preuves de légitimité")) + "<span class='c'>" + r.Trust.Count + "</span></h2><div class='card trust'><ul class='list'>");
+            foreach (var t in r.Trust) sb.Append("<li><span class='ic okc'>&#10003;</span>" + H(t) + "</li>");
+            sb.Append("</ul>");
+            if (r.Level != "safe") sb.Append("<p class='note'>" + H(L.T("Ces éléments ne compensent pas les indices relevés : un compte piraté passe aussi ces contrôles.")) + "</p>");
             sb.Append("</div>");
         }
 

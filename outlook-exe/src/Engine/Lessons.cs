@@ -11,6 +11,8 @@ namespace PhishGuard
         static readonly Dictionary<string, string> Texts = new Dictionary<string, string>
         {
             { "auth-dmarc", "DMARC vérifie que le domaine affiché dans « De » a réellement autorisé cet envoi. En cas d’échec, n’importe qui a pu écrire ce nom : c’est le cœur de l’usurpation d’identité. Ne vous fiez pas au nom affiché." },
+            { "sender-thread-hijack", "Un fraudeur qui a piraté la boîte d’un de vos contacts, ou qui a intercepté un échange, peut répondre à une vraie conversation depuis un domaine proche. Vérifiez toujours un changement de coordonnées bancaires par téléphone, avec un numéro que vous connaissez déjà." },
+            { "auth-compauth-intra", "Votre propre domaine est protégé par DMARC : un message qui s’en réclame sans passer par vos serveurs est presque toujours une usurpation." },
             { "auth-compauth", "Microsoft combine plusieurs contrôles (SPF, DKIM, DMARC, réputation). Un échec signifie que l’expéditeur affiché n’est probablement pas le vrai." },
             { "auth-spf", "SPF liste les serveurs autorisés à envoyer pour un domaine. Ce message vient d’un serveur qui n’est pas sur la liste." },
             { "auth-spf-soft", "Le domaine n’autorise pas clairement ce serveur. Seul, ce n’est pas grave ; combiné à d’autres indices, c’est un signal d’usurpation." },

@@ -292,19 +292,22 @@ namespace PhishGuard.AddIn
         public string GetScoreLabel(object control)
         {
             var r = ResultFor(control);
+            if (r != null && r.Verified) return L.T("Expéditeur vérifié");
             return r == null ? L.T("Analyser") : ShortLevel(r) + " (" + r.Score + ")";
         }
 
         public string GetScoreTip(object control)
         {
             var r = ResultFor(control);
-            return r == null ? L.T("Analyser ce message") : "PhishGuard : " + r.LevelLabel + ", score " + r.Score + "/100";
+            return r == null ? L.T("Analyser ce message") : "PhishGuard : " + (r.Verified ? L.T("Expéditeur vérifié") : r.LevelLabel) + ", score " + r.Score + "/100";
         }
 
         public string GetScoreSupertip(object control)
         {
             var r = ResultFor(control);
             if (r == null) return L.T("Recherche les indices de phishing : expéditeur, domaines sosies, liens, pièces jointes, contenu.");
+            if (r.Verified)
+                return string.Join("\n", r.Trust.Take(3).Select(t => "✓ " + t).ToArray()) + "\n\n" + L.T("Cliquez pour voir le détail, signaler le message ou modifier les paramètres.");
             var top = r.Findings.Where(f => f.Severity != Severity.Info).Take(3).Select(f => "• " + f.Title).ToArray();
             return (top.Length > 0 ? string.Join("\n", top) : L.T("Aucun indice suspect.")) + "\n\n" + L.T("Cliquez pour voir le détail, signaler le message ou modifier les paramètres.");
         }
@@ -333,7 +336,14 @@ namespace PhishGuard.AddIn
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
                 g.FillRectangle(brush, 0, 0, 32, 32);
-                g.DrawString(r.Score.ToString(), font, Brushes.White, new RectangleF(0, 1, 32, 32), fmt);
+                if (r.Verified)
+                {
+                    // coche blanche : expéditeur vérifié
+                    using (var pen = new Pen(Color.White, 4f) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round })
+                        g.DrawLines(pen, new[] { new PointF(8, 17), new PointF(14, 23), new PointF(25, 10) });
+                }
+                else
+                    g.DrawString(r.Score.ToString(), font, Brushes.White, new RectangleF(0, 1, 32, 32), fmt);
             }
             return bmp;
         }
