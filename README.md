@@ -217,6 +217,12 @@ puis affiche un verdict clair.
 Cliquez sur la pastille PhishGuard, puis sur **Signaler à la sécurité** : après confirmation, le message et un
 rapport détaillé partent à l'adresse de votre équipe sécurité, et le message est déplacé dans Courrier indésirable.
 
+**PhishGuard détecte-t-il vraiment les phishings ?**
+Le moteur est testé sur de vrais emails publics : hors ligne, il signale **80 % des phishings** d'un corpus de
+1 800 attaques réelles (2020-2025), avec **1 % de fausses alertes** sur des messages légitimes récents. Sur un vrai
+poste, l'âge des domaines et les listes de sites malveillants en détectent davantage. Méthode et chiffres :
+[docs/banc-essai.md](docs/banc-essai.md).
+
 **PhishGuard est-il gratuit ?**
 Oui, gratuit et open source (GPL v3), sans abonnement ni clé d'API. Les sources de réputation qui demandent une
 clé (VirusTotal, abuse.ch, AbuseIPDB) sont facultatives et proposent des clés gratuites.
@@ -300,7 +306,7 @@ Journal technique : `%LOCALAPPDATA%\PhishGuard\phishguard.log`.
 - Mimecast et Cisco réécrivent les liens sous une forme chiffrée : leur vraie destination ne peut pas être lue.
 - La recherche de certificats contenant votre marque (crt.sh) est lente et peut expirer ; le reste de l'analyse du domaine n'en dépend pas.
 - La détection FortiMail repose sur des noms d'en-têtes génériques ; les contributions avec des exemples réels sont bienvenues.
-- Aucun outil ne détecte 100 % des attaques : PhishGuard aide à décider, il ne remplace pas la vigilance.
+- Aucun outil ne détecte 100 % des attaques : PhishGuard aide à décider, il ne remplace pas la vigilance. Le [banc d'essai](docs/banc-essai.md) donne les taux mesurés.
 
 ---
 
