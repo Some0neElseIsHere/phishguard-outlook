@@ -659,6 +659,14 @@ namespace PhishGuard
             return false;
         }
 
+        // Protocoles qui lancent une application Windows au lieu d'ouvrir une page web
+        static readonly HashSet<string> DangerousSchemes = new HashSet<string>(new[] {
+            "search-ms", "search", "ms-msdt", "ms-officecmd", "ms-appinstaller", "ms-cxh", "ms-cxh-full", "mk", "its", "ms-its",
+            "ms-search", "ms-settings", "shell", "ms-excel-addin", "vbefile", "jar", "ms-distributed-transaction-coordinator", "ms-diagnostics" });
+        static readonly HashSet<string> OfficeSchemes = new HashSet<string>(new[] { "ms-word", "ms-excel", "ms-powerpoint", "ms-visio", "ms-access", "ms-project", "ms-publisher", "ms-spd", "ms-infopath" });
+        static readonly Regex PathTextRe = new Regex(@"^(?:[a-z]:[\\/]|\\\\[^\\\s]+\\|file:)", RegexOptions.IgnoreCase);
+        static readonly Regex FileNameTextRe = new Regex(@"^[^\\/:*?""<>|]{1,100}\.[a-z0-9]{2,5}$", RegexOptions.IgnoreCase);
+
         class Issue { public Severity Severity; public string Title; public string Detail; public List<string> Evidence = new List<string>(); }
 
         static void AnalyzeLinks(EmailData e, Ctx ctx, List<Finding> findings, List<string> urls, List<string> domains)
@@ -694,7 +702,47 @@ namespace PhishGuard
             {
                 string raw = (link.Href ?? "").Trim();
                 if (raw.Length == 0 || Regex.IsMatch(raw, "^(mailto:|tel:|cid:|#|data:image)", RegexOptions.IgnoreCase)) continue;
-                if (Regex.IsMatch(raw, "^(javascript|data|vbscript|file):", RegexOptions.IgnoreCase))
+                string ltext = Regex.Replace(link.Text ?? "", @"\s+", " ").Trim();
+                string rawShort = raw.Length > 100 ? raw.Substring(0, 100) + "…" : raw;
+                string shownEv = ltext.Length > 0 && ltext != raw ? L.T("Affiché : ") + (ltext.Length > 60 ? ltext.Substring(0, 60) + "…" : ltext) + L.T(" → Réel : ") + rawShort : rawShort;
+                // Texte qui imite un fichier : chemin (C:\…, \\serveur\…) ou nom de document (facture.pdf, fichier.txt)
+                bool textIsPath = PathTextRe.IsMatch(ltext);
+                string textExt = ExtensionOf(ltext);
+                bool textIsFileName = !textIsPath && FileNameTextRe.IsMatch(ltext) && (Lists.ExtDocument.Contains(textExt) || Lists.ExtHtml.Contains(textExt));
+                var schemeMatch = Regex.Match(raw, @"^([a-z][a-z0-9+.\-]{1,40}):", RegexOptions.IgnoreCase);
+                string scheme = schemeMatch.Success ? schemeMatch.Groups[1].Value.ToLowerInvariant() : "";
+
+                // Lien vers un fichier du poste ou d'un partage réseau (file://, \\serveur\partage, C:\…)
+                if (scheme == "file" || raw.StartsWith(@"\\") || Regex.IsMatch(raw, @"^[a-z]:[\\/]", RegexOptions.IgnoreCase))
+                {
+                    string target = raw;
+                    try { target = Uri.UnescapeDataString(raw); } catch (Exception) { }
+                    string tExt = ExtensionOf(target.TrimEnd('/', '\\'));
+                    bool risky = Lists.ExtExecutable.Contains(tExt) || Lists.ExtDiskImage.Contains(tExt) || Lists.ExtMacro.Contains(tExt) || tExt.Length == 0;
+                    Severity sev = ctx.Internal ? (risky ? Severity.High : Severity.Low)
+                        : risky || textIsPath || textIsFileName ? Severity.Critical : Severity.High;
+                    add("link-local-file", sev, L.T("Lien vers un fichier du poste ou d’un partage réseau"),
+                        L.T("Ce lien n’ouvre pas une page web : il lance un fichier (raccourci, programme, script) depuis un dossier ou un serveur. Venant de l’extérieur, c’est un piège classique ; il peut aussi transmettre votre identifiant Windows au serveur distant."), shownEv);
+                    continue;
+                }
+                if (DangerousSchemes.Contains(scheme))
+                {
+                    add("link-protocol", Severity.Critical, L.F("Lien qui ouvre une application Windows ({0}:)", scheme),
+                        L.T("Ce lien lance une recherche Windows, un outil système ou un installeur au lieu d’une page web : technique utilisée pour faire ouvrir un programme piégé."), shownEv);
+                    continue;
+                }
+                if (OfficeSchemes.Contains(scheme))
+                {
+                    // ms-word:ofe|u|https://… : ouvre un document distant dans Office
+                    var inner = Regex.Match(raw, @"https?://[^\s|]+", RegexOptions.IgnoreCase);
+                    Uri iu;
+                    string ih = inner.Success && Uri.TryCreate(inner.Value, UriKind.Absolute, out iu) ? PhishGuard.Domains.RegistrableDomain(iu.Host) : "";
+                    if (ih.Length == 0 || !(ctx.Domains.Legit.Contains(ih) || ctx.Domains.CompanyDomains.Contains(ih)))
+                        add("link-office-remote", Severity.Medium, L.T("Lien qui ouvre directement un document Office distant"),
+                            L.T("Le document s’ouvre dans Word ou Excel sans passer par le navigateur : vérifiez sa provenance avant d’autoriser les macros ou le contenu."), shownEv);
+                    continue;
+                }
+                if (Regex.IsMatch(raw, "^(javascript|data|vbscript):", RegexOptions.IgnoreCase))
                 {
                     add("link-scheme", Severity.High, L.T("Lien utilisant un protocole dangereux"), L.T("Un lien exécute du code ou ouvre un fichier local."), raw.Length > 80 ? raw.Substring(0, 80) : raw);
                     continue;
@@ -737,6 +785,17 @@ namespace PhishGuard
                                 L.T("Le lien affiche une adresse mais vous envoie ailleurs."), L.T("Affiché : ") + shownText + L.T(" → Réel : ") + display);
                     }
                 }
+
+                // Texte qui imite un fichier local ou un document, alors que le lien mène sur le web
+                string urlExt = ExtensionOf(url.AbsolutePath);
+                if (textIsPath)
+                    add("link-text-path", downloadExts.Contains(urlExt) ? Severity.Critical : Severity.High, L.T("Le texte du lien imite un chemin de fichier"),
+                        L.T("Le lien affiche un chemin comme « C:\\… » ou « \\\\serveur\\… » mais ouvre autre chose : un vrai fichier de votre poste ne s’ouvre jamais depuis un email."),
+                        L.T("Affiché : ") + ltext + L.T(" → Réel : ") + display + url.AbsolutePath);
+                else if (textIsFileName && downloadExts.Contains(urlExt) && urlExt != textExt)
+                    add("link-text-filename", Severity.Critical, L.F("Le lien affiche un fichier « .{0} » mais télécharge un fichier « .{1} »", textExt, urlExt),
+                        L.T("Le nom affiché fait croire à un document ; le fichier réellement téléchargé est un programme, un raccourci ou une archive."),
+                        L.T("Affiché : ") + ltext + L.T(" → Réel : ") + display + url.AbsolutePath);
 
                 var redirects = chain.Where(c => !c.StartsWith("sec:") && c != "google").ToList();
                 if (redirects.Count > 0)
@@ -790,7 +849,7 @@ namespace PhishGuard
                 if (Lists.SuspiciousTlds.Contains(tld) && !legit)
                     add("link-tld", Severity.Low, L.T("Extension de domaine très utilisée par les campagnes de phishing"), "", display);
                 if (url.Scheme == "http" && !legit)
-                    add("link-http", Severity.Low, "Lien non chiffré (http)", "", display);
+                    add("link-http", Severity.Low, L.T("Lien non chiffré (http)"), "", display);
                 if (!url.IsDefaultPort && url.Port != 80 && url.Port != 443)
                     add("link-port", Severity.Medium, L.T("Lien utilisant un port inhabituel"), "", display + ":" + url.Port);
                 string ext = ExtensionOf(url.AbsolutePath);

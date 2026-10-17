@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.8.3** : liens piégés qui imitent un fichier : texte en forme de chemin (`C:\…`) ou de document (`facture.pdf`) qui ouvre autre chose, liens vers un fichier local ou un partage réseau (`file:`, `\\serveur\…`), protocoles qui lancent une fonction de Windows (`search-ms:`, `ms-msdt:`…). Paramètres : les textes d'aide sur deux lignes ne chevauchent plus le champ suivant.
+
 - **v1.8.2** : rapport de signalement : les contrôles SPF / DKIM / DMARC ne sont plus collés dans Outlook. Onglet Pièces jointes : « Item not found » de VirusTotal expliqué, et résultat VirusTotal affiché directement si une clé est configurée. Les serveurs qui écrivent un en-tête Authentication-Results par contrôle sont maintenant lus en entier (SPF et DMARC n'apparaissent plus « absents » à tort).
 
 - **v1.8.1** : documentation revue (README, notice du zip), `config.ini` sans valeurs d'exemple : sans domaine configuré, celui de votre adresse Outlook est utilisé ; la surveillance des sosies tient un point de départ par domaine (un second domaine n'est plus bloqué en masse au premier passage).
