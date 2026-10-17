@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.8.1** : documentation revue (README, notice du zip), `config.ini` sans valeurs d'exemple : sans domaine configuré, celui de votre adresse Outlook est utilisé ; la surveillance des sosies tient un point de départ par domaine (un second domaine n'est plus bloqué en masse au premier passage).
+
 - **Signalement à la sécurité refait** : le rapport envoyé est maintenant un email HTML lisible : verdict en bandeau, « En bref », chaque point de doute avec sa gravité, son explication et ses preuves, authentification et origine (SPF/DKIM/DMARC, IP, parcours), liens et texte affiché, pièces jointes avec empreintes, observables à copier, preuves de légitimité, et une copie du texte du message d'origine. Toutes les adresses sont désarmées (hxxps://exemple[.]com) : rien n'est cliquable.
 - Le **message d'origine reste joint** (.msg avec tous ses en-têtes) pour l'analyse.
 - **Double confirmation** avant l'envoi, puis envoi direct (si Outlook refuse l'envoi automatique, le message s'ouvre pour être envoyé à la main). Le message n'est déplacé dans Courrier indésirable qu'une fois le signalement parti.
