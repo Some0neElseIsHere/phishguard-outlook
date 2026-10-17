@@ -87,6 +87,8 @@ if errorlevel 1 (
   echo [!] Ecriture dans le registre refusee.
   goto fail
 )
+rem Zone d'alerte dans l'en-tete des messages (zone de formulaire fournie par le complement)
+reg add "HKCU\Software\Microsoft\Office\Outlook\FormRegions\IPM.Note" /v PhishGuardZone /d "=%PROGID%" /f >nul
 rem Evite qu'Outlook desactive le complement s'il juge son demarrage trop lent
 reg add "HKCU\Software\Microsoft\Office\16.0\Outlook\Resiliency\DoNotDisableAddinList" /v %PROGID% /t REG_DWORD /d 1 /f >nul 2>&1
 

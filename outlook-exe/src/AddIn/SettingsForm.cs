@@ -94,8 +94,8 @@ namespace PhishGuard.AddIn
                 L.F("Utilise les adresses de vos éléments envoyés et de vos contacts ({0} connues), sans rien envoyer à l’extérieur.", Correspondents.Count));
             chkAge = AddCheck(pAnalyse, ref y, L.T("Vérifier l’âge des domaines (RDAP)"), cfg.DomainAgeLookup,
                 L.T("Envoie uniquement le nom du domaine à rdap.org et au registre concerné, jamais le contenu des messages."));
-            chkBanner = AddCheck(pAnalyse, ref y, L.T("Afficher un bandeau coloré en haut de la fenêtre Outlook"), cfg.ShowBanner,
-                L.T("Verdict, score et principaux indices du message affiché, avec les boutons Détail et Signaler."));
+            chkBanner = AddCheck(pAnalyse, ref y, L.T("Afficher une zone d’alerte dans l’en-tête des messages dangereux"), cfg.ShowBanner,
+                L.T("Score, verdict et principaux indices juste sous l’expéditeur, avec les boutons Détails et Signaler."));
             chkTag = AddCheck(pAnalyse, ref y, L.T("Marquer les messages suspects d’une couleur dans l’en-tête et la liste (catégorie Outlook)"), cfg.TagCategory,
                 L.T("Ajoute une catégorie au message : bande de couleur dans son en-tête et dans la liste des messages."));
             chkMove = AddCheck(pAnalyse, ref y, L.T("Déplacer le message dans « Courrier indésirable » après l’avoir signalé"), cfg.MoveAfterReport, null);

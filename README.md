@@ -37,7 +37,7 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 | | |
 |---|---|
 | **Score permanent** | Un seul bouton dans le ruban : il affiche le verdict et le score (pastille verte, orange ou rouge) du message sélectionné ou ouvert, sans clic. |
-| **Bandeau** | Une bande verte, orange ou rouge en haut de la fenêtre Outlook : verdict, score et principaux indices du message affiché, boutons Détail et Signaler. |
+| **Zone d'alerte** | Pour les messages dangereux uniquement : une zone rouge dans l'en-tête du message (sous l'expéditeur) avec le score, les principaux indices et les boutons Détails et Signaler. |
 | **Alerte** | Une notification discrète en bas à droite de l'écran pour les messages dangereux (ou suspects, au choix). |
 | **Fenêtre d'enquête** | Jauge de risque, indices classés par gravité, parcours des serveurs en frise ; onglets Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps. Les boutons Signaler et Paramètres sont en bas de cette fenêtre. |
 | **Signaler** | Envoie le message (en pièce jointe) et le rapport complet à l'équipe sécurité, puis le déplace dans Courrier indésirable. |
@@ -109,7 +109,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `CompanyName`, `CompanyDomains` | Votre entreprise ; ses sosies sont classés critiques | — |
 | `VipNames` | Dirigeants et personnes sensibles (fraude au président) | — |
 | `ReportAddress` | Adresse de l'équipe sécurité pour **Signaler** | — |
-| `ShowBanner` | Bandeau coloré en haut des fenêtres | `true` |
+| `ShowBanner` | Zone d'alerte dans l'en-tête des messages dangereux | `true` |
 | `Language` | `auto` (langue de Windows), `fr` ou `en` | `auto` |
 | `TrustedDomains`, `TrustedSenders` | Domaines et adresses de confiance | — |
 | `AutoAnalyze` | Score automatique du message sélectionné | `true` |

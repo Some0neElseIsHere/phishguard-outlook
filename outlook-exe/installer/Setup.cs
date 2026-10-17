@@ -141,6 +141,9 @@ namespace PhishGuard.Setup
                 ak.SetValue("Description", T("Analyse anti-phishing des emails reçus", "Anti-phishing analysis of received emails"));
                 ak.SetValue("LoadBehavior", 3, RegistryValueKind.DWord);
             }
+            // Zone d'alerte dans l'en-tête des messages (zone de formulaire fournie par le complément)
+            using (var fr = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Office\Outlook\FormRegions\IPM.Note"))
+                fr.SetValue("PhishGuardZone", "=" + ProgId);
             // Évite qu'Outlook désactive le complément s'il juge son démarrage trop lent
             try
             {
@@ -204,6 +207,12 @@ namespace PhishGuard.Setup
                 }
             }
             Registry.CurrentUser.DeleteSubKeyTree(@"Software\Microsoft\Office\Outlook\Addins\" + ProgId, false);
+            try
+            {
+                using (var fr = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Office\Outlook\FormRegions\IPM.Note", true))
+                    if (fr != null) fr.DeleteValue("PhishGuardZone", false);
+            }
+            catch (Exception) { }
             Registry.CurrentUser.DeleteSubKeyTree(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\PhishGuard", false);
             try
             {

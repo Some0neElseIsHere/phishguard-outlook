@@ -26,7 +26,16 @@ namespace PhishGuard.AddIn
         readonly Button btnDetails, btnReport;
         readonly Label btnClose;
         string scoreText = "", title = "", reasons = "";
+        string[] bullets = new string[0];
         Color accent = Color.FromArgb(95, 107, 122);
+        bool zoneMode;
+
+        /// <summary>true : affichage « zone d'alerte » dans l'en-tête du message (carte claire) ; false : bandeau plein.</summary>
+        internal bool ZoneMode
+        {
+            get { return zoneMode; }
+            set { zoneMode = value; Apply(accent); }
+        }
 
         public BannerControl()
         {
@@ -78,14 +87,35 @@ namespace PhishGuard.AddIn
         void Apply(Color c)
         {
             accent = c;
-            BackColor = c;
-            var dark = Color.FromArgb(Math.Max(0, c.R - 35), Math.Max(0, c.G - 35), Math.Max(0, c.B - 35));
-            foreach (var b in new[] { btnDetails, btnReport })
+            if (zoneMode)
             {
-                b.BackColor = dark;
-                b.FlatAppearance.MouseOverBackColor = Color.FromArgb(Math.Max(0, c.R - 60), Math.Max(0, c.G - 60), Math.Max(0, c.B - 60));
+                // Carte claire teintée de la couleur du niveau, comme une alerte intégrée à l'en-tête
+                BackColor = Color.FromArgb(253, 243, 244);
+                if (c.G > 90) BackColor = c.R > 150 ? Color.FromArgb(255, 248, 236) : Color.FromArgb(240, 248, 243);
+                btnDetails.BackColor = Color.White;
+                btnDetails.ForeColor = Color.FromArgb(36, 36, 36);
+                btnDetails.FlatAppearance.BorderColor = Color.FromArgb(200, 198, 196);
+                btnDetails.FlatAppearance.MouseOverBackColor = Color.FromArgb(243, 242, 241);
+                btnReport.BackColor = Color.FromArgb(15, 108, 189);
+                btnReport.ForeColor = Color.White;
+                btnReport.FlatAppearance.BorderColor = Color.FromArgb(15, 108, 189);
+                btnReport.FlatAppearance.MouseOverBackColor = Color.FromArgb(17, 94, 163);
+                btnClose.ForeColor = Color.FromArgb(96, 94, 92);
             }
-            btnDetails.Text = L.T("Voir le détail");
+            else
+            {
+                BackColor = c;
+                var dark = Color.FromArgb(Math.Max(0, c.R - 35), Math.Max(0, c.G - 35), Math.Max(0, c.B - 35));
+                foreach (var b in new[] { btnDetails, btnReport })
+                {
+                    b.BackColor = dark;
+                    b.ForeColor = Color.White;
+                    b.FlatAppearance.BorderColor = Color.FromArgb(235, 255, 255, 255);
+                    b.FlatAppearance.MouseOverBackColor = Color.FromArgb(Math.Max(0, c.R - 60), Math.Max(0, c.G - 60), Math.Max(0, c.B - 60));
+                }
+                btnClose.ForeColor = Color.White;
+            }
+            btnDetails.Text = zoneMode ? L.T("Détails") : L.T("Voir le détail");
             btnReport.Text = L.T("Signaler");
             LayoutButtons();
         }
@@ -107,6 +137,7 @@ namespace PhishGuard.AddIn
             else if (r.Level == "suspicious") title = L.T("PhishGuard : message suspect");
             else title = L.T("PhishGuard : aucun indice important");
             var top = r.Findings.Where(f => f.Severity != Severity.Info).Take(3).Select(f => f.Title).ToArray();
+            bullets = top;
             reasons = top.Length > 0 ? string.Join("  ·  ", top) : L.T("Restez vigilant : aucun outil ne détecte 100 % des attaques.");
             btnReport.Visible = r.Level != "safe";
             Apply(r.Level == "dangerous" ? Color.FromArgb(196, 38, 46) : r.Level == "suspicious" ? Color.FromArgb(184, 98, 0) : Color.FromArgb(19, 128, 74));
@@ -115,6 +146,7 @@ namespace PhishGuard.AddIn
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+            if (zoneMode) { PaintZone(e.Graphics); return; }
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -145,6 +177,40 @@ namespace PhishGuard.AddIn
             {
                 var rr = new Rectangle(x, 0, right - x, Height);
                 TextRenderer.DrawText(g, reasons, Font, rr, Color.FromArgb(240, 245, 248), TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine);
+            }
+        }
+
+        /// <summary>Zone d'alerte : barre de couleur à gauche, score dans un cercle, titre et trois indices.</summary>
+        void PaintZone(Graphics g)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            using (var bar = new SolidBrush(accent)) g.FillRectangle(bar, 0, 0, 5, Height);
+            using (var border = new Pen(Color.FromArgb(70, accent))) g.DrawRectangle(border, 0, 0, Width - 1, Height - 1);
+            int x = 16;
+            if (scoreText.Length > 0)
+            {
+                int d = Math.Min(44, Height - 14);
+                var circle = new Rectangle(x, (Height - d) / 2, d, d);
+                using (var white = new SolidBrush(Color.White)) g.FillEllipse(white, circle);
+                using (var ring = new Pen(accent, 4f)) g.DrawEllipse(ring, circle.X + 2, circle.Y + 2, circle.Width - 4, circle.Height - 4);
+                using (var bold = new Font("Segoe UI", 11f, FontStyle.Bold))
+                    TextRenderer.DrawText(g, scoreText, bold, circle, accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                x = circle.Right + 12;
+            }
+            int right = (btnDetails.Visible ? btnDetails.Left : Width) - 12;
+            int w = Math.Max(0, right - x);
+            int lines = Math.Max(1, bullets.Length);
+            int y = Math.Max(4, (Height - (20 + lines * 16)) / 2);
+            using (var bold = new Font("Segoe UI", 10f, FontStyle.Bold))
+                TextRenderer.DrawText(g, title, bold, new Rectangle(x, y, w, 20), accent, TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine);
+            y += 20;
+            var text = Color.FromArgb(59, 59, 59);
+            if (bullets.Length == 0)
+                TextRenderer.DrawText(g, reasons, Font, new Rectangle(x, y, w, 16), text, TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine);
+            foreach (var b in bullets)
+            {
+                TextRenderer.DrawText(g, "\u2022  " + b, Font, new Rectangle(x + 2, y, Math.Max(0, w - 2), 16), text, TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine);
+                y += 16;
             }
         }
 
@@ -192,7 +258,9 @@ namespace PhishGuard.AddIn
         void BannerTick()
         {
             if (ctpFactory == null || application == null || bannerFailed) return;
-            if (!config.ShowBanner) { RemoveAllPanes(); return; }
+            // Le bandeau ne sert que de solution de repli si la zone dans l'en-tête est indisponible sur ce poste
+            bool zoneWorks = zoneManifestRequested && !zoneFailed;
+            if (!config.ShowBanner || zoneWorks || (!zoneFailed && tickCount < 20)) { RemoveAllPanes(); return; }
             var windows = new List<object>();
             dynamic app = application;
             try
@@ -336,8 +404,9 @@ namespace PhishGuard.AddIn
             p.MailKey = key;
             p.Mail = mail;
             dynamic ctp = p.Ctp;
-            if (mail == null) { ctp.Visible = false; return; }
-            if (r == null) p.Control.ShowPending(); else p.Control.ShowResult(r);
+            // Seulement pour les messages dangereux
+            if (mail == null || r == null || r.Level != "dangerous") { ctp.Visible = false; return; }
+            p.Control.ShowResult(r);
             if (mailChanged) ctp.Visible = true;
         }
 
