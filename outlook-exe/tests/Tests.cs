@@ -606,7 +606,7 @@ namespace PhishGuard.Tests
             var eQr = Base(); eQr.BodyText = "Scannez le code ci-dessous pour réactiver votre messagerie.";
             eQr.Attachments.Add(new AttachmentInfo { Name = "image001.png", IsInline = true, IsImage = true, QrCodes = new List<string> { "https://microsoft-verif.attaquant-test.com/login" } });
             var rQr = Analyzer.Analyze(eQr, cfg);
-            Check("QR code : finding et lien analysé", Ids(rQr).Contains("link-qr-image") && rQr.Urls.Any(u => u.Contains("microsoft-verif.attaquant-test.com")), string.Join(",", Ids(rQr).ToArray()));
+            Check("QR code : finding et lien analysé", Ids(rQr).Contains("link-qr-image") && rQr.Urls.Any(qu => qu.Contains("microsoft-verif.attaquant-test.com")), string.Join(",", Ids(rQr).ToArray()));
 
             // ---------- Assistant de démarrage ----------
             string[] setupSteps = { "intro", "language", "company", "report", "mode" };
