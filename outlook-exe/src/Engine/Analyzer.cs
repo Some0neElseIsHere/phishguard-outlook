@@ -484,9 +484,12 @@ namespace PhishGuard
                 if (vip != null)
                     findings.Add(new Finding("sender-vip", "sender", Severity.High, L.T("Le nom affiché est celui de ") + vip + L.T(", mais l’adresse est externe"),
                         L.T("Technique typique de la « fraude au président » : vérifiez par téléphone avant toute action."), new[] { fromAddr }));
-                else if (NormalizeText(cfg.CompanyName).Length >= 3 && WordMatch(nameNorm, cfg.CompanyName))
-                    findings.Add(new Finding("sender-company-name", "sender", Severity.Medium, L.T("Le nom affiché mentionne ") + cfg.CompanyName + L.T(", mais l’adresse est externe"),
+                else if (cfg.CompanyNames().Any(cn => NormalizeText(cn).Length >= 3 && WordMatch(nameNorm, cn)))
+                {
+                    string companyShown = cfg.CompanyNames().First(cn => NormalizeText(cn).Length >= 3 && WordMatch(nameNorm, cn));
+                    findings.Add(new Finding("sender-company-name", "sender", Severity.Medium, L.T("Le nom affiché mentionne ") + companyShown + L.T(", mais l’adresse est externe"),
                         "", new[] { fromAddr }));
+                }
             }
 
             var replyTo = new List<string>();

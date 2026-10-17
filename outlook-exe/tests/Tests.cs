@@ -618,6 +618,50 @@ namespace PhishGuard.Tests
             var cDone = new PhishGuardConfig { SetupKeyPresent = true, SetupDone = new List<string>(setupSteps) };
             Check("assistant : déjà vu", cDone.PendingSetup(setupSteps, true).Count == 0 && cDone.PendingSetup(setupSteps.Concat(new[] { "nouveau" }), true).SequenceEqual(new[] { "nouveau" }));
 
+            // ---------- Plusieurs entreprises ----------
+            var ceTest = CompanyEntry.Parse("Lorema | FR | 123456782 | Claire Martin; Jean-Paul Durand");
+            Check("entreprise : lecture", ceTest != null && ceTest.Name == "Lorema" && ceTest.Country == "FR" && ceTest.Id == "123456782" && ceTest.Directors.Count == 2);
+            Check("entreprise : écriture", CompanyEntry.Parse(ceTest.Serialize()).Directors[1] == "Jean-Paul Durand");
+            string tmpDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "pg-tests-" + Guid.NewGuid().ToString("N"));
+            System.IO.Directory.CreateDirectory(tmpDir);
+            string adminIni = System.IO.Path.Combine(tmpDir, "config.ini"), userIni = System.IO.Path.Combine(tmpDir, "config.user.ini");
+            System.IO.File.WriteAllText(adminIni, "CompanyName = Groupe Admin\r\nVipNames = Paul Admin\r\n");
+            System.IO.File.WriteAllText(userIni, "CompanyName = Ancienne Société\r\nVipNames = Marie Dupont, Luc Martin\r\n");
+            var cm = PhishGuardConfig.LoadMerged(adminIni, userIni);
+            Check("entreprises : ancien format migré", cm.Companies.Count == 1 && cm.Companies[0].Name == "Ancienne Société" && cm.VipNames.Count == 2,
+                string.Join(",", cm.Companies.Select(x => x.Name).ToArray()) + " / " + string.Join(",", cm.VipNames.ToArray()));
+            cm.Companies.Add(new CompanyEntry { Name = "Filiale GmbH", Country = "Allemagne", Id = "Q1", Directors = new List<string> { "Hans Muster" } });
+            cm.SaveUser(userIni);
+            var cm2 = PhishGuardConfig.LoadMerged(adminIni, userIni);
+            Check("entreprises : plusieurs, dirigeants réunis", cm2.Companies.Count == 2 && cm2.VipNames.Contains("Hans Muster") && cm2.VipNames.Contains("Marie Dupont") && cm2.CompanyName == "Ancienne Société",
+                string.Join(",", cm2.VipNames.ToArray()));
+            System.IO.File.WriteAllText(userIni, "Language = fr\r\n");
+            var cm3 = PhishGuardConfig.LoadMerged(adminIni, userIni);
+            Check("entreprises : celles de config.ini sans réglage utilisateur", cm3.Companies.Count == 1 && cm3.Companies[0].Name == "Groupe Admin" && cm3.VipNames.Contains("Paul Admin"));
+            try { System.IO.Directory.Delete(tmpDir, true); } catch (Exception) { }
+            var cfgMulti = new PhishGuardConfig { CompanyDomains = new List<string> { "acmetech.fr" } };
+            cfgMulti.Companies.Add(new CompanyEntry { Name = "Acmetech" });
+            cfgMulti.Companies.Add(new CompanyEntry { Name = "Nordwind Logistik" });
+            cfgMulti.NormalizeCompanies();
+            var eMulti = Base(); eMulti.FromName = "Nordwind Logistik - Buchhaltung"; eMulti.FromAddress = "buchhaltung@nordwind-rechnung.com";
+            Check("entreprises : nom d'une filiale repéré", Ids(Analyzer.Analyze(eMulti, cfgMulti)).Contains("sender-company-name"));
+
+            // Wikidata
+            const string WD_SEARCH = "{\"search\":[{\"id\":\"Q2311\",\"label\":\"Airbus\"},{\"id\":\"Q999\",\"label\":\"Airbus (homonyme)\"}],\"success\":1}";
+            const string WD_ENT = "{\"entities\":{\"Q2311\":{\"id\":\"Q2311\",\"labels\":{\"fr\":{\"language\":\"fr\",\"value\":\"Airbus\"}},\"claims\":{"
+                + "\"P169\":[{\"mainsnak\":{\"datavalue\":{\"value\":{\"id\":\"Q100\"},\"type\":\"wikibase-entityid\"}},\"rank\":\"normal\"},"
+                + "{\"mainsnak\":{\"datavalue\":{\"value\":{\"id\":\"Q101\"},\"type\":\"wikibase-entityid\"}},\"rank\":\"normal\",\"qualifiers\":{\"P582\":[{}]}}],"
+                + "\"P17\":[{\"mainsnak\":{\"datavalue\":{\"value\":{\"id\":\"Q142\"},\"type\":\"wikibase-entityid\"}},\"rank\":\"normal\"}],"
+                + "\"P856\":[{\"mainsnak\":{\"datavalue\":{\"value\":\"https://www.airbus.com/fr\",\"type\":\"string\"}},\"rank\":\"normal\"}]}},"
+                + "\"Q999\":{\"id\":\"Q999\",\"labels\":{\"fr\":{\"language\":\"fr\",\"value\":\"Airbus (homonyme)\"}},\"claims\":{}}}}";
+            const string WD_LAB = "{\"entities\":{\"Q100\":{\"labels\":{\"fr\":{\"value\":\"Guillaume Faury\"}}},\"Q101\":{\"labels\":{\"fr\":{\"value\":\"Ancien Dirigeant\"}}},\"Q142\":{\"labels\":{\"fr\":{\"value\":\"France\"}}}}}";
+            var wdIds = CompanyLookup.SearchIds(WD_SEARCH);
+            Check("wikidata : recherche", wdIds.Count == 2 && wdIds[0] == "Q2311");
+            Check("wikidata : dirigeants actuels seulement", CompanyLookup.ReferencedIds(WD_ENT).Contains("Q100") && !CompanyLookup.ReferencedIds(WD_ENT).Contains("Q101"));
+            var wdRes = CompanyLookup.ParseWikidata(wdIds, WD_ENT, WD_LAB, "fr");
+            Check("wikidata : entreprise, pays, site, dirigeant", wdRes.Count == 1 && wdRes[0].Name == "Airbus" && wdRes[0].Country == "France" && wdRes[0].Website == "airbus.com"
+                && wdRes[0].Directors.Count == 1 && wdRes[0].Directors[0] == "Guillaume Faury", wdRes.Count > 0 ? wdRes[0].Name + "|" + wdRes[0].Country + "|" + wdRes[0].Website + "|" + string.Join(",", wdRes[0].Directors.ToArray()) : "aucun");
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);

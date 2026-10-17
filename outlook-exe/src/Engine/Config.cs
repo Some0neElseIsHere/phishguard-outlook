@@ -11,7 +11,8 @@ namespace PhishGuard
 {
     public class PhishGuardConfig
     {
-        public string CompanyName = "";
+        public string CompanyName = "";          // première entreprise (compatibilité) ; la liste complète est Companies
+        public List<CompanyEntry> Companies = new List<CompanyEntry>();
         public List<string> CompanyDomains = new List<string>();
         public List<string> VipNames = new List<string>();
         public List<string> TrustedDomains = new List<string>();
@@ -82,7 +83,33 @@ namespace PhishGuard
         {
             var c = new PhishGuardConfig();
             Apply(c, path, true);
+            c.NormalizeCompanies();
             return c;
+        }
+
+        /// <summary>
+        /// Entreprises : les anciennes versions n'avaient qu'un nom (CompanyName) et une liste de dirigeants saisie
+        /// à la main (VipNames) ; elles deviennent la première entreprise. Les dirigeants surveillés sont ensuite
+        /// ceux de toutes les entreprises.
+        /// </summary>
+        public void NormalizeCompanies()
+        {
+            if (Companies.Count == 0 && (!string.IsNullOrEmpty(CompanyName) || VipNames.Count > 0))
+                Companies.Add(new CompanyEntry { Name = CompanyName ?? "", Directors = new List<string>(VipNames) });
+            if (Companies.Count == 0) return;
+            CompanyName = Companies.Select(x => x.Name).FirstOrDefault(n => !string.IsNullOrEmpty(n)) ?? "";
+            var vips = new List<string>();
+            foreach (var d in Companies.SelectMany(x => x.Directors))
+                if (d.Trim().Length > 0 && !vips.Any(v => string.Equals(v, d.Trim(), StringComparison.OrdinalIgnoreCase))) vips.Add(d.Trim());
+            VipNames = vips;
+        }
+
+        /// <summary>Noms de toutes les entreprises (repérés dans le nom affiché des expéditeurs externes).</summary>
+        public List<string> CompanyNames()
+        {
+            var names = Companies.Select(x => x.Name).Where(n => !string.IsNullOrEmpty(n)).ToList();
+            if (names.Count == 0 && !string.IsNullOrEmpty(CompanyName)) names.Add(CompanyName);
+            return names.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 
         /// <summary>config.ini (installé par l'administrateur) puis, si autorisé, les réglages de l'utilisateur.</summary>
@@ -91,7 +118,13 @@ namespace PhishGuard
             var c = Load(installPath);
             if (c.AllowUserSettings)
             {
-                Apply(c, userPath, false);
+                var adminCompanies = c.Companies;
+                c.Companies = new List<CompanyEntry>();
+                var userKeys = Apply(c, userPath, false);
+                // Fichier utilisateur sans entreprise : on garde celles de config.ini ; ancien format (CompanyName,
+                // VipNames) : il devient la première entreprise
+                if (!userKeys.Contains("company#") && !userKeys.Contains("companyname") && !userKeys.Contains("vipnames")) c.Companies = adminCompanies;
+                c.NormalizeCompanies();
                 // Clés de l'utilisateur : coffre de Windows (prioritaire). Les clés des anciennes versions,
                 // trouvées dans config.user.ini, y sont déplacées ; elles disparaîtront du fichier au prochain enregistrement.
                 foreach (var k in ApiKeys)
@@ -104,9 +137,12 @@ namespace PhishGuard
             return c;
         }
 
-        static void Apply(PhishGuardConfig c, string path, bool isAdminFile)
+        /// <summary>Lit un fichier de réglages ; renvoie les clés rencontrées.</summary>
+        static HashSet<string> Apply(PhishGuardConfig c, string path, bool isAdminFile)
         {
-            if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
+            var seen = new HashSet<string>();
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) return seen;
+            bool companiesReplaced = false;   // les entreprises d'un fichier remplacent celles du précédent
             foreach (var raw in File.ReadAllLines(path, Encoding.UTF8))
             {
                 string line = raw.Trim();
@@ -115,6 +151,14 @@ namespace PhishGuard
                 if (eq <= 0) continue;
                 string key = line.Substring(0, eq).Trim().ToLowerInvariant();
                 string val = line.Substring(eq + 1).Trim();
+                seen.Add(System.Text.RegularExpressions.Regex.IsMatch(key, @"^company\d+$") ? "company#" : key);
+                if (System.Text.RegularExpressions.Regex.IsMatch(key, @"^company\d+$"))
+                {
+                    if (!companiesReplaced) { c.Companies = new List<CompanyEntry>(); companiesReplaced = true; }
+                    var ce = CompanyEntry.Parse(val);
+                    if (ce != null) c.Companies.Add(ce);
+                    continue;
+                }
                 switch (key)
                 {
                     case "companyname": c.CompanyName = val; break;
@@ -150,6 +194,7 @@ namespace PhishGuard
                     case "allowusersettings": if (isAdminFile) c.AllowUserSettings = !IsFalse(val); break;
                 }
             }
+            return seen;
         }
 
         /// <summary>
@@ -172,7 +217,9 @@ namespace PhishGuard
             var sb = new StringBuilder();
             sb.AppendLine("# PhishGuard - réglages de l'utilisateur (modifiés depuis Outlook, bouton Paramètres).");
             sb.AppendLine("# Ils complètent et remplacent ceux de config.ini.");
+            NormalizeCompanies();
             sb.AppendLine("CompanyName = " + Clean(CompanyName));
+            for (int i = 0; i < Companies.Count; i++) sb.AppendLine("Company" + (i + 1) + " = " + Companies[i].Serialize());
             sb.AppendLine("CompanyDomains = " + string.Join(", ", CompanyDomains.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("VipNames = " + string.Join(", ", VipNames.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("TrustedDomains = " + string.Join(", ", TrustedDomains.Select(x => Clean(x)).ToArray()));
@@ -256,6 +303,32 @@ namespace PhishGuard
                 if (p.Length > 0) list.Add(p);
             }
             return list;
+        }
+    }
+
+    /// <summary>Entreprise surveillée : « Nom | Pays | Identifiant (SIREN ou Wikidata) | Dirigeant; Dirigeant ».</summary>
+    public class CompanyEntry
+    {
+        public string Name = "";
+        public string Country = "";
+        public string Id = "";
+        public List<string> Directors = new List<string>();
+
+        static string C(string s) { return (s ?? "").Replace("|", " ").Replace(";", " ").Replace("\r", " ").Replace("\n", " ").Trim(); }
+
+        public string Serialize()
+        {
+            return C(Name) + " | " + C(Country) + " | " + C(Id) + " | " + string.Join("; ", Directors.Select(C).Where(d => d.Length > 0).ToArray());
+        }
+
+        public static CompanyEntry Parse(string value)
+        {
+            var p = (value ?? "").Split('|');
+            var e = new CompanyEntry { Name = p[0].Trim() };
+            if (p.Length > 1) e.Country = p[1].Trim();
+            if (p.Length > 2) e.Id = p[2].Trim();
+            if (p.Length > 3) e.Directors = p[3].Split(';').Select(d => d.Trim()).Where(d => d.Length > 0).ToList();
+            return e.Name.Length > 0 || e.Directors.Count > 0 ? e : null;
         }
     }
 }
