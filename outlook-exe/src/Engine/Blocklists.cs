@@ -27,6 +27,7 @@ namespace PhishGuard
         static HashSet<string> redFlag = new HashSet<string>();
         static DateTime redFlagUpdated = DateTime.MinValue;
         static HashSet<string> custom = new HashSet<string>();
+        static HashSet<string> watch = new HashSet<string>();    // sosies de vos domaines apparus récemment (surveillance)
         static bool downloading;
 
         public static string LastError = "";
@@ -79,8 +80,12 @@ namespace PhishGuard
                 if (string.IsNullOrEmpty(f)) continue;
                 try { if (File.Exists(f)) c.UnionWith(ParseList(File.ReadAllText(f, Encoding.UTF8))); } catch (Exception) { }
             }
-            lock (Sync) custom = c;
+            HashSet<string> w;
+            try { w = DomainAudit.WatchedBlocked(); } catch (Exception) { w = new HashSet<string>(); }
+            lock (Sync) { custom = c; watch = w; }
         }
+
+        public static int WatchCount { get { lock (Sync) return watch.Count; } }
 
         public static void ClearRedFlag()
         {
@@ -151,8 +156,14 @@ namespace PhishGuard
         /// <summary>Pour les tests : remplace les listes en mémoire.</summary>
         public static void SetForTests(IEnumerable<string> redFlagDomains, IEnumerable<string> customDomains)
         {
+            SetForTests(redFlagDomains, customDomains, null);
+        }
+
+        public static void SetForTests(IEnumerable<string> redFlagDomains, IEnumerable<string> customDomains, IEnumerable<string> watched)
+        {
             lock (Sync)
             {
+                watch = new HashSet<string>(watched ?? new string[0]);
                 redFlag = new HashSet<string>(redFlagDomains ?? new string[0]);
                 custom = new HashSet<string>(customDomains ?? new string[0]);
                 redFlagUpdated = DateTime.Now;
@@ -164,9 +175,9 @@ namespace PhishGuard
         {
             var p = Domains.ParseHost(host);
             if (p == null) return null;
-            HashSet<string> rf, cu;
+            HashSet<string> rf, cu, wa;
             DateTime upd;
-            lock (Sync) { rf = redFlag; cu = custom; upd = redFlagUpdated; }
+            lock (Sync) { rf = redFlag; cu = custom; wa = watch; upd = redFlagUpdated; }
 
             var labels = p.Host.Split('.');
             int minLabels = p.Registrable.Split('.').Length;
@@ -175,6 +186,8 @@ namespace PhishGuard
                 string cand = string.Join(".", labels, i, labels.Length - i);
                 if (cu.Contains(cand))
                     return new BlocklistHit { Domain = cand, SourceId = "custom", SourceName = "Liste interne de l’équipe sécurité", Severity = Severity.Critical, Updated = DateTime.Now };
+                if (wa.Contains(cand))
+                    return new BlocklistHit { Domain = cand, SourceId = "watch", SourceName = "Surveillance de vos domaines (sosie apparu récemment)", Severity = Severity.High, Updated = DateTime.Now };
                 if (rf.Contains(cand))
                     return new BlocklistHit { Domain = cand, SourceId = "redflagdomains", SourceName = "Red Flag Domains", Severity = Severity.High, Updated = upd };
             }

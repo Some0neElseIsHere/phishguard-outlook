@@ -26,12 +26,19 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Compiler, tester et créer l'installeur
-        shell: cmd
+        shell: pwsh
         working-directory: outlook-exe
         env:
           CI: "true"
           PG_VERSION: ${{ github.event.inputs.version || (startsWith(github.ref, 'refs/tags/v') && github.ref_name) || '' }}
-        run: construire.bat
+        run: |
+          cmd /c construire.bat 2>&1 | Tee-Object -FilePath build-log.txt
+          $rc = $LASTEXITCODE
+          if ($rc -ne 0) {
+            # erreurs de compilation et tests en échec visibles dans les annotations du job
+            Select-String -Path build-log.txt -Pattern 'error CS|ECHEC|warning CS' | Select-Object -First 40 | ForEach-Object { Write-Output "::error::$($_.Line.Trim())" }
+            exit $rc
+          }
 
       - name: Préparer les fichiers de la release
         shell: pwsh

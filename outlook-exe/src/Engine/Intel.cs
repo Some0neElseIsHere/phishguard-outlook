@@ -206,15 +206,20 @@ namespace PhishGuard
 
         internal static string Http(string method, string url, string body, string contentType, Dictionary<string, string> headers, int maxChars)
         {
+            return Http(method, url, body, contentType, headers, maxChars, null, 20000);
+        }
+
+        internal static string Http(string method, string url, string body, string contentType, Dictionary<string, string> headers, int maxChars, string accept, int timeoutMs)
+        {
             ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072; // TLS 1.2
             var req = (HttpWebRequest)WebRequest.Create(url);
             req.Method = method;
             req.Proxy = WebRequest.GetSystemWebProxy();
             req.Proxy.Credentials = CredentialCache.DefaultCredentials;
             req.UserAgent = "PhishGuard-Outlook/1.0";
-            req.Accept = "application/json";
-            req.Timeout = 20000;
-            req.ReadWriteTimeout = 20000;
+            req.Accept = accept ?? "application/json";
+            req.Timeout = timeoutMs;
+            req.ReadWriteTimeout = timeoutMs;
             req.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             if (headers != null) foreach (var h in headers) req.Headers[h.Key] = h.Value;
             if (body != null)
@@ -324,11 +329,11 @@ namespace PhishGuard
         [DllImport("dnsapi.dll")]
         static extern void DnsRecordListFree(IntPtr list, int freeType);
 
-        const ushort TypeMx = 15, TypeTxt = 16;
-        const int NameError = 9003, NoRecords = 9501;
+        internal const ushort TypeNs = 2, TypeMx = 15, TypeTxt = 16;
+        internal const int NameError = 9003, NoRecords = 9501;
 
         /// <summary>Renvoie le code DNS et la liste des MX ou des textes TXT.</summary>
-        static int Query(string name, ushort type, List<string> values)
+        internal static int Query(string name, ushort type, List<string> values)
         {
             IntPtr list;
             int rc = DnsQuery(name, type, 0, IntPtr.Zero, out list, IntPtr.Zero);
@@ -342,8 +347,9 @@ namespace PhishGuard
                     ushort t = (ushort)Marshal.ReadInt16(rec, 2 * ptr);
                     if (t != type) continue;
                     IntPtr data = IntPtr.Add(rec, dataOffset);
-                    if (type == TypeMx)
+                    if (type != TypeTxt)
                     {
+                        // MX (pNameExchange) et NS (pNameHost) : le nom est le premier champ
                         string host = Marshal.PtrToStringUni(Marshal.ReadIntPtr(data));
                         if (!string.IsNullOrEmpty(host)) values.Add(host);
                     }

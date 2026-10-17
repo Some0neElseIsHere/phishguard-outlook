@@ -44,6 +44,8 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
 | **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier. Onglet Entreprise : **Rechercher** retrouve les dirigeants de l'entreprise dans l'[Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) (API publique de l'État, sans clé) et le domaine de votre adresse est proposé comme domaine de l'entreprise. |
 | **Réputation** | Sources externes optionnelles : OpenPhish, Tranco, DNS (MX, SPF, politique DMARC, BIMI avec certificat VMC/CMC), crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Réputation de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
+| **Analyser mon domaine** | Depuis Paramètres → Entreprise : bilan de la sécurité email de votre domaine (MX, SPF, DKIM, DMARC, BIMI, MTA-STS, services autorisés à envoyer en votre nom), SIREN lu dans les mentions légales du site puis dirigeants, **sosies déjà enregistrés** (≈170 variantes vérifiées dans le DNS), certificats récents contenant votre marque et domaines liés (crt.sh). Les sosies cochés rejoignent la liste de blocage. |
+| **Surveillance des sosies** | Chaque semaine, les variantes de vos domaines sont revérifiées : un sosie apparu depuis la dernière fois est bloqué automatiquement (et un nouveau certificat contenant votre marque, si crt.sh est activé). |
 | **Expéditeur vérifié** | Pastille verte avec une coche quand le message est authentifié pour le domaine affiché (DMARC, DKIM aligné ou compauth Microsoft) **et** vient de quelqu'un avec qui vous êtes déjà en relation (correspondant connu, réponse à l'un de vos messages, expéditeur de confiance), sans aucun indice. Les preuves sont listées dans la fenêtre ; elles ne compensent jamais un indice Élevé ou Critique. |
 | **Français / anglais** | Langue de l'interface au choix, ou automatique selon Windows. |
 
@@ -145,10 +147,11 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | Noms de domaine (âge du domaine) | `rdap.org` puis le registre du domaine (désactivable) |
 | Liste Red Flag Domains | Téléchargée depuis `dl.red.flag.domains` (aucune donnée envoyée) |
 | Nom de l'entreprise (bouton « Rechercher » des paramètres) | `recherche-entreprises.api.gouv.fr`, uniquement au clic |
+| Vos domaines et leurs variantes (analyse et surveillance des sosies) | Serveur DNS de votre entreprise ; `crt.sh` pour les certificats ; votre propre site pour les mentions légales |
 | Liens de vérification (VirusTotal…) | Uniquement si vous cliquez, et seulement l'élément vérifié |
 
 Fichiers créés dans `%LOCALAPPDATA%\PhishGuard` : réglages, correspondants (`correspondants.txt`),
-identifiants techniques de vos messages envoyés et domaines de leurs destinataires (`fils.txt`, sans objet ni contenu),
+sosies surveillés (`surveillance.txt`), identifiants techniques de vos messages envoyés et domaines de leurs destinataires (`fils.txt`, sans objet ni contenu),
 âge des domaines déjà vérifiés, liste Red Flag Domains, journal des scores (sans objet ni contenu), journal technique.
 
 ---

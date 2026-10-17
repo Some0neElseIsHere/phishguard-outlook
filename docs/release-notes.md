@@ -12,10 +12,9 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **Dirigeants trouvés automatiquement** : dans Paramètres → Entreprise, le bouton **Rechercher** interroge l'Annuaire des Entreprises (API publique de l'État, sans clé) à partir du nom ou du SIREN, vous laisse choisir parmi les homonymes et ajoute les dirigeants à la liste « fraude au président ».
-- **Domaine de l'entreprise** : le domaine de votre adresse Outlook est proposé en un clic.
-- L'onglet **Bêta** devient **Réputation** (paramètres et fenêtre d'analyse).
-- Depuis la v1.5 : « Expéditeur vérifié », alignement DKIM/SPF, codes compauth, détection des détournements de fil, DMARC et BIMI.
+- **Analyser mon domaine** (Paramètres → Entreprise) : à partir de votre domaine, PhishGuard fait le bilan de la sécurité email (SPF, DKIM, DMARC, BIMI, MTA-STS, services autorisés à envoyer en votre nom, avec quoi corriger), lit le SIREN dans les mentions légales du site pour retrouver les dirigeants, liste les **sosies déjà enregistrés** (environ 170 variantes vérifiées dans le DNS), les certificats récents contenant votre marque et les domaines liés à vos certificats. Un clic les ajoute à la liste de blocage ou aux domaines de l'entreprise.
+- **Surveillance hebdomadaire des sosies** : les sosies de vos domaines apparus depuis la dernière vérification sont bloqués automatiquement (indice Élevé). Ceux qui existaient déjà ne sont jamais bloqués sans votre accord : il peut s'agir d'homonymes légitimes.
+- Recherche des dirigeants par nom ou SIREN, onglet Bêta renommé Réputation (v1.6).
 
 ### Points forts
 

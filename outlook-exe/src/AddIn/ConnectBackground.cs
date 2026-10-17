@@ -81,6 +81,8 @@ namespace PhishGuard.AddIn
                 }
                 if (config.KnownCorrespondents) CorrespondentsStep();
                 if (config.TagCategory && tickCount % 30 == 5) InboxStep();
+                if (tickCount % 5000 == 400) WatchStep();  // quelques minutes après le démarrage, puis toutes les heures
+                if (watchDone) { watchDone = false; Blocklists.ReloadCustom(); cache.Clear(); cacheOrder.Clear(); lastSelectionKey = "\u0001"; }
                 if (tickCount % 5000 == 0)                // environ toutes les heures
                 {
                     Blocklists.Init(config, InstallDir); // recharge la liste partagée et met à jour Red Flag Domains si besoin
@@ -88,6 +90,36 @@ namespace PhishGuard.AddIn
                 }
             }
             catch (Exception ex) { Log("Tâche de fond : " + ex.Message); }
+        }
+
+        // -----------------------------------------------------------------
+        // Surveillance hebdomadaire des sosies de vos domaines
+        // -----------------------------------------------------------------
+
+        volatile bool watchRunning, watchDone;
+
+        void WatchStep()
+        {
+            if (!config.WatchDomains || config.CompanyDomains.Count == 0 || watchRunning || !DomainAudit.WatchDue()) return;
+            watchRunning = true;
+            var domains = config.CompanyDomains.ToList();
+            var trusted = new HashSet<string>(config.TrustedDomains.Select(PhishGuard.Domains.RegistrableDomain));
+            bool certs = config.BetaCertAge;
+            var t = new System.Threading.Thread(() =>
+            {
+                try
+                {
+                    var added = DomainAudit.WeeklyCheck(domains, certs,
+                        d => trusted.Contains(d) || Correspondents.IsKnownDomain(d) || Feeds.TrancoRank(d) > 0);
+                    Log("Surveillance des domaines : " + (added.Count == 0 ? "aucun nouveau sosie" : added.Count + " nouveau(x) sosie(s) bloqué(s) : " + string.Join(", ", added.ToArray())));
+                    if (added.Count > 0) watchDone = true;
+                }
+                catch (Exception ex) { DomainAudit.LastWatchError = ex.Message; Log("Surveillance des domaines : " + ex.Message); }
+                finally { watchRunning = false; }
+            });
+            t.IsBackground = true;
+            t.Priority = System.Threading.ThreadPriority.BelowNormal;
+            t.Start();
         }
 
         // -----------------------------------------------------------------

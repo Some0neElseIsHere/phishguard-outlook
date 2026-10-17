@@ -489,6 +489,49 @@ namespace PhishGuard.Tests
                 && co[0].Directors[1] == "Jean-Pierre Gorin-Triana" && co[0].Roles[0] == "Charles Dufourcq (Gérant)", co.Count > 0 ? string.Join(" | ", co[0].Directors.ToArray()) : "");
             Check("annuaire : réponse vide", CompanyLookup.Parse("{}").Count == 0 && CompanyLookup.Parse("{\"results\":[]}").Count == 0);
 
+            // ---------- Analyse de votre domaine ----------
+            var va = DomainAudit.Variants("sonema.com");
+            Func<string, bool> hasV = d => va.Any(x => x.Key == d);
+            Check("variantes : extension, caractère, faute, mot", hasV("sonema.fr") && hasV("s0nema.com") && hasV("sonerna.com") && hasV("sonnema.com")
+                && hasV("snoema.com") && hasV("sonema-paiement.com") && hasV("sonema-fr.com") && hasV("sonema-com.fr"), va.Count.ToString());
+            Check("variantes : sans le domaine lui-même ni doublon", !hasV("sonema.com") && va.Select(x => x.Key).Distinct().Count() == va.Count);
+            Check("variantes : nombre raisonnable", va.Count > 80 && va.Count < 400, va.Count.ToString());
+            Check("variantes : pas de touche voisine", !hasV("sinema.com"));
+            Check("SIREN : clé de Luhn", DomainAudit.IsValidSiren("449397173") && !DomainAudit.IsValidSiren("449397174") && !DomainAudit.IsValidSiren("12345"));
+            Check("SIREN : RCS", DomainAudit.FindSiren("<footer>SONEMA SAS au capital de 10&nbsp;000 € – RCS Fréjus 449 397 173</footer>") == "449397173");
+            Check("SIREN : SIRET", DomainAudit.FindSiren("<p>SIRET : <b>449 397 173 00047</b></p>") == "449397173");
+            Check("SIREN : TVA", DomainAudit.FindSiren("N° TVA intracommunautaire : FR 12 449397173") == "449397173");
+            Check("SIREN : numéro invalide ignoré", DomainAudit.FindSiren("Téléphone 04 94 12 34 56 – SIREN 449 397 174") == "");
+            var ll = DomainAudit.LegalLinks("<a href='/fr/contact'>Contact</a><a href=\"/mentions-legales/\">Mentions légales</a><a href='https://autre.fr/legal'>x</a><a href='cgv.html'>CGV</a>", "https://www.sonema.com/");
+            Check("mentions légales : liens", ll.Count == 2 && ll[0] == "https://www.sonema.com/mentions-legales/" && ll[1] == "https://www.sonema.com/cgv.html", string.Join(" ", ll.ToArray()));
+            var snd = new List<string>();
+            var au = DomainAudit.AuditRecords("sonema.com", new List<string> { "sonema-com.mail.protection.outlook.com" },
+                new List<string> { "v=spf1 include:spf.protection.outlook.com include:spf.sendinblue.com -all", "google-site-verification=x" },
+                new List<string> { "v=DMARC1; p=reject; rua=mailto:dmarc@sonema.com" }, new List<string>(), new List<string>(), new List<string>(), new List<string> { "selector1" }, snd);
+            Check("bilan email : domaine protégé", au[0].Status == "ok" && !au.Any(x => x.Status == "bad"), string.Join(" | ", au.Select(x => x.Status + ":" + x.Title).ToArray()));
+            Check("bilan email : services autorisés", snd.Contains("Microsoft 365") && snd.Contains("Brevo"), string.Join(",", snd.ToArray()));
+            var au2 = DomainAudit.AuditRecords("x.fr", new List<string>(), new List<string> { "v=spf1 +all" }, new List<string>(), new List<string>(), new List<string>(), new List<string>(), new List<string>(), new List<string>());
+            Check("bilan email : domaine usurpable", au2[0].Status == "bad" && au2.Any(x => x.Title.Contains("+all")) && au2.Any(x => x.Title == "Pas de DMARC"));
+            var au3 = DomainAudit.AuditRecords("x.fr", new List<string> { "mx.x.fr" }, new List<string> { "v=spf1 mx ~all" }, new List<string> { "v=DMARC1; p=none" },
+                new List<string>(), new List<string>(), new List<string>(), new List<string>(), new List<string>());
+            Check("bilan email : p=none à améliorer", au3[0].Status == "warn" && au3.Any(x => x.Title.Contains("p=none")));
+            const string CRT = "[{\"name_value\":\"sonema.com\\nwww.sonema.com\\nsonema.fr\",\"not_before\":\"2026-10-10T08:00:00\"},"
+                + "{\"name_value\":\"*.sonema.com\\nsonema-group.com\",\"not_before\":\"2026-01-01T00:00:00\"},"
+                + "{\"name_value\":\"a.com\\nb.com\\nc.com\\nd.com\\ne.com\\nsonema.com\",\"not_before\":\"2026-01-01T00:00:00\"},"
+                + "{\"name_value\":\"sonema-paiement.net\\nwww.sonema-paiement.net\",\"not_before\":\"2026-10-12T00:00:00\"},"
+                + "{\"name_value\":\"personema.com\",\"not_before\":\"2026-10-12T00:00:00\"}]";
+            var rel = DomainAudit.ParseRelated(CRT, new[] { "sonema.com" });
+            Check("certificats : domaines liés", rel.Count == 2 && rel.Any(x => x.Domain == "sonema.fr") && rel.Any(x => x.Domain == "sonema-group.com"), string.Join(",", rel.Select(x => x.Domain).ToArray()));
+            var bc = DomainAudit.ParseBrandCerts(CRT, "sonema", new[] { "sonema.com" }, new DateTime(2026, 10, 1));
+            Check("certificats : marque sur un autre domaine", bc.Count == 2 && bc.Any(x => x.Domain == "sonema-paiement.net") && bc.Any(x => x.Domain == "sonema.fr") && !bc.Any(x => x.Domain == "personema.com"),
+                string.Join(",", bc.Select(x => x.Domain).ToArray()));
+            Check("marque dans un nom", DomainAudit.BrandInHost("sonema-paiement.com", "sonema") && DomainAudit.BrandInHost("sonema.secure-login.net", "sonema")
+                && DomainAudit.BrandInHost("compte-sonema.fr", "sonema") && !DomainAudit.BrandInHost("personema.com", "sonema"));
+            Blocklists.SetForTests(new string[0], new string[0], new[] { "sonema-pay.com" });
+            var eW = Base(); eW.FromAddress = "compta@sonema-pay.com";
+            Check("surveillance : sosie apparu bloqué", Analyzer.Analyze(eW, cfg).Findings.Any(f => f.Id == "sender-blocklist-watch" && f.Severity == Severity.High), string.Join(",", Ids(Analyzer.Analyze(eW, cfg)).ToArray()));
+            Blocklists.SetForTests(new string[0], new string[0]);
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);
