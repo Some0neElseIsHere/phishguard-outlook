@@ -14,7 +14,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 - **Mode simple pour les débutants** (par défaut) : la fenêtre d'analyse dit en clair « Ce message est dangereux / suspect / Aucun danger détecté », donne les raisons principales sans jargon technique et **« Que dois-je faire ? »** étape par étape (adapté au cas : paiement, mot de passe, pièce jointe…), avec des conseils pour reconnaître un phishing et un bouton **Supprimer le message**.
 - **Mode expert** : la fenêtre d'enquête complète d'avant, en un clic sur **Analyse détaillée** ; le choix est mémorisé. En mode simple, les paramètres n'affichent que l'essentiel (les onglets Listes, Réputation et l'analyse de domaine apparaissent en mode expert).
-- **Assistant de premier lancement** : explique la pastille (vert, orange, rouge) et demande la langue, l'entreprise, l'adresse de l'équipe sécurité et le mode d'affichage.
+- **Assistant au démarrage d'Outlook** : à la première installation, il explique la pastille (vert, orange, rouge) et demande la langue, l'entreprise, l'adresse de l'équipe sécurité et le mode d'affichage. Après une mise à jour, il ne pose **que les questions ajoutées** (ici : le mode d'affichage) ; les réponses déjà renseignées ne sont jamais redemandées.
+- **QR codes dans les images** (« quishing ») : les QR codes des images du message sont lus sur le poste ; leur présence est signalée et l'adresse qu'ils contiennent est analysée comme un lien (sosies, listes de blocage, réputation…).
 - Depuis la v1.8 : signalement HTML détaillé, analyse de votre domaine, liens piégés imitant un fichier, liens de vérification sans compte.
 
 ### Points forts
