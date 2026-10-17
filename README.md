@@ -68,7 +68,7 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 
 - **En-têtes** : champs principaux décodés, détail de l'authentification (domaines, sélecteur DKIM), en-têtes des filtres antispam.
 - **Parcours** : chaque serveur traversé, IP, protocole, horodatage et délai entre les sauts ; **IP d'origine**.
-- **Observables** : adresses, domaines, IP et empreintes, avec liens de vérification vers VirusTotal, AbuseIPDB, urlscan, WHOIS et MXToolbox (ouverts dans le navigateur, seul l'élément vérifié est transmis).
+- **Observables** : adresses, domaines, IP et empreintes, avec liens de vérification sans compte à créer : VirusTotal, Google Safe Browsing, Cisco Talos, AbuseIPDB, listes noires (MXToolbox) et WHOIS (ouverts dans le navigateur, seul l'élément vérifié est transmis).
 - **Réputation** : état de chaque source externe et résultats obtenus.
 - **Rapport complet** copiable, avec URL « désarmées » (`hxxps://exemple[.]com`).
 

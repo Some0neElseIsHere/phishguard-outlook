@@ -705,6 +705,7 @@ namespace PhishGuard
             { "Formulaire en pièce jointe", "Form as an attachment" },
             { "Les informations saisies sont envoyées à un site extérieur.", "The information entered is sent to an external site." },
             { "Pièce jointe HTML contenant du code masqué", "HTML attachment containing obfuscated code" },
+            { "Listes noires", "Blocklists" },
             { "Signalement PhishGuard", "PhishGuard report" },
             { "score {0}/100", "score {0}/100" },
             { "Signalé par {0} le {1}", "Reported by {0} on {1}" },

@@ -598,31 +598,43 @@ namespace PhishGuard
         // Liens de vérification (ouverts dans le navigateur à la demande)
         // -----------------------------------------------------------------
 
-        public static readonly string[] LookupHosts = { "www.virustotal.com", "www.abuseipdb.com", "urlscan.io", "who.is", "mxtoolbox.com" };
+        public static readonly string[] LookupHosts = { "www.virustotal.com", "www.abuseipdb.com", "talosintelligence.com", "transparencyreport.google.com", "who.is", "mxtoolbox.com" };
 
-        static string Enc(string s) { return Uri.EscapeDataString(s ?? ""); }
+        static KeyValuePair<string, string> SafeBrowsing(string target)
+        {
+            return new KeyValuePair<string, string>("Google Safe Browsing", "https://transparencyreport.google.com/safe-browsing/search?url=" + Enc(target));
+        }
 
+        static KeyValuePair<string, string> Talos(string target)
+        {
+            return new KeyValuePair<string, string>("Talos", "https://talosintelligence.com/reputation_center/lookup?search=" + Enc(target));
+        }
+
+        // Liens de vérification, sans compte à créer. Le meilleur pour chaque type d'élément est en premier.
         public static List<KeyValuePair<string, string>> LookupsForDomain(string d)
         {
             return new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/domain/" + Enc(d)),
-                new KeyValuePair<string, string>("urlscan", "https://urlscan.io/domain/" + Enc(d)),
+                SafeBrowsing(d),
+                Talos(d),
                 new KeyValuePair<string, string>("WHOIS", "https://who.is/whois/" + Enc(d)) };
         }
 
         public static List<KeyValuePair<string, string>> LookupsForIp(string ip)
         {
+            // IP d'origine d'un email : AbuseIPDB (signalements d'abus) et Talos (réputation email de Cisco) sont plus parlants que VirusTotal
             return new List<KeyValuePair<string, string>> {
-                new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/ip-address/" + Enc(ip)),
                 new KeyValuePair<string, string>("AbuseIPDB", "https://www.abuseipdb.com/check/" + Enc(ip)),
-                new KeyValuePair<string, string>("Blacklists", "https://mxtoolbox.com/SuperTool.aspx?action=blacklist%3a" + Enc(ip)) };
+                Talos(ip),
+                new KeyValuePair<string, string>(L.T("Listes noires"), "https://mxtoolbox.com/SuperTool.aspx?action=blacklist%3a" + Enc(ip)),
+                new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/ip-address/" + Enc(ip)) };
         }
 
         public static List<KeyValuePair<string, string>> LookupsForUrl(string url)
         {
             return new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/search/" + Enc(Enc(url))),
-                new KeyValuePair<string, string>("urlscan", "https://urlscan.io/search/#" + Enc("page.url:\"" + url + "\"")) };
+                SafeBrowsing(url) };
         }
 
         public static List<KeyValuePair<string, string>> LookupsForHash(string sha256)
