@@ -12,20 +12,10 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **v1.8.5** : vérification des liens avec ESET Link Checker (l'adresse est copiée au clic, collez-la dans la page) à la place de Google Safe Browsing ; bouton « Copier le rapport » retiré (le signalement envoie déjà le rapport complet).
-
-- **v1.8.4** : liens de vérification sans compte à créer : urlscan (qui demande désormais un compte) est remplacé par Google Safe Browsing et Cisco Talos ; pour les IP, AbuseIPDB et Talos passent en premier.
-
-- **v1.8.3** : liens piégés qui imitent un fichier : texte en forme de chemin (`C:\…`) ou de document (`facture.pdf`) qui ouvre autre chose, liens vers un fichier local ou un partage réseau (`file:`, `\\serveur\…`), protocoles qui lancent une fonction de Windows (`search-ms:`, `ms-msdt:`…). Paramètres : les textes d'aide sur deux lignes ne chevauchent plus le champ suivant.
-
-- **v1.8.2** : rapport de signalement : les contrôles SPF / DKIM / DMARC ne sont plus collés dans Outlook. Onglet Pièces jointes : « Item not found » de VirusTotal expliqué, et résultat VirusTotal affiché directement si une clé est configurée. Les serveurs qui écrivent un en-tête Authentication-Results par contrôle sont maintenant lus en entier (SPF et DMARC n'apparaissent plus « absents » à tort).
-
-- **v1.8.1** : documentation revue (README, notice du zip), `config.ini` sans valeurs d'exemple : sans domaine configuré, celui de votre adresse Outlook est utilisé ; la surveillance des sosies tient un point de départ par domaine (un second domaine n'est plus bloqué en masse au premier passage).
-
-- **Signalement à la sécurité refait** : le rapport envoyé est maintenant un email HTML lisible : verdict en bandeau, « En bref », chaque point de doute avec sa gravité, son explication et ses preuves, authentification et origine (SPF/DKIM/DMARC, IP, parcours), liens et texte affiché, pièces jointes avec empreintes, observables à copier, preuves de légitimité, et une copie du texte du message d'origine. Toutes les adresses sont désarmées (hxxps://exemple[.]com) : rien n'est cliquable.
-- Le **message d'origine reste joint** (.msg avec tous ses en-têtes) pour l'analyse.
-- **Double confirmation** avant l'envoi, puis envoi direct (si Outlook refuse l'envoi automatique, le message s'ouvre pour être envoyé à la main). Le message n'est déplacé dans Courrier indésirable qu'une fois le signalement parti.
-- v1.7 : Analyser mon domaine et surveillance hebdomadaire des sosies.
+- **Mode simple pour les débutants** (par défaut) : la fenêtre d'analyse dit en clair « Ce message est dangereux / suspect / Aucun danger détecté », donne les raisons principales sans jargon technique et **« Que dois-je faire ? »** étape par étape (adapté au cas : paiement, mot de passe, pièce jointe…), avec des conseils pour reconnaître un phishing et un bouton **Supprimer le message**.
+- **Mode expert** : la fenêtre d'enquête complète d'avant, en un clic sur **Analyse détaillée** ; le choix est mémorisé. En mode simple, les paramètres n'affichent que l'essentiel (les onglets Listes, Réputation et l'analyse de domaine apparaissent en mode expert).
+- **Assistant de premier lancement** : explique la pastille (vert, orange, rouge) et demande la langue, l'entreprise, l'adresse de l'équipe sécurité et le mode d'affichage.
+- Depuis la v1.8 : signalement HTML détaillé, analyse de votre domaine, liens piégés imitant un fichier, liens de vérification sans compte.
 
 ### Points forts
 

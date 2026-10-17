@@ -41,6 +41,7 @@ Une version déjà installée est mise à jour ; les réglages de l'utilisateur 
 
 ## 3. Utiliser
 
+- **Mode simple** (par défaut) : un clic sur la pastille indique en clair si le message est dangereux, pourquoi, et **quoi faire**. Le bouton **Analyse détaillée** passe au mode expert (analyse technique complète et réglages avancés). Au premier lancement, un assistant explique les couleurs et demande l'essentiel.
 - **Le bouton du ruban** affiche le verdict et le score (pastille verte, orange ou rouge), ou
   « Expéditeur vérifié » avec une coche. Le survol montre les principaux indices ; un clic ouvre la fenêtre d'enquête.
 - **Alerte** en bas à droite de l'écran pour les messages dangereux (cliquez dessus pour le détail).

@@ -39,7 +39,9 @@ une fenêtre d'enquête complète, à la manière de [PhishTool](https://www.phi
 |---|---|
 | **Score permanent** | Un seul bouton dans le ruban : il affiche le verdict et le score (pastille verte, orange ou rouge) du message sélectionné ou ouvert, sans clic. |
 | **Alerte** | Une notification discrète en bas à droite de l'écran pour les messages dangereux (ou suspects, au choix). |
-| **Fenêtre d'enquête** | Jauge de risque, indices classés par gravité, parcours des serveurs en frise ; onglets Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps, Réputation. Les boutons Signaler, Ce n'est pas du phishing et Paramètres sont en bas de cette fenêtre. |
+| **Mode simple** (par défaut) | Pour les non-spécialistes : le verdict en clair (« Ce message est dangereux »), les raisons principales sans jargon, **« Que dois-je faire ? »** étape par étape, des conseils pour reconnaître un phishing, et les boutons Signaler et Supprimer. Un assistant de premier lancement explique la pastille et demande l'essentiel. |
+| **Mode expert** | Bouton **Analyse détaillée** (ou Paramètres → Analyse → Affichage) : la fenêtre d'enquête complète ci-dessous, et les réglages avancés (Listes, Réputation, Analyser mon domaine). |
+| **Fenêtre d'enquête** (mode expert) | Jauge de risque, indices classés par gravité, parcours des serveurs en frise ; onglets Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps, Réputation. Les boutons Signaler, Ce n'est pas du phishing et Paramètres sont en bas de cette fenêtre. |
 | **Signaler** | Après une double confirmation, envoie à l'équipe sécurité un rapport HTML (verdict, points de doute détaillés, authentification et origine, liens désarmés, pièces jointes et empreintes, observables à copier, copie du texte du message) avec le message d'origine joint (.msg avec tous ses en-têtes), puis le déplace dans Courrier indésirable. |
 | **Ce n'est pas du phishing** | Ajoute l'expéditeur ou son domaine aux expéditeurs de confiance (une usurpation reste toujours signalée). |
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
@@ -94,7 +96,7 @@ Pour imposer des valeurs par défaut à toute l'entreprise, modifiez `config.ini
 ## Utilisation
 
 1. **Sélectionnez un email** : le bouton PhishGuard affiche par exemple « Dangereux (85) ». Survolez-le pour voir les principaux indices.
-2. **Cliquez dessus** pour ouvrir la fenêtre d'enquête.
+2. **Cliquez dessus** : en mode simple, la fenêtre dit pourquoi et quoi faire ; **Analyse détaillée** ouvre la fenêtre d'enquête complète.
 3. En bas de la fenêtre : **Signaler à la sécurité** envoie le message et un rapport détaillé à l'équipe sécurité (après double confirmation), **Ce n'est pas du phishing** corrige un faux positif, **Paramètres** ouvre les réglages.
 
 Niveaux : **Risque faible** (0–19), **Suspect** (20–49), **Dangereux** (50 et plus, ou au moins un indice critique).
@@ -131,6 +133,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `WatchDomains` | Surveillance hebdomadaire des sosies de `CompanyDomains` | `true` |
 | `BetaOpenPhish`, `BetaTranco`, `BetaDnsChecks`, `BetaCertAge` | Sources de réputation sans clé (onglet Réputation) | `false` |
 | `VirusTotalKey`, `AbuseChKey`, `AbuseIpdbKey` | Clés par défaut pour tous ; un utilisateur peut saisir les siennes, rangées dans le Gestionnaire d'identification de Windows et prioritaires | — |
+| `ExpertMode` | `false` : fenêtre simple (débutants) ; `true` : analyse détaillée et réglages avancés | `false` |
 | `AllowUserSettings` | Bouton Paramètres de la fenêtre d'analyse ; `false` impose `config.ini` à tous | `true` |
 
 Une clé d'API écrite dans `config.ini` y est lisible en clair : préférez la saisie par chaque utilisateur.
