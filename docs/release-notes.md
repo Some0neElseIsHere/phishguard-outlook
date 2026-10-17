@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.5.1** : pour un expéditeur vérifié, la fenêtre rappelle que le contenu a bien été analysé (texte, liens, pièces jointes) et la preuve « déjà écrit » indique l'adresse.
+
 - **Expéditeur vérifié** : pastille verte avec une coche dans le ruban quand le message est authentifié pour le domaine affiché **et** vient d'un contact déjà connu, sans aucun indice. Les preuves sont listées dans la fenêtre (« Preuves de légitimité ») et ne compensent jamais un indice grave.
 - **Alignement DKIM/SPF** : une signature du domaine de l'expéditeur compte comme preuve ; une signature d'un prestataire (outil d'emailing) est simplement signalée.
 - **Codes de raison Microsoft (compauth)** : 001 devient « authentification insuffisante » (moyen), 002 « envoi interdit », 010/6xx « usurpation de votre propre domaine » (critique), 1xx/130 comptent comme preuve.

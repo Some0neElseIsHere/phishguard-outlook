@@ -362,7 +362,15 @@ namespace PhishGuard.AddIn
             sb.Append("<div class='hero " + H(r.Level) + "'>" + Gauge(r.Score, r.Level));
             sb.Append("<div class='hv'><p class='eyebrow'>" + H(L.T("Risque de phishing")) + "</p><h1>" + H(r.Verified ? L.T("Expéditeur vérifié") : r.LevelLabel) + "</h1><p class='advice'>"
                 + H(r.Verified ? L.T("Authentifié et déjà en relation avec vous. Restez attentif à toute demande inhabituelle (changement de RIB, paiement urgent).") : r.Advice) + "</p>");
-            if (r.Verified) sb.Append("<span class='vb' title='" + H(string.Join(" · ", r.Trust.ToArray())) + "'><i>&#10003;</i>" + H(L.T("Authentifié · relation connue")) + "</span>");
+            if (r.Verified)
+            {
+                // Rappelle que le contenu a bien été analysé : la vérification ne remplace pas l'analyse
+                int nL = r.Urls.Count, nA = r.Attachments.Count;
+                string scanned = L.F("Contenu analysé : texte, {0}, {1} — aucun indice",
+                    nL == 1 ? L.T("1 lien") : L.F("{0} liens", nL), nA == 1 ? L.T("1 pièce jointe") : L.F("{0} pièces jointes", nA));
+                sb.Append("<span class='vb'><i>&#10003;</i>" + H(L.T("Expéditeur authentifié et connu")) + "</span> ");
+                sb.Append("<span class='vb' title='" + H(L.T("Liens, pièces jointes, texte et en-têtes ont été contrôlés comme pour tout autre message.")) + "'><i>&#10003;</i>" + H(scanned) + "</span>");
+            }
             if (allVisible.Count > 0)
             {
                 sb.Append("<div class='counts'>");
