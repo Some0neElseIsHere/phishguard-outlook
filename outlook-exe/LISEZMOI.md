@@ -19,7 +19,7 @@ l'entreprise, ouvrez `config.ini` avec le Bloc-notes **avant** d'installer :
 | Clé | Rôle |
 |---|---|
 | `CompanyName`, `CompanyDomains` | Votre entreprise et ses domaines (leurs sosies sont classés critiques) |
-| `VipNames` | Dirigeants et personnes sensibles (fraude au président) |
+| `Company1`, `Company2`… | Entreprises surveillées et leurs dirigeants (fraude au président) : `Nom \| Pays \| Identifiant \| Dirigeant; Dirigeant` |
 | `TrustedDomains`, `TrustedSenders` | Partenaires et adresses de confiance |
 | `ReportAddress` | Adresse de l'équipe sécurité (bouton **Signaler à la sécurité**) |
 | `Language` | `auto` (langue de Windows), `fr` ou `en` |
@@ -51,11 +51,11 @@ Une version déjà installée est mise à jour ; les réglages de l'utilisateur 
 - **Ce n'est pas du phishing** : ajoute l'expéditeur ou son domaine aux expéditeurs de confiance.
   Un échec d'authentification (usurpation) reste toujours signalé.
 - **Paramètres** (en bas de la fenêtre d'enquête) :
-  - *Entreprise* : nom, domaines, dirigeants (bouton **Rechercher…** dans l'Annuaire des Entreprises),
+  - *Entreprise* : une ou plusieurs entreprises (recherche dans l'Annuaire des Entreprises ou Wikidata) et leurs dirigeants, domaines,
     adresse de l'équipe sécurité, **Analyser mon domaine…** (sécurité email, sosies enregistrés) ;
   - *Analyse* : langue, analyse automatique, alertes, explications, correspondants, âge des domaines ;
-  - *Listes* : domaines et expéditeurs de confiance, domaines à bloquer, liste partagée, Red Flag Domains ;
-  - *Réputation* : sources externes optionnelles (OpenPhish, Tranco, DNS, crt.sh, VirusTotal, abuse.ch, AbuseIPDB).
+  - *Listes* : domaines et expéditeurs de confiance, domaines à bloquer, liste partagée ;
+  - *Réputation* : sources externes optionnelles (Red Flag Domains, OpenPhish, Tranco, DNS, crt.sh, VirusTotal, abuse.ch, AbuseIPDB).
     Les clés d'API sont rangées dans le Gestionnaire d'identification de Windows.
 
 ## Fichiers créés sur le poste (`%LOCALAPPDATA%\PhishGuard`)
