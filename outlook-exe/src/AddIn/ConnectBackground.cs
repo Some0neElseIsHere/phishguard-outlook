@@ -94,6 +94,7 @@ namespace PhishGuard.AddIn
                     if (!config.AutoAnalyze) InvalidateRibbons();
                     RefreshDetailsIfOpen();
                 }
+                if (sessionReady && !setupChecked && tickCount >= 12) RunSetupIfNeeded();   // ~10 s après le démarrage d'Outlook
                 if (config.KnownCorrespondents) CorrespondentsStep();
                 if (config.TagCategory && tickCount % 30 == 5) InboxStep();
                 if (tickCount % 5000 == 400) WatchStep();  // quelques minutes après le démarrage, puis toutes les heures

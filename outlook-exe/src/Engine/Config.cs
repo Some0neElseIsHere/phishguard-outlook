@@ -32,6 +32,8 @@ namespace PhishGuard
         public string SharedBlocklistPath = "";  // liste de blocage partagée (ex. \\serveur\partage\phishguard.txt)
         public List<string> TrustedSenders = new List<string>();
         public string Language = "auto";         // auto (langue de Windows), fr ou en
+        public List<string> SetupDone = new List<string>();   // étapes de l'assistant de démarrage déjà vues
+        public bool SetupKeyPresent;                         // SetupDone trouvé dans config.user.ini
         public bool ExpertMode = false;          // fenêtre d'analyse : false = mode simple (débutants), true = analyse détaillée
         public bool WatchDomains = true;         // surveillance hebdomadaire des nouveaux sosies de vos domaines (DNS)
 
@@ -137,6 +139,7 @@ namespace PhishGuard
                     case "language": c.Language = val.Trim().ToLowerInvariant(); break;
                     case "watchdomains": c.WatchDomains = !IsFalse(val); break;
                     case "expertmode": c.ExpertMode = IsTrue(val); break;
+                    case "setupdone": if (!isAdminFile) { c.SetupDone = SplitList(val, true); c.SetupKeyPresent = true; } break;
                     case "betaopenphish": c.BetaOpenPhish = IsTrue(val); break;
                     case "betatranco": c.BetaTranco = IsTrue(val); break;
                     case "betadnschecks": c.BetaDnsChecks = IsTrue(val); break;
@@ -147,6 +150,20 @@ namespace PhishGuard
                     case "allowusersettings": if (isAdminFile) c.AllowUserSettings = !IsFalse(val); break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Étapes de l'assistant de démarrage à proposer : celles jamais vues. Pour une installation antérieure à l'assistant,
+        /// l'accueil et la langue sont considérés comme vus ; une étape dont la réponse est déjà renseignée (par l'utilisateur
+        /// ou par config.ini) n'est pas reposée.
+        /// </summary>
+        public List<string> PendingSetup(IEnumerable<string> steps, bool userFileExists)
+        {
+            var done = new HashSet<string>(SetupDone);
+            if (!SetupKeyPresent && userFileExists) { done.Add("intro"); done.Add("language"); }
+            if (CompanyDomains.Count > 0) done.Add("company");
+            if (!string.IsNullOrEmpty(ReportAddress)) done.Add("report");
+            return steps.Where(s => !done.Contains(s)).ToList();
         }
 
         /// <summary>Enregistre les réglages modifiables par l'utilisateur.</summary>
@@ -175,6 +192,7 @@ namespace PhishGuard
             sb.AppendLine("Language = " + Clean(Language));
             sb.AppendLine("WatchDomains = " + (WatchDomains ? "true" : "false"));
             sb.AppendLine("ExpertMode = " + (ExpertMode ? "true" : "false"));
+            sb.AppendLine("SetupDone = " + string.Join(", ", SetupDone.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("# Réputation : sources externes");
             sb.AppendLine("BetaOpenPhish = " + (BetaOpenPhish ? "true" : "false"));
             sb.AppendLine("BetaTranco = " + (BetaTranco ? "true" : "false"));

@@ -44,6 +44,7 @@ namespace PhishGuard
         public List<Finding> ContentFindings = new List<Finding>();   // indices trouvés DANS le fichier
         public List<string> EmbeddedUrls = new List<string>();        // liens trouvés dans le fichier (PDF, HTML)
         public List<string> ArchiveEntries = new List<string>();      // contenu d'une archive ZIP
+        public List<string> QrCodes = new List<string>();             // texte des QR codes trouvés dans l'image
     }
 
     public class EmailData

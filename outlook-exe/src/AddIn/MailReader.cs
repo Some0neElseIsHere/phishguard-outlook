@@ -154,6 +154,7 @@ namespace PhishGuard.AddIn
             {
                 dynamic atts = mail.Attachments;
                 int n = atts.Count;
+                int qrScanned = 0;
                 for (int i = 1; i <= n; i++)
                 {
                     dynamic a = atts.Item(i);
@@ -171,9 +172,21 @@ namespace PhishGuard.AddIn
                     info.IsEmbeddedMessage = type == 5;
                     try { info.Size = (long)a.Size; } catch (Exception) { }
                     // Contenu : empreintes MD5/SHA1/SHA256 et type réel (jamais exécuté)
+                    byte[] bytes = null;
                     if (!(info.IsInline && info.IsImage))
                     {
-                        try { Forensics.ComputeHashes(info, ReadAttachmentBytes((object)a, info.Name, maxHashBytes)); }
+                        try { bytes = ReadAttachmentBytes((object)a, info.Name, maxHashBytes); Forensics.ComputeHashes(info, bytes); }
+                        catch (Exception) { }
+                    }
+                    // QR codes dans les images (y compris celles affichées dans le corps du message) : au plus 5 images de 1 Ko à 3 Mo
+                    if (info.IsImage && qrScanned < 5 && info.Size >= 1024 && info.Size <= 3 * 1024 * 1024)
+                    {
+                        try
+                        {
+                            if (bytes == null) bytes = ReadAttachmentBytes((object)a, info.Name, 3 * 1024 * 1024);
+                            info.QrCodes = QrScan.Decode(bytes);
+                            qrScanned++;
+                        }
                         catch (Exception) { }
                     }
                     e.Attachments.Add(info);

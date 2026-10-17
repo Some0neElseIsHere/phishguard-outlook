@@ -459,7 +459,7 @@ namespace PhishGuard.AddIn
             var c = AnalyzeCached(mail, true);
             Log("Analyse détaillée : " + c.Result.Level + " (" + c.Result.Score + "), " + c.Data.Links.Count + " liens, " + c.Data.Attachments.Count + " pièces jointes");
             lastMail = mail;
-            if (config.AllowUserSettings && !File.Exists(UserConfigPath)) FirstRun();
+            RunSetupIfNeeded();
             if (form == null || form.IsDisposed)
             {
                 Icon icon = null;
@@ -523,16 +523,28 @@ namespace PhishGuard.AddIn
             InvalidateRibbons();
         }
 
-        /// <summary>Premier lancement : quelques réglages essentiels, une seule fois.</summary>
-        void FirstRun()
+        bool setupChecked;
+
+        /// <summary>Assistant de démarrage : tout au premier lancement, puis seulement les étapes ajoutées par une mise à jour.</summary>
+        void RunSetupIfNeeded()
         {
+            if (setupChecked || !config.AllowUserSettings) return;
+            setupChecked = true;
             try
             {
                 var cfg = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
+                var pending = cfg.PendingSetup(FirstRunForm.Steps, File.Exists(UserConfigPath));
+                if (pending.Count == 0)
+                {
+                    if (cfg.SetupDone.Count < FirstRunForm.Steps.Length) { cfg.SetupDone = FirstRunForm.Steps.ToList(); cfg.SaveUser(UserConfigPath); }
+                    return;
+                }
                 Icon icon = null;
                 try { var b = LoadBitmap("icon-32.png"); if (b != null) icon = Icon.FromHandle(b.GetHicon()); } catch (Exception) { }
-                using (var f = new FirstRunForm(cfg, MailboxDomain(), icon)) f.ShowDialog();
-                cfg.SaveUser(UserConfigPath);   // enregistré même avec « Plus tard » : l'assistant ne revient pas
+                using (var f = new FirstRunForm(cfg, MailboxDomain(), icon, pending)) f.ShowDialog();
+                Log("Assistant de démarrage : " + string.Join(", ", pending.ToArray()));
+                cfg.SetupDone = FirstRunForm.Steps.ToList();   // vu, même avec « Plus tard » : l'assistant ne revient pas
+                cfg.SaveUser(UserConfigPath);
                 config = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
                 ApplyRuntimeSettings();
                 cache.Clear(); cacheOrder.Clear();
