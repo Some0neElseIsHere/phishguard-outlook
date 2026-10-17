@@ -44,6 +44,13 @@ namespace PhishGuard.AddIn
         string GetCustomUI([In, MarshalAs(UnmanagedType.BStr)] string RibbonID);
     }
 
+    /// <summary>Volets personnalisés Office (Microsoft.Office.Core.ICustomTaskPaneConsumer) : sert au bandeau.</summary>
+    [ComImport, Guid("000C033E-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsDual)]
+    public interface ICustomTaskPaneConsumer
+    {
+        [DispId(1)] void CTPFactoryAvailable([In, MarshalAs(UnmanagedType.IDispatch)] object CTPFactoryInst);
+    }
+
     /// <summary>Convertit une image .NET en IPictureDisp pour les icônes du ruban.</summary>
     internal class PictureConverter : AxHost
     {

@@ -78,6 +78,7 @@ namespace PhishGuard.AddIn
         {
             try { if (selectionTimer != null) { selectionTimer.Stop(); selectionTimer.Dispose(); selectionTimer = null; } } catch (Exception) { }
             try { if (alert != null && !alert.IsDisposed) alert.Close(); } catch (Exception) { }
+            try { RemoveAllPanes(); } catch (Exception) { }
             try { if (form != null) { form.Dispose(); form = null; } } catch (Exception) { }
             ribbons.Clear();
             cache.Clear();
@@ -104,6 +105,7 @@ namespace PhishGuard.AddIn
                 {
                     if (config.AutoAnalyze) CheckSelection();
                     if (!busy) BackgroundTick();
+                    if (!busy) { busy = true; try { BannerTick(); } catch (Exception ex) { Log("Bandeau : " + ex.Message); } finally { busy = false; } }
                 };
                 selectionTimer.Start();
                 Log("Surveillance démarrée (analyse automatique : " + config.AutoAnalyze + ")");

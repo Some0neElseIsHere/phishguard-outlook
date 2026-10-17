@@ -1,8 +1,8 @@
 ﻿// PhishGuard - sources externes « bêta » (désactivées par défaut, réglables dans l'onglet Bêta des paramètres).
 //
 // Sans clé :  vérifications DNS (MX, SPF, DMARC) avec le DNS de Windows ; âge du premier certificat HTTPS (crt.sh).
-// Avec clé gratuite : VirusTotal (domaines, empreintes de fichiers), abuse.ch URLhaus + ThreatFox,
-//                     Google Safe Browsing (adresses des liens), AbuseIPDB (IP d'origine).
+// Avec clé gratuite : VirusTotal (empreintes des pièces jointes), abuse.ch URLhaus + ThreatFox,
+//                     AbuseIPDB (IP d'origine).
 //
 // Fonctionnement : l'analyse ne bloque jamais. Elle lit le cache ; ce qui manque est demandé en arrière-plan
 // (un seul fil, avec un délai minimal par service), puis Changed passe à true et le complément relance l'analyse.
@@ -38,14 +38,13 @@ namespace PhishGuard
     public class IntelSettings
     {
         public bool DnsChecks, CertAge;
-        public string VirusTotalKey = "", AbuseChKey = "", SafeBrowsingKey = "", AbuseIpdbKey = "";
+        public string VirusTotalKey = "", AbuseChKey = "", AbuseIpdbKey = "";
 
         public bool Any
         {
             get
             {
-                return DnsChecks || CertAge || VirusTotalKey.Length > 0 || AbuseChKey.Length > 0
-                    || SafeBrowsingKey.Length > 0 || AbuseIpdbKey.Length > 0;
+                return DnsChecks || CertAge || VirusTotalKey.Length > 0 || AbuseChKey.Length > 0 || AbuseIpdbKey.Length > 0;
             }
         }
     }
@@ -118,41 +117,24 @@ namespace PhishGuard
             while (true)
             {
                 string key;
-                List<string> batch = null;
                 lock (Sync)
                 {
                     if (queue.Count == 0) { worker = false; return; }
                     key = queue.First.Value;
                     queue.RemoveFirst();
-                    // Safe Browsing accepte plusieurs adresses par requête
-                    if (key.StartsWith("gsb:"))
-                    {
-                        batch = new List<string> { key };
-                        var node = queue.First;
-                        while (node != null && batch.Count < 50)
-                        {
-                            var next = node.Next;
-                            if (node.Value.StartsWith("gsb:")) { batch.Add(node.Value); queue.Remove(node); }
-                            node = next;
-                        }
-                    }
                 }
-                var results = new Dictionary<string, IntelResult>();
-                try
-                {
-                    if (batch != null) foreach (var kv in SafeBrowsing(batch)) results[kv.Key] = kv.Value;
-                    else results[key] = Fetch(key);
-                    LastError = "";
-                }
+                IntelResult result;
+                try { result = Fetch(key); LastError = ""; }
                 catch (Exception ex)
                 {
                     LastError = Service(key) + " : " + ex.Message;
-                    foreach (var k in batch ?? new List<string> { key }) results[k] = new IntelResult { Ok = false };
+                    result = new IntelResult { Ok = false };
                 }
                 lock (Sync)
                 {
-                    foreach (var kv in results) { kv.Value.When = DateTime.UtcNow; cache[kv.Key] = kv.Value; pending.Remove(kv.Key); }
-                    foreach (var k in batch ?? new List<string> { key }) pending.Remove(k);
+                    result.When = DateTime.UtcNow;
+                    cache[key] = result;
+                    pending.Remove(key);
                 }
                 Changed = true;
             }
@@ -183,7 +165,6 @@ namespace PhishGuard
             {
                 case "dns": return Dns(v);
                 case "crt": Throttle("crt", 2000); return ParseCrt(Http("GET", "https://crt.sh/?output=json&q=" + Uri.EscapeDataString(v), null, null, null, 4000000));
-                case "vtd": Throttle("vt", 15500); return ParseVirusTotal(VtGet("domains/" + Uri.EscapeDataString(v)));
                 case "vtf": Throttle("vt", 15500); return ParseVirusTotal(VtGet("files/" + v));
                 case "uhh": Throttle("abusech", 1000); return ParseUrlhaus(Http("POST", "https://urlhaus-api.abuse.ch/v1/host/", "host=" + Uri.EscapeDataString(v), "application/x-www-form-urlencoded", AbuseChHeaders(), 1000000));
                 case "uhp": Throttle("abusech", 1000); return ParseUrlhaus(Http("POST", "https://urlhaus-api.abuse.ch/v1/payload/", "sha256_hash=" + v, "application/x-www-form-urlencoded", AbuseChHeaders(), 1000000));
@@ -215,28 +196,6 @@ namespace PhishGuard
                 if (r != null && (int)r.StatusCode == 404) return "{\"notfound\":true}";
                 throw;
             }
-        }
-
-        static Dictionary<string, IntelResult> SafeBrowsing(List<string> keys)
-        {
-            Throttle("gsb", 1000);
-            var urls = keys.Select(k => k.Substring(4)).ToList();
-            var sb = new StringBuilder();
-            sb.Append("{\"client\":{\"clientId\":\"phishguard-outlook\",\"clientVersion\":\"1.0\"},\"threatInfo\":{");
-            sb.Append("\"threatTypes\":[\"MALWARE\",\"SOCIAL_ENGINEERING\",\"UNWANTED_SOFTWARE\",\"POTENTIALLY_HARMFUL_APPLICATION\"],");
-            sb.Append("\"platformTypes\":[\"ANY_PLATFORM\"],\"threatEntryTypes\":[\"URL\"],\"threatEntries\":[");
-            sb.Append(string.Join(",", urls.Select(u => "{\"url\":\"" + JsonEscape(u) + "\"}").ToArray()));
-            sb.Append("]}}");
-            string json = Http("POST", "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=" + Uri.EscapeDataString(Settings.SafeBrowsingKey),
-                sb.ToString(), "application/json", null, 1000000);
-            var found = ParseSafeBrowsing(json);
-            var res = new Dictionary<string, IntelResult>();
-            foreach (var u in urls)
-            {
-                string type;
-                res["gsb:" + u] = found.TryGetValue(u, out type) ? new IntelResult { Ok = true, Found = true, Label = type } : new IntelResult { Ok = true };
-            }
-            return res;
         }
 
         // -----------------------------------------------------------------
@@ -351,27 +310,6 @@ namespace PhishGuard
             if ((json ?? "").IndexOf("abuseConfidenceScore", StringComparison.Ordinal) < 0) return new IntelResult { Ok = false };
             int score = IntField(json, "abuseConfidenceScore");
             return new IntelResult { Ok = true, Found = score > 0, Malicious = score, Total = IntField(json, "totalReports"), Label = StrField(json, "countryCode") };
-        }
-
-        /// <summary>Adresse → type de menace, pour chaque correspondance de Safe Browsing.</summary>
-        public static Dictionary<string, string> ParseSafeBrowsing(string json)
-        {
-            var res = new Dictionary<string, string>();
-            foreach (Match m in Regex.Matches(json ?? "", "\"threatType\"\\s*:\\s*\"([A-Z_]+)\"[^}]*?\"url\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\""))
-                res[Regex.Unescape(m.Groups[2].Value)] = m.Groups[1].Value;
-            return res;
-        }
-
-        public static string ThreatLabel(string t)
-        {
-            switch (t)
-            {
-                case "SOCIAL_ENGINEERING": return L.T("hameçonnage");
-                case "MALWARE": return L.T("logiciel malveillant");
-                case "UNWANTED_SOFTWARE": return L.T("logiciel indésirable");
-                case "POTENTIALLY_HARMFUL_APPLICATION": return L.T("application dangereuse");
-            }
-            return t;
         }
 
         // -----------------------------------------------------------------

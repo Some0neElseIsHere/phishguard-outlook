@@ -62,6 +62,14 @@ namespace PhishGuard
         public string RawHeaders = "";
     }
 
+    /// <summary>État d'une source externe (onglet Bêta de la fenêtre d'analyse).</summary>
+    public class SourceStatus
+    {
+        public string Name;
+        public string State;    // off, ok, pending, error
+        public string Detail = "";
+    }
+
     public class AnalysisResult
     {
         public int Score;
@@ -79,5 +87,6 @@ namespace PhishGuard
         public HeaderDetails Details = new HeaderDetails();
         public List<AttachmentInfo> Attachments = new List<AttachmentInfo>();
         public bool FirstContact;
+        public List<SourceStatus> Sources = new List<SourceStatus>();
     }
 }
