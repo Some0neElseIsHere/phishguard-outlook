@@ -12,10 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **Bandeau coloré** en haut de la fenêtre Outlook (et des messages ouverts) : verdict, score, principaux indices, boutons *Voir le détail* et *Signaler*. Désactivable dans Paramètres → Analyse.
-- **Onglet Bêta** dans la fenêtre d'analyse (après *Corps*) : état de chaque source externe (vérifié, en cours, erreur, désactivé) et alertes regroupées.
-- Sources Bêta (désactivées par défaut) : OpenPhish, Tranco, DNS du domaine expéditeur, crt.sh ; avec clé gratuite : VirusTotal (pièces jointes uniquement), abuse.ch, AbuseIPDB.
-- Google Safe Browsing retiré.
+- **Zone d'alerte dans l'en-tête** des messages dangereux (juste sous l'expéditeur, dans le volet de lecture et les messages ouverts) : score, principaux indices, boutons *Détails* et *Signaler*. Elle n'apparaît que pour les messages dangereux. Si elle ne peut pas s'afficher sur un poste, un bandeau en haut de la fenêtre prend le relais (messages dangereux uniquement).
+- **Résumé plus compact** : expéditeur, objet, authentification et détails sur quatre lignes ; authentification lisible (SPF ✓, DKIM ✓, DMARC ✓, détail au survol) ; explications pédagogiques au survol du « ? » ; « Points rassurants » retirés ; informations secondaires déplacées dans l'onglet En-têtes.
 
 ### Points forts
 
