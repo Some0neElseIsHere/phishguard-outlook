@@ -123,10 +123,13 @@ namespace PhishGuard
 
             findings = findings.OrderByDescending(f => (int)f.Severity).ToList();
 
+            // Les mots-clés de contenu sont plafonnés (un message commercial en contient beaucoup) ; les combinaisons
+            // décisives (identifiants + urgence, paiement + discrétion, fausse alerte de messagerie, changement de RIB) ne le sont pas.
+            // Barème validé sur des corpus publics : voir docs/banc-essai.md.
             int score = 0, contentScore = 0;
             foreach (var f in findings)
             {
-                if (f.Category == "content") contentScore += Points(f.Severity);
+                if (f.Category == "content" && !IsDecisiveContent(f.Id)) contentScore += Points(f.Severity);
                 else score += Points(f.Severity);
             }
             score = Math.Min(100, score + Math.Min(30, contentScore));
@@ -165,6 +168,11 @@ namespace PhishGuard
         // =====================================================================
         // Outils
         // =====================================================================
+
+        static bool IsDecisiveContent(string id)
+        {
+            return id.StartsWith("content-combo-") || id == "content-iban-change";
+        }
 
         public static string NormalizeText(string s)
         {
@@ -427,7 +435,14 @@ namespace PhishGuard
             {
                 bool knownAddr = Correspondents.IsKnownAddress(fromAddr);
                 bool knownDomain = !isFreemail && Correspondents.IsKnownDomain(fromOrg);
-                if (!knownAddr && !knownDomain)
+                // Liste de diffusion : le message est adressé à la liste (son adresse de publication figure dans À/Cc), pas à vous
+                var postAddrs = AddressesIn(string.Join(",", HeaderValues(headers, "list-post")));
+                var toCc = AddressesIn(string.Join(",", HeaderValues(headers, "to").Concat(HeaderValues(headers, "cc"))));
+                bool mailingList = HeaderValues(headers, "list-id").Count > 0 && postAddrs.Any(a => toCc.Contains(a));
+                if (!knownAddr && !knownDomain && mailingList)
+                    findings.Add(new Finding("sender-first-contact-list", "sender", Severity.Info, L.T("Message d’une liste de diffusion"),
+                        L.T("Adressé à la liste, pas directement à vous : ne pas connaître l’auteur est normal."), new[] { postAddrs.First(a => toCc.Contains(a)) }));
+                else if (!knownAddr && !knownDomain)
                 {
                     ctx.FirstContact = true;
                     // Adresse automatique (noreply, notification...) authentifiée : normal de ne jamais lui avoir écrit.
