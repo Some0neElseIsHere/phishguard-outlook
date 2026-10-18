@@ -145,9 +145,9 @@ namespace PhishGuard.AddIn
             if (url.StartsWith("about:")) return;
             e.Cancel = true;
             Uri u = e.Url;
-            if ((u.Scheme == "https") && Forensics.LookupHosts.Contains(u.Host.ToLowerInvariant()))
+            if ((u.Scheme == "https") && Forensics.LookupHosts.Contains(PhishGuard.Domains.HostOf(u)))
             {
-                try { Process.Start(new ProcessStartInfo(u.AbsoluteUri) { UseShellExecute = true }); status.Text = L.T("Ouvert dans le navigateur : ") + u.Host; }
+                try { Process.Start(new ProcessStartInfo(u.AbsoluteUri) { UseShellExecute = true }); status.Text = L.T("Ouvert dans le navigateur : ") + PhishGuard.Domains.HostOf(u); }
                 catch (Exception ex) { status.Text = L.T("Impossible d’ouvrir le navigateur : ") + ex.Message; }
             }
         }
@@ -545,7 +545,7 @@ namespace PhishGuard.AddIn
                 {
                     string host = "";
                     Uri parsed;
-                    if (Uri.TryCreate(u, UriKind.Absolute, out parsed)) host = PhishGuard.Domains.ToUnicode(parsed.Host);
+                    if (Uri.TryCreate(u, UriKind.Absolute, out parsed)) host = PhishGuard.Domains.ToUnicode(PhishGuard.Domains.HostOf(parsed));
                     sb.Append("<tr><td class='mono'><b>" + H(host) + "</b></td><td class='mono muted'>" + H(Analyzer.Defang(u)) + "</td><td>" + Links(Forensics.LookupsForUrl(u)) + "</td></tr>");
                 }
                 sb.Append("</tbody></table></div>");

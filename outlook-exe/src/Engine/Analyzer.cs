@@ -215,7 +215,7 @@ namespace PhishGuard
                 if (!Uri.TryCreate(href, UriKind.Absolute, out u) || (u.Scheme != "https" && u.Scheme != "http")) return false;
                 // Adresse d'une image (logo, pixel d'espacement) recopiée dans la version texte par Outlook : ce n'est pas un lien cliquable
                 if (string.IsNullOrEmpty(l.Text) && ImagePathRe.IsMatch(u.AbsolutePath)) continue;
-                if (PhishGuard.Domains.RegistrableDomain(u.Host) != ctx.FromOrg) return false;
+                if (PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.HostOf(u)) != ctx.FromOrg) return false;
             }
             return true;
         }
@@ -767,9 +767,7 @@ namespace PhishGuard
 
         static string HostOf(Uri u)
         {
-            string h;
-            try { h = u.IdnHost; } catch (Exception) { h = u.Host; }
-            return (h ?? "").ToLowerInvariant().Trim('[', ']');
+            return PhishGuard.Domains.HostOf(u);
         }
 
         public static Uri UnwrapUrl(string href, List<string> chain)
@@ -915,7 +913,7 @@ namespace PhishGuard
                     // ms-word:ofe|u|https://… : ouvre un document distant dans Office
                     var inner = Regex.Match(raw, @"https?://[^\s|]+", RegexOptions.IgnoreCase);
                     Uri iu;
-                    string ih = inner.Success && Uri.TryCreate(inner.Value, UriKind.Absolute, out iu) ? PhishGuard.Domains.RegistrableDomain(iu.Host) : "";
+                    string ih = inner.Success && Uri.TryCreate(inner.Value, UriKind.Absolute, out iu) ? PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.HostOf(iu)) : "";
                     if (ih.Length == 0 || !(ctx.Domains.Legit.Contains(ih) || ctx.Domains.CompanyDomains.Contains(ih)))
                         add("link-office-remote", Severity.Medium, L.T("Lien qui ouvre directement un document Office distant"),
                             L.T("Le document s’ouvre dans Word ou Excel sans passer par le navigateur : vérifiez sa provenance avant d’autoriser les macros ou le contenu."), shownEv);

@@ -833,6 +833,15 @@ namespace PhishGuard.Tests
             PhishGuardConfig.PolicySource = null;
             Check("stratégies appliquées au chargement des réglages", merged.Language == "en" && merged.IsLocked("language"));
 
+            // Liens piégés : l'analyse ne doit jamais échouer (noms de serveur invalides, IDN cassés, schémas exotiques)
+            var weird = Base(); weird.FromAddress = "x@inconnu.example"; weird.BodyText = "Voir les liens.";
+            foreach (var h in new[] { "http://xn--/", "http://xn--a-.com/", "https://xn--zz--.example/p", "http://exa\u0000mple.com/", "http://[::1]/", "http://300.300.300.300/",
+                "https://ex%61mple.com/", "http://-start.example/", "http://a..b.example/", "mailto:", "http://\u0430\u0440\u0440\u04cf\u0435.com/", "https://" + new string('a', 300) + ".com/" })
+                weird.Links.Add(new LinkInfo(h, "lien"));
+            string weirdErr = "";
+            try { Analyzer.Analyze(weird, cfg); } catch (Exception ex) { weirdErr = ex.GetType().Name + " " + ex.Message; }
+            Check("liens piégés : aucune exception pendant l'analyse", weirdErr.Length == 0, weirdErr);
+
             var orf = Base(); orf.FromName = "Orange"; orf.FromAddress = "facture@orange.fr"; orf.Subject = "Votre facture est disponible";
             orf.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=mail.orange.fr; dkim=pass header.d=orange.fr;dmarc=pass action=none header.from=orange.fr;compauth=pass reason=100";
             Check("Orange depuis une adresse de service authentifiée", !Ids(Analyzer.Analyze(orf, cfg)).Contains("sender-brand-name"));
