@@ -85,6 +85,7 @@ namespace PhishGuard.Tools
             Application.EnableVisualStyles();
             Capture(new FirstRunForm(new PhishGuardConfig(), "exemple-pme.fr", null, FirstRunForm.Steps), Path.Combine(outDir, "assistant.png"));
             Capture(new SettingsForm(cfg, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres.png"));
+            Capture(new AboutForm(cfg, null), Path.Combine(outDir, "apropos.png"));
             return 0;
         }
 
