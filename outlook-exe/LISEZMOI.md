@@ -26,6 +26,10 @@ l'entreprise, ouvrez `config.ini` avec le Bloc-notes **avant** d'installer :
 | `RedFlagEnabled` | `true` / `false` pour la liste Red Flag Domains |
 | `PublicSectorList` | `true` / `false` pour la liste des domaines du secteur public (DINUM) |
 | `WatchDomains` | Surveillance hebdomadaire des sosies de vos domaines |
+| `InternalRelays` | IP des copieurs et applications qui envoient au nom de l'entreprise |
+
+Pour **imposer** des réglages à tous (GPO ou Intune), utilisez le modèle `policies\PhishGuard.admx` fourni dans ce
+dossier : voir le guide « Déployer PhishGuard en entreprise » sur la page du projet.
 
 Les autres clés sont décrites dans `config.ini`. La liste de domaines malveillants de l'équipe sécurité
 est dans `custom.txt` (un domaine par ligne).

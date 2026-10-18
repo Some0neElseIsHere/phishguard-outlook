@@ -12,6 +12,13 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.15.0** : **déploiement en entreprise** ([guide](https://github.com/Some0neElseIsHere/phishguard-outlook/blob/main/docs/deploiement-entreprise.md)).
+  - **Stratégies de groupe (GPO) et Intune** : modèle `policies\PhishGuard.admx` en français et en anglais dans le zip. Les réglages imposés (adresse de signalement, entreprises, domaines, sources…) sont grisés et l'utilisateur ne peut pas les modifier.
+  - **Mode simple imposé** pour les groupes choisis : plus de bouton « Analyse détaillée » ni de réglages avancés.
+  - **Clés d'API interdites** sur les postes, au choix (une clé lisible par le poste l'est aussi par l'utilisateur).
+  - **Copieurs et applications internes** : déclarez leurs IP (Paramètres → Entreprise en mode expert, ou par stratégie) ; leurs mails au nom de l'entreprise ne sont plus pris pour une usurpation, un mail à votre nom venant d'ailleurs reste critique.
+  - L'option `AllowUserSettings`, contournable, est retirée : `config.ini` fournit les valeurs de départ.
+
 - **v1.14.0** : nouvel onglet **À propos** dans les paramètres : version, liens vers le projet, nouveautés et signalement d'un problème, ce qui sort du poste, sources et licences, bouton « Copier les informations pour le support » (sans donnée personnelle). Quand la configuration est imposée par l'entreprise, le bouton Paramètres devient « À propos » et l'indique. Fenêtre d'analyse allégée : les onglets Observables et Corps sont retirés, les liens de vérification des domaines passent dans En-têtes et URL.
 
 - **v1.13.0** : moins de fausses alertes sur les organismes publics et les autres domaines des marques.
