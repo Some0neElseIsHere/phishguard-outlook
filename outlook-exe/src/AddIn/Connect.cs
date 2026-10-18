@@ -63,6 +63,7 @@ namespace PhishGuard.AddIn
                 Log("Chargement (mode " + ConnectMode + ", .NET " + Environment.Version + ", " + (IntPtr.Size * 8) + " bits)");
                 config = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
                 ApplyRuntimeSettings();
+                ThemeUi.Listen();
                 Blocklists.Init(config, InstallDir);
                 Log("Configuration chargée, listes : " + Blocklists.RedFlagCount + " domaines en cache, analyse auto : " + config.AutoAnalyze);
                 // Chargé après le démarrage d'Outlook (activé à la main) : OnStartupComplete ne sera pas appelé
@@ -83,6 +84,7 @@ namespace PhishGuard.AddIn
             try { if (selectionTimer != null) { selectionTimer.Stop(); selectionTimer.Dispose(); selectionTimer = null; } } catch (Exception) { }
             try { if (alert != null && !alert.IsDisposed) alert.Close(); } catch (Exception) { }
             try { if (form != null) { form.Dispose(); form = null; } } catch (Exception) { }
+            ThemeUi.StopListening();
             ribbons.Clear();
             cache.Clear();
             application = null;

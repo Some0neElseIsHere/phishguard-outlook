@@ -32,6 +32,7 @@ namespace PhishGuard
         public string SharedBlocklistPath = "";  // liste de blocage partagée (ex. \\serveur\partage\phishguard.txt)
         public List<string> TrustedSenders = new List<string>();
         public string Language = "auto";         // auto (langue de Windows), fr ou en
+        public string Theme = "auto";            // auto (thème de Windows), light ou dark
         public List<string> SetupDone = new List<string>();   // étapes de l'assistant de démarrage déjà vues
         public bool SetupKeyPresent;                         // SetupDone trouvé dans config.user.ini
         public bool ExpertMode = false;          // fenêtre d'analyse : false = mode simple (débutants), true = analyse détaillée
@@ -226,6 +227,7 @@ namespace PhishGuard
                     case "sharedblocklistpath": c.SharedBlocklistPath = val; break;
                     case "trustedsenders": c.TrustedSenders = SplitList(val, true); break;
                     case "language": c.Language = val.Trim().ToLowerInvariant(); break;
+                    case "theme": c.Theme = val.Trim().ToLowerInvariant(); break;
                     case "watchdomains": c.WatchDomains = !IsFalse(val); break;
                     case "internalrelays": c.InternalRelays = SplitList(val, false); break;
                     case "forcesimplemode": c.ForceSimpleMode = IsTrue(val); break;
@@ -289,6 +291,7 @@ namespace PhishGuard
             sb.AppendLine("SharedBlocklistPath = " + (SharedBlocklistPath ?? "").Replace("\r", "").Replace("\n", "").Trim());
             sb.AppendLine("TrustedSenders = " + string.Join(", ", TrustedSenders.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("Language = " + Clean(Language));
+            sb.AppendLine("Theme = " + Clean(Theme));
             sb.AppendLine("WatchDomains = " + (WatchDomains ? "true" : "false"));
             if (!IsLocked("internalrelays")) sb.AppendLine("InternalRelays = " + string.Join(", ", InternalRelays.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("ExpertMode = " + (ExpertMode ? "true" : "false"));

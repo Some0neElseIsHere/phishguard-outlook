@@ -96,6 +96,17 @@
         </enum>
       </elements>
     </policy>
+    <policy name="Theme" class="Both" displayName="$(string.Theme)" explainText="$(string.Theme_Help)" key="Software\Policies\PhishGuard" presentation="$(presentation.Theme)">
+      <parentCategory ref="Cat_Usage" />
+      <supportedOn ref="SUPPORTED_PhishGuard" />
+      <elements>
+        <enum id="Theme_Value" valueName="Theme" required="true">
+          <item displayName="$(string.Theme_auto)"><value><string>auto</string></value></item>
+          <item displayName="$(string.Theme_light)"><value><string>light</string></value></item>
+          <item displayName="$(string.Theme_dark)"><value><string>dark</string></value></item>
+        </enum>
+      </elements>
+    </policy>
     <policy name="AlertLevel" class="Both" displayName="$(string.AlertLevel)" explainText="$(string.AlertLevel_Help)" key="Software\Policies\PhishGuard" presentation="$(presentation.AlertLevel)">
       <parentCategory ref="Cat_Usage" />
       <supportedOn ref="SUPPORTED_PhishGuard" />

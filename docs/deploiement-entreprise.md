@@ -56,7 +56,7 @@ fichiers ADMX*, puis créez un profil « Modèles importés » et affectez-le au
 | | Domaines de confiance | `TrustedDomains` |
 | | Liste de blocage partagée | `SharedBlocklistPath` |
 | Affichage et utilisation | Imposer le mode simple | `ForceSimpleMode` |
-| | Langue, alertes à l'écran | `Language`, `AlertLevel` |
+| | Langue, thème des fenêtres, alertes à l'écran | `Language`, `Theme`, `AlertLevel` |
 | | Analyse automatique, déplacer les messages signalés, correspondants connus, journal des scores | `AutoAnalyze`, `MoveAfterReport`, `KnownCorrespondents`, `ScoreLog` |
 | Sources et listes | Autoriser les clés d'API | `AllowApiKeys` |
 | | Red Flag Domains, secteur public, âge des domaines, DNS, crt.sh, OpenPhish, Tranco | `RedFlagEnabled`, `PublicSectorList`, `DomainAgeLookup`, `BetaDnsChecks`, `BetaCertAge`, `BetaOpenPhish`, `BetaTranco` |

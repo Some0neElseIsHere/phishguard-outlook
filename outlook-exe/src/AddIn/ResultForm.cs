@@ -21,7 +21,7 @@ using System.Windows.Forms;
 
 namespace PhishGuard.AddIn
 {
-    internal class ResultForm : Form
+    internal class ResultForm : Form, IThemed
     {
         readonly WebBrowser browser;
         readonly Button btnReport, btnClose, btnTrust, btnSettings, btnMode;
@@ -77,7 +77,7 @@ namespace PhishGuard.AddIn
                 BackColor = Color.White,
                 WrapContents = false
             };
-            bar.Paint += (s, e) => { using (var p = new Pen(Line)) e.Graphics.DrawLine(p, 0, 0, bar.Width, 0); };
+            bar.Paint += (s, e) => { using (var p = new Pen(ThemeUi.Border(Line))) e.Graphics.DrawLine(p, 0, 0, bar.Width, 0); };
 
             btnReport = MakeButton(true);
             btnTrust = MakeButton(false);
@@ -100,6 +100,7 @@ namespace PhishGuard.AddIn
             Controls.Add(status);
             Controls.Add(bar);
             ApplyTexts();
+            ThemeUi.Attach(this);
 
             btnClose.Click += (s, e) => Hide();
             btnReport.Click += (s, e) => Raise(ReportRequested);
@@ -112,6 +113,12 @@ namespace PhishGuard.AddIn
                 if (result != null) ShowResult(result, email, lastListStatus, lastShowExplanations, false);
             };
             FormClosing += (s, e) => { if (e.CloseReason == CloseReason.UserClosing) { e.Cancel = true; Hide(); } };
+        }
+
+        /// <summary>Le thème de Windows a changé : la page est reconstruite avec les nouvelles couleurs.</summary>
+        public void ThemeChanged()
+        {
+            if (result != null && Visible) ShowResult(result, email, lastListStatus, lastShowExplanations, false);
         }
 
         void Raise(EventHandler h)
@@ -184,7 +191,7 @@ namespace PhishGuard.AddIn
         /// <summary>Mise à jour silencieuse (résultats externes arrivés) : sans prendre le focus.</summary>
         public void RefreshResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations)
         {
-            if (!Visible || Signature(r) + "|" + Expert == shownSignature) return;
+            if (!Visible || Signature(r) + "|" + Expert + "|" + Theme.Dark == shownSignature) return;
             ShowResult(r, e, listStatus, showExplanations, false);
         }
 
@@ -197,7 +204,7 @@ namespace PhishGuard.AddIn
         {
             result = r; email = e;
             lastListStatus = listStatus; lastShowExplanations = showExplanations;
-            shownSignature = Signature(r) + "|" + Expert;
+            shownSignature = Signature(r) + "|" + Expert + "|" + Theme.Dark;
             ApplyTexts();
             btnTrust.Visible = r.Level != "safe";
             status.Text = Expert ? listStatus : "";
@@ -344,7 +351,7 @@ namespace PhishGuard.AddIn
             string color = level == "dangerous" ? "#c4262e" : level == "suspicious" ? "#d47b00" : "#13804a";
             var ci = System.Globalization.CultureInfo.InvariantCulture;
             return "<div class='gauge'><svg width='72' height='72' viewBox='0 0 96 96'>"
-                + "<circle cx='48' cy='48' r='40' fill='#fff' stroke='#e7ebf0' stroke-width='8'/>"
+                + "<circle cx='48' cy='48' r='40' fill='" + Theme.Hex("#fff", Theme.Kind.Back) + "' stroke='" + Theme.Hex("#e7ebf0", Theme.Kind.Border) + "' stroke-width='8'/>"
                 + "<circle cx='48' cy='48' r='40' fill='none' stroke='" + color + "' stroke-width='8' stroke-linecap='round' "
                 + "stroke-dasharray='" + len.ToString("0.##", ci) + " " + c.ToString("0.##", ci) + "' transform='rotate(-90 48 48)'/>"
                 + "</svg><div class='num'>" + score + "</div><div class='of'>/ 100</div></div>";
@@ -355,7 +362,7 @@ namespace PhishGuard.AddIn
             var d = r.Details ?? new HeaderDetails();
             var sb = new StringBuilder();
             sb.Append("<!DOCTYPE html><html><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'>");
-            sb.Append("<style>" + Css + "</style><script>" + Script + "</script></head><body>");
+            sb.Append("<style>" + Theme.Css(Css) + "</style><script>" + Script + "</script></head><body>");
 
             int nUrls = r.Urls.Count, nAtt = r.Attachments.Count, nHops = d.Hops.Count;
             var allVisible = r.Findings.Where(f => f.Severity != Severity.Info).ToList();

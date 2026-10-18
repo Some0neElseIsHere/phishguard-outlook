@@ -52,6 +52,13 @@ Registry value: Software\Policies\PhishGuard\Language</string>
       <string id="Language_auto">Automatic (Windows language)</string>
       <string id="Language_fr">French</string>
       <string id="Language_en">English</string>
+      <string id="Theme">Window theme</string>
+      <string id="Theme_Help">Colors of the PhishGuard windows. Automatic: follows the light or dark mode chosen in Windows (Settings, Personalization, Colors).
+
+Registry value: Software\Policies\PhishGuard\Theme</string>
+      <string id="Theme_auto">Automatic (Windows theme)</string>
+      <string id="Theme_light">Light</string>
+      <string id="Theme_dark">Dark</string>
       <string id="AlertLevel">On-screen alerts</string>
       <string id="AlertLevel_Help">Messages for which an alert is shown at the bottom right of the screen.
 
@@ -118,6 +125,7 @@ Registry value: Software\Policies\PhishGuard\BetaTranco</string>
       <presentation id="TrustedDomains"><textBox refId="TrustedDomains_Value"><label>Trusted domains</label></textBox></presentation>
       <presentation id="SharedBlocklistPath"><textBox refId="SharedBlocklistPath_Value"><label>Shared blocklist</label></textBox></presentation>
       <presentation id="Language"><dropdownList refId="Language_Value" noSort="true">Interface language</dropdownList></presentation>
+      <presentation id="Theme"><dropdownList refId="Theme_Value" noSort="true">Window theme</dropdownList></presentation>
       <presentation id="AlertLevel"><dropdownList refId="AlertLevel_Value" noSort="true">On-screen alerts</dropdownList></presentation>
     </presentationTable>
   </resources>

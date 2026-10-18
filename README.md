@@ -153,6 +153,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `VipNames` | Dirigeants (anciennes versions : repris dans la première entreprise) | — |
 | `ReportAddress` | Adresse de l'équipe sécurité pour **Signaler** | — |
 | `Language` | `auto` (langue de Windows), `fr` ou `en` | `auto` |
+| `Theme` | `auto` (mode clair ou sombre de Windows), `light` ou `dark` | `auto` |
 | `TrustedDomains`, `TrustedSenders` | Domaines et adresses de confiance | — |
 | `AutoAnalyze` | Score automatique du message sélectionné | `true` |
 | `AlertLevel` | `dangerous`, `suspicious` ou `none` | `dangerous` |
