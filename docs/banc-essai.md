@@ -9,6 +9,8 @@ Le banc se relance à tout moment depuis l'onglet **Actions** du dépôt (workfl
 | Corpus | Contenu | Messages |
 |---|---|---|
 | [Corpus de phishing de Jose Nazario](https://monkey.org/~jose/phishing/) | vrais phishings reçus de 2020 à 2025 (identifiants, fausses factures, colis, messagerie…) | 1 807 |
+| [phishing_pot](https://github.com/rf-peixoto/phishing_pot) | vrais phishings et arnaques capturés par des pièges à spam, 2023 à 2026, en plusieurs langues (adresses des victimes remplacées par `phishing@pot`) | 12 271 |
+| [SPAM Archive](https://untroubled.org/spam) (Bruce Guenter) | spam reçu de juin à octobre 2026, échantillon régulier | 3 000 |
 | Listes de diffusion Apache (10 listes, juin à septembre 2025) | messages légitimes récents avec en-têtes d'authentification modernes : développeurs, utilisateurs (souvent depuis Gmail ou Outlook.com), annonces | 4 459 |
 | Cas difficiles (`outlook-exe/tests/legitimes`) | mails légitimes français qui ressemblent à du phishing : factures, colis, codes de vérification, réinitialisation de mot de passe, partages OneDrive et Google Drive, DocuSign, Yousign, impots.gouv, ameli, newsletters, fournisseurs | 41 |
 | [SpamAssassin public corpus](https://spamassassin.apache.org/old/publiccorpus/) (easy_ham, easy_ham_2, hard_ham) | messages légitimes de 2002 et 2003, dont des newsletters commerciales (hard_ham) | 4 150 |
@@ -49,6 +51,13 @@ v1.11.0 était à 5,1 % sur ce corpus élargi.
 
 **Cas difficiles** : 17 fausses alertes sur 40 en v1.11.0, **aucune** en v1.12.0 (le changement de RIB reste orange,
 comme attendu). 11 de ces mails obtiennent « Expéditeur vérifié ».
+
+**Nouveaux corpus (v1.15.1)** : sur les **12 271 phishings récents de phishing_pot**, PhishGuard en signale **78,2 %**,
+dont **47,7 % en rouge**, soit les mêmes taux que sur le corpus de Nazario, sans aucun réglage spécifique : le barème
+n'est pas sur-ajusté à un corpus. 46 % de ces messages datent de 2026. Les messages manqués sont surtout des
+arnaques commerciales (faux bons d'achat, loteries, faux produits) envoyées depuis des domaines authentifiés, sans
+demande d'identifiants. Sur le **spam 2026**, 88 % des messages sont signalés, mais seulement 11 % en rouge : c'est
+voulu, un spam publicitaire n'est pas un phishing.
 
 Détection par année (v1.11.0) : 2020 90 %, 2021 85 %, 2022 76 %, 2023 86 %, 2024 78 %, 2025 74 %.
 
@@ -103,6 +112,15 @@ Détection par année (v1.11.0) : 2020 90 %, 2021 85 %, 2022 76 %, 2023 86 %, 20
   au barème actuel, en plus compliqué. Écarté.
 - **Règle « tromperie sur l'identité + demande d'action = rouge »** : +2 points de rouges, mais deux fois plus de
   fausses alertes rouges. Écarté.
+
+## Robustesse et rapidité (v1.15.1)
+
+Les 12 271 messages de phishing_pot ont aussi servi de test de robustesse : un lien dont le nom de serveur est invalide
+faisait échouer la lecture de l'adresse, et pouvait faire échouer l'analyse. Le nom de serveur est désormais lu sans
+exception partout, et un test passe en revue une série de liens piégés. Les expressions régulières construites à
+chaque message (mots-clés, noms de marques) ont été remplacées par une recherche directe ou mises en cache : le
+message le plus lent passe de 4,6 s à 0,6 s, et l'ensemble du banc (plus de 25 000 messages) de plus de 30 minutes à 9.
+Le banc impose un délai maximal de 3 secondes à chaque expression régulière : aucun message n'a déclenché ce délai.
 
 ## Ce qui reste manqué
 
