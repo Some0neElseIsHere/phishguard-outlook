@@ -1,4 +1,4 @@
-# PhishGuard : détecteur de phishing gratuit pour Outlook
+﻿# PhishGuard : détecteur de phishing gratuit pour Outlook
 
 [![Dernière version](https://img.shields.io/github/v/release/Some0neElseIsHere/phishguard-outlook?label=version)](../../releases/latest)
 [![Téléchargements](https://img.shields.io/github/downloads/Some0neElseIsHere/phishguard-outlook/total?label=t%C3%A9l%C3%A9chargements)](../../releases)
@@ -219,7 +219,8 @@ rapport détaillé partent à l'adresse de votre équipe sécurité, et le messa
 
 **PhishGuard détecte-t-il vraiment les phishings ?**
 Le moteur est testé sur de vrais emails publics : hors ligne, il signale **80 % des phishings** d'un corpus de
-1 800 attaques réelles (2020-2025), avec **1 % de fausses alertes** sur des messages légitimes récents. Sur un vrai
+1 800 attaques réelles (2020-2025), avec **3 % de fausses alertes** sur 4 400 messages légitimes récents et
+aucune sur 40 vrais-faux pièges (factures, colis, codes de vérification, partages DocuSign ou OneDrive…). Sur un vrai
 poste, l'âge des domaines et les listes de sites malveillants en détectent davantage. Méthode et chiffres :
 [docs/banc-essai.md](docs/banc-essai.md).
 

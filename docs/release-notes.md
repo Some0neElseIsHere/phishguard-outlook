@@ -12,6 +12,11 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.12.0** : moins de fausses alertes sur les vrais mails, mesuré sur 41 mails légitimes « difficiles » (factures, colis, codes de vérification, partages, DocuSign, impots.gouv…) et 4 459 mails de listes de diffusion récentes ([banc d'essai](https://github.com/Some0neElseIsHere/phishguard-outlook/blob/main/docs/banc-essai.md)) : 17 fausses alertes sur 40 → **0**, détection des phishings inchangée (80 %).
+  - Un mail authentifié sur le domaine officiel d'une marque (Microsoft, LinkedIn, EDF, La Poste…) n'est plus pénalisé pour parler de mot de passe ou de paiement ; il peut obtenir « Expéditeur vérifié ».
+  - DocuSign, Google Drive, OneDrive : l'adresse de réponse de la personne qui partage n'est plus suspecte… mais un partage dont le titre imite une alerte de compte est désormais signalé.
+  - Domaines officiels ajoutés (Colissimo, Chronopost, DGFiP, ameli, SharePoint, Yousign, Doctolib) ; « facture@orange.fr » reconnu.
+
 - **v1.11.0** : barème vérifié sur de vrais emails publics (1 800 phishings, 4 700 messages légitimes, voir [docs/banc-essai.md](https://github.com/Some0neElseIsHere/phishguard-outlook/blob/main/docs/banc-essai.md)). Détection : 73 % → **80 %** des phishings ; fausses alertes sur les messages légitimes récents : 46 % → **1 %**.
   - Les listes de diffusion ne déclenchent plus « Reply-To » ni « premier contact ».
   - Nouveaux indices : fausses alertes de messagerie (messages bloqués, boîte pleine, mot de passe qui expire) et votre adresse email dans l'objet.
