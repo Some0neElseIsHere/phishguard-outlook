@@ -1291,7 +1291,11 @@ namespace PhishGuard
             }
 
             bool cred = hits["credentials"].Count > 0, urg = hits["urgency"].Count > 0, fin = hits["financial"].Count > 0, sec = hits["secrecy"].Count > 0;
-            bool mailbox = hits["mailbox"].Count > 0;
+            bool mailbox = hits["mailbox"].Count > 0, account = hits["account"].Count > 0;
+            // Vrai partage (Google Drive, OneDrive, DocuSign…) dont le titre est une fausse alerte : le message est authentique, le document est le piège
+            if (ctx.Platform && (account || mailbox || cred))
+                findings.Add(new Finding("content-combo-platform", "content", Severity.High, L.T("Document partagé qui imite une alerte de sécurité"),
+                    L.T("Les escrocs partagent un document depuis un vrai service (Google Drive, OneDrive, DocuSign…) dont le titre est une fausse alerte de compte. Le message est authentique, le document est un piège."), null));
             if (mailbox && (cred || urg))
                 findings.Add(new Finding("content-combo-mailbox", "content", Severity.High, L.T("Fausse alerte de votre messagerie"),
                     L.T("Messages bloqués, boîte pleine, mot de passe qui expire : prétexte n° 1 pour voler les identifiants. Votre service informatique ne vous demande jamais de vous reconnecter par un lien."), null));

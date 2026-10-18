@@ -561,6 +561,8 @@ namespace PhishGuard
             { "Nom de fichier rempli d’espaces pour cacher l’extension", "File name padded with spaces to hide the extension" },
             { "« ", "“" },
             { " »", "”" },
+            { "Document partagé qui imite une alerte de sécurité", "Shared document imitating a security alert" },
+            { "Les escrocs partagent un document depuis un vrai service (Google Drive, OneDrive, DocuSign…) dont le titre est une fausse alerte de compte. Le message est authentique, le document est un piège.", "Scammers share a document from a genuine service (Google Drive, OneDrive, DocuSign…) whose title is a fake account alert. The message is genuine; the document is the trap." },
             { "Fausse alerte de votre messagerie", "Fake alert from your mailbox" },
             { "Messages bloqués, boîte pleine, mot de passe qui expire : prétexte n° 1 pour voler les identifiants. Votre service informatique ne vous demande jamais de vous reconnecter par un lien.", "Blocked messages, full mailbox, expiring password: the number one pretext for stealing credentials. Your IT department never asks you to sign in again through a link." },
             { "Votre adresse email figure dans l’objet", "Your email address appears in the subject" },
@@ -907,6 +909,7 @@ namespace PhishGuard
             { "Demande de discrétion (fraude au président)", "Request for secrecy (CEO fraud)" },
             { "Prétexte classique d’hameçonnage", "Classic phishing pretext" },
             { "Prétexte autour de votre messagerie", "Mailbox-related pretext" },
+            { "Fausse alerte de sécurité du compte", "Fake account security alert" },
             { "Invitation à scanner un QR code", "Invitation to scan a QR code" },
         };
     }
