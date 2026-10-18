@@ -719,6 +719,32 @@ namespace PhishGuard.Tests
             var rtech = Analyzer.Analyze(tech, cfg);
             Check("liste technique : localhost et adresse .invalid ne sont pas des indices", rtech.Level == "safe" && !Ids(rtech).Any(i => i.StartsWith("link-") || i.Contains("lookalike")),
                 rtech.Level + " " + string.Join(",", Ids(rtech).ToArray()));
+            // Vrai code de connexion (service inconnu, boîte Orange : DMARC dans ARC) et ses imitations
+            Func<string, EmailData> riot = link =>
+            {
+                var m = Base(); m.FromName = "Riot Games"; m.FromAddress = "noreply@mail.accounts.riotgames.com"; m.Subject = "Login Code: 360928";
+                m.RawHeaders = "Authentication-Results: opmta1mti36nd1;\r\n\tarc=none;\r\n\tdkim=pass header.d=mail.accounts.riotgames.com\r\n"
+                    + "ARC-Authentication-Results: i=1; opmta1mti36nd1; spf=pass smtp.mailfrom=bounces@sg.mail.accounts.riotgames.com; dkim=pass header.d=mail.accounts.riotgames.com; dmarc=pass header.from=mail.accounts.riotgames.com\r\n"
+                    + "To: claire.martin@orange.fr";
+                m.BodyText = "Here's your sign-in code: 360928. This code will expire soon. If this request did not come from you, change your account password immediately to prevent further unauthorized access.";
+                m.Links.Add(new LinkInfo(link, "Account Management"));
+                return m;
+            };
+            Correspondents.Set(new[] { "client@client-connu.fr" }, false);
+            var rriot = Analyzer.Analyze(riot("https://links.riotgames.com/ls/click?upn=abc"), cfg);
+            Check("vrai code de connexion (anglais) = vert", rriot.Level == "safe" && Ids(rriot).Contains("content-code-message") && !Ids(rriot).Contains("content-combo-cred"),
+                rriot.Level + " " + rriot.Score + " " + string.Join(",", Ids(rriot).ToArray()));
+            var rriotEvil = Analyzer.Analyze(riot("https://riot-account-secure.example/login"), cfg);
+            Check("même texte avec un lien vers un autre site = alerte", rriotEvil.Level != "safe" && !Ids(rriotEvil).Contains("content-code-message"), rriotEvil.Level + " " + rriotEvil.Score);
+            var vin = Base(); vin.FromName = "Vinted"; vin.FromAddress = "no-reply@vinted.fr"; vin.Subject = "Votre code de vérification Vinted";
+            vin.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=bounce.vinted.fr; dkim=pass header.d=vinted.fr;dmarc=pass action=none header.from=vinted.fr;compauth=pass reason=100";
+            vin.BodyText = "Voici votre code de vérification : 482 913. Si vous n’êtes pas à l’origine de cette demande, modifiez immédiatement votre mot de passe.";
+            vin.Links.Add(new LinkInfo("https://www.vinted.fr/help", "Centre d’aide"));
+            var rvin = Analyzer.Analyze(vin, cfg);
+            Check("vrai code de vérification (français) = vert", rvin.Level == "safe" && Ids(rvin).Contains("content-code-message"), rvin.Level + " " + rvin.Score);
+            vin.Attachments.Add(new AttachmentInfo { Name = "verification.html", ContentType = "text/html" });
+            Check("même message avec une pièce jointe : plus de passe-droit", !Ids(Analyzer.Analyze(vin, cfg)).Contains("content-code-message"));
+            Correspondents.Reset();
             var orf = Base(); orf.FromName = "Orange"; orf.FromAddress = "facture@orange.fr"; orf.Subject = "Votre facture est disponible";
             orf.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=mail.orange.fr; dkim=pass header.d=orange.fr;dmarc=pass action=none header.from=orange.fr;compauth=pass reason=100";
             Check("Orange depuis une adresse de service authentifiée", !Ids(Analyzer.Analyze(orf, cfg)).Contains("sender-brand-name"));

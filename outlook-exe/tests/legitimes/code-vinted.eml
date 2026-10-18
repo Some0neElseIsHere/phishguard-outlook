@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.193) smtp.mailfrom=bounce.vinted.fr; dkim=pass (signature was verified) header.d=vinted.fr;dmarc=pass action=none header.from=vinted.fr;compauth=pass reason=100
+Received: from mail.bounce.vinted.fr (198.51.100.89) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Vinted <no-reply@vinted.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_code_de_v=C3=A9rification_Vinted?=
+Date: Sun, 03 May 2026 09:06:00 +0200
+Message-ID: <31e64ea4b161281e6b9c4840be965cf0@bounce.vinted.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: code-vinted
+Content-Type: multipart/mixed; boundary="=_pg_31e64ea4b1"
+
+--=_pg_31e64ea4b1
+Content-Type: multipart/alternative; boundary="alt=_pg_31e64ea4b1"
+
+--alt=_pg_31e64ea4b1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBjbGFpcmVfbSwKClZvaWNpIHZvdHJlIGNvZGUgZGUgdsOpcmlmaWNhdGlvbiA6IDQ4
+MiA5MTMuIElsIGV4cGlyZSBkYW5zIDEwIG1pbnV0ZXMuCgpTaSB2b3VzIG4nw6p0ZXMgcGFzIMOg
+IGwnb3JpZ2luZSBkZSBjZXR0ZSBkZW1hbmRlLCBtb2RpZmlleiBpbW3DqWRpYXRlbWVudAp2b3Ry
+ZSBtb3QgZGUgcGFzc2UgZXQgbmUgY29tbXVuaXF1ZXogY2UgY29kZSDDoCBwZXJzb25uZS4KCkNl
+bnRyZSBkJ2FpZGUgOiBodHRwczovL3d3dy52aW50ZWQuZnIvaGVscA==
+--alt=_pg_31e64ea4b1
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIGNsYWlyZV9t
+LDwvcD48cD5Wb2ljaSB2b3RyZSBjb2RlIGRlIHbDqXJpZmljYXRpb24gOiA8Yj40ODIgOTEzPC9i
+Pi4gSWwgZXhwaXJlIGRhbnMgMTAgbWludXRlcy48L3A+PHA+U2kgdm91cyBuJ8OqdGVzIHBhcyDD
+oCBsJ29yaWdpbmUgZGUgY2V0dGUgZGVtYW5kZSwgbW9kaWZpZXogaW1tw6lkaWF0ZW1lbnQgdm90
+cmUgbW90IGRlIHBhc3NlIGV0IG5lIGNvbW11bmlxdWV6IGNlIGNvZGUgw6AgcGVyc29ubmUuPC9w
+PjxwPjxhIGhyZWY9Imh0dHBzOi8vd3d3LnZpbnRlZC5mci9oZWxwIj5DZW50cmUgZCdhaWRlPC9h
+PjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_31e64ea4b1--
+--=_pg_31e64ea4b1--

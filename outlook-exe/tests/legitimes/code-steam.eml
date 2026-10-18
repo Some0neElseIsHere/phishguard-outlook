@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.124) smtp.mailfrom=bounce.steampowered.com; dkim=pass (signature was verified) header.d=steampowered.com;dmarc=pass action=none header.from=steampowered.com;compauth=pass reason=100
+Received: from mail.bounce.steampowered.com (198.51.100.125) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Steam <noreply@steampowered.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Your_Steam_account=3A_Access_from_new_computer?=
+Date: Sat, 28 Feb 2026 14:29:00 +0200
+Message-ID: <36a01d0c27fda3de850575164d5e7ae4@bounce.steampowered.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: code-steam
+Content-Type: multipart/mixed; boundary="=_pg_36a01d0c27"
+
+--=_pg_36a01d0c27
+Content-Type: multipart/alternative; boundary="alt=_pg_36a01d0c27"
+
+--alt=_pg_36a01d0c27
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+RGVhciBjbGFpcmVfbSwKCkhlcmUgaXMgdGhlIGxvZ2luIGNvZGUgeW91IG5lZWQgdG8gc2lnbiBp
+biB0byB5b3VyIGFjY291bnQ6IDU4MjEzCgpJZiB5b3UgYXJlIG5vdCBhdHRlbXB0aW5nIHRvIGxv
+ZyBpbiwgcGxlYXNlIGNoYW5nZSB5b3VyIFN0ZWFtIHBhc3N3b3JkCmltbWVkaWF0ZWx5IGFuZCBj
+b25zaWRlciBjaGFuZ2luZyB5b3VyIGVtYWlsIHBhc3N3b3JkIGFzIHdlbGwuCgpTdGVhbSBTdXBw
+b3J0IDogaHR0cHM6Ly9oZWxwLnN0ZWFtcG93ZXJlZC5jb20vZW4vd2l6YXJkL0hlbHBXaXRoTG9n
+aW5JbmZv
+--alt=_pg_36a01d0c27
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5EZWFyIGNsYWlyZV9tLDwv
+cD48cD5IZXJlIGlzIHRoZSBsb2dpbiBjb2RlIHlvdSBuZWVkIHRvIHNpZ24gaW4gdG8geW91ciBh
+Y2NvdW50OiA8Yj41ODIxMzwvYj48L3A+PHA+SWYgeW91IGFyZSBub3QgYXR0ZW1wdGluZyB0byBs
+b2cgaW4sIHBsZWFzZSBjaGFuZ2UgeW91ciBTdGVhbSBwYXNzd29yZCBpbW1lZGlhdGVseSBhbmQg
+Y29uc2lkZXIgY2hhbmdpbmcgeW91ciBlbWFpbCBwYXNzd29yZCBhcyB3ZWxsLjwvcD48cD48YSBo
+cmVmPSJodHRwczovL2hlbHAuc3RlYW1wb3dlcmVkLmNvbS9lbi93aXphcmQvSGVscFdpdGhMb2dp
+bkluZm8iPlN0ZWFtIFN1cHBvcnQ8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_36a01d0c27--
+--=_pg_36a01d0c27--
