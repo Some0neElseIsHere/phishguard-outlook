@@ -705,6 +705,12 @@ namespace PhishGuard.Tests
             ds.ReplyTo.Add("contact@cabinet-lefevre.fr"); ds.BodyText = "Cabinet Lefèvre vous a envoyé un document à signer via DocuSign.";
             var rds = Analyzer.Analyze(ds, cfg);
             Check("plateforme de signature : Reply-To faible, vert", rds.Level == "safe" && rds.Findings.Any(f => f.Id == "sender-replyto" && f.Severity == Severity.Low), rds.Level + " " + rds.Score);
+            var gd = Base(); gd.FromName = "Inconnu (via Google Drive)"; gd.FromAddress = "drive-shares-dm-noreply@google.com";
+            gd.Subject = "Item shared with you: \"We Have Limited Your Login ID Due to Unrecognized Sign-In\"";
+            gd.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=google.com; dkim=pass header.d=google.com;dmarc=pass action=none header.from=google.com;compauth=pass reason=100\r\nReply-To: attaquant@exemple-inconnu.example";
+            gd.ReplyTo.Add("attaquant@exemple-inconnu.example"); gd.BodyText = "Inconnu a partagé un document avec vous.";
+            var rgd = Analyzer.Analyze(gd, cfg);
+            Check("vrai partage Google Drive dont le titre est une fausse alerte = alerte", rgd.Level != "safe" && Ids(rgd).Contains("content-combo-platform"), rgd.Level + " " + string.Join(",", Ids(rgd).ToArray()));
             var orf = Base(); orf.FromName = "Orange"; orf.FromAddress = "facture@orange.fr"; orf.Subject = "Votre facture est disponible";
             orf.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=mail.orange.fr; dkim=pass header.d=orange.fr;dmarc=pass action=none header.from=orange.fr;compauth=pass reason=100";
             Check("Orange depuis une adresse de service authentifiée", !Ids(Analyzer.Analyze(orf, cfg)).Contains("sender-brand-name"));
