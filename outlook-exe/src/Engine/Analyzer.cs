@@ -66,6 +66,7 @@ namespace PhishGuard
             public bool RelationProof;   // relation établie avec vous : correspondant connu, réponse à votre message, expéditeur de confiance
             public bool BulkCompliant;   // envoi en nombre conforme (désabonnement en un clic + DMARC)
             public bool BrandSender;     // authentifié sur le domaine officiel d'une marque (hors messageries gratuites et plateformes)
+            public bool CodeMessage;     // vrai message de code (connexion, vérification) : authentifié, liens chez l'expéditeur
             public bool MailingList;     // message adressé à une liste de diffusion dont vous êtes membre
             public bool Platform;        // plateforme qui relaie les messages de ses clients (partage, signature…), authentifiée
         }
@@ -101,7 +102,7 @@ namespace PhishGuard
                     if (f.Category == "content" && f.Severity == Severity.Low) f.Severity = Severity.Info;
 
             // Domaine officiel d'une marque, authentifié : le texte (code, facture, mot de passe) est celui de la marque elle-même
-            if (ctx.BrandSender)
+            if (ctx.BrandSender || ctx.CodeMessage)
                 foreach (var f in findings)
                     if (f.Category == "content" && f.Severity != Severity.Critical)
                         f.Severity = f.Severity > Severity.Low ? Severity.Low : Severity.Info;
@@ -186,6 +187,31 @@ namespace PhishGuard
             string org = PhishGuard.Domains.RegistrableDomain(fromDomain ?? "");
             if (org == "google.com") return !(fromDomain ?? "").Equals("accounts.google.com", StringComparison.OrdinalIgnoreCase);
             return Lists.PlatformSenders.Contains(org);
+        }
+
+        // « code : 360928 », « Login Code: 360 928 », « votre code de vérification est 4829 13 »
+        static readonly Regex CodeRe = new Regex(@"\b(code|codes|otp|pin|passcode|one-time password|mot de passe a usage unique)\b[^0-9]{0,40}?(?<![0-9])(\d{3}[ -]?\d{3}|\d{4,8})(?![0-9])", RegexOptions.IgnoreCase);
+
+        /// <summary>Vrai message de code : il contient un code, est authentifié sur le domaine affiché, ne présente aucun indice
+        /// d'usurpation (sosie, nom de marque, Reply-To…) et tous ses liens mènent au domaine de l'expéditeur. Un phishing,
+        /// lui, a besoin d'envoyer la victime ailleurs.</summary>
+        static bool IsCodeMessage(EmailData e, string normText, Ctx ctx, List<Finding> findings)
+        {
+            if (!ctx.AuthProof || ctx.Platform || ctx.Internal || ctx.FromOrg.Length == 0) return false;
+            if (!CodeRe.IsMatch(normText)) return false;
+            if (findings.Any(f => (f.Category == "sender" || f.Category == "auth" || f.Category == "links" || f.Category == "attachments") && f.Severity >= Severity.Medium)) return false;
+            if (findings.Any(f => f.Id.Contains("new-domain") || f.Id.Contains("blocklist"))) return false;   // domaine récent ou listé : un vrai service n'en a pas
+            if (e.HasForm || e.HasPasswordInput) return false;
+            if (e.Attachments.Any(a => !(a.IsInline && a.IsImage))) return false;
+            foreach (var l in e.Links)
+            {
+                string href = (l.Href ?? "").Trim();
+                if (href.Length == 0 || href.StartsWith("#") || href.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase) || href.StartsWith("tel:", StringComparison.OrdinalIgnoreCase)) continue;
+                Uri u;
+                if (!Uri.TryCreate(href, UriKind.Absolute, out u) || (u.Scheme != "https" && u.Scheme != "http")) return false;
+                if (PhishGuard.Domains.RegistrableDomain(u.Host) != ctx.FromOrg) return false;
+            }
+            return true;
         }
 
         static bool IsLocalHost(string host)
@@ -1309,11 +1335,20 @@ namespace PhishGuard
 
             bool cred = hits["credentials"].Count > 0, urg = hits["urgency"].Count > 0, fin = hits["financial"].Count > 0, sec = hits["secrecy"].Count > 0;
             bool mailbox = hits["mailbox"].Count > 0, account = hits["account"].Count > 0;
+            // Message qui DONNE un code de connexion ou de vérification : son avertissement habituel (« si ce n'est pas vous,
+            // changez immédiatement votre mot de passe ») n'est pas une demande d'identifiants
+            ctx.CodeMessage = IsCodeMessage(e, subject + " " + body, ctx, findings);
+            if (ctx.CodeMessage)
+            {
+                ctx.Trust.Add(L.T("Code de connexion ou de vérification authentifié, dont tous les liens restent chez l’expéditeur"));
+                findings.Add(new Finding("content-code-message", "content", Severity.Info, L.T("Message qui vous donne un code de connexion ou de vérification"),
+                    L.T("Authentifié, sans lien vers un autre site : c’est un vrai code. Ne le communiquez jamais à personne, même à quelqu’un qui se présente comme le support."), null));
+            }
             // Vrai partage (Google Drive, OneDrive, DocuSign…) dont le titre est une fausse alerte : le message est authentique, le document est le piège
             if (ctx.Platform && (account || mailbox || cred))
                 findings.Add(new Finding("content-combo-platform", "content", Severity.High, L.T("Document partagé qui imite une alerte de sécurité"),
                     L.T("Les escrocs partagent un document depuis un vrai service (Google Drive, OneDrive, DocuSign…) dont le titre est une fausse alerte de compte. Le message est authentique, le document est un piège."), null));
-            if (mailbox && (cred || urg))
+            if (mailbox && (cred || urg) && !ctx.CodeMessage)
                 findings.Add(new Finding("content-combo-mailbox", "content", Severity.High, L.T("Fausse alerte de votre messagerie"),
                     L.T("Messages bloqués, boîte pleine, mot de passe qui expire : prétexte n° 1 pour voler les identifiants. Votre service informatique ne vous demande jamais de vous reconnecter par un lien."), null));
 
@@ -1337,7 +1372,7 @@ namespace PhishGuard
                             L.T("Un expéditeur qui vous connaît utilise votre nom, pas votre adresse."), new[] { greet }));
                 }
             }
-            if (cred && urg)
+            if (cred && urg && !ctx.CodeMessage)
                 findings.Add(new Finding("content-combo-cred", "content", Severity.High, L.T("Demande d’identifiants sous pression"),
                     L.T("Un vrai service ne vous demande jamais de vous reconnecter « en urgence » par email."), null));
             if (fin && (sec || urg))
@@ -1346,7 +1381,7 @@ namespace PhishGuard
             if (ctx.IsFreemail && (fin || cred) && !ctx.MailingList)
                 findings.Add(new Finding("content-freemail-request", "content", Severity.Medium, L.T("Demande sensible envoyée depuis une messagerie gratuite"),
                     L.T("Une banque, une administration ou un fournisseur n’écrit pas depuis Gmail, Outlook.com ou Orange."), null));
-            if (ctx.FirstContact && (fin || cred) && !ctx.BrandSender)
+            if (ctx.FirstContact && (fin || cred) && !ctx.BrandSender && !ctx.CodeMessage)
                 findings.Add(new Finding("content-first-contact-request", "content", Severity.Medium, L.T("Demande sensible dès le premier message"),
                     L.T("Un inconnu qui demande un paiement ou des identifiants dès son premier email : prudence maximale."), null));
 

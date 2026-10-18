@@ -1,0 +1,59 @@
+Authentication-Results: opmta1mti36nd1;
+	arc=none;
+	dkim=pass header.d=mail.accounts.riotgames.com header.b=tIbvD503
+ARC-Authentication-Results: i=1; opmta1mti36nd1; spf=pass (opmta1mti36nd1: domain of bounces@sg.mail.accounts.riotgames.com designates 149.72.148.222 as permited sender) smtp.mailfrom=bounces@sg.mail.accounts.riotgames.com;
+	arc=none;
+	dkim=pass header.d=mail.accounts.riotgames.com header.b=tIbvD503;
+	dmarc=pass header.from=mail.accounts.riotgames.com
+X-me-spamlevel: not-spam
+Received: from mail.bounce.riotgames.com (198.51.100.33) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Riot Games <noreply@mail.accounts.riotgames.com>
+To: claire.martin@orange.fr
+Subject: =?utf-8?q?Login_Code=3A_360928?=
+Date: Sat, 20 Jun 2026 12:30:00 +0200
+Message-ID: <090624f4edb15857d2d2481ab41a4a4e@bounce.riotgames.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: code-riot-orange
+Content-Type: multipart/mixed; boundary="=_pg_090624f4ed"
+
+--=_pg_090624f4ed
+Content-Type: multipart/alternative; boundary="alt=_pg_090624f4ed"
+
+--alt=_pg_090624f4ed
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+U2lnbi1pbiBDb2RlCgpIZXJlJ3MgeW91ciBzaWduLWluIGNvZGU6CgozNjA5MjgKClRoaXMgY29k
+ZSB3aWxsIGV4cGlyZSBzb29uLgoKVmlzaXQgQWNjb3VudCBNYW5hZ2VtZW50IHRvIHVuZW5yb2xs
+IGFueSBhdXRoZW50aWNhdGlvbiBmYWN0b3JzIHlvdSBubwpsb25nZXIgbmVlZC4KCklmIHRoaXMg
+cmVxdWVzdCBkaWQgbm90IGNvbWUgZnJvbSB5b3UsIGNoYW5nZSB5b3VyIGFjY291bnQgcGFzc3dv
+cmQKaW1tZWRpYXRlbHkgdG8gcHJldmVudCBmdXJ0aGVyIHVuYXV0aG9yaXplZCBhY2Nlc3MuIFJl
+YWQgUHJvdGVjdGluZyBZb3VyCkFjY291bnQgZm9yIHRpcHMgb24gcGFzc3dvcmQgc3RyZW5ndGgu
+CgpBY2NvdW50IE1hbmFnZW1lbnQgOiBodHRwczovL2xpbmtzLnJpb3RnYW1lcy5jb20vbHMvY2xp
+Y2s/dXBuPXUwMDEuMXFhQUJyeDhGdXNibzlBNUF0emQ1NlFRSGhrT3ZLQi0yQmhHNDRnc0diNGUy
+UUNTcmhXb1ZnTVZsVlpzTlg0NjRLZHBZVWhlZm42RHJ2Rk1MeU1UelR4US0zRC0zRG5Tc2UKClBy
+b3RlY3RpbmcgWW91ciBBY2NvdW50IDogaHR0cHM6Ly9saW5rcy5yaW90Z2FtZXMuY29tL2xzL2Ns
+aWNrP3Vwbj1lc1NuRDMtRDMtUXhUelRNeUxNRnZyRDZuZmVoVVlwZEs0NjRYTnNaVmxWTWdWb1do
+clNDUTJlNGJHc2c0NEdoQjItQkt2T2toSFFRNjVkenRBNUE5b2JzdUY4eHJCQWFxMS4xMDB1
+--alt=_pg_090624f4ed
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5TaWduLWluIENvZGU8L3A+
+PHA+SGVyZSdzIHlvdXIgc2lnbi1pbiBjb2RlOjwvcD48cD48Yj4zNjA5Mjg8L2I+PC9wPjxwPlRo
+aXMgY29kZSB3aWxsIGV4cGlyZSBzb29uLjwvcD48cD5WaXNpdCBBY2NvdW50IE1hbmFnZW1lbnQg
+dG8gdW5lbnJvbGwgYW55IGF1dGhlbnRpY2F0aW9uIGZhY3RvcnMgeW91IG5vIGxvbmdlciBuZWVk
+LjwvcD48cD5JZiB0aGlzIHJlcXVlc3QgZGlkIG5vdCBjb21lIGZyb20geW91LCBjaGFuZ2UgeW91
+ciBhY2NvdW50IHBhc3N3b3JkIGltbWVkaWF0ZWx5IHRvIHByZXZlbnQgZnVydGhlciB1bmF1dGhv
+cml6ZWQgYWNjZXNzLiBSZWFkIFByb3RlY3RpbmcgWW91ciBBY2NvdW50IGZvciB0aXBzIG9uIHBh
+c3N3b3JkIHN0cmVuZ3RoLjwvcD48cD48YSBocmVmPSJodHRwczovL2xpbmtzLnJpb3RnYW1lcy5j
+b20vbHMvY2xpY2s/dXBuPXUwMDEuMXFhQUJyeDhGdXNibzlBNUF0emQ1NlFRSGhrT3ZLQi0yQmhH
+NDRnc0diNGUyUUNTcmhXb1ZnTVZsVlpzTlg0NjRLZHBZVWhlZm42RHJ2Rk1MeU1UelR4US0zRC0z
+RG5Tc2UiPkFjY291bnQgTWFuYWdlbWVudDwvYT48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9saW5r
+cy5yaW90Z2FtZXMuY29tL2xzL2NsaWNrP3Vwbj1lc1NuRDMtRDMtUXhUelRNeUxNRnZyRDZuZmVo
+VVlwZEs0NjRYTnNaVmxWTWdWb1doclNDUTJlNGJHc2c0NEdoQjItQkt2T2toSFFRNjVkenRBNUE5
+b2JzdUY4eHJCQWFxMS4xMDB1Ij5Qcm90ZWN0aW5nIFlvdXIgQWNjb3VudDwvYT48L3A+PC9ib2R5
+PjwvaHRtbD4=
+--alt=_pg_090624f4ed--
+--=_pg_090624f4ed--

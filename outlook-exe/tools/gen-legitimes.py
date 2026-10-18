@@ -25,7 +25,8 @@ def auth(mailfrom, dkim, header_from, compauth="pass reason=100", dmarc="pass ac
 
 
 def msg(fid, expect, from_name, from_addr, subject, paras, links=(), mailfrom=None, dkim=None, bulk=True,
-        reply_to=None, attachments=(), extra_headers=(), dmarc="pass action=none", compauth="pass reason=100", known=False):
+        reply_to=None, attachments=(), extra_headers=(), dmarc="pass action=none", compauth="pass reason=100", known=False,
+        raw_auth=None, to=TO):
     dom = from_addr.split("@")[1]
     org = ".".join(dom.split(".")[-2:]) if not dom.endswith(".gouv.fr") else dom
     mailfrom = mailfrom or ("bounce." + org)
@@ -33,9 +34,9 @@ def msg(fid, expect, from_name, from_addr, subject, paras, links=(), mailfrom=No
     date = email.utils.format_datetime(email.utils.localtime().replace(year=2026, month=random.randint(1, 9), day=random.randint(1, 28),
                                                                        hour=random.randint(7, 20), minute=random.randint(0, 59), second=0, microsecond=0))
     mid = f"<{hashlib.md5(fid.encode()).hexdigest()}@{mailfrom}>"
-    h = [auth(mailfrom, dkim, org, compauth=compauth, dmarc=dmarc),
+    h = (list(raw_auth) if raw_auth else [auth(mailfrom, dkim, org, compauth=compauth, dmarc=dmarc)]) + [
          f"Received: from mail.{mailfrom} (198.51.100.{random.randint(2, 250)}) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM",
-         f"From: {from_name} <{from_addr}>", f"To: {TO}", f"Subject: {email.header.Header(subject, 'utf-8').encode()}",
+         f"From: {from_name} <{from_addr}>", f"To: {to}", f"Subject: {email.header.Header(subject, 'utf-8').encode()}",
          f"Date: {date}", f"Message-ID: {mid}", "MIME-Version: 1.0", f"X-PhishGuard-Attendu: {expect}",
          f"X-PhishGuard-Cas: {fid}"]
     if known: h.append("X-PhishGuard-Connu: oui")   # expéditeur déjà dans les correspondants (collègue, client, fournisseur)
@@ -235,6 +236,31 @@ def main():
     msg("fournisseur-nouveau-rib", "orange", "Comptabilité Bureautique Pro", "compta@bureautique-pro.fr", "Changement de coordonnées bancaires",
         ["Bonjour,", "Suite au changement de notre banque, merci de noter nos nouvelles coordonnées bancaires pour vos prochains virements :",
          "IBAN : FR76 3000 6000 0112 3456 7890 189 - BIC : AGRIFRPP", "Cordialement, Service comptabilité."], bulk=False, known=True)
+
+    # ---- Codes de connexion envoyés par des services qui ne sont pas des « marques » connues ----
+    # Avertissement habituel : « si ce n'est pas vous, changez immédiatement votre mot de passe ».
+    # Boîte Orange relevée dans Outlook : Orange n'écrit que DKIM dans Authentication-Results, le reste dans ARC.
+    orange_auth = ["Authentication-Results: opmta1mti36nd1;\n\tarc=none;\n\tdkim=pass header.d=mail.accounts.riotgames.com header.b=tIbvD503",
+                   "ARC-Authentication-Results: i=1; opmta1mti36nd1; spf=pass (opmta1mti36nd1: domain of bounces@sg.mail.accounts.riotgames.com designates 149.72.148.222 as permited sender) smtp.mailfrom=bounces@sg.mail.accounts.riotgames.com;\n\tarc=none;\n\tdkim=pass header.d=mail.accounts.riotgames.com header.b=tIbvD503;\n\tdmarc=pass header.from=mail.accounts.riotgames.com",
+                   "X-me-spamlevel: not-spam"]
+    long = "u001.1qaABrx8Fusbo9A5Atzd56QQHhkOvKB-2BhG44gsGb4e2QCSrhWoVgMVlVZsNX464KdpYUhefn6DrvFMLyMTzTxQ-3D-3DnSse"
+    msg("code-riot-orange", "vert", "Riot Games", "noreply@mail.accounts.riotgames.com", "Login Code: 360928",
+        ["Sign-in Code", "Here's your sign-in code:", "<b>360928</b>", "This code will expire soon.",
+         "Visit Account Management to unenroll any authentication factors you no longer need.",
+         "If this request did not come from you, change your account password immediately to prevent further unauthorized access. Read Protecting Your Account for tips on password strength."],
+        [("https://links.riotgames.com/ls/click?upn=" + long, "Account Management"), ("https://links.riotgames.com/ls/click?upn=" + long[::-1], "Protecting Your Account")],
+        bulk=False, raw_auth=orange_auth, to="claire.martin@orange.fr")
+    msg("code-steam", "vert", "Steam", "noreply@steampowered.com", "Your Steam account: Access from new computer",
+        ["Dear claire_m,", "Here is the login code you need to sign in to your account: <b>58213</b>",
+         "If you are not attempting to log in, please change your Steam password immediately and consider changing your email password as well."],
+        [("https://help.steampowered.com/en/wizard/HelpWithLoginInfo", "Steam Support")], bulk=False)
+    msg("code-vinted", "vert", "Vinted", "no-reply@vinted.fr", "Votre code de vérification Vinted",
+        ["Bonjour claire_m,", "Voici votre code de vérification : <b>482 913</b>. Il expire dans 10 minutes.",
+         "Si vous n'êtes pas à l'origine de cette demande, modifiez immédiatement votre mot de passe et ne communiquez ce code à personne."],
+        [("https://www.vinted.fr/help", "Centre d'aide")], bulk=False)
+    msg("code-leboncoin", "vert", "leboncoin", "noreply@leboncoin.fr", "Code de connexion leboncoin",
+        ["Bonjour,", "Pour vous connecter, saisissez le code suivant : <b>7391</b>",
+         "Vous n'avez pas demandé ce code ? Quelqu'un essaie peut-être d'accéder à votre compte : changez votre mot de passe sans délai."], bulk=False)
 
 
 if __name__ == "__main__":
