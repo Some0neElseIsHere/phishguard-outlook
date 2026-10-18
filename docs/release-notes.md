@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.14.0** : nouvel onglet **À propos** dans les paramètres : version, liens vers le projet, nouveautés et signalement d'un problème, ce qui sort du poste, sources et licences, bouton « Copier les informations pour le support » (sans donnée personnelle). Quand la configuration est imposée par l'entreprise, le bouton Paramètres devient « À propos » et l'indique. Fenêtre d'analyse allégée : les onglets Observables et Corps sont retirés, les liens de vérification des domaines passent dans En-têtes et URL.
+
 - **v1.13.0** : moins de fausses alertes sur les organismes publics et les autres domaines des marques.
   - **Organismes publics** : les domaines `.gouv.fr` et les quelque 100 000 domaines de la liste ouverte du secteur public (DINUM : ministères, collectivités, hôpitaux, écoles…) ne sont plus pris pour des sosies. Liste téléchargée chaque mois (Paramètres → Réputation, activée par défaut). Pour les petites structures, souvent piratées, le contenu des messages reste analysé normalement.
   - **Autres domaines d'une marque** (autre extension, ancien nom) : avec la vérification DNS activée, un domaine qui ressemble à une marque ou à votre entreprise est reconnu comme le sien s'il est géré par ses propres serveurs DNS, ou si le domaine officiel autorise ses rapports DMARC. Un escroc ne peut produire ni l'un ni l'autre.

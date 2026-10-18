@@ -73,7 +73,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 | **Alerte** | Une notification discrète en bas à droite de l'écran pour les messages dangereux (ou suspects, au choix). |
 | **Mode simple** (par défaut) | Pour les non-spécialistes : le verdict en clair (« Ce message est dangereux »), chaque point dangereux ou suspect détaillé sans jargon (explication, preuves), les simples informations en gris, **« Que dois-je faire ? »** étape par étape et des conseils pour reconnaître un phishing. Un assistant au démarrage d'Outlook explique la pastille et demande l'essentiel ; après une mise à jour, il ne pose que les questions nouvelles. |
 | **Mode expert** | Bouton **Analyse détaillée** (ou Paramètres → Analyse → Affichage) : la fenêtre d'enquête complète ci-dessous, et les réglages avancés (Listes, Réputation, Analyser mon domaine). |
-| **Fenêtre d'enquête** (mode expert) | Jauge de risque, indices classés par gravité, parcours des serveurs en frise ; onglets Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps, Réputation. Les boutons Signaler, Ce n'est pas du phishing et Paramètres sont en bas de cette fenêtre. |
+| **Fenêtre d'enquête** (mode expert) | Jauge de risque, indices classés par gravité, parcours des serveurs en frise ; onglets Résumé, En-têtes, Parcours, URL, Pièces jointes, Source, Réputation. Les boutons Signaler, Ce n'est pas du phishing et Paramètres sont en bas de cette fenêtre. |
 | **Signaler** | Après une double confirmation, envoie à l'équipe sécurité un rapport HTML (verdict, points de doute détaillés, authentification et origine, liens désarmés, pièces jointes et empreintes, observables à copier, copie du texte du message) avec le message d'origine joint (.msg avec tous ses en-têtes), puis le déplace dans Courrier indésirable. |
 | **Ce n'est pas du phishing** | Ajoute l'expéditeur ou son domaine aux expéditeurs de confiance (une usurpation reste toujours signalée). |
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
@@ -102,9 +102,9 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 
 ### Fenêtre d'enquête
 
-- **En-têtes** : champs principaux décodés, détail de l'authentification (domaines, sélecteur DKIM), en-têtes des filtres antispam.
+- **En-têtes** : champs principaux décodés, détail de l'authentification (domaines, sélecteur DKIM), en-têtes des filtres antispam, liens de vérification des domaines de l'expéditeur.
 - **Parcours** : chaque serveur traversé, IP, protocole, horodatage et délai entre les sauts ; **IP d'origine**.
-- **Observables** : adresses, domaines, IP et empreintes, avec liens de vérification sans compte à créer : VirusTotal, Cisco Talos, AbuseIPDB, listes noires (MXToolbox) et WHOIS (ouverts dans le navigateur, seul l'élément vérifié est transmis).
+- **Liens de vérification** (domaines, IP, liens, empreintes) dans chaque onglet, sans compte à créer : VirusTotal, Cisco Talos, AbuseIPDB, listes noires (MXToolbox) et WHOIS (ouverts dans le navigateur, seul l'élément vérifié est transmis).
 - **Réputation** : état de chaque source externe et résultats obtenus.
 
 ---
