@@ -687,6 +687,29 @@ namespace PhishGuard.Tests
             cap.BodyText = "Votre compte sera suspendu. Connectez-vous immédiatement pour vérifier votre compte et votre mot de passe.";
             var rcap = Analyzer.Analyze(cap, cfg);
             Check("combinaison décisive hors plafond du contenu", Ids(rcap).Contains("content-combo-cred") && rcap.Score > 8 + 30, rcap.Score.ToString());
+            // Vrais mails de marques authentifiés (cas difficiles du banc d'essai)
+            var li = Base(); li.FromName = "LinkedIn"; li.FromAddress = "security-noreply@linkedin.com"; li.Subject = "Voici le lien pour réinitialiser votre mot de passe";
+            li.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=bounce.linkedin.com; dkim=pass header.d=linkedin.com;dmarc=pass action=none header.from=linkedin.com;compauth=pass reason=100";
+            li.BodyText = "Nous avons reçu une demande de réinitialisation du mot de passe. Ce lien expirera dans 24 heures, connectez-vous immédiatement.";
+            li.Links.Add(new LinkInfo("https://www.linkedin.com/e/v2?e=abc", "Réinitialiser mon mot de passe"));
+            var rli = Analyzer.Analyze(li, cfg);
+            Check("marque authentifiée : réinitialisation de mot de passe = vert", rli.Level == "safe" && !Ids(rli).Contains("content-first-contact-request"), rli.Level + " " + string.Join(",", Ids(rli).ToArray()));
+            var fakeLi = Base(); fakeLi.FromName = "LinkedIn"; fakeLi.FromAddress = "security@linkedin-secure.example"; fakeLi.Subject = li.Subject; fakeLi.BodyText = li.BodyText;
+            fakeLi.RawHeaders = PASS; fakeLi.Links.Add(new LinkInfo("https://linkedin-secure.example/login", "Réinitialiser"));
+            Check("même texte depuis un autre domaine = alerte", Analyzer.Analyze(fakeLi, cfg).Level != "safe");
+            var hot = Base(); hot.FromName = "Microsoft"; hot.FromAddress = "support.microsoft@outlook.fr"; hot.Subject = li.Subject; hot.BodyText = li.BodyText;
+            hot.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=outlook.fr; dkim=pass header.d=outlook.fr;dmarc=pass action=none header.from=outlook.fr;compauth=pass reason=100";
+            Check("messagerie gratuite d'une marque : pas de passe-droit", Analyzer.Analyze(hot, cfg).Level != "safe");
+            var ds = Base(); ds.FromName = "Cabinet Lefèvre via DocuSign"; ds.FromAddress = "dse_NA4@docusign.net"; ds.Subject = "Veuillez signer : contrat";
+            ds.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=docusign.net; dkim=pass header.d=docusign.net;dmarc=pass action=none header.from=docusign.net;compauth=pass reason=100\r\nReply-To: contact@cabinet-lefevre.fr";
+            ds.ReplyTo.Add("contact@cabinet-lefevre.fr"); ds.BodyText = "Cabinet Lefèvre vous a envoyé un document à signer via DocuSign.";
+            var rds = Analyzer.Analyze(ds, cfg);
+            Check("plateforme de signature : Reply-To faible, vert", rds.Level == "safe" && rds.Findings.Any(f => f.Id == "sender-replyto" && f.Severity == Severity.Low), rds.Level + " " + rds.Score);
+            var orf = Base(); orf.FromName = "Orange"; orf.FromAddress = "facture@orange.fr"; orf.Subject = "Votre facture est disponible";
+            orf.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=mail.orange.fr; dkim=pass header.d=orange.fr;dmarc=pass action=none header.from=orange.fr;compauth=pass reason=100";
+            Check("Orange depuis une adresse de service authentifiée", !Ids(Analyzer.Analyze(orf, cfg)).Contains("sender-brand-name"));
+            orf.FromAddress = "orange.service.clients2026@orange.fr";
+            Check("Orange depuis une boîte orange.fr quelconque = signalé", Ids(Analyzer.Analyze(orf, cfg)).Contains("sender-brand-name"));
             Correspondents.Reset();
             L.SetLanguage("en");
             Check("anglais : nouveaux indices traduits", rmb.Findings.Count > 0 && Analyzer.Analyze(mb, cfg).Findings.All(f => !f.Title.Contains("’")),

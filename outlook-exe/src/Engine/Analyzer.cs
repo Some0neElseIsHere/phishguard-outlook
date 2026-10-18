@@ -65,6 +65,8 @@ namespace PhishGuard
             public bool AuthProof;       // l'expéditeur affiché est authentifié (DMARC, DKIM aligné, compauth 1xx)
             public bool RelationProof;   // relation établie avec vous : correspondant connu, réponse à votre message, expéditeur de confiance
             public bool BulkCompliant;   // envoi en nombre conforme (désabonnement en un clic + DMARC)
+            public bool BrandSender;     // authentifié sur le domaine officiel d'une marque (hors messageries gratuites et plateformes)
+            public bool Platform;        // plateforme qui relaie les messages de ses clients (partage, signature…), authentifiée
         }
 
         // =====================================================================
@@ -96,6 +98,12 @@ namespace PhishGuard
             if (ctx.BulkCompliant && !ctx.Internal)
                 foreach (var f in findings)
                     if (f.Category == "content" && f.Severity == Severity.Low) f.Severity = Severity.Info;
+
+            // Domaine officiel d'une marque, authentifié : le texte (code, facture, mot de passe) est celui de la marque elle-même
+            if (ctx.BrandSender)
+                foreach (var f in findings)
+                    if (f.Category == "content" && f.Severity != Severity.Critical)
+                        f.Severity = f.Severity > Severity.Low ? Severity.Low : Severity.Info;
 
             if (ctx.Internal)
             {
@@ -168,6 +176,16 @@ namespace PhishGuard
         // =====================================================================
         // Outils
         // =====================================================================
+
+        static readonly Regex BrandServiceLocal = new Regex(@"^(no-?reply|ne-?pas-?repondre|ne_pas_repondre|noreply|facture|factures|facturation|service-?client|serviceclient|info|infos|information|notifications?|alertes?|securite|security|contact|newsletter)([._+-].*)?$",
+            RegexOptions.IgnoreCase);
+
+        static bool IsPlatformSender(string fromDomain)
+        {
+            string org = PhishGuard.Domains.RegistrableDomain(fromDomain ?? "");
+            if (org == "google.com") return !(fromDomain ?? "").Equals("accounts.google.com", StringComparison.OrdinalIgnoreCase);
+            return Lists.PlatformSenders.Contains(org);
+        }
 
         static bool IsDecisiveContent(string id)
         {
@@ -447,7 +465,7 @@ namespace PhishGuard
                     ctx.FirstContact = true;
                     // Adresse automatique (noreply, notification...) authentifiée : normal de ne jamais lui avoir écrit.
                     // Le premier contact reste pris en compte si le message demande un paiement ou des identifiants.
-                    if (IsAutomatedAddress(fromAddr) && ctx.AuthOk)
+                    if ((IsAutomatedAddress(fromAddr) || IsPlatformSender(fromDomain)) && ctx.AuthOk)
                         findings.Add(new Finding("sender-first-contact-auto", "sender", Severity.Info, L.T("Premier message de cette adresse automatique"),
                             L.T("Adresse d’envoi automatique authentifiée : ne pas lui avoir écrit est normal."), new[] { fromAddr }));
                     else
@@ -482,10 +500,12 @@ namespace PhishGuard
             foreach (var b in Lists.Brands)
             {
                 if (!b.Names.Any(n => WordMatch(nameNorm, n))) continue;
-                bool owns = !isFreemail && b.Domains.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg);
+                bool brandDomain = b.Domains.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg);
+                // Opérateur qui est aussi une messagerie gratuite (orange.fr, free.fr…) : seules ses adresses de service authentifiées comptent
+                bool owns = brandDomain && (!isFreemail || (ctx.AuthOk && BrandServiceLocal.IsMatch(fromAddr.Split('@')[0])));
                 if (!owns)
                 {
-                    findings.Add(new Finding("sender-brand-name", "sender", isFreemail ? Severity.High : Severity.Medium,
+                    findings.Add(new Finding("sender-brand-name", "sender", ctx.Internal ? Severity.Info : isFreemail ? Severity.High : Severity.Medium,
                         L.T("Se présente comme « ") + b.Name + L.T(" » sans utiliser un domaine ") + b.Name,
                         isFreemail ? L.T("Le message vient d’une messagerie gratuite.") : L.T("Le domaine d’envoi n’appartient pas à cette marque."),
                         new[] { fromName + " <" + fromAddr + ">" }));
@@ -507,6 +527,17 @@ namespace PhishGuard
                 }
             }
 
+            ctx.Platform = ctx.AuthOk && IsPlatformSender(fromDomain);
+            ctx.BrandSender = ctx.AuthProof && !isFreemail && !ctx.Internal && !ctx.Platform && look == null
+                && Lists.Brands.Any(b => b.Domains.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg));
+            if (ctx.BrandSender)
+            {
+                var brand = Lists.Brands.First(b => b.Domains.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg));
+                ctx.Trust.Add(L.F("Envoyé et authentifié par un domaine officiel de {0}", brand.Name));
+                positives.Add(L.F("Envoyé et authentifié par un domaine officiel de {0}", brand.Name));
+                ctx.RelationProof = true;   // réputation de la marque : suffit pour « Expéditeur vérifié » s'il n'y a aucun indice
+            }
+
             var replyTo = new List<string>();
             foreach (var r in e.ReplyTo) if (!string.IsNullOrEmpty(r)) replyTo.Add(r.ToLowerInvariant());
             replyTo.AddRange(AddressesIn(string.Join(",", HeaderValues(headers, "reply-to"))));
@@ -524,7 +555,9 @@ namespace PhishGuard
                     continue;
                 }
                 bool rtFree = Lists.FreemailDomains.Contains(rtDomain);
-                findings.Add(new Finding("sender-replyto", "sender", rtFree || isCompany ? Severity.High : Severity.Medium,
+                // Partage ou signature électronique : la plateforme met l'adresse de la personne qui envoie le document
+                var rtSev = ctx.Platform ? (rtFree ? Severity.Medium : Severity.Low) : rtFree || isCompany ? Severity.High : Severity.Medium;
+                findings.Add(new Finding("sender-replyto", "sender", rtSev,
                     L.T("Les réponses partiront vers une autre adresse (Reply-To)"),
                     rtFree ? L.T("L’adresse de réponse est une messagerie gratuite.") : L.T("Le domaine de réponse est différent du domaine de l’expéditeur."),
                     new[] { L.T("Réponse vers : ") + rt }));
@@ -884,7 +917,7 @@ namespace PhishGuard
 
                 if (HostMatches(host, Lists.Shorteners))
                     add("link-shortener", Severity.Medium, L.T("Lien raccourci (destination masquée)"), L.T("Ne cliquez pas : la destination réelle n’est pas visible."), host);
-                if (HostMatches(host, Lists.AbusedHosting))
+                if (HostMatches(host, Lists.AbusedHosting) && !(ctx.Platform && p.Registrable == ctx.FromOrg))
                     add("link-hosting", Severity.Medium, L.T("Lien vers un hébergement gratuit souvent utilisé pour le phishing"),
                         L.T("Le service est légitime, mais n’importe qui peut y publier une fausse page de connexion."), display);
                 string tld = host.Substring(host.LastIndexOf('.') + 1);
@@ -1292,7 +1325,7 @@ namespace PhishGuard
             if (ctx.IsFreemail && (fin || cred))
                 findings.Add(new Finding("content-freemail-request", "content", Severity.Medium, L.T("Demande sensible envoyée depuis une messagerie gratuite"),
                     L.T("Une banque, une administration ou un fournisseur n’écrit pas depuis Gmail, Outlook.com ou Orange."), null));
-            if (ctx.FirstContact && (fin || cred))
+            if (ctx.FirstContact && (fin || cred) && !ctx.BrandSender)
                 findings.Add(new Finding("content-first-contact-request", "content", Severity.Medium, L.T("Demande sensible dès le premier message"),
                     L.T("Un inconnu qui demande un paiement ou des identifiants dès son premier email : prudence maximale."), null));
 

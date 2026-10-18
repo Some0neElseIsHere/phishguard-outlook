@@ -441,6 +441,7 @@ namespace PhishGuard
             { ", mais l’adresse est externe", ", but the address is external" },
             { "Technique typique de la « fraude au président » : vérifiez par téléphone avant toute action.", "Typical “CEO fraud” technique: check by phone before taking any action." },
             { "Le nom affiché mentionne ", "The display name mentions " },
+            { "Envoyé et authentifié par un domaine officiel de {0}", "Sent and authenticated by an official {0} domain" },
             { "Les réponses partiront vers la liste de diffusion", "Replies will go to the mailing list" },
             { "Réponse vers : ", "Replies to: " },
             { "Les réponses partiront vers une autre adresse (Reply-To)", "Replies will go to a different address (Reply-To)" },
