@@ -36,6 +36,10 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 |---|---|---|
 | <img src="docs/images/signalement.png" alt="Rapport de signalement de phishing en HTML envoyé à l'équipe sécurité" width="280"> | <img src="docs/images/assistant.png" alt="Assistant de premier lancement de PhishGuard" width="280"> | <img src="docs/images/parametres.png" alt="Paramètres de PhishGuard : plusieurs entreprises, dirigeants, domaines, analyse du domaine" width="280"> |
 
+| Thème sombre (suit Windows) | Paramètres en thème sombre |
+|---|---|
+| <img src="docs/images/simple-dangereux-sombre.png" alt="PhishGuard en thème sombre : message dangereux en mode simple" width="420"> | <img src="docs/images/parametres-sombre.png" alt="Paramètres de PhishGuard en thème sombre" width="420"> |
+
 *Captures générées automatiquement par le vrai moteur d'analyse, sur des messages d'exemple fictifs.*
 
 > *English summary — PhishGuard is a **free, open-source phishing detector for Outlook** (classic Outlook
@@ -83,6 +87,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 | **Surveillance des sosies** | Chaque semaine, les variantes de vos domaines sont revérifiées : un sosie apparu depuis la dernière fois est bloqué automatiquement (et un nouveau certificat contenant votre marque, si crt.sh est activé). |
 | **Expéditeur vérifié** | Pastille verte avec une coche quand le message est authentifié pour le domaine affiché (DMARC, DKIM aligné ou compauth Microsoft) **et** vient de quelqu'un avec qui vous êtes déjà en relation (correspondant connu, réponse à l'un de vos messages, expéditeur de confiance), sans aucun indice. Les preuves sont listées dans la fenêtre ; elles ne compensent jamais un indice Élevé ou Critique. |
 | **Français / anglais** | Langue de l'interface au choix, ou automatique selon Windows. |
+| **Thème clair ou sombre** | Les fenêtres suivent le mode clair ou sombre de Windows (Paramètres → Personnalisation → Couleurs), y compris quand il change pendant qu'Outlook est ouvert. Réglable aussi dans Paramètres → Analyse → Thème. Le rapport envoyé à l'équipe sécurité reste en clair. |
 
 ### Contrôles effectués
 
