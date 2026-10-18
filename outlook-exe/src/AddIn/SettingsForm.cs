@@ -231,7 +231,7 @@ namespace PhishGuard.AddIn
 
             // ---------------- À propos ----------------
             var pAbout = Page(L.T("À propos"));
-            AboutPage.Fill(pAbout, cfg, false);
+            AboutPage.Fill(pAbout, cfg);
             tabs.TabPages.Add(pAbout);
 
             // ---------------- Boutons ----------------
