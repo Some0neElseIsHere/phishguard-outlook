@@ -41,7 +41,7 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 ### Points forts
 
 - Score de risque permanent dans le ruban et alerte pour les messages dangereux.
-- Fenêtre d'enquête façon PhishTool : en-têtes, parcours et IP d'origine, URL, pièces jointes avec empreintes, observables et liens VirusTotal/AbuseIPDB.
+- Fenêtre d'enquête détaillée : en-têtes, parcours et IP d'origine, URL, pièces jointes avec empreintes, observables et liens VirusTotal/AbuseIPDB.
 - Domaines sosies (marques, votre entreprise, vos correspondants), premier contact, âge du domaine.
 - SPF/DKIM/DMARC (y compris via ARC), filtres antispam, Red Flag Domains.
 - Liens réécrits par les passerelles de sécurité (Proofpoint, Safe Links, Barracuda, Sophos…) décodés et analysés.
