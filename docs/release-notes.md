@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.15.1** : testé sur 12 271 phishings récents supplémentaires (phishing_pot, 2023-2026) : 78 % détectés, comme sur le premier corpus. **Analyse jusqu'à 7 fois plus rapide** sur les messages chargés en liens, et un lien au nom de serveur invalide ne peut plus faire échouer l'analyse.
+
 - **v1.15.0** : **déploiement en entreprise** ([guide](https://github.com/Some0neElseIsHere/phishguard-outlook/blob/main/docs/deploiement-entreprise.md)).
   - **Stratégies de groupe (GPO) et Intune** : modèle `policies\PhishGuard.admx` en français et en anglais dans le zip. Les réglages imposés (adresse de signalement, entreprises, domaines, sources…) sont grisés et l'utilisateur ne peut pas les modifier.
   - **Mode simple imposé** pour les groupes choisis : plus de bouton « Analyse détaillée » ni de réglages avancés.
