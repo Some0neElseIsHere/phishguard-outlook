@@ -24,6 +24,7 @@ l'entreprise, ouvrez `config.ini` avec le Bloc-notes **avant** d'installer :
 | `ReportAddress` | Adresse de l'équipe sécurité (bouton **Signaler à la sécurité**) |
 | `Language` | `auto` (langue de Windows), `fr` ou `en` |
 | `RedFlagEnabled` | `true` / `false` pour la liste Red Flag Domains |
+| `PublicSectorList` | `true` / `false` pour la liste des domaines du secteur public (DINUM) |
 | `WatchDomains` | Surveillance hebdomadaire des sosies de vos domaines |
 | `AllowUserSettings` | `false` : configuration imposée, le bouton Paramètres disparaît |
 
@@ -67,7 +68,7 @@ Une version déjà installée est mise à jour ; les réglages de l'utilisateur 
 | `fils.txt` | Identifiants de vos messages envoyés et domaines de leurs destinataires (détection des réponses et des détournements de fil) |
 | `surveillance.txt` | Sosies de vos domaines déjà vus, et ceux bloqués par la surveillance |
 | `domaines-age.txt` | Dates de création des domaines déjà vérifiés |
-| `redflagdomains.txt`, `openphish.txt`, `tranco.txt` | Listes téléchargées |
+| `redflagdomains.txt`, `secteur-public.txt`, `openphish.txt`, `tranco.txt` | Listes téléchargées |
 | `scores.csv` | Journal des scores (si activé ; ni objet ni contenu) |
 | `phishguard.log` | Journal technique |
 
