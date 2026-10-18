@@ -166,6 +166,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `SharedBlocklistPath` | Liste de blocage partagée (ex. `\\serveur\securite\phishguard.txt`) | — |
 | `RedFlagEnabled`, `RedFlagUrl`, `RedFlagMaxAgeHours` | Liste Red Flag Domains, son adresse, âge maximal avant mise à jour | `true`, liste officielle, `24` |
 | `WatchDomains` | Surveillance hebdomadaire des sosies de `CompanyDomains` | `true` |
+| `InternalRelays` | IP ou plages CIDR des copieurs et applications qui envoient au nom de l'entreprise | vide |
 | `PublicSectorList` | Liste des domaines du secteur public (DINUM), téléchargée chaque mois | `true` |
 | `BetaOpenPhish`, `BetaTranco`, `BetaDnsChecks`, `BetaCertAge` | Sources de réputation sans clé (onglet Réputation) | `false` |
 | `VirusTotalKey`, `AbuseChKey`, `AbuseIpdbKey` | Clés par défaut pour tous ; un utilisateur peut saisir les siennes, rangées dans le Gestionnaire d'identification de Windows et prioritaires | — |
@@ -178,7 +179,9 @@ Une clé d'API écrite dans `config.ini` y est lisible en clair : préférez la 
 ## Déploiement en entreprise
 
 - **Installation silencieuse** (script de connexion, GPO, outil de déploiement) : `PhishGuard-Outlook-vX.Y.Z-installeur.exe /quiet` ou `installer.cmd /quiet`.
-- **Configuration commune** : adaptez `config.ini` avant de distribuer le dossier ; ses valeurs servent de point de départ, chaque utilisateur peut ensuite les modifier.
+- **Réglages imposés par GPO ou Intune** : modèle de stratégies `policies\PhishGuard.admx` (français et anglais) fourni dans le zip de chaque release. Adresse de l'équipe sécurité, entreprises et domaines, **mode simple imposé** pour certains groupes, clés d'API interdites, sources activées… L'utilisateur ne peut pas les modifier. Guide complet : [docs/deploiement-entreprise.md](docs/deploiement-entreprise.md).
+- **Copieurs et applications internes** : déclarez leurs adresses IP (`InternalRelays`) pour que leurs mails envoyés au nom de l'entreprise ne soient pas pris pour une usurpation ; un mail à votre nom venant d'ailleurs reste critique.
+- **Configuration de départ** : `config.ini` fournit les valeurs initiales, que chaque utilisateur peut ensuite modifier (sauf celles imposées par stratégie).
 - **Liste de blocage commune** : un fichier texte sur un partage réseau (`SharedBlocklistPath`), rechargé toutes les heures.
 - **Signature** : signer `PhishGuard.dll` avec le certificat de signature de code de l'entreprise évite les blocages par l'antivirus, AppLocker ou la stratégie « compléments signés uniquement ».
 - **Postes verrouillés** : rien n'est compilé sur le poste ; si l'exe est bloqué, le zip de la release s'installe avec `installer.cmd`.
@@ -279,6 +282,7 @@ outlook-exe/                  Complément Outlook (COM, C# 5, .NET Framework 4)
   installer/                  Installeur .exe (Setup.cs) et scripts installer.cmd / desinstaller.cmd
   src/ThirdParty/ZXing/       Décodeur QR de ZXing.Net (Apache 2.0, non modifié sauf syntaxe C# 5)
   config.ini, custom.txt      Configuration par défaut et liste de blocage de l'équipe sécurité
+  policies/                   Modèle de stratégies de groupe (ADMX/ADML, généré par tools/gen-admx.py)
   LISEZMOI.md                 Notice incluse dans le zip de la release
   tools/Screenshots.cs        Génère les captures d'écran du README (workflow « Captures d'écran »)
   tools/Bench.cs              Banc d'essai sur des corpus publics (workflow « Banc d'essai », voir docs/banc-essai.md)
