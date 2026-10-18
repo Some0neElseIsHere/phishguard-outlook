@@ -66,6 +66,7 @@ namespace PhishGuard
             public bool RelationProof;   // relation établie avec vous : correspondant connu, réponse à votre message, expéditeur de confiance
             public bool BulkCompliant;   // envoi en nombre conforme (désabonnement en un clic + DMARC)
             public bool BrandSender;     // authentifié sur le domaine officiel d'une marque (hors messageries gratuites et plateformes)
+            public bool MailingList;     // message adressé à une liste de diffusion dont vous êtes membre
             public bool Platform;        // plateforme qui relaie les messages de ses clients (partage, signature…), authentifiée
         }
 
@@ -185,6 +186,16 @@ namespace PhishGuard
             string org = PhishGuard.Domains.RegistrableDomain(fromDomain ?? "");
             if (org == "google.com") return !(fromDomain ?? "").Equals("accounts.google.com", StringComparison.OrdinalIgnoreCase);
             return Lists.PlatformSenders.Contains(org);
+        }
+
+        static bool IsLocalHost(string host)
+        {
+            string h = (host ?? "").ToLowerInvariant().Trim('[', ']');
+            if (h == "localhost" || h.EndsWith(".localhost") || h == "::1") return true;
+            var m = Regex.Match(h, @"^(\d+)\.(\d+)\.\d+\.\d+$");
+            if (!m.Success) return false;
+            int a = int.Parse(m.Groups[1].Value), b = int.Parse(m.Groups[2].Value);
+            return a == 127 || a == 10 || (a == 192 && b == 168) || (a == 172 && b >= 16 && b <= 31);
         }
 
         static bool IsDecisiveContent(string id)
@@ -449,14 +460,18 @@ namespace PhishGuard
                 || (!isFreemail && cfg.TrustedDomains.Any(t => PhishGuard.Domains.RegistrableDomain(t) == fromOrg));
 
             // Premier contact et sosies de vos correspondants (fournisseurs, clients...)
+            // Liste de diffusion : le message est adressé à la liste (son adresse de publication figure dans À/Cc), pas à vous
+            var postAddrs = AddressesIn(string.Join(",", HeaderValues(headers, "list-post")));
+            var toCc = AddressesIn(string.Join(",", HeaderValues(headers, "to").Concat(HeaderValues(headers, "cc"))));
+            bool mailingList = HeaderValues(headers, "list-id").Count > 0 && postAddrs.Any(a => toCc.Contains(a));
+            ctx.MailingList = mailingList;
+            // Adresse réécrite par la liste (« nom@entreprise.com.invalid ») pour respecter DMARC : ce n'est pas un sosie
+            bool listMunged = mailingList && fromDomain.EndsWith(".invalid");
+
             if (cfg.KnownCorrespondents && Correspondents.Loaded && !isCompany && !ctx.Internal && !e.IsExchangeInternal)
             {
                 bool knownAddr = Correspondents.IsKnownAddress(fromAddr);
                 bool knownDomain = !isFreemail && Correspondents.IsKnownDomain(fromOrg);
-                // Liste de diffusion : le message est adressé à la liste (son adresse de publication figure dans À/Cc), pas à vous
-                var postAddrs = AddressesIn(string.Join(",", HeaderValues(headers, "list-post")));
-                var toCc = AddressesIn(string.Join(",", HeaderValues(headers, "to").Concat(HeaderValues(headers, "cc"))));
-                bool mailingList = HeaderValues(headers, "list-id").Count > 0 && postAddrs.Any(a => toCc.Contains(a));
                 if (!knownAddr && !knownDomain && mailingList)
                     findings.Add(new Finding("sender-first-contact-list", "sender", Severity.Info, L.T("Message d’une liste de diffusion"),
                         L.T("Adressé à la liste, pas directement à vous : ne pas connaître l’auteur est normal."), new[] { postAddrs.First(a => toCc.Contains(a)) }));
@@ -476,14 +491,14 @@ namespace PhishGuard
                     findings.Add(new Finding("sender-new-address", "sender", Severity.Info, L.T("Nouvelle adresse d’un domaine connu"), "", new[] { fromAddr }));
                 if (knownAddr) { ctx.Trust.Add(L.F("Vous avez déjà écrit à {0}", fromAddr)); ctx.RelationProof = true; }
                 else if (knownDomain) { ctx.Trust.Add(L.F("Vous avez déjà écrit à ce domaine ({0})", fromOrg)); ctx.RelationProof = true; }
-                if (!knownDomain && !ctx.Domains.Legit.Contains(fromOrg))
+                if (!knownDomain && !ctx.Domains.Legit.Contains(fromOrg) && !listMunged)
                     CheckCorrespondentLookalike(fromDomain, L.T("Le domaine de l’expéditeur"), findings);
             }
 
             // Âge du domaine (RDAP)
             CheckDomainAge(fromOrg, L.T("Le domaine de l’expéditeur"), "sender-new-domain", ctx, findings);
 
-            var look = PhishGuard.Domains.DetectLookalike(fromDomain, ctx.Domains);
+            var look = listMunged ? null : PhishGuard.Domains.DetectLookalike(fromDomain, ctx.Domains);
             if (look != null) findings.Add(LookalikeFinding(look, L.T("Le domaine de l’expéditeur"), "sender"));
             var listed = Blocklists.Lookup(fromDomain);
             if (listed != null) findings.Add(BlocklistFinding(listed, L.T("Le domaine de l’expéditeur figure dans une liste de domaines malveillants"), "sender", new[] { PhishGuard.Domains.ToUnicode(listed.Domain) }));
@@ -839,6 +854,8 @@ namespace PhishGuard
                 string host = HostOf(url);
                 var p = PhishGuard.Domains.ParseHost(host);
                 if (p == null) continue;
+                // Exemple technique (localhost, réseau local) : pas une page qu'un escroc peut héberger
+                if (IsLocalHost(host)) continue;
                 string display = PhishGuard.Domains.ToUnicode(host);
                 bool legit = ctx.Domains.Legit.Contains(p.Registrable);
                 urls.Add(url.AbsoluteUri);
@@ -1326,7 +1343,7 @@ namespace PhishGuard
             if (fin && (sec || urg))
                 findings.Add(new Finding("content-combo-bec", "content", Severity.High, L.T("Demande de paiement urgente ou confidentielle"),
                     L.T("Schéma de fraude au virement ou au président : confirmez toujours par téléphone, avec un numéro que vous connaissez."), null));
-            if (ctx.IsFreemail && (fin || cred))
+            if (ctx.IsFreemail && (fin || cred) && !ctx.MailingList)
                 findings.Add(new Finding("content-freemail-request", "content", Severity.Medium, L.T("Demande sensible envoyée depuis une messagerie gratuite"),
                     L.T("Une banque, une administration ou un fournisseur n’écrit pas depuis Gmail, Outlook.com ou Orange."), null));
             if (ctx.FirstContact && (fin || cred) && !ctx.BrandSender)

@@ -711,6 +711,14 @@ namespace PhishGuard.Tests
             gd.ReplyTo.Add("attaquant@exemple-inconnu.example"); gd.BodyText = "Inconnu a partagé un document avec vous.";
             var rgd = Analyzer.Analyze(gd, cfg);
             Check("vrai partage Google Drive dont le titre est une fausse alerte = alerte", rgd.Level != "safe" && Ids(rgd).Contains("content-combo-platform"), rgd.Level + " " + string.Join(",", Ids(rgd).ToArray()));
+            var tech = Base(); tech.FromName = "Jane Doe via dev"; tech.FromAddress = "jane.doe@salesforce.com.invalid"; tech.Subject = "Re: consumer not receiving messages";
+            tech.RawHeaders = PASS + "\r\nTo: dev@liste.apache.org\r\nList-Id: <dev.liste.apache.org>\r\nList-Post: <mailto:dev@liste.apache.org>";
+            tech.BodyText = "Try http://localhost:8083/connectors and check the password in your SSL config.";
+            tech.Links.Add(new LinkInfo("http://localhost:8083/connectors", "")); tech.Links.Add(new LinkInfo("http://127.0.0.1:9092", ""));
+            Correspondents.Set(new[] { "client@client-connu.fr" }, false);
+            var rtech = Analyzer.Analyze(tech, cfg);
+            Check("liste technique : localhost et adresse .invalid ne sont pas des indices", rtech.Level == "safe" && !Ids(rtech).Any(i => i.StartsWith("link-") || i.Contains("lookalike")),
+                rtech.Level + " " + string.Join(",", Ids(rtech).ToArray()));
             var orf = Base(); orf.FromName = "Orange"; orf.FromAddress = "facture@orange.fr"; orf.Subject = "Votre facture est disponible";
             orf.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=mail.orange.fr; dkim=pass header.d=orange.fr;dmarc=pass action=none header.from=orange.fr;compauth=pass reason=100";
             Check("Orange depuis une adresse de service authentifiée", !Ids(Analyzer.Analyze(orf, cfg)).Contains("sender-brand-name"));
