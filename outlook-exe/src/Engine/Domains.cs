@@ -281,10 +281,16 @@ namespace PhishGuard
             return ok[s.Length];
         }
 
+        static readonly Dictionary<string, Regex> TokenRegexes = new Dictionary<string, Regex>();
+
         static bool ContainsToken(string label, string kw)
         {
             string k = kw.Replace("-", "");
-            if (Regex.IsMatch(label, "(^|[-0-9])" + kw.Replace("-", "-?") + "($|[-0-9])")) return true;
+            Regex re;
+            lock (TokenRegexes)
+                if (!TokenRegexes.TryGetValue(kw, out re))
+                    TokenRegexes[kw] = re = new Regex("(^|[-0-9])" + kw.Replace("-", "-?") + "($|[-0-9])", RegexOptions.CultureInvariant);
+            if (re.IsMatch(label)) return true;
             if (k.Length < 5) return false;
             string l = label.Replace("-", "");
             int idx = l.IndexOf(k, StringComparison.Ordinal);

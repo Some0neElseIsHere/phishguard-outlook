@@ -294,8 +294,7 @@ namespace PhishGuard
 
         static bool WordMatch(string haystack, string needle)
         {
-            string n = Regex.Escape(NormalizeText(needle));
-            return Regex.IsMatch(haystack, "(^|[^a-z0-9])" + n + "($|[^a-z0-9])");
+            return WordContains(haystack ?? "", NormalizeText(needle));
         }
 
         static Finding LookalikeFinding(Lookalike look, string where, string category)
@@ -1372,11 +1371,28 @@ namespace PhishGuard
             var hits = new List<string>();
             foreach (var p in rule.Patterns)
             {
-                if (Regex.IsMatch(text, "(^|[^a-z0-9])" + Regex.Escape(p) + "($|[^a-z0-9])")) hits.Add(p);
+                if (WordContains(text, p)) hits.Add(p);
                 if (hits.Count >= 4) break;
             }
             return hits;
         }
+
+        /// <summary>Le texte (déjà normalisé en minuscules) contient l'expression entière, pas au milieu d'un mot.
+        /// Recherche directe : bien plus rapide que de construire une expression régulière par mot-clé et par message.</summary>
+        static bool WordContains(string text, string p)
+        {
+            if (string.IsNullOrEmpty(p)) return false;
+            int idx = 0;
+            while ((idx = text.IndexOf(p, idx, StringComparison.Ordinal)) >= 0)
+            {
+                int end = idx + p.Length;
+                if ((idx == 0 || !IsAsciiAlnum(text[idx - 1])) && (end >= text.Length || !IsAsciiAlnum(text[end]))) return true;
+                idx++;
+            }
+            return false;
+        }
+
+        static bool IsAsciiAlnum(char c) { return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'); }
 
         static void AnalyzeContent(EmailData e, List<KeyValuePair<string, string>> headers, Ctx ctx, List<Finding> findings)
         {
