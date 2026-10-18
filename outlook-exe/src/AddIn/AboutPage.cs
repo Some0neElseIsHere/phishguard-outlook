@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -70,6 +71,8 @@ namespace PhishGuard.AddIn
             sb.AppendLine("Outlook " + (BuildInfo.OutlookVersion.Length > 0 ? BuildInfo.OutlookVersion : "?") + ", " + (IntPtr.Size * 8) + " bits");
             sb.AppendLine("Windows " + Environment.OSVersion.Version + ", .NET " + Environment.Version);
             sb.AppendLine(L.T("Langue : ") + (L.English ? "en" : "fr") + " ; " + L.T("mode : ") + (cfg.ExpertMode ? "expert" : L.T("simple")));
+            sb.AppendLine(L.T("Réglages imposés par stratégie : ") + (cfg.Locked.Count == 0 ? L.T("aucun") : string.Join(", ", cfg.Locked.OrderBy(x => x).ToArray())));
+            sb.AppendLine(L.T("Équipements internes déclarés : ") + cfg.InternalRelays.Count);
             sb.AppendLine("Red Flag Domains : " + (cfg.RedFlagEnabled ? Blocklists.RedFlagCount.ToString("N0") + " (" + Blocklists.RedFlagUpdated.ToString("yyyy-MM-dd") + ")" : L.T("désactivée")));
             sb.AppendLine(L.T("Secteur public : ") + (cfg.PublicSectorList ? Feeds.PublicSectorCount.ToString("N0") + " (" + Feeds.PublicSectorUpdated.ToString("yyyy-MM-dd") + ")" : L.T("désactivée")));
             sb.AppendLine("OpenPhish : " + (cfg.BetaOpenPhish ? Feeds.OpenPhishCount.ToString("N0") : L.T("désactivé")) + " ; Tranco : " + (cfg.BetaTranco ? Feeds.TrancoCount.ToString("N0") : L.T("désactivé")));

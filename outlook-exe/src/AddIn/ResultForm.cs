@@ -32,6 +32,8 @@ namespace PhishGuard.AddIn
         public event EventHandler ReportRequested;
         public event EventHandler NotPhishingRequested;
         public event EventHandler SettingsRequested;
+        /// <summary>false : mode simple imposé par une stratégie de l'entreprise (pas de bouton « Analyse détaillée »).</summary>
+        public bool AllowExpert = true;
         /// <summary>L'utilisateur a changé de mode (Expert contient le nouveau mode).</summary>
         public event EventHandler ModeChanged;
 
@@ -126,6 +128,7 @@ namespace PhishGuard.AddIn
             btnSettings.Text = L.T("Paramètres");
             btnClose.Text = L.T("Fermer");
             btnMode.Text = Expert ? L.T("Mode simple") : L.T("Analyse détaillée");
+            btnMode.Visible = AllowExpert;
         }
 
         void CopyText(string text, string ok)

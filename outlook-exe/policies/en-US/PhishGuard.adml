@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>PhishGuard for Outlook</displayName>
+  <description>Policies for the PhishGuard anti-phishing add-in for Outlook</description>
+  <resources>
+    <stringTable>
+      <string id="SUPPORTED_PhishGuard">PhishGuard for Outlook 1.15 and later</string>
+      <string id="Cat_PhishGuard">PhishGuard for Outlook</string>
+      <string id="Cat_Company">Company</string>
+      <string id="Cat_Usage">Display and usage</string>
+      <string id="Cat_Sources">Sources and lists</string>
+      <string id="ReportAddress">Security team address</string>
+      <string id="ReportAddress_Help">Address that receives messages reported with the "Report to security" button (HTML report with the original message attached).
+
+Registry value: Software\Policies\PhishGuard\ReportAddress</string>
+      <string id="CompanyDomains">Company domains</string>
+      <string id="CompanyDomains_Help">Company email domains, comma-separated (e.g. example.com, example.fr). A domain imitating them is rated critical, and an unauthenticated message using them is spoofing.
+
+Registry value: Software\Policies\PhishGuard\CompanyDomains</string>
+      <string id="Company1">Company 1 and its executives</string>
+      <string id="Company1_Help">Format: Name | Country | Identifier | Executive; Executive. Example: Example Ltd | United Kingdom | 01234567 | Claire Martin; Hugo Bernard. The company name and executive names displayed by an external sender are flagged (CEO fraud). Once a company is set by policy, the company list can no longer be edited.
+
+Registry value: Software\Policies\PhishGuard\Company1</string>
+      <string id="Company2">Company 2 and its executives</string>
+      <string id="Company2_Help">Same format as company 1 (subsidiary, other group entity).
+
+Registry value: Software\Policies\PhishGuard\Company2</string>
+      <string id="Company3">Company 3 and its executives</string>
+      <string id="Company3_Help">Same format as company 1.
+
+Registry value: Software\Policies\PhishGuard\Company3</string>
+      <string id="InternalRelays">Internal devices that send email</string>
+      <string id="InternalRelays_Help">IP addresses or CIDR ranges (comma-separated) of copiers, applications and servers that send on behalf of the company without authenticating, as seen by your mail server (e.g. 203.0.113.10, 203.0.113.0/28, 10.0.0.0/8). A message in your name coming from there is recognized as internal; from anywhere else it remains critical spoofing. Never list the address of a shared service (Microsoft 365, Google, sending platform): all its customers would benefit.
+
+Registry value: Software\Policies\PhishGuard\InternalRelays</string>
+      <string id="TrustedDomains">Trusted domains</string>
+      <string id="TrustedDomains_Help">Partner domains, comma-separated. Sender and content findings are lowered; an authentication failure is always reported.
+
+Registry value: Software\Policies\PhishGuard\TrustedDomains</string>
+      <string id="SharedBlocklistPath">Shared blocklist</string>
+      <string id="SharedBlocklistPath_Help">Path to a text file (one malicious domain per line) maintained by the security team, e.g. \\server\security\phishguard.txt. Reloaded every hour.
+
+Registry value: Software\Policies\PhishGuard\SharedBlocklistPath</string>
+      <string id="ForceSimpleMode">Enforce simple mode</string>
+      <string id="ForceSimpleMode_Help">Enabled: the analysis window shows only the plain-language verdict and "What should I do?". The "Detailed analysis" button and advanced settings (lists, reputation sources) are hidden. Recommended for non-technical users; do not apply to the security team.
+
+Registry value: Software\Policies\PhishGuard\ForceSimpleMode</string>
+      <string id="Language">Interface language</string>
+      <string id="Language_Help">PhishGuard language. Automatic: Windows language.
+
+Registry value: Software\Policies\PhishGuard\Language</string>
+      <string id="Language_auto">Automatic (Windows language)</string>
+      <string id="Language_fr">French</string>
+      <string id="Language_en">English</string>
+      <string id="AlertLevel">On-screen alerts</string>
+      <string id="AlertLevel_Help">Messages for which an alert is shown at the bottom right of the screen.
+
+Registry value: Software\Policies\PhishGuard\AlertLevel</string>
+      <string id="AlertLevel_dangerous">Dangerous messages only</string>
+      <string id="AlertLevel_suspicious">Suspicious and dangerous messages</string>
+      <string id="AlertLevel_none">No alert</string>
+      <string id="AutoAnalyze">Automatic analysis</string>
+      <string id="AutoAnalyze_Help">Enabled: every selected or opened message is analyzed and its score shown in the ribbon. Disabled: analysis on demand only.
+
+Registry value: Software\Policies\PhishGuard\AutoAnalyze</string>
+      <string id="MoveAfterReport">Move reported messages</string>
+      <string id="MoveAfterReport_Help">Enabled: a message reported to the security team is moved to Junk Email.
+
+Registry value: Software\Policies\PhishGuard\MoveAfterReport</string>
+      <string id="KnownCorrespondents">Known correspondents</string>
+      <string id="KnownCorrespondents_Help">Enabled: PhishGuard learns on the computer the addresses the user has written to (sent items, contacts) to spot first contact and lookalikes of correspondents.
+
+Registry value: Software\Policies\PhishGuard\KnownCorrespondents</string>
+      <string id="ScoreLog">Score log</string>
+      <string id="ScoreLog_Help">Enabled: each analysis is recorded in scores.csv on the computer (date, verdict, score, domain and findings; no subject or content).
+
+Registry value: Software\Policies\PhishGuard\ScoreLog</string>
+      <string id="AllowApiKeys">Allow API keys</string>
+      <string id="AllowApiKeys_Help">Disabled: no VirusTotal, abuse.ch or AbuseIPDB key is used on the computer and entering one is blocked. A key cannot be distributed by policy: any key readable by the computer is readable by the user. The free tiers of some services forbid business use: check their terms.
+
+Registry value: Software\Policies\PhishGuard\AllowApiKeys</string>
+      <string id="RedFlagEnabled">Red Flag Domains list</string>
+      <string id="RedFlagEnabled_Help">New suspicious .fr domains, downloaded daily. CC BY-NC-SA 4.0 license: check that your use is covered.
+
+Registry value: Software\Policies\PhishGuard\RedFlagEnabled</string>
+      <string id="PublicSectorList">Public-sector domain list</string>
+      <string id="PublicSectorList_Help">Open list from DINUM (about 100,000 French public-body domains), downloaded monthly: an authenticated message from a public body is not mistaken for a fake.
+
+Registry value: Software\Policies\PhishGuard\PublicSectorList</string>
+      <string id="DomainAgeLookup">Domain age</string>
+      <string id="DomainAgeLookup_Help">Queries public registries (RDAP) for the creation date of sender and link domains. Only the domain name is sent.
+
+Registry value: Software\Policies\PhishGuard\DomainAgeLookup</string>
+      <string id="BetaDnsChecks">DNS checks</string>
+      <string id="BetaDnsChecks_Help">Checks the sender's domain in the company DNS (MX, SPF, DMARC, BIMI) and whether a domain resembling a brand is managed by that brand's DNS servers.
+
+Registry value: Software\Policies\PhishGuard\BetaDnsChecks</string>
+      <string id="BetaCertAge">Certificate age (crt.sh)</string>
+      <string id="BetaCertAge_Help">Sends domain names to crt.sh to find the date of their first HTTPS certificate.
+
+Registry value: Software\Policies\PhishGuard\BetaCertAge</string>
+      <string id="BetaOpenPhish">OpenPhish list</string>
+      <string id="BetaOpenPhish_Help">Active phishing pages, downloaded every 12 hours and compared on the computer. Community feed for non-commercial use.
+
+Registry value: Software\Policies\PhishGuard\BetaOpenPhish</string>
+      <string id="BetaTranco">Tranco ranking</string>
+      <string id="BetaTranco_Help">Most visited sites, downloaded weekly: reduces false alerts on very popular domains.
+
+Registry value: Software\Policies\PhishGuard\BetaTranco</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="ReportAddress"><textBox refId="ReportAddress_Value"><label>Security team address</label></textBox></presentation>
+      <presentation id="CompanyDomains"><textBox refId="CompanyDomains_Value"><label>Company domains</label></textBox></presentation>
+      <presentation id="Company1"><textBox refId="Company1_Value"><label>Company 1 and its executives</label></textBox></presentation>
+      <presentation id="Company2"><textBox refId="Company2_Value"><label>Company 2 and its executives</label></textBox></presentation>
+      <presentation id="Company3"><textBox refId="Company3_Value"><label>Company 3 and its executives</label></textBox></presentation>
+      <presentation id="InternalRelays"><textBox refId="InternalRelays_Value"><label>Internal devices that send email</label></textBox></presentation>
+      <presentation id="TrustedDomains"><textBox refId="TrustedDomains_Value"><label>Trusted domains</label></textBox></presentation>
+      <presentation id="SharedBlocklistPath"><textBox refId="SharedBlocklistPath_Value"><label>Shared blocklist</label></textBox></presentation>
+      <presentation id="Language"><dropdownList refId="Language_Value" noSort="true">Interface language</dropdownList></presentation>
+      <presentation id="AlertLevel"><dropdownList refId="AlertLevel_Value" noSort="true">On-screen alerts</dropdownList></presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

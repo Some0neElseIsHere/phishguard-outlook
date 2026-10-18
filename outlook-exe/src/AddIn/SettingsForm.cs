@@ -31,6 +31,8 @@ namespace PhishGuard.AddIn
         readonly ListView lvCompanies;
         readonly List<CompanyEntry> companies;
         CheckBox chkWatch;
+        TextBox txtRelays;
+        readonly List<Control> companyControls = new List<Control>(), domainControls = new List<Control>();
 
         public SettingsForm(PhishGuardConfig current, Icon icon) : this(current, icon, "") { }
 
@@ -82,6 +84,7 @@ namespace PhishGuard.AddIn
             pGeneral.Controls.Add(btnAddCompany);
             pGeneral.Controls.Add(btnRemoveCompany);
             pGeneral.Controls.Add(btnEditCompany);
+            companyControls.AddRange(new Control[] { lvCompanies, btnAddCompany, btnRemoveCompany, btnEditCompany });
             y += 32;
             AddHint(pGeneral, ref y, L.T("Le nom de chaque entreprise est repéré dans le nom affiché des expéditeurs externes. Recherche dans l’Annuaire des Entreprises (France) ou Wikidata (autres pays) ; « Modifier… » complète les dirigeants à la main."));
             y += 10;
@@ -93,6 +96,7 @@ namespace PhishGuard.AddIn
                 var addDom = new LinkLabel { Text = L.F("Ajouter {0} (votre adresse)", this.mailboxDomain), Location = new Point(300, yDomains), AutoSize = true, Anchor = AnchorStyles.Top | AnchorStyles.Right };
                 addDom.LinkClicked += (s, e) => AddLines(txtDomains, new[] { this.mailboxDomain });
                 pGeneral.Controls.Add(addDom);
+                domainControls.Add(addDom);
             }
             chkWatch = new CheckBox { Text = L.T("Surveiller chaque semaine les nouveaux sosies"), Checked = cfg.WatchDomains, Location = new Point(200, y - 2), AutoSize = true };
             if (cfg.ExpertMode)
@@ -104,6 +108,8 @@ namespace PhishGuard.AddIn
                 y += 26;
                 AddHint(pGeneral, ref y, WatchStatus());
                 y += 14;
+                txtRelays = AddText(pGeneral, ref y, L.T("Équipements internes qui envoient des mails (copieurs, applications)"), string.Join(Environment.NewLine, cfg.InternalRelays.ToArray()), true, 46,
+                    L.T("Adresses IP ou plages (ex. 203.0.113.10 ou 203.0.113.0/28) vues par votre serveur de messagerie. Un mail à votre nom venant de là n’est pas une usurpation. N’indiquez jamais l’adresse d’un service partagé (Microsoft 365, Google…) : tous ses clients en profiteraient."));
             }
             txtVips = AddText(pGeneral, ref y, L.T("Dirigeants"), "", true, 60,
                 L.T("Rempli à partir des entreprises ci-dessus. Un email externe affichant l’un de ces noms est signalé (fraude au président)."));
@@ -246,6 +252,7 @@ namespace PhishGuard.AddIn
             CancelButton = btnCancel;
 
             Controls.Add(tabs);
+            ApplyLocks();
             Controls.Add(bar);
         }
 
@@ -389,6 +396,42 @@ namespace PhishGuard.AddIn
             return c;
         }
 
+        /// <summary>Réglages imposés par une stratégie de l'entreprise : grisés, avec une explication.</summary>
+        void ApplyLocks()
+        {
+            if (cfg.Locked.Count == 0) return;
+            var map = new Dictionary<string, IEnumerable<Control>>
+            {
+                { "company#", companyControls }, { "companydomains", domainControls.Concat(new Control[] { txtDomains }) },
+                { "reportaddress", new Control[] { txtReport } }, { "trusteddomains", new Control[] { txtTrusted } },
+                { "trustedsenders", new Control[] { txtTrustedSenders } }, { "sharedblocklistpath", new Control[] { txtShared } },
+                { "autoanalyze", new Control[] { chkAuto } }, { "alertlevel", new Control[] { cboAlert } }, { "language", new Control[] { cboLang } },
+                { "autohashmaxmb", new Control[] { numHash } }, { "redflagenabled", new Control[] { chkRedFlag } }, { "showexplanations", new Control[] { chkExplain } },
+                { "knowncorrespondents", new Control[] { chkCorr } }, { "domainagelookup", new Control[] { chkAge } }, { "tagcategory", new Control[] { chkTag } },
+                { "moveafterreport", new Control[] { chkMove } }, { "scorelog", new Control[] { chkLog } }, { "watchdomains", new Control[] { chkWatch } },
+                { "expertmode", new Control[] { cboMode } }, { "publicsectorlist", new Control[] { chkPublic } }, { "betaopenphish", new Control[] { chkOpenPhish } },
+                { "betatranco", new Control[] { chkTranco } }, { "betadnschecks", new Control[] { chkDns } }, { "betacertage", new Control[] { chkCert } },
+                { "virustotalkey", new Control[] { txtVt } }, { "abusechkey", new Control[] { txtAbuseCh } }, { "abuseipdbkey", new Control[] { txtAbuseIpdb } },
+                { "internalrelays", new Control[] { txtRelays } }
+            };
+            var tip = new ToolTip();
+            string why = L.T("Imposé par votre service informatique");
+            foreach (var kv in map)
+            {
+                if (!cfg.IsLocked(kv.Key)) continue;
+                foreach (var c in kv.Value)
+                {
+                    if (c == null) continue;
+                    c.Enabled = false;
+                    tip.SetToolTip(c, why);
+                }
+            }
+            var banner = new Label { Dock = DockStyle.Top, Height = 30, TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(10, 0, 0, 0),
+                BackColor = Color.FromArgb(255, 244, 229), ForeColor = Color.FromArgb(140, 80, 0),
+                Text = L.T("Certains réglages sont imposés par votre service informatique : ils sont grisés.") };
+            Controls.Add(banner);
+        }
+
         static TabPage Page(string title)
         {
             return new TabPage(title) { AutoScroll = true, Padding = new Padding(8), UseVisualStyleBackColor = true };
@@ -470,6 +513,7 @@ namespace PhishGuard.AddIn
             cfg.TrustedSenders = Lines(txtTrustedSenders, true).Where(x => x.Contains("@")).ToList();
             cfg.SharedBlocklistPath = txtShared.Text.Trim();
             cfg.WatchDomains = chkWatch.Checked;
+            if (txtRelays != null) cfg.InternalRelays = Lines(txtRelays, false);
             cfg.ExpertMode = cboMode.SelectedIndex == 1;
             cfg.PublicSectorList = chkPublic.Checked;
             cfg.BetaOpenPhish = chkOpenPhish.Checked;

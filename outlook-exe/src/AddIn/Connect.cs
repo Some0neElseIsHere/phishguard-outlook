@@ -56,6 +56,7 @@ namespace PhishGuard.AddIn
         {
             application = Application;
             try { BuildInfo.OutlookVersion = Convert.ToString(((dynamic)Application).Version); } catch (Exception) { }
+            PhishGuardConfig.PolicySource = Policies.Read;   // stratégies d'entreprise (GPO, Intune), relues à chaque chargement des réglages
             try
             {
                 AppDomain.CurrentDomain.UnhandledException += (s, e) => Log("Exception non gérée : " + e.ExceptionObject);
@@ -498,7 +499,8 @@ namespace PhishGuard.AddIn
                     catch (Exception ex) { Log("Paramètres depuis la fenêtre : " + ex); }
                 };
             }
-            form.Expert = config.ExpertMode;
+            form.AllowExpert = !config.ForceSimpleMode;
+            form.Expert = config.ExpertMode && !config.ForceSimpleMode;
             form.ShowResult(c.Result, c.Data, ListStatus(), config.ShowExplanations);
             InvalidateRibbons();
         }

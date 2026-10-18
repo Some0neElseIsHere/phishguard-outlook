@@ -54,6 +54,8 @@ if errorlevel 1 goto compilefail
 
 echo [3/4] Preparation de l'installation...
 for %%F in (config.ini custom.txt assets\phishguard.ico installer\installer.cmd installer\desinstaller.cmd) do copy /y "%%F" build\package\ >nul
+rem Modele de strategies de groupe (GPO / Intune) : policies\PhishGuard.admx et ses traductions
+xcopy /e /i /q /y policies build\package\policies >nul
 
 echo [4/4] Creation de l'installeur PhishGuard-Outlook.exe...
 rem Programme d'installation en C# : les fichiers du complement sont integres a l'exe.
