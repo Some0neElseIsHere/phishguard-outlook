@@ -8,15 +8,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Liste du secteur public
+        shell: bash {0}
         run: |
           for u in "https://gitlab.adullact.net/dinum/noms-de-domaine-organismes-secteur-public/-/raw/master/domains.csv" "https://gitlab.adullact.net/api/v4/projects/dinum%2Fnoms-de-domaine-organismes-secteur-public/repository/files/domains.csv/raw?ref=master" "https://raw.githubusercontent.com/etalab/noms-de-domaine-organismes-secteur-public/master/domains.csv"; do
-            code=$(curl -sSL -A "PhishGuard-Outlook/1.0" -o f.csv -w '%{http_code}' "$u" || true)
+            rm -f f.csv; touch f.csv; code=$(curl -sSL -A "PhishGuard-Outlook/1.0" -o f.csv -w '%{http_code}' "$u" || true)
             n=$(wc -l < f.csv); h=$(head -c 150 f.csv | tr '\n' ' ' | tr -d '"'); gouv=$(grep -c '\.gouv\.fr' f.csv || true)
             echo "::notice::code=$code lignes=$n gouv=$gouv | $h | $u"
           done
           echo "::notice::commit $(curl -sSL 'https://gitlab.adullact.net/api/v4/projects/dinum%2Fnoms-de-domaine-organismes-secteur-public/repository/commits?per_page=1' | head -c 250)"
           echo "::notice::types $(awk -F, 'NR>1{print $5}' f.csv | sort | uniq -c | sort -rn | head -12 | tr '\n' ';')"
       - name: Preuves de propriétaire
+        shell: bash {0}
         run: |
           sudo apt-get install -y -qq dnsutils >/dev/null 2>&1 || true
           python3 .github/sonde.py bnpparibas.eu:bnpparibas.com orange.eu:orange.fr microsoft.eu:microsoft.com credit-agricole.eu:credit-agricole.fr lcl.eu:lcl.fr amazon.eu:amazon.com paypal.eu:paypal.com laposte.eu:laposte.fr edf.eu:edf.fr axa.eu:axa.com sncf-connect.eu:sncf-connect.com hsbc.eu:hsbc.com
