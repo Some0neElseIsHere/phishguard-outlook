@@ -47,12 +47,16 @@ namespace PhishGuard.Tools
                     string spec = args[a];
                     int eq = spec.IndexOf('=');
                     string label = spec.Substring(0, eq), path = spec.Substring(eq + 1), company = "";
-                    int bar = path.IndexOf('|');
-                    if (bar >= 0) { company = path.Substring(bar + 1); path = path.Substring(0, bar); }
+                    // chemin[|domaine-entreprise[|nombre-maximal]] : au-delà du maximum, échantillon régulier
+                    int max = 0;
+                    var parts = path.Split('|');
+                    path = parts[0];
+                    if (parts.Length > 1) company = parts[1];
+                    if (parts.Length > 2) int.TryParse(parts[2], out max);
                     var cfg = new PhishGuardConfig();
                     if (company.Length > 0) cfg.CompanyDomains = new List<string> { company };
                     int n = 0, err = 0;
-                    foreach (var raw in Messages(path))
+                    foreach (var raw in Messages(path, max))
                     {
                         n++;
                         EmailData e;
@@ -124,16 +128,22 @@ namespace PhishGuard.Tools
 
         static readonly Encoding Latin1 = Encoding.GetEncoding(28591);
 
-        static IEnumerable<byte[]> Messages(string path)
+        static IEnumerable<byte[]> Messages(string path, int max)
         {
             if (Directory.Exists(path))
             {
-                foreach (var f in Directory.GetFiles(path, "*", SearchOption.AllDirectories).OrderBy(x => x, StringComparer.Ordinal))
+                var files = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                    .Where(f => { string n = Path.GetFileName(f); return !n.StartsWith(".") && !n.Equals("cmds", StringComparison.OrdinalIgnoreCase) && f.IndexOf(Path.DirectorySeparatorChar + ".git" + Path.DirectorySeparatorChar) < 0; })
+                    .OrderBy(x => x, StringComparer.Ordinal).ToList();
+                // Dossier de .eml (dépôt avec README, licence…) : seulement les messages
+                var eml = files.Where(f => f.EndsWith(".eml", StringComparison.OrdinalIgnoreCase)).ToList();
+                if (eml.Count > 0) files = eml;
+                if (max > 0 && files.Count > max)
                 {
-                    string name = Path.GetFileName(f);
-                    if (name.StartsWith(".") || name.Equals("cmds", StringComparison.OrdinalIgnoreCase)) continue;
-                    yield return File.ReadAllBytes(f);
+                    double step = (double)files.Count / max;
+                    files = Enumerable.Range(0, max).Select(i => files[(int)(i * step)]).ToList();
                 }
+                foreach (var f in files) yield return File.ReadAllBytes(f);
                 yield break;
             }
             // mbox : un message commence par une ligne « From » précédée d'une ligne vide (ou en début de fichier)

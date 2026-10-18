@@ -46,6 +46,14 @@ jobs:
               curl.exe -sSL -o "apache-$n-$m.mbox" "https://lists.apache.org/api/mbox.lua?list=$l&date=$m"
             }
           }
+          # Phishings récents capturés par des pièges à spam (adresses des victimes remplacées par phishing@pot)
+          git clone -q --depth 1 https://github.com/rf-peixoto/phishing_pot.git phishing_pot
+          # Spam reçu en 2026 (archive de Bruce Guenter, libre d'usage ; une seule récupération par jour)
+          foreach ($m in "2026-06", "2026-07", "2026-08", "2026-09", "2026-10") {
+            curl.exe -sSL -o "spam-$m.7z" "http://untroubled.org/spam/$m.7z"
+            if ((Get-Item "spam-$m.7z").Length -gt 10000) { 7z x -y -bd -o"spam-2026\$m" "spam-$m.7z" | Out-Null }
+          }
+          "phishing_pot : " + (Get-ChildItem phishing_pot -Recurse -Filter *.eml).Count + " .eml ; spam 2026 : " + (Get-ChildItem spam-2026 -Recurse -File).Count + " messages"
           curl.exe -sSfL -o "secteur-public.csv" "https://raw.githubusercontent.com/etalab/noms-de-domaine-organismes-secteur-public/master/domains.csv"
           Get-ChildItem | Format-Table Name, Length
 
@@ -57,6 +65,8 @@ jobs:
           $a += "ham-easy=corpus\20030228_easy_ham", "ham-easy2=corpus\20030228_easy_ham_2", "ham-hard=corpus\20030228_hard_ham"
           foreach ($f in Get-ChildItem corpus\apache-*.mbox) { if ($f.Length -gt 1000) { $a += "ham-apache-$($f.BaseName.Substring(7))=$($f.FullName)" } }
           $a += "ham-cas-difficiles=outlook-exe\tests\legitimes|exemple-pme.fr"
+          $a += "phish-pot=corpus\phishing_pot"
+          if (Test-Path corpus\spam-2026) { $a += "spam-2026=corpus\spam-2026|untroubled.org|3000" }
           New-Item -ItemType Directory -Force out | Out-Null
           $env:PG_PUBLIC_SECTOR = (Resolve-Path corpus\secteur-public.csv).Path
           & outlook-exe\build\Bench.exe out\bench.csv @a
