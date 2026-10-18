@@ -237,8 +237,7 @@ PhishGuard fonctionne avec **Outlook classique pour Windows** : la version de bu
 ou Outlook 2019 et 2021. Votre boîte peut être sur Exchange, Exchange Online (Microsoft 365) ou un autre fournisseur
 (Orange, Gmail…) relevé dans Outlook. Le **nouvel Outlook** et Outlook sur le web n'acceptent plus les compléments COM.
 Microsoft prévoit de rendre le nouvel Outlook par défaut en entreprise à partir de mars 2027 (avec possibilité de revenir
-à la version classique), et maintient Outlook classique au moins jusqu'en 2029. Une version
-expérimentale pour le nouvel Outlook et Outlook sur le web est décrite dans [docs/complement-web.md](docs/complement-web.md).
+à la version classique), et maintient Outlook classique au moins jusqu'en 2029.
 
 **Faut-il être administrateur pour l'installer ?**
 Non : l'installation se fait dans le profil de l'utilisateur. Les entreprises peuvent la déployer en silence
@@ -281,9 +280,7 @@ outlook-exe/                  Complément Outlook (COM, C# 5, .NET Framework 4)
   LISEZMOI.md                 Notice incluse dans le zip de la release
   tools/Screenshots.cs        Génère les captures d'écran du README (workflow « Captures d'écran »)
   tools/Bench.cs              Banc d'essai sur des corpus publics (workflow « Banc d'essai », voir docs/banc-essai.md)
-docs/                         Notes de version, banc d'essai, captures d'écran, documentation du complément web
-src/, test/, tools/,          Version « complément web » (Office.js), voir docs/complement-web.md
-manifest.xml, server.js
+docs/                         Notes de version, banc d'essai, captures d'écran
 .github/workflows/            Construction, tests, releases, captures d'écran, banc d'essai
 ```
 
@@ -307,7 +304,7 @@ Journal technique : `%LOCALAPPDATA%\PhishGuard\phishguard.log`.
 
 ## Limites connues
 
-- Fonctionne avec **Outlook classique pour Windows** uniquement (pas le nouvel Outlook ni Outlook sur le web : voir la version « complément web » dans `docs/`).
+- Fonctionne avec **Outlook classique pour Windows** uniquement (pas le nouvel Outlook ni Outlook sur le web, qui n'acceptent pas les compléments COM).
 - Les liens contenus dans des flux PDF compressés ne sont pas extraits.
 - Mimecast et Cisco réécrivent les liens sous une forme chiffrée : leur vraie destination ne peut pas être lue.
 - La recherche de certificats contenant votre marque (crt.sh) est lente et peut expirer ; le reste de l'analyse du domaine n'en dépend pas.
