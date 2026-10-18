@@ -18,7 +18,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 
 **[⬇ Télécharger PhishGuard pour Outlook](../../releases/latest)** · installation en un clic, sans droits administrateur.
 
-- **Pour tout le monde** : un mode simple explique le verdict sans jargon, étape par étape. Un mode expert offre une analyse complète des en-têtes, liens et pièces jointes, à la manière de [PhishTool](https://www.phishtool.com/).
+- **Pour tout le monde** : un mode simple explique le verdict sans jargon, étape par étape. Un mode expert offre une analyse détaillée des en-têtes, du parcours du message, des liens et des pièces jointes.
 - **Confidentiel** : le contenu des messages ne quitte jamais le poste. Aucune clé d'API nécessaire.
 - **Pensé pour l'entreprise** : Exchange ou Microsoft 365, signalement en un clic à l'équipe sécurité, déploiement silencieux, configuration centralisée, interface en français et en anglais.
 
@@ -42,7 +42,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 > for Windows, including the one in Microsoft 365 Apps; not the new Outlook or Outlook on the web). It analyzes every email locally (content never leaves the PC) and shows a
 > clear verdict in the ribbon: spoofing, lookalike domains, CEO fraud, fake bank details, malicious links
 > and attachments, QR code phishing (quishing), thread hijacking. A simple mode explains what to do; an
-> expert mode offers a PhishTool-like investigation view, and one click sends a detailed HTML report to
+> expert mode offers a detailed investigation view (headers, message path, links, attachments), and one click sends a detailed HTML report to
 > your security team. Interface in French and English.*
 
 ---
@@ -326,4 +326,4 @@ Code publié sous licence **GNU GPL v3** (voir [LICENSE](LICENSE)) : vous pouvez
 - Dirigeants : [Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) (données INSEE et RNE) et [Wikidata](https://www.wikidata.org/) (données sous licence CC0).
 - Sources de réputation optionnelles : [OpenPhish](https://openphish.com/) (flux communautaire, usage non commercial), [Tranco](https://tranco-list.eu/), [crt.sh](https://crt.sh/), [VirusTotal](https://www.virustotal.com/), [abuse.ch](https://abuse.ch/), [AbuseIPDB](https://www.abuseipdb.com/), chacune selon ses propres conditions d'utilisation.
 - Lecture des QR codes : décodeur de [ZXing.Net](https://github.com/micjahn/ZXing.Net) (licence Apache 2.0, voir `outlook-exe/src/ThirdParty/ZXing/LICENSE`).
-- Inspiré par [PhishTool](https://www.phishtool.com/).
+- Inspiré par [PhishTool](https://www.phishtool.com/). PhishGuard n'est ni affilié à PhishTool ni approuvé par lui ; PhishTool est une marque de son propriétaire.
