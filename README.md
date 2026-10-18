@@ -7,7 +7,7 @@
 ![Contenu analysé sur le poste](https://img.shields.io/badge/contenu-analys%C3%A9%20sur%20le%20poste-13804a)
 
 **Repérez les emails de phishing (hameçonnage) avant de cliquer.** PhishGuard est un complément
-**gratuit et open source pour Outlook** (Microsoft 365, Outlook 2019, 2021) qui analyse chaque email
+**gratuit et open source pour Outlook classique sous Windows** (celui de Microsoft 365 Apps, Outlook 2019, 2021) qui analyse chaque email
 **sur votre poste** et affiche un verdict clair dans le ruban : vert, orange ou rouge. Faux emails Microsoft,
 usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, pièces jointes dangereuses,
 **QR codes frauduleux** : il dit en clair **pourquoi** le message est dangereux et **quoi faire**.
@@ -39,7 +39,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 *Captures générées automatiquement par le vrai moteur d'analyse, sur des messages d'exemple fictifs.*
 
 > *English summary — PhishGuard is a **free, open-source phishing detector for Outlook** (classic Outlook
-> for Windows, Microsoft 365). It analyzes every email locally (content never leaves the PC) and shows a
+> for Windows, including the one in Microsoft 365 Apps; not the new Outlook or Outlook on the web). It analyzes every email locally (content never leaves the PC) and shows a
 > clear verdict in the ribbon: spoofing, lookalike domains, CEO fraud, fake bank details, malicious links
 > and attachments, QR code phishing (quishing), thread hijacking. A simple mode explains what to do; an
 > expert mode offers a PhishTool-like investigation view, and one click sends a detailed HTML report to
@@ -110,7 +110,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 
 ## Installation
 
-**Prérequis** : Windows 10/11, **Outlook classique** (Microsoft 365, 2019, 2021…), .NET Framework 4.6 ou plus (présent par défaut).
+**Prérequis** : Windows 10/11, **Outlook classique** (version de bureau de Microsoft 365 Apps, 2019, 2021…), .NET Framework 4.6 ou plus (présent par défaut). Le nouvel Outlook et Outlook sur le web ne sont pas pris en charge.
 
 1. Téléchargez **`PhishGuard-Outlook-vX.Y.Z-installeur.exe`** dans [Releases](../../releases).
 2. **Fermez Outlook**, lancez l'exe et cliquez sur **Installer** (aucun droit administrateur demandé).
@@ -233,7 +233,11 @@ Non. L'analyse se fait sur votre ordinateur. Seuls des noms de domaine, des empr
 IP peuvent être vérifiés en ligne, et seulement si vous activez ces sources (voir [Confidentialité](#confidentialité)).
 
 **Est-ce que ça marche avec le nouvel Outlook, Outlook sur le web ou Gmail ?**
-PhishGuard fonctionne avec **Outlook classique pour Windows** (Microsoft 365, 2019, 2021). Une version
+PhishGuard fonctionne avec **Outlook classique pour Windows** : la version de bureau fournie avec Microsoft 365 Apps,
+ou Outlook 2019 et 2021. Votre boîte peut être sur Exchange, Exchange Online (Microsoft 365) ou un autre fournisseur
+(Orange, Gmail…) relevé dans Outlook. Le **nouvel Outlook** et Outlook sur le web n'acceptent plus les compléments COM.
+Microsoft prévoit de rendre le nouvel Outlook par défaut en entreprise à partir de mars 2027 (avec possibilité de revenir
+à la version classique), et maintient Outlook classique au moins jusqu'en 2029. Une version
 expérimentale pour le nouvel Outlook et Outlook sur le web est décrite dans [docs/complement-web.md](docs/complement-web.md).
 
 **Faut-il être administrateur pour l'installer ?**
