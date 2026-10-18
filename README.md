@@ -78,7 +78,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 | **Ce n'est pas du phishing** | Ajoute l'expéditeur ou son domaine aux expéditeurs de confiance (une usurpation reste toujours signalée). |
 | **Explications pédagogiques** | Sous chaque indice, « pourquoi c'est dangereux » et quoi faire. Désactivables pour les utilisateurs expérimentés. |
 | **Paramètres** | Tous les réglages depuis Outlook, sans éditer de fichier (onglets Entreprise, Analyse, Listes, Réputation). Onglet Entreprise : **plusieurs entreprises** (groupe, filiales, y compris à l'étranger), retrouvées avec leurs dirigeants dans l'[Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) pour la France ou dans [Wikidata](https://www.wikidata.org/) pour les autres pays (sans clé) ; une entreprise absente des annuaires (filiale étrangère, Monaco…) se saisit à la main avec ses dirigeants ; la liste des dirigeants surveillés en découle. Le domaine de votre adresse Outlook est proposé comme domaine de l'entreprise. |
-| **Réputation** | Sources externes optionnelles : Red Flag Domains, OpenPhish, Tranco, DNS (MX, SPF, politique DMARC, BIMI avec certificat VMC/CMC), crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Réputation de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
+| **Réputation** | Sources externes optionnelles : Red Flag Domains, domaines du secteur public, OpenPhish, Tranco, DNS (MX, SPF, politique DMARC, BIMI avec certificat VMC/CMC, domaine géré par les serveurs DNS d'une marque), crt.sh (sans clé) ; VirusTotal, abuse.ch, AbuseIPDB (clé gratuite). Résultats regroupés dans l'onglet Réputation de la fenêtre. Les clés sont rangées dans le Gestionnaire d'identification de Windows. |
 | **Analyser mon domaine** | Depuis Paramètres → Entreprise : bilan de la sécurité email de votre domaine (MX, SPF, DKIM, DMARC, BIMI, MTA-STS, services autorisés à envoyer en votre nom), SIREN lu dans les mentions légales du site puis dirigeants, **sosies déjà enregistrés** (≈170 variantes vérifiées dans le DNS), certificats récents contenant votre marque et domaines liés (crt.sh). Les sosies cochés rejoignent la liste de blocage. |
 | **Surveillance des sosies** | Chaque semaine, les variantes de vos domaines sont revérifiées : un sosie apparu depuis la dernière fois est bloqué automatiquement (et un nouveau certificat contenant votre marque, si crt.sh est activé). |
 | **Expéditeur vérifié** | Pastille verte avec une coche quand le message est authentifié pour le domaine affiché (DMARC, DKIM aligné ou compauth Microsoft) **et** vient de quelqu'un avec qui vous êtes déjà en relation (correspondant connu, réponse à l'un de vos messages, expéditeur de confiance), sans aucun indice. Les preuves sont listées dans la fenêtre ; elles ne compensent jamais un indice Élevé ou Critique. |
@@ -97,6 +97,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
 | **Contenu** | Urgence, demande d'identifiants, demande financière, **IBAN** et changement de RIB, demande de discrétion, QR code, faux « RE: », formulaire dans le message. |
 | **Filtres de messagerie** | Objet marqué « SPAM »/« PHISHING », SCL d'Exchange, SpamAssassin, Orange, FortiMail (au mieux). |
 | **Listes de blocage** | [Red Flag Domains](https://red.flag.domains/) (nouveaux domaines .fr suspects, mise à jour quotidienne), liste de l'équipe sécurité (`custom.txt`), liste de l'utilisateur (onglet Listes), liste partagée sur le réseau, sosies détectés par la surveillance. |
+| **Organismes publics et domaines des marques** | Les domaines `.gouv.fr` (réservés à l'État) et ceux de la [liste ouverte du secteur public](https://github.com/etalab/noms-de-domaine-organismes-secteur-public) de la DINUM (environ 100 000 : ministères, collectivités, hôpitaux, écoles…) ne sont jamais pris pour des sosies. Un domaine qui ressemble à une marque ou à votre entreprise (autre extension, ancien nom) est reconnu comme le sien lorsqu'il est géré par ses propres serveurs DNS (vérification DNS activée). |
 | **Réputation** (optionnel) | OpenPhish, Tranco, DNS de l'expéditeur (existence, MX, SPF, politique DMARC, BIMI), âge du premier certificat (crt.sh), VirusTotal (empreintes des pièces jointes), URLhaus et ThreatFox (abuse.ch), AbuseIPDB (IP d'origine). |
 
 ### Fenêtre d'enquête
@@ -165,6 +166,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `SharedBlocklistPath` | Liste de blocage partagée (ex. `\\serveur\securite\phishguard.txt`) | — |
 | `RedFlagEnabled`, `RedFlagUrl`, `RedFlagMaxAgeHours` | Liste Red Flag Domains, son adresse, âge maximal avant mise à jour | `true`, liste officielle, `24` |
 | `WatchDomains` | Surveillance hebdomadaire des sosies de `CompanyDomains` | `true` |
+| `PublicSectorList` | Liste des domaines du secteur public (DINUM), téléchargée chaque mois | `true` |
 | `BetaOpenPhish`, `BetaTranco`, `BetaDnsChecks`, `BetaCertAge` | Sources de réputation sans clé (onglet Réputation) | `false` |
 | `VirusTotalKey`, `AbuseChKey`, `AbuseIpdbKey` | Clés par défaut pour tous ; un utilisateur peut saisir les siennes, rangées dans le Gestionnaire d'identification de Windows et prioritaires | — |
 | `ExpertMode` | `false` : fenêtre simple (débutants) ; `true` : analyse détaillée et réglages avancés | `false` |
@@ -191,6 +193,7 @@ Une clé d'API écrite dans `config.ini` y est lisible en clair : préférez la 
 | Contenu, objet, pièces jointes des messages | **Nulle part** : analyse sur le poste |
 | Noms de domaine (âge du domaine) | `rdap.org` puis le registre du domaine (désactivable) |
 | Liste Red Flag Domains | Téléchargée depuis `dl.red.flag.domains` (aucune donnée envoyée) |
+| Liste du secteur public | Téléchargée chaque mois depuis `raw.githubusercontent.com` (aucune donnée envoyée) |
 | Nom d'une entreprise recherchée (bouton « Ajouter une entreprise ») | `recherche-entreprises.api.gouv.fr` (France) ou `wikidata.org` (autres pays), uniquement au clic |
 | Vos domaines et leurs variantes (analyse et surveillance des sosies) | Serveur DNS de votre entreprise ; `crt.sh` pour les certificats ; votre propre site pour les mentions légales |
 | Sources de réputation (si activées) | OpenPhish et Tranco : listes téléchargées, comparaison sur le poste. DNS : serveur DNS de l'entreprise. crt.sh, abuse.ch : noms de domaine. VirusTotal, abuse.ch : empreintes SHA-256 des pièces jointes (jamais le fichier). AbuseIPDB : IP d'origine |
@@ -199,7 +202,7 @@ Une clé d'API écrite dans `config.ini` y est lisible en clair : préférez la 
 
 Fichiers créés dans `%LOCALAPPDATA%\PhishGuard` : réglages (`config.user.ini`, `custom.user.txt`), correspondants (`correspondants.txt`),
 identifiants techniques de vos messages envoyés et domaines de leurs destinataires (`fils.txt`, sans objet ni contenu),
-sosies surveillés (`surveillance.txt`), âge des domaines déjà vérifiés, listes Red Flag Domains, OpenPhish et Tranco,
+sosies surveillés (`surveillance.txt`), âge des domaines déjà vérifiés, listes Red Flag Domains, secteur public, OpenPhish et Tranco,
 journal des scores (`scores.csv`, sans objet ni contenu), journal technique (`phishguard.log`).
 Les clés d'API ne sont pas dans ce dossier : elles sont dans le Gestionnaire d'identification de Windows (« PhishGuard:… »).
 
@@ -319,6 +322,7 @@ Code publié sous licence **GNU GPL v3** (voir [LICENSE](LICENSE)) : vous pouvez
 
 - Liste [Red Flag Domains](https://red.flag.domains/) : données sous licence **CC BY-NC-SA 4.0** (usage non commercial). Elle est téléchargée par chaque poste et n'est pas redistribuée ici. Pour un usage en entreprise, vérifiez que votre cas est couvert (hello@red.flag.domains) ou désactivez-la (`RedFlagEnabled = false`).
 - Âge des domaines : service public [rdap.org](https://rdap.org/) et registres RDAP.
+- Domaines du secteur public : [liste de la DINUM](https://github.com/etalab/noms-de-domaine-organismes-secteur-public) (Licence Ouverte 2.0), téléchargée par chaque poste.
 - Dirigeants : [Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr/) (données INSEE et RNE) et [Wikidata](https://www.wikidata.org/) (données sous licence CC0).
 - Sources de réputation optionnelles : [OpenPhish](https://openphish.com/) (flux communautaire, usage non commercial), [Tranco](https://tranco-list.eu/), [crt.sh](https://crt.sh/), [VirusTotal](https://www.virustotal.com/), [abuse.ch](https://abuse.ch/), [AbuseIPDB](https://www.abuseipdb.com/), chacune selon ses propres conditions d'utilisation.
 - Lecture des QR codes : décodeur de [ZXing.Net](https://github.com/micjahn/ZXing.Net) (licence Apache 2.0, voir `outlook-exe/src/ThirdParty/ZXing/LICENSE`).

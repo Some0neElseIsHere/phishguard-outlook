@@ -12,6 +12,11 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.13.0** : moins de fausses alertes sur les organismes publics et les autres domaines des marques.
+  - **Organismes publics** : les domaines `.gouv.fr` et les quelque 100 000 domaines de la liste ouverte du secteur public (DINUM : ministères, collectivités, hôpitaux, écoles…) ne sont plus pris pour des sosies. Liste téléchargée chaque mois (Paramètres → Réputation, activée par défaut). Pour les petites structures, souvent piratées, le contenu des messages reste analysé normalement.
+  - **Autres domaines d'une marque** (autre extension, ancien nom) : avec la vérification DNS activée, un domaine qui ressemble à une marque ou à votre entreprise est reconnu comme le sien s'il est géré par ses propres serveurs DNS, ou si le domaine officiel autorise ses rapports DMARC. Un escroc ne peut produire ni l'un ni l'autre.
+  - Adresses automatiques avec tiret bas (`no_reply`, `do_not_reply`, `ne_pas_repondre`) reconnues.
+
 - **v1.12.2** : correctif de la v1.12.1 : les adresses d'images (logos, pixels) qu'Outlook recopie dans la version texte des messages empêchaient de reconnaître un vrai mail de code de connexion.
 
 - **v1.12.1** : les vrais mails de **code de connexion ou de vérification** (Riot Games, Steam, Vinted, leboncoin…, en anglais comme en français) ne sont plus classés dangereux à cause de leur avertissement « si ce n'est pas vous, changez immédiatement votre mot de passe ». Conditions : message authentifié, aucun indice d'usurpation, ni pièce jointe ni formulaire, et tous les liens chez l'expéditeur ; un seul lien vers un autre site et l'alerte revient.
