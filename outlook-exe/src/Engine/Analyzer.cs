@@ -631,7 +631,7 @@ namespace PhishGuard
         // =====================================================================
 
         static readonly System.Text.RegularExpressions.Regex AutomatedLocal = new System.Text.RegularExpressions.Regex(
-            @"^(no-?reply|ne-?pas-?repondre|do-?not-?reply|donotreply|noreponse|notifications?|alerts?|mailer-daemon|bounce[s]?|newsletter|news|info|mailing|system|automated|account-security-noreply)([._+-].*)?$",
+            @"^(no[-_]?reply|ne[-_]?pas[-_]?repondre|do[-_]?not[-_]?reply|donotreply|noreponse|notifications?|alerts?|mailer-daemon|bounce[s]?|newsletter|news|info|mailing|system|automated|account-security-noreply)([._+-].*)?$",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
         /// <summary>Adresse d'envoi automatique (noreply@, notification@...) à laquelle on n'écrit jamais.</summary>

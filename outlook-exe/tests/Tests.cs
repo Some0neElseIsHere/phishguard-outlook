@@ -747,6 +747,13 @@ namespace PhishGuard.Tests
             vin.Attachments.Add(new AttachmentInfo { Name = "verification.html", ContentType = "text/html" });
             Check("même message avec une pièce jointe : plus de passe-droit", !Ids(Analyzer.Analyze(vin, cfg)).Contains("content-code-message"));
             Correspondents.Reset();
+            Correspondents.Set(new[] { "client@client-connu.fr" }, false);
+            foreach (var local in new[] { "no_reply", "do_not_reply", "ne_pas_repondre", "do-not-reply" })
+            {
+                var nr = Base(); nr.FromAddress = local + "@service-exemple.example"; nr.RawHeaders = PASS;
+                Check("adresse automatique reconnue : " + local, Ids(Analyzer.Analyze(nr, cfg)).Contains("sender-first-contact-auto"));
+            }
+            Correspondents.Reset();
             var orf = Base(); orf.FromName = "Orange"; orf.FromAddress = "facture@orange.fr"; orf.Subject = "Votre facture est disponible";
             orf.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=mail.orange.fr; dkim=pass header.d=orange.fr;dmarc=pass action=none header.from=orange.fr;compauth=pass reason=100";
             Check("Orange depuis une adresse de service authentifiée", !Ids(Analyzer.Analyze(orf, cfg)).Contains("sender-brand-name"));
