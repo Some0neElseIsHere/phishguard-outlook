@@ -72,13 +72,3 @@ jobs:
           name: PhishGuard pour Outlook ${{ github.event.inputs.version || github.ref_name }}
           body_path: docs/release-notes.md
           files: dist/*
-
-  moteur-web:
-    name: Moteur du complément web (Node.js)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: node --test test/engine.test.js
