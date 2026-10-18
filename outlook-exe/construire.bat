@@ -44,10 +44,12 @@ if not "%TESTFAIL%"=="0" (
 :build
 echo.
 echo [2/4] Compilation du complement Outlook...
+if not defined PG_VERSION set "PG_VERSION=dev"
+>build\BuildVersion.cs echo namespace PhishGuard.AddIn { internal static partial class BuildInfo { static partial void Generated(ref string version) { version = "%PG_VERSION%"; } } }
 "%CSC%" /nologo /codepage:65001 /target:library /platform:anycpu /out:build\package\PhishGuard.dll ^
   /r:System.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll ^
   /resource:assets\icon-32.png,PhishGuard.icon-32.png /resource:assets\report-32.png,PhishGuard.report-32.png /resource:assets\settings-32.png,PhishGuard.settings-32.png ^
-  src\Engine\*.cs src\AddIn\*.cs /recurse:src\ThirdParty\*.cs
+  src\Engine\*.cs src\AddIn\*.cs /recurse:src\ThirdParty\*.cs build\BuildVersion.cs
 if errorlevel 1 goto compilefail
 
 echo [3/4] Preparation de l'installation...
@@ -55,7 +57,6 @@ for %%F in (config.ini custom.txt assets\phishguard.ico installer\installer.cmd 
 
 echo [4/4] Creation de l'installeur PhishGuard-Outlook.exe...
 rem Programme d'installation en C# : les fichiers du complement sont integres a l'exe.
-if not defined PG_VERSION set "PG_VERSION=1.0.0"
 >build\version.txt echo %PG_VERSION%
 "%CSC%" /nologo /codepage:65001 /target:winexe /out:build\PhishGuard-Outlook.exe ^
   /win32icon:assets\phishguard.ico /win32manifest:installer\app.manifest ^

@@ -1,6 +1,6 @@
 ﻿// PhishGuard - fenêtre d'analyse, en deux modes :
 // - simple (par défaut) : verdict en clair, les raisons principales et « Que dois-je faire ? » ;
-// - expert : onglets comme PhishTool (Résumé, En-têtes, Parcours, URL, Pièces jointes, Observables, Source, Corps, Réputation).
+// - expert : onglets d'enquête (Résumé, En-têtes, Parcours, URL, Pièces jointes, Source, Corps, Réputation).
 //
 // Sécurité de l'affichage (le rapport est une page HTML locale affichée par le moteur d'Internet Explorer) :
 // - tout texte venant du message est encodé (H) avant affichage : aucun code du message ne peut s'exécuter ;
@@ -365,7 +365,6 @@ namespace PhishGuard.AddIn
             Tab(sb, "s-hops", L.T("Parcours"), nHops);
             Tab(sb, "s-urls", L.T("URL"), nUrls);
             Tab(sb, "s-att", L.T("Pièces jointes"), nAtt);
-            Tab(sb, "s-ioc", L.T("Observables"), -1);
             Tab(sb, "s-raw", L.T("Source"), -1);
             Tab(sb, "s-body", L.T("Corps"), -1);
             Tab(sb, "s-beta", L.T("Réputation"), beta.Count);
@@ -445,6 +444,25 @@ namespace PhishGuard.AddIn
                 sb.Append("<h2>" + H(L.T("Informations principales")) + "</h2><div class='tw'><table>");
                 foreach (var kv in d.Fields) sb.Append(Row(kv.Key, "<span class='mono'>" + H(kv.Value) + "</span>"));
                 sb.Append("</table></div>");
+
+                // Domaines de l'expéditeur, de la réponse et du Return-Path, avec les liens de vérification
+                var senderDomains = new List<string>();
+                var senderAddrs = new List<string>();
+                if (!string.IsNullOrEmpty(e.FromAddress)) senderAddrs.Add(e.FromAddress);
+                senderAddrs.AddRange(e.ReplyTo);
+                foreach (var kv in d.Fields.Where(f => f.Key == "Return-Path"))
+                    foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(kv.Value, @"[^\s<>]+@[^\s<>]+")) senderAddrs.Add(m.Value);
+                foreach (var ad in senderAddrs)
+                {
+                    string dd = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(ad.ToLowerInvariant()));
+                    if (dd.Length > 0 && !senderDomains.Contains(dd)) senderDomains.Add(dd);
+                }
+                if (senderDomains.Count > 0)
+                {
+                    sb.Append("<h2>" + H(L.T("Vérifier les domaines de l’expéditeur")) + "</h2><div class='tw'><table>");
+                    foreach (var dd in senderDomains) sb.Append("<tr><td class='mono'>" + H(PhishGuard.Domains.ToUnicode(dd)) + "</td><td style='text-align:right'>" + Links(Forensics.LookupsForDomain(dd)) + "</td></tr>");
+                    sb.Append("</table></div>");
+                }
 
                 var a = d.Auth;
                 sb.Append("<h2>" + H(L.T("Authentification")) + "</h2><div class='tw'><table>");
@@ -530,6 +548,13 @@ namespace PhishGuard.AddIn
                     sb.Append("<tr><td class='mono'><b>" + H(host) + "</b></td><td class='mono muted'>" + H(Analyzer.Defang(u)) + "</td><td>" + Links(Forensics.LookupsForUrl(u)) + "</td></tr>");
                 }
                 sb.Append("</tbody></table></div>");
+                var linkDomains = r.LinkDomains.Where(x => !PhishGuard.Domains.IsIpHost(x)).Distinct().ToList();
+                if (linkDomains.Count > 0)
+                {
+                    sb.Append("<h2>" + H(L.T("Vérifier les domaines des liens")) + "<span class='c'>" + linkDomains.Count + "</span></h2><div class='tw'><table>");
+                    foreach (var dd in linkDomains) sb.Append("<tr><td class='mono'>" + H(PhishGuard.Domains.ToUnicode(dd)) + "</td><td style='text-align:right'>" + Links(Forensics.LookupsForDomain(dd)) + "</td></tr>");
+                    sb.Append("</table></div>");
+                }
             }
             sb.Append("</div>");
 
@@ -570,57 +595,6 @@ namespace PhishGuard.AddIn
             }
             if (nAtt > 0) sb.Append("<p class='note'>" + H(L.T("La recherche par empreinte n’envoie pas le fichier : VirusTotal indique seulement s’il connaît déjà ce fichier.")) + " "
                 + H(L.T("« Item not found » signifie qu’il ne l’a jamais analysé : ce n’est ni un bon ni un mauvais signe. C’est normal pour un document propre à votre échange (facture, devis…), mais un logiciel malveillant récent peut aussi être inconnu. N’envoyez pas sur VirusTotal un document confidentiel : il deviendrait accessible à ses abonnés.")) + "</p>");
-            sb.Append("</div>");
-
-            // ---------------- Observables ----------------
-            sb.Append("<div class='sec' id='s-ioc'>");
-            var addresses = new List<string>();
-            if (!string.IsNullOrEmpty(e.FromAddress)) addresses.Add(e.FromAddress.ToLowerInvariant());
-            foreach (var x in e.ReplyTo) if (!addresses.Contains(x.ToLowerInvariant())) addresses.Add(x.ToLowerInvariant());
-            foreach (var kv in d.Fields.Where(f => f.Key == "Return-Path"))
-                foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(kv.Value, @"[^\s<>]+@[^\s<>]+"))
-                    if (!addresses.Contains(m.Value.ToLowerInvariant())) addresses.Add(m.Value.ToLowerInvariant());
-            var domains = new List<string>();
-            foreach (var a in addresses) { string dd = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(a)); if (dd.Length > 0 && !domains.Contains(dd)) domains.Add(dd); }
-            foreach (var dd in r.LinkDomains) if (!PhishGuard.Domains.IsIpHost(dd) && !domains.Contains(dd)) domains.Add(dd);
-            var ips = new List<string>();
-            if (d.OriginIp.Length > 0) ips.Add(d.OriginIp);
-            foreach (var hop in d.Hops) if (hop.FromIp.Length > 0 && Forensics.IsPublicIp(hop.FromIp) && !ips.Contains(hop.FromIp)) ips.Add(hop.FromIp);
-            foreach (var dd in r.LinkDomains) if (PhishGuard.Domains.IsIpHost(dd) && !ips.Contains(dd)) ips.Add(dd);
-            var hashes = r.Attachments.Where(x => x.Sha256.Length > 0).ToList();
-
-            sb.Append("<h2>" + H(L.T("Adresses email")) + "<span class='c'>" + addresses.Count + "</span></h2>");
-            if (addresses.Count == 0) sb.Append(Empty("—"));
-            else
-            {
-                sb.Append("<div class='tw'><table>");
-                foreach (var a in addresses) sb.Append("<tr><td class='mono'>" + H(a) + "</td></tr>");
-                sb.Append("</table></div>");
-            }
-            sb.Append("<h2>" + H(L.T("Domaines")) + "<span class='c'>" + domains.Count + "</span></h2>");
-            if (domains.Count == 0) sb.Append(Empty("—"));
-            else
-            {
-                sb.Append("<div class='tw'><table>");
-                foreach (var dd in domains) sb.Append("<tr><td class='mono'>" + H(PhishGuard.Domains.ToUnicode(dd)) + "</td><td style='text-align:right'>" + Links(Forensics.LookupsForDomain(dd)) + "</td></tr>");
-                sb.Append("</table></div>");
-            }
-            sb.Append("<h2>" + H(L.T("Adresses IP")) + "<span class='c'>" + ips.Count + "</span></h2>");
-            if (ips.Count == 0) sb.Append(Empty("—"));
-            else
-            {
-                sb.Append("<div class='tw'><table>");
-                foreach (var ip in ips) sb.Append("<tr><td class='mono'>" + H(ip) + "</td><td style='text-align:right'>" + Links(Forensics.LookupsForIp(ip)) + "</td></tr>");
-                sb.Append("</table></div>");
-            }
-            sb.Append("<h2>" + H(L.T("Empreintes de fichiers")) + "<span class='c'>" + hashes.Count + "</span></h2>");
-            if (hashes.Count == 0) sb.Append(Empty("—"));
-            else
-            {
-                sb.Append("<div class='tw'><table>");
-                foreach (var att in hashes) sb.Append("<tr><td>" + H(att.Name) + "<div class='mono muted'>" + H(att.Sha256) + "</div></td><td style='text-align:right'>" + Links(Forensics.LookupsForHash(att.Sha256)) + "</td></tr>");
-                sb.Append("</table></div>");
-            }
             sb.Append("</div>");
 
             // ---------------- Source (en-têtes bruts) ----------------
