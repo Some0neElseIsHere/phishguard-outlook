@@ -27,6 +27,17 @@ namespace PhishGuard.Tools
         static int Main(string[] args)
         {
             if (args.Length < 2) { Console.WriteLine("Usage : Bench.exe sortie.csv libellé=chemin[|domaine] ..."); return 2; }
+            // Aucune expression régulière du moteur ne doit pouvoir s'emballer sur un message piégé : délai maximal,
+            // et chaque dépassement est signalé (il figerait Outlook)
+            AppDomain.CurrentDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromSeconds(3));
+            string progressPath = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[0])), "progress.txt");
+            AppDomain.CurrentDomain.UnhandledException += (s, ev) =>
+            {
+                Console.WriteLine("::error::Plantage du banc : " + ev.ExceptionObject.ToString().Replace("\r", " ").Replace("\n", " "));
+                try { File.AppendAllText(progressPath, "PLANTAGE " + ev.ExceptionObject + Environment.NewLine); } catch (Exception) { }
+            };
+            int warnings = 0;
+            Action<string> warn = msg => { if (warnings++ < 40) Console.WriteLine("::warning::" + msg.Replace("\r", " ").Replace("\n", " ")); };
             L.SetLanguage("fr");
             DomainAge.Enabled = false;
             Blocklists.SetForTests(new string[0], new string[0]);
@@ -39,7 +50,7 @@ namespace PhishGuard.Tools
                 Console.WriteLine("Secteur public : " + Feeds.PublicSectorCount + " domaines");
             }
 
-            using (var w = new StreamWriter(args[0], false, new UTF8Encoding(false)))
+            using (var w = new StreamWriter(args[0], false, new UTF8Encoding(false)) { AutoFlush = true })
             {
                 w.WriteLine("corpus,mode,idx,year,auth,level,score,verified,fromdomain,subject,nlinks,natt,bodylen,hosts,atts,findings,attendu,cas");
                 for (int a = 1; a < args.Length; a++)
@@ -59,10 +70,13 @@ namespace PhishGuard.Tools
                     foreach (var raw in Messages(path, max))
                     {
                         n++;
+                        try { File.WriteAllText(progressPath, label + " #" + n + " (" + raw.Length + " octets) " + DateTime.Now.ToString("HH:mm:ss")); } catch (Exception) { }
+                        if (raw.Length > 15 * 1024 * 1024) { warn(label + " #" + n + " ignoré : " + raw.Length / 1048576 + " Mo"); continue; }
                         EmailData e;
                         int year;
+                        var sw = System.Diagnostics.Stopwatch.StartNew();
                         try { e = Parse(raw, out year); }
-                        catch (Exception) { err++; continue; }
+                        catch (Exception ex) { err++; if (ex is RegexMatchTimeoutException) warn(label + " #" + n + " : lecture trop longue (" + ex.Message + ")"); continue; }
                         string expected = Regex.Match(e.RawHeaders, @"(?im)^X-PhishGuard-Attendu:\s*(\S+)").Groups[1].Value;
                         string cas = Regex.Match(e.RawHeaders, @"(?im)^X-PhishGuard-Cas:\s*(\S+)").Groups[1].Value;
                         bool known = Regex.IsMatch(e.RawHeaders, @"(?im)^X-PhishGuard-Connu:\s*oui");
@@ -73,8 +87,15 @@ namespace PhishGuard.Tools
                         {
                             if (mode == "inconnus") Correspondents.Set(known ? new[] { "personne@exemple.invalid", e.FromAddress } : new[] { "personne@exemple.invalid" }, false); else Correspondents.Reset();
                             AnalysisResult r;
+                            var swa = System.Diagnostics.Stopwatch.StartNew();
                             try { r = Analyzer.Analyze(Clone(e), cfg); }
-                            catch (Exception ex) { err++; Console.WriteLine(label + " #" + n + " : " + ex.GetType().Name + " " + ex.Message); continue; }
+                            catch (Exception ex)
+                            {
+                                err++;
+                                warn(label + " #" + n + " (" + Trunc(e.Subject, 60) + ") : " + ex.GetType().Name + " " + Trunc(ex.Message, 200) + " @ " + Trunc((ex.StackTrace ?? "").Replace(Environment.NewLine, " | "), 400));
+                                continue;
+                            }
+                            if (swa.ElapsedMilliseconds > 2000) warn(label + " #" + n + " (" + Trunc(e.Subject, 60) + ") : analyse lente, " + swa.ElapsedMilliseconds + " ms");
                             string f = string.Join(" ", r.Findings.Select(x => x.Id + ":" + (int)x.Severity + ":" + x.Category).ToArray());
                             w.WriteLine(string.Join(",", new[] { label, mode, n.ToString(), year.ToString(), auth ? "1" : "0", r.Level, r.Score.ToString(),
                                 r.Verified ? "1" : "0", Csv(r.SenderDomain), Csv(Trunc(e.Subject, 90)), e.Links.Count.ToString(), e.Attachments.Count.ToString(), e.BodyText.Length.ToString(),

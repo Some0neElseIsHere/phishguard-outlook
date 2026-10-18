@@ -70,10 +70,13 @@ jobs:
           New-Item -ItemType Directory -Force out | Out-Null
           $env:PG_PUBLIC_SECTOR = (Resolve-Path corpus\secteur-public.csv).Path
           & outlook-exe\build\Bench.exe out\bench.csv @a
-          if ($LASTEXITCODE -ne 0) { throw "Bench.exe : code $LASTEXITCODE" }
-          Compress-Archive out\bench.csv out\bench.zip
+          $code = $LASTEXITCODE
+          if ($code -ne 0) { Write-Output "::error::Bench.exe : code $code ; dernier message : $(Get-Content out\progress.txt -Raw -ErrorAction SilentlyContinue)" }
+          Compress-Archive -Force out\bench.csv, out\progress.txt out\bench.zip
+          if ($code -ne 0) { exit 1 }
 
       - name: Supprimer les brouillons précédents
+        if: always()
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -82,6 +85,7 @@ jobs:
           foreach ($id in $drafts) { if ($id) { gh api -X DELETE "repos/${{ github.repository }}/releases/$id" } }
 
       - name: Déposer dans une release brouillon
+        if: always()
         uses: softprops/action-gh-release@v2
         with:
           tag_name: bench-${{ github.run_number }}
