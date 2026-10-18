@@ -1,6 +1,6 @@
 ﻿// PhishGuard - fenêtre d'analyse, en deux modes :
 // - simple (par défaut) : verdict en clair, les raisons principales et « Que dois-je faire ? » ;
-// - expert : onglets d'enquête (Résumé, En-têtes, Parcours, URL, Pièces jointes, Source, Corps, Réputation).
+// - expert : onglets d'enquête (Résumé, En-têtes, Parcours, URL, Pièces jointes, Source, Réputation).
 //
 // Sécurité de l'affichage (le rapport est une page HTML locale affichée par le moteur d'Internet Explorer) :
 // - tout texte venant du message est encodé (H) avant affichage : aucun code du message ne peut s'exécuter ;
@@ -123,7 +123,7 @@ namespace PhishGuard.AddIn
             Text = L.T("PhishGuard - Analyse du message");
             btnReport.Text = L.T("Signaler à la sécurité");
             btnTrust.Text = L.T("Ce n’est pas du phishing");
-            btnSettings.Text = L.T("Paramètres");
+            btnSettings.Text = lastCanChange ? L.T("Paramètres") : L.T("À propos");
             btnClose.Text = L.T("Fermer");
             btnMode.Text = Expert ? L.T("Mode simple") : L.T("Analyse détaillée");
         }
@@ -197,7 +197,7 @@ namespace PhishGuard.AddIn
             shownSignature = Signature(r) + "|" + Expert;
             ApplyTexts();
             btnTrust.Visible = canChangeSettings && r.Level != "safe";
-            btnSettings.Visible = canChangeSettings;
+            btnSettings.Visible = true;   // configuration imposée : le bouton ouvre « À propos »
             status.Text = Expert ? listStatus : "";
             browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations) : SimpleView.Build(r, e, showExplanations);
             if (!activate) return;
@@ -366,7 +366,6 @@ namespace PhishGuard.AddIn
             Tab(sb, "s-urls", L.T("URL"), nUrls);
             Tab(sb, "s-att", L.T("Pièces jointes"), nAtt);
             Tab(sb, "s-raw", L.T("Source"), -1);
-            Tab(sb, "s-body", L.T("Corps"), -1);
             Tab(sb, "s-beta", L.T("Réputation"), beta.Count);
             sb.Append("</div><div class='page'>");
 
@@ -601,11 +600,6 @@ namespace PhishGuard.AddIn
             sb.Append("<div class='sec' id='s-raw'>");
             sb.Append(string.IsNullOrEmpty(e.RawHeaders) ? Empty(L.T("Aucun en-tête Internet.")) : "<pre>" + H(e.RawHeaders) + "</pre>");
             sb.Append("</div>");
-
-            // ---------------- Corps ----------------
-            string body = e.BodyText ?? "";
-            if (body.Length > 30000) body = body.Substring(0, 30000) + "\n[… " + L.T("tronqué") + "]";
-            sb.Append("<div class='sec' id='s-body'><p class='note'>" + H(L.T("Texte brut du message (aucun lien n’est actif ici).")) + "</p><pre>" + H(body) + "</pre></div>");
 
             // ---------------- Bêta (sources externes) ----------------
             sb.Append("<div class='sec' id='s-beta'>");

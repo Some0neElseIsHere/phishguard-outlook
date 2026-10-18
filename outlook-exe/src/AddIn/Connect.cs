@@ -55,6 +55,7 @@ namespace PhishGuard.AddIn
         public void OnConnection(object Application, ext_ConnectMode ConnectMode, object AddInInst, ref Array custom)
         {
             application = Application;
+            try { BuildInfo.OutlookVersion = Convert.ToString(((dynamic)Application).Version); } catch (Exception) { }
             try
             {
                 AppDomain.CurrentDomain.UnhandledException += (s, e) => Log("Exception non gérée : " + e.ExceptionObject);
@@ -378,7 +379,18 @@ namespace PhishGuard.AddIn
         /// <summary>Ouvre les paramètres (depuis la fenêtre d'enquête). Renvoie true si l'utilisateur a enregistré.</summary>
         bool OpenSettings(IWin32Window owner)
         {
-            if (!config.AllowUserSettings) return false;
+            if (!config.AllowUserSettings)
+            {
+                // Configuration imposée : pas de réglages, mais la version, les liens et les informations pour le support
+                try
+                {
+                    Icon aboutIcon = null;
+                    try { var b = LoadBitmap("settings-32.png"); if (b != null) aboutIcon = Icon.FromHandle(b.GetHicon()); } catch (Exception) { }
+                    using (var f = new AboutForm(config, aboutIcon)) { if (owner == null) f.ShowDialog(); else f.ShowDialog(owner); }
+                }
+                catch (Exception ex) { Log("À propos : " + ex.Message); }
+                return false;
+            }
             try
             {
                 Icon icon = null;

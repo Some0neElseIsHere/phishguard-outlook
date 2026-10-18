@@ -231,15 +231,7 @@ namespace PhishGuard.AddIn
 
             // ---------------- À propos ----------------
             var pAbout = Page(L.T("À propos"));
-            y = 12;
-            pAbout.Controls.Add(new Label { Text = "PhishGuard pour Outlook", Location = new Point(12, y), AutoSize = true, Font = new Font(Font.FontFamily, 13f, FontStyle.Bold) });
-            y += 32;
-            pAbout.Controls.Add(new Label { Text = L.T("Version : ") + BuildInfo.Version, Location = new Point(12, y), AutoSize = true });
-            y += 30;
-            AddLink(pAbout, ref y, L.T("Code source, documentation et questions fréquentes"), BuildInfo.Repository);
-            AddLink(pAbout, ref y, L.T("Nouveautés et dernière version"), BuildInfo.Releases);
-            y += 8;
-            AddHint(pAbout, ref y, L.T("Logiciel libre et gratuit, sous licence GNU GPL v3. L’analyse se fait sur votre poste : le contenu des messages ne le quitte jamais."));
+            AboutPage.Fill(pAbout, cfg, false);
             tabs.TabPages.Add(pAbout);
 
             // ---------------- Boutons ----------------
@@ -395,15 +387,6 @@ namespace PhishGuard.AddIn
             }
             else y += 6;
             return c;
-        }
-
-        void AddLink(TabPage page, ref int y, string text, string url)
-        {
-            var link = new LinkLabel { Text = text, Location = new Point(12, y), AutoSize = true };
-            link.LinkClicked += (s, e) => { try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); } catch (Exception) { } };
-            page.Controls.Add(link);
-            page.Controls.Add(new Label { Text = url, Location = new Point(30, y + 20), AutoSize = true, ForeColor = SystemColors.GrayText });
-            y += 46;
         }
 
         static TabPage Page(string title)
