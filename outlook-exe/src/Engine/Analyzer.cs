@@ -68,7 +68,8 @@ namespace PhishGuard
             public bool BrandSender;     // authentifié sur le domaine officiel d'une marque (hors messageries gratuites et plateformes)
             public bool PublicBody;      // domaine d'un organisme public (.gouv.fr ou liste officielle du secteur public)
             public string ProvenBrand;
-            public bool ProvenCompany;   // domaine prouvé de votre entreprise (autre extension, ancien nom…)   // domaine sosie dont l'appartenance à la marque est prouvée (ses serveurs DNS la gèrent)
+            public bool ProvenCompany;
+            public bool PublicListed;    // organisme de la liste du secteur public (hors .gouv.fr), authentifié   // domaine prouvé de votre entreprise (autre extension, ancien nom…)   // domaine sosie dont l'appartenance à la marque est prouvée (ses serveurs DNS la gèrent)
             public bool CodeMessage;     // vrai message de code (connexion, vérification) : authentifié, liens chez l'expéditeur
             public bool MailingList;     // message adressé à une liste de diffusion dont vous êtes membre
             public bool Platform;        // plateforme qui relaie les messages de ses clients (partage, signature…), authentifiée
@@ -602,17 +603,27 @@ namespace PhishGuard
 
             ctx.Platform = ctx.AuthOk && IsPlatformSender(fromDomain);
             var ownBrand = Lists.Brands.FirstOrDefault(b => b.Domains.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg));
+            bool gouv = fromOrg == "gouv.fr" || fromOrg.EndsWith(".gouv.fr");
+            // Les petites structures publiques de la liste (communes, écoles…) se font souvent pirater leur messagerie :
+            // elles sont reconnues (ni sosie, ni « inconnu »), mais leur texte n'est pas adouci comme celui d'une marque ou de l'État.
+            ctx.PublicListed = ctx.PublicBody && !gouv && ctx.AuthProof && !ctx.Internal && look == null && ownBrand == null;
             ctx.BrandSender = ctx.AuthProof && !isFreemail && !ctx.Internal && !ctx.Platform && look == null
-                && (ownBrand != null || ctx.ProvenBrand != null || ctx.PublicBody);
+                && (ownBrand != null || ctx.ProvenBrand != null || (ctx.PublicBody && gouv));
             if (ctx.BrandSender)
             {
                 string why = ownBrand != null ? L.F("Envoyé et authentifié par un domaine officiel de {0}", ownBrand.Name)
                     : ctx.ProvenBrand != null ? L.F("Envoyé et authentifié par un domaine rattaché à {0}", ctx.ProvenBrand)
-                    : fromOrg.EndsWith(".gouv.fr") || fromOrg == "gouv.fr" ? L.T("Envoyé et authentifié par un domaine .gouv.fr (réservé aux services de l’État)")
-                    : L.T("Envoyé et authentifié par un organisme public (liste officielle des domaines du secteur public)");
+                    : L.T("Envoyé et authentifié par un domaine .gouv.fr (réservé aux services de l’État)");
                 ctx.Trust.Add(why);
                 positives.Add(why);
                 ctx.RelationProof = true;   // réputation de la marque ou de l'organisme : suffit pour « Expéditeur vérifié » s'il n'y a aucun indice
+            }
+            else if (ctx.PublicListed)
+            {
+                string why = L.T("Envoyé et authentifié par un organisme public (liste officielle des domaines du secteur public)");
+                ctx.Trust.Add(why);
+                positives.Add(why);
+                ctx.RelationProof = true;
             }
 
             var replyTo = new List<string>();
@@ -1417,7 +1428,7 @@ namespace PhishGuard
             if (ctx.IsFreemail && (fin || cred) && !ctx.MailingList)
                 findings.Add(new Finding("content-freemail-request", "content", Severity.Medium, L.T("Demande sensible envoyée depuis une messagerie gratuite"),
                     L.T("Une banque, une administration ou un fournisseur n’écrit pas depuis Gmail, Outlook.com ou Orange."), null));
-            if (ctx.FirstContact && (fin || cred) && !ctx.BrandSender && !ctx.CodeMessage)
+            if (ctx.FirstContact && (fin || cred) && !ctx.BrandSender && !ctx.CodeMessage && !ctx.PublicListed)
                 findings.Add(new Finding("content-first-contact-request", "content", Severity.Medium, L.T("Demande sensible dès le premier message"),
                     L.T("Un inconnu qui demande un paiement ou des identifiants dès son premier email : prudence maximale."), null));
 
