@@ -209,10 +209,14 @@ namespace PhishGuard
                 if (href.Length == 0 || href.StartsWith("#") || href.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase) || href.StartsWith("tel:", StringComparison.OrdinalIgnoreCase)) continue;
                 Uri u;
                 if (!Uri.TryCreate(href, UriKind.Absolute, out u) || (u.Scheme != "https" && u.Scheme != "http")) return false;
+                // Adresse d'une image (logo, pixel d'espacement) recopiée dans la version texte par Outlook : ce n'est pas un lien cliquable
+                if (string.IsNullOrEmpty(l.Text) && ImagePathRe.IsMatch(u.AbsolutePath)) continue;
                 if (PhishGuard.Domains.RegistrableDomain(u.Host) != ctx.FromOrg) return false;
             }
             return true;
         }
+
+        static readonly Regex ImagePathRe = new Regex(@"\.(png|jpe?g|gif|bmp|webp|svg|ico)$", RegexOptions.IgnoreCase);
 
         static bool IsLocalHost(string host)
         {

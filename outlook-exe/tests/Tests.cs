@@ -728,6 +728,8 @@ namespace PhishGuard.Tests
                     + "To: claire.martin@orange.fr";
                 m.BodyText = "Here's your sign-in code: 360928. This code will expire soon. If this request did not come from you, change your account password immediately to prevent further unauthorized access.";
                 m.Links.Add(new LinkInfo(link, "Account Management"));
+                // logo et pixel d'espacement hébergés par la plateforme d'envoi, recopiés dans la version texte par Outlook
+                m.Links.Add(new LinkInfo("https://cdn.mcauto-images-production.sendgrid.net/6c2047/e457af/8x8.png", ""));
                 return m;
             };
             Correspondents.Set(new[] { "client@client-connu.fr" }, false);

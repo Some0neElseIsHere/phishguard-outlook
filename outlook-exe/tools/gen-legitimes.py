@@ -26,7 +26,7 @@ def auth(mailfrom, dkim, header_from, compauth="pass reason=100", dmarc="pass ac
 
 def msg(fid, expect, from_name, from_addr, subject, paras, links=(), mailfrom=None, dkim=None, bulk=True,
         reply_to=None, attachments=(), extra_headers=(), dmarc="pass action=none", compauth="pass reason=100", known=False,
-        raw_auth=None, to=TO):
+        raw_auth=None, to=TO, plain_extra=""):
     dom = from_addr.split("@")[1]
     org = ".".join(dom.split(".")[-2:]) if not dom.endswith(".gouv.fr") else dom
     mailfrom = mailfrom or ("bounce." + org)
@@ -52,6 +52,7 @@ def msg(fid, expect, from_name, from_addr, subject, paras, links=(), mailfrom=No
     text = "\n\n".join(textwrap.fill(p.replace("<b>", "").replace("</b>", ""), 76) for p in paras)
     for href, text_l in links:
         text += f"\n\n{text_l} : {href}"
+    if plain_extra: text += "\n\n" + plain_extra
     b = "=_pg_" + hashlib.md5(fid.encode()).hexdigest()[:10]
     body = [f"Content-Type: multipart/mixed; boundary=\"{b}\"", "", f"--{b}",
             "Content-Type: multipart/alternative; boundary=\"alt" + b + "\"", "",
@@ -249,7 +250,8 @@ def main():
          "Visit Account Management to unenroll any authentication factors you no longer need.",
          "If this request did not come from you, change your account password immediately to prevent further unauthorized access. Read Protecting Your Account for tips on password strength."],
         [("https://links.riotgames.com/ls/click?upn=" + long, "Account Management"), ("https://links.riotgames.com/ls/click?upn=" + long[::-1], "Protecting Your Account")],
-        bulk=False, raw_auth=orange_auth, to="claire.martin@orange.fr")
+        bulk=False, raw_auth=orange_auth, to="claire.martin@orange.fr",
+        plain_extra="<https://cdn.mcauto-images-production.sendgrid.net/6c2047a1/e457af93/8x8.png>")   # pixel recopié par Outlook dans le texte
     msg("code-steam", "vert", "Steam", "noreply@steampowered.com", "Your Steam account: Access from new computer",
         ["Dear claire_m,", "Here is the login code you need to sign in to your account: <b>58213</b>",
          "If you are not attempting to log in, please change your Steam password immediately and consider changing your email password as well."],
