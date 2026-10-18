@@ -326,6 +326,17 @@ namespace PhishGuard.AddIn
                 {
                     if (Theme.Dark) SetWindowTheme(c.Handle, "DarkMode_Explorer", null);
                     else SetWindowTheme(c.Handle, null, null);
+                    var lv = c as ListView;
+                    if (lv != null)
+                    {
+                        // Fond sombre de la barre d'en-têtes au-delà de la dernière colonne (le texte est dessiné par DarkHeaders)
+                        IntPtr header = SendMessage(lv.Handle, 0x101F, IntPtr.Zero, IntPtr.Zero);   // LVM_GETHEADER
+                        if (header != IntPtr.Zero)
+                        {
+                            if (Theme.Dark) SetWindowTheme(header, "DarkMode_ItemsView", null);
+                            else SetWindowTheme(header, null, null);
+                        }
+                    }
                 }
                 else if (!c.IsHandleCreated)
                 {
