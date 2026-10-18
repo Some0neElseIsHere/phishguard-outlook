@@ -86,6 +86,15 @@ Détection par année (v1.11.0) : 2020 90 %, 2021 85 %, 2022 76 %, 2023 86 %, 20
 10. **Listes techniques** : les liens d'exemple vers `localhost` ou le réseau local, les adresses réécrites en
     `@….invalid` par les listes et les questions de « mot de passe » posées sur une liste publique ne sont plus des indices.
 
+## Codes de connexion (v1.12.1)
+
+11. **Vrais mails de code** (signalé au travail : un code Riot Games à 70/100, reçu sur une boîte Orange) : leur
+    avertissement « si ce n'est pas vous, changez immédiatement votre mot de passe » déclenchait « identifiants + urgence ».
+    Un message qui **donne** un code, authentifié, sans indice d'usurpation, sans pièce jointe ni formulaire, et dont
+    **tous les liens restent sur le domaine de l'expéditeur**, n'est plus pénalisé pour son texte. Le même texte avec un
+    lien vers un autre site reste en alerte. Cas ajoutés : Riot Games (en-têtes Orange), Steam, Vinted, leboncoin.
+    Aucun effet sur la détection des phishings du corpus.
+
 ## Barèmes testés et écartés
 
 - **Relever le seuil de « Suspect »** (de 20 à 25 ou 30 points) : moins de fausses alertes sur les newsletters de 2003,
