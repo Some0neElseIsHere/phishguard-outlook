@@ -26,7 +26,6 @@ l'entreprise, ouvrez `config.ini` avec le Bloc-notes **avant** d'installer :
 | `RedFlagEnabled` | `true` / `false` pour la liste Red Flag Domains |
 | `PublicSectorList` | `true` / `false` pour la liste des domaines du secteur public (DINUM) |
 | `WatchDomains` | Surveillance hebdomadaire des sosies de vos domaines |
-| `AllowUserSettings` | `false` : configuration imposée, le bouton Paramètres disparaît |
 
 Les autres clés sont décrites dans `config.ini`. La liste de domaines malveillants de l'équipe sécurité
 est dans `custom.txt` (un domaine par ligne).

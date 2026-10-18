@@ -170,7 +170,6 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `BetaOpenPhish`, `BetaTranco`, `BetaDnsChecks`, `BetaCertAge` | Sources de réputation sans clé (onglet Réputation) | `false` |
 | `VirusTotalKey`, `AbuseChKey`, `AbuseIpdbKey` | Clés par défaut pour tous ; un utilisateur peut saisir les siennes, rangées dans le Gestionnaire d'identification de Windows et prioritaires | — |
 | `ExpertMode` | `false` : fenêtre simple (débutants) ; `true` : analyse détaillée et réglages avancés | `false` |
-| `AllowUserSettings` | Bouton Paramètres de la fenêtre d'analyse ; `false` impose `config.ini` à tous | `true` |
 
 Une clé d'API écrite dans `config.ini` y est lisible en clair : préférez la saisie par chaque utilisateur.
 
@@ -179,7 +178,7 @@ Une clé d'API écrite dans `config.ini` y est lisible en clair : préférez la 
 ## Déploiement en entreprise
 
 - **Installation silencieuse** (script de connexion, GPO, outil de déploiement) : `PhishGuard-Outlook-vX.Y.Z-installeur.exe /quiet` ou `installer.cmd /quiet`.
-- **Configuration imposée** : adaptez `config.ini` avant de distribuer le dossier, avec `AllowUserSettings = false`.
+- **Configuration commune** : adaptez `config.ini` avant de distribuer le dossier ; ses valeurs servent de point de départ, chaque utilisateur peut ensuite les modifier.
 - **Liste de blocage commune** : un fichier texte sur un partage réseau (`SharedBlocklistPath`), rechargé toutes les heures.
 - **Signature** : signer `PhishGuard.dll` avec le certificat de signature de code de l'entreprise évite les blocages par l'antivirus, AppLocker ou la stratégie « compléments signés uniquement ».
 - **Postes verrouillés** : rien n'est compilé sur le poste ; si l'exe est bloqué, le zip de la release s'installe avec `installer.cmd`.

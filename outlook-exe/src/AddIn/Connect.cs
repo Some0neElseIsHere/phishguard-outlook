@@ -379,18 +379,6 @@ namespace PhishGuard.AddIn
         /// <summary>Ouvre les paramètres (depuis la fenêtre d'enquête). Renvoie true si l'utilisateur a enregistré.</summary>
         bool OpenSettings(IWin32Window owner)
         {
-            if (!config.AllowUserSettings)
-            {
-                // Configuration imposée : pas de réglages, mais la version, les liens et les informations pour le support
-                try
-                {
-                    Icon aboutIcon = null;
-                    try { var b = LoadBitmap("settings-32.png"); if (b != null) aboutIcon = Icon.FromHandle(b.GetHicon()); } catch (Exception) { }
-                    using (var f = new AboutForm(config, aboutIcon)) { if (owner == null) f.ShowDialog(); else f.ShowDialog(owner); }
-                }
-                catch (Exception ex) { Log("À propos : " + ex.Message); }
-                return false;
-            }
             try
             {
                 Icon icon = null;
@@ -447,13 +435,9 @@ namespace PhishGuard.AddIn
                 object mail = GetMail(control);
                 if (mail == null)
                 {
-                    if (config.AllowUserSettings)
-                    {
-                        var ask = MessageBox.Show(L.T("Sélectionnez ou ouvrez un email pour l’analyser.") + "\n\n" + L.T("Ouvrir les paramètres de PhishGuard ?"),
-                            "PhishGuard", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                        if (ask == DialogResult.Yes) OpenSettings(null);
-                    }
-                    else MessageBox.Show(L.T("Sélectionnez ou ouvrez un email pour l’analyser."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    var ask = MessageBox.Show(L.T("Sélectionnez ou ouvrez un email pour l’analyser.") + "\n\n" + L.T("Ouvrir les paramètres de PhishGuard ?"),
+                        "PhishGuard", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                    if (ask == DialogResult.Yes) OpenSettings(null);
                     return;
                 }
                 OpenDetails(mail);
@@ -497,7 +481,6 @@ namespace PhishGuard.AddIn
                     try
                     {
                         config.ExpertMode = form.Expert;
-                        if (!config.AllowUserSettings) return;   // configuration imposée : le choix vaut pour la session
                         var cfg = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
                         cfg.ExpertMode = form.Expert;
                         cfg.SaveUser(UserConfigPath);
@@ -516,7 +499,7 @@ namespace PhishGuard.AddIn
                 };
             }
             form.Expert = config.ExpertMode;
-            form.ShowResult(c.Result, c.Data, ListStatus(), config.ShowExplanations, config.AllowUserSettings);
+            form.ShowResult(c.Result, c.Data, ListStatus(), config.ShowExplanations);
             InvalidateRibbons();
         }
 
@@ -525,7 +508,7 @@ namespace PhishGuard.AddIn
         /// <summary>Assistant de démarrage : tout au premier lancement, puis seulement les étapes ajoutées par une mise à jour.</summary>
         void RunSetupIfNeeded()
         {
-            if (setupChecked || !config.AllowUserSettings) return;
+            if (setupChecked) return;
             setupChecked = true;
             try
             {
@@ -553,13 +536,9 @@ namespace PhishGuard.AddIn
         {
             if (string.IsNullOrEmpty(config.ReportAddress))
             {
-                if (config.AllowUserSettings)
-                {
-                    var ask = MessageBox.Show(L.T("Aucune adresse de l’équipe sécurité n’est configurée.") + "\n\n" + L.T("Voulez-vous l’indiquer maintenant ?"),
-                        "PhishGuard", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (ask == DialogResult.Yes) OpenSettings(form != null && !form.IsDisposed && form.Visible ? form : null);
-                }
-                else MessageBox.Show(L.T("Aucune adresse de signalement n’est configurée : contactez votre service informatique."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var ask = MessageBox.Show(L.T("Aucune adresse de l’équipe sécurité n’est configurée.") + "\n\n" + L.T("Voulez-vous l’indiquer maintenant ?"),
+                    "PhishGuard", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (ask == DialogResult.Yes) OpenSettings(form != null && !form.IsDisposed && form.Visible ? form : null);
                 if (string.IsNullOrEmpty(config.ReportAddress)) return;
             }
             IWin32Window owner = form != null && !form.IsDisposed && form.Visible ? form : null;

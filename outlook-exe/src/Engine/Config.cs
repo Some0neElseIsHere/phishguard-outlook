@@ -23,7 +23,6 @@ namespace PhishGuard
         public bool AutoAnalyze = true;          // analyse automatique du message sélectionné ou ouvert
         public string AlertLevel = "dangerous";  // dangerous, suspicious ou none
         public int AutoHashMaxMB = 5;            // empreintes des pièces jointes en analyse automatique
-        public bool AllowUserSettings = true;    // bouton « Paramètres » dans Outlook (lu seulement dans config.ini)
         public bool ShowExplanations = true;     // explications pédagogiques sous chaque indice
         public bool KnownCorrespondents = true;  // premier contact et sosies de vos correspondants
         public bool DomainAgeLookup = true;      // âge des domaines (RDAP, sans clé)
@@ -113,11 +112,10 @@ namespace PhishGuard
             return names.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 
-        /// <summary>config.ini (installé par l'administrateur) puis, si autorisé, les réglages de l'utilisateur.</summary>
+        /// <summary>config.ini (valeurs de départ installées avec le complément) puis les réglages de l'utilisateur.</summary>
         public static PhishGuardConfig LoadMerged(string installPath, string userPath)
         {
             var c = Load(installPath);
-            if (c.AllowUserSettings)
             {
                 var adminCompanies = c.Companies;
                 c.Companies = new List<CompanyEntry>();
@@ -193,7 +191,6 @@ namespace PhishGuard
                     case "virustotalkey": ReadKey(c, "VirusTotal", val, isAdminFile); break;
                     case "abusechkey": ReadKey(c, "AbuseCh", val, isAdminFile); break;
                     case "abuseipdbkey": ReadKey(c, "AbuseIpdb", val, isAdminFile); break;
-                    case "allowusersettings": if (isAdminFile) c.AllowUserSettings = !IsFalse(val); break;
                 }
             }
             return seen;

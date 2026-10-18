@@ -42,7 +42,7 @@ namespace PhishGuard.AddIn
             try
             {
                 var c = AnalyzeCached(lastMail, true);
-                form.RefreshResult(c.Result, c.Data, ListStatus(), config.ShowExplanations, config.AllowUserSettings);
+                form.RefreshResult(c.Result, c.Data, ListStatus(), config.ShowExplanations);
             }
             catch (Exception ex) { Log("Mise à jour de la fenêtre : " + ex.Message); }
         }
@@ -336,12 +336,6 @@ namespace PhishGuard.AddIn
 
         void MarkNotPhishing(AnalysisResult r)
         {
-            if (!config.AllowUserSettings)
-            {
-                MessageBox.Show(L.T("Les réglages sont gérés par votre service informatique : demandez-lui d’ajouter cet expéditeur aux expéditeurs de confiance."),
-                    "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
             string addr = (r.SenderAddress ?? "").ToLowerInvariant();
             string domain = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(addr));
             if (addr.Length == 0) return;

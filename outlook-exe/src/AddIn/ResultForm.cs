@@ -38,7 +38,7 @@ namespace PhishGuard.AddIn
         /// <summary>true : analyse détaillée (onglets) ; false : mode simple.</summary>
         public bool Expert;
         string lastListStatus = "";
-        bool lastShowExplanations = true, lastCanChange = true;
+        bool lastShowExplanations = true;
         public AnalysisResult CurrentResult { get { return result; } }
 
         static readonly Color Accent = Color.FromArgb(15, 108, 189);
@@ -107,7 +107,7 @@ namespace PhishGuard.AddIn
             {
                 Expert = !Expert;
                 Raise(ModeChanged);
-                if (result != null) ShowResult(result, email, lastListStatus, lastShowExplanations, lastCanChange, false);
+                if (result != null) ShowResult(result, email, lastListStatus, lastShowExplanations, false);
             };
             FormClosing += (s, e) => { if (e.CloseReason == CloseReason.UserClosing) { e.Cancel = true; Hide(); } };
         }
@@ -123,7 +123,7 @@ namespace PhishGuard.AddIn
             Text = L.T("PhishGuard - Analyse du message");
             btnReport.Text = L.T("Signaler à la sécurité");
             btnTrust.Text = L.T("Ce n’est pas du phishing");
-            btnSettings.Text = lastCanChange ? L.T("Paramètres") : L.T("À propos");
+            btnSettings.Text = L.T("Paramètres");
             btnClose.Text = L.T("Fermer");
             btnMode.Text = Expert ? L.T("Mode simple") : L.T("Analyse détaillée");
         }
@@ -179,25 +179,24 @@ namespace PhishGuard.AddIn
         }
 
         /// <summary>Mise à jour silencieuse (résultats externes arrivés) : sans prendre le focus.</summary>
-        public void RefreshResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations, bool canChangeSettings)
+        public void RefreshResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations)
         {
             if (!Visible || Signature(r) + "|" + Expert == shownSignature) return;
-            ShowResult(r, e, listStatus, showExplanations, canChangeSettings, false);
+            ShowResult(r, e, listStatus, showExplanations, false);
         }
 
-        public void ShowResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations, bool canChangeSettings)
+        public void ShowResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations)
         {
-            ShowResult(r, e, listStatus, showExplanations, canChangeSettings, true);
+            ShowResult(r, e, listStatus, showExplanations, true);
         }
 
-        void ShowResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations, bool canChangeSettings, bool activate)
+        void ShowResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations, bool activate)
         {
             result = r; email = e;
-            lastListStatus = listStatus; lastShowExplanations = showExplanations; lastCanChange = canChangeSettings;
+            lastListStatus = listStatus; lastShowExplanations = showExplanations;
             shownSignature = Signature(r) + "|" + Expert;
             ApplyTexts();
-            btnTrust.Visible = canChangeSettings && r.Level != "safe";
-            btnSettings.Visible = true;   // configuration imposée : le bouton ouvre « À propos »
+            btnTrust.Visible = r.Level != "safe";
             status.Text = Expert ? listStatus : "";
             browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations) : SimpleView.Build(r, e, showExplanations);
             if (!activate) return;

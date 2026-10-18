@@ -1,4 +1,4 @@
-﻿// PhishGuard - onglet « À propos » des paramètres (et fenêtre « À propos » quand la configuration est imposée) :
+﻿// PhishGuard - onglet « À propos » des paramètres :
 // version, liens vers le projet, ce qui sort du poste, sources et licences, informations pour le support.
 // Aucune donnée personnelle : ni nom, ni adresse, ni chemin contenant le nom d'utilisateur.
 
@@ -21,19 +21,13 @@ namespace PhishGuard.AddIn
         static readonly Font UiFont = new Font("Segoe UI", 9f);
         const int Width = 500;
 
-        /// <param name="managed">configuration imposée par l'entreprise (AllowUserSettings = false)</param>
-        public static void Fill(Control page, PhishGuardConfig cfg, bool managed)
+        public static void Fill(Control page, PhishGuardConfig cfg)
         {
             int y = 12;
             page.Controls.Add(new Label { Text = "PhishGuard pour Outlook", Location = new Point(12, y), AutoSize = true, Font = new Font("Segoe UI", 13f, FontStyle.Bold) });
             y += 32;
             page.Controls.Add(new Label { Text = L.T("Version : ") + BuildInfo.Version, Location = new Point(12, y), AutoSize = true });
             y += 26;
-            if (managed)
-            {
-                y = Text(page, y, L.T("Configuration gérée par votre entreprise : les réglages sont définis par votre service informatique. Pour toute question, adressez-vous à lui."), Color.FromArgb(160, 90, 0), true);
-                y += 4;
-            }
             y += 4;
             y = Link(page, y, L.T("Code source, documentation et questions fréquentes"), BuildInfo.Repository);
             y = Link(page, y, L.T("Nouveautés et dernière version"), BuildInfo.Releases);
@@ -60,7 +54,7 @@ namespace PhishGuard.AddIn
             var done = new Label { Location = new Point(12, y + 34), AutoSize = true, ForeColor = SystemColors.GrayText };
             btn.Click += (s, e) =>
             {
-                try { Clipboard.SetText(SupportText(cfg, managed)); done.Text = L.T("Copié. Collez-le dans votre message au support : il ne contient aucune donnée personnelle."); }
+                try { Clipboard.SetText(SupportText(cfg)); done.Text = L.T("Copié. Collez-le dans votre message au support : il ne contient aucune donnée personnelle."); }
                 catch (Exception) { done.Text = L.T("Impossible d’accéder au presse-papiers."); }
             };
             page.Controls.Add(btn);
@@ -68,7 +62,7 @@ namespace PhishGuard.AddIn
         }
 
         /// <summary>Résumé technique pour le support : versions, réglages et état des listes, sans donnée personnelle.</summary>
-        public static string SupportText(PhishGuardConfig cfg, bool managed)
+        public static string SupportText(PhishGuardConfig cfg)
         {
             Func<bool, string> yn = b => b ? L.T("oui") : L.T("non");
             var sb = new StringBuilder();
@@ -76,7 +70,6 @@ namespace PhishGuard.AddIn
             sb.AppendLine("Outlook " + (BuildInfo.OutlookVersion.Length > 0 ? BuildInfo.OutlookVersion : "?") + ", " + (IntPtr.Size * 8) + " bits");
             sb.AppendLine("Windows " + Environment.OSVersion.Version + ", .NET " + Environment.Version);
             sb.AppendLine(L.T("Langue : ") + (L.English ? "en" : "fr") + " ; " + L.T("mode : ") + (cfg.ExpertMode ? "expert" : L.T("simple")));
-            sb.AppendLine(L.T("Configuration gérée par l’entreprise : ") + yn(managed));
             sb.AppendLine("Red Flag Domains : " + (cfg.RedFlagEnabled ? Blocklists.RedFlagCount.ToString("N0") + " (" + Blocklists.RedFlagUpdated.ToString("yyyy-MM-dd") + ")" : L.T("désactivée")));
             sb.AppendLine(L.T("Secteur public : ") + (cfg.PublicSectorList ? Feeds.PublicSectorCount.ToString("N0") + " (" + Feeds.PublicSectorUpdated.ToString("yyyy-MM-dd") + ")" : L.T("désactivée")));
             sb.AppendLine("OpenPhish : " + (cfg.BetaOpenPhish ? Feeds.OpenPhishCount.ToString("N0") : L.T("désactivé")) + " ; Tranco : " + (cfg.BetaTranco ? Feeds.TrancoCount.ToString("N0") : L.T("désactivé")));
@@ -120,28 +113,6 @@ namespace PhishGuard.AddIn
             page.Controls.Add(link);
             page.Controls.Add(new Label { Text = url, Location = new Point(28, y + 19), AutoSize = true, ForeColor = SystemColors.GrayText, Font = UiFont });
             return y + 44;
-        }
-    }
-
-    /// <summary>Fenêtre « À propos » seule, quand la configuration est imposée et que les paramètres sont masqués.</summary>
-    internal class AboutForm : Form
-    {
-        public AboutForm(PhishGuardConfig cfg, Icon icon)
-        {
-            Text = L.T("PhishGuard - À propos");
-            Size = new Size(580, 700);
-            StartPosition = FormStartPosition.CenterParent;
-            MinimizeBox = false; MaximizeBox = false;
-            Font = new Font("Segoe UI", 9f);
-            if (icon != null) Icon = icon;
-            var page = new Panel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(8) };
-            AboutPage.Fill(page, cfg, true);
-            var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 46, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8) };
-            var close = new Button { Text = L.T("Fermer"), DialogResult = DialogResult.Cancel, AutoSize = true, Height = 30 };
-            bar.Controls.Add(close);
-            CancelButton = close;
-            Controls.Add(page);
-            Controls.Add(bar);
         }
     }
 }
