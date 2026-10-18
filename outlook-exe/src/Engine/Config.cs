@@ -36,6 +36,15 @@ namespace PhishGuard
         public bool SetupKeyPresent;                         // SetupDone trouvé dans config.user.ini
         public bool ExpertMode = false;          // fenêtre d'analyse : false = mode simple (débutants), true = analyse détaillée
         public bool WatchDomains = true;         // surveillance hebdomadaire des nouveaux sosies de vos domaines (DNS)
+        public List<string> InternalRelays = new List<string>();   // IP ou plages (CIDR) des équipements internes qui envoient des mails (copieurs, applications)
+
+        // Stratégies d'entreprise (registre Software\Policies\PhishGuard, poussé par GPO ou Intune) : l'utilisateur ne peut pas les modifier
+        public bool ForceSimpleMode;             // mode simple imposé (pas d'analyse détaillée ni de réglages avancés)
+        public bool AllowApiKeys = true;         // false : aucune clé d'API (VirusTotal, abuse.ch, AbuseIPDB) sur ce poste
+        public HashSet<string> Locked = new HashSet<string>();   // clés imposées par une stratégie (en minuscules ; « company# » pour les entreprises)
+
+        /// <summary>Lecture des stratégies, fournie par le complément (registre) ; null dans les tests et outils.</summary>
+        public static Func<List<KeyValuePair<string, string>>> PolicySource;
 
         // Bêta : sources externes (désactivées par défaut)
         public bool PublicSectorList = true;     // liste des domaines du secteur public (DINUM), téléchargée chaque mois
@@ -112,7 +121,8 @@ namespace PhishGuard
             return names.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 
-        /// <summary>config.ini (valeurs de départ installées avec le complément) puis les réglages de l'utilisateur.</summary>
+        /// <summary>config.ini (valeurs de départ installées avec le complément), les réglages de l'utilisateur, puis les
+        /// stratégies de l'entreprise, qui l'emportent sur tout le reste.</summary>
         public static PhishGuardConfig LoadMerged(string installPath, string userPath)
         {
             var c = Load(installPath);
@@ -133,16 +143,52 @@ namespace PhishGuard
                     else if (c.legacyUserKeys.Contains(k[0])) Secrets.Set(k[0], c.GetKey(k[0]));
                 }
             }
+            if (PolicySource != null)
+            {
+                List<KeyValuePair<string, string>> policies = null;
+                try { policies = PolicySource(); } catch (Exception) { }
+                if (policies != null) c.ApplyPolicies(policies);
+            }
             return c;
         }
+
+        /// <summary>Applique des stratégies (nom de valeur → valeur, mêmes noms que config.ini) et les verrouille.
+        /// Les clés d'API ne peuvent pas être distribuées ainsi : une clé lisible par le poste l'est aussi par l'utilisateur.</summary>
+        public void ApplyPolicies(IEnumerable<KeyValuePair<string, string>> policies)
+        {
+            var lines = new List<string>();
+            foreach (var p in policies)
+            {
+                string key = (p.Key ?? "").Trim();
+                if (key.Length == 0 || key.EndsWith("Key", StringComparison.OrdinalIgnoreCase) || key.Equals("SetupDone", StringComparison.OrdinalIgnoreCase)) continue;
+                lines.Add(key + " = " + (p.Value ?? ""));
+            }
+            if (lines.Count == 0) return;
+            var seen = ApplyLines(this, lines, true);
+            foreach (var k in seen) Locked.Add(k);
+            NormalizeCompanies();
+            if (ForceSimpleMode) { ExpertMode = false; Locked.Add("expertmode"); }
+            if (!AllowApiKeys)
+            {
+                VirusTotalKey = ""; AbuseChKey = ""; AbuseIpdbKey = "";
+                foreach (var k in ApiKeys) Locked.Add(k[1].ToLowerInvariant());
+            }
+        }
+
+        public bool IsLocked(string key) { return Locked.Contains((key ?? "").ToLowerInvariant()); }
 
         /// <summary>Lit un fichier de réglages ; renvoie les clés rencontrées.</summary>
         static HashSet<string> Apply(PhishGuardConfig c, string path, bool isAdminFile)
         {
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) return new HashSet<string>();
+            return ApplyLines(c, File.ReadAllLines(path, Encoding.UTF8), isAdminFile);
+        }
+
+        static HashSet<string> ApplyLines(PhishGuardConfig c, IEnumerable<string> lines, bool isAdminFile)
+        {
             var seen = new HashSet<string>();
-            if (string.IsNullOrEmpty(path) || !File.Exists(path)) return seen;
             bool companiesReplaced = false;   // les entreprises d'un fichier remplacent celles du précédent
-            foreach (var raw in File.ReadAllLines(path, Encoding.UTF8))
+            foreach (var raw in lines)
             {
                 string line = raw.Trim();
                 if (line.Length == 0 || line.StartsWith("#") || line.StartsWith(";") || line.StartsWith("[")) continue;
@@ -181,6 +227,9 @@ namespace PhishGuard
                     case "trustedsenders": c.TrustedSenders = SplitList(val, true); break;
                     case "language": c.Language = val.Trim().ToLowerInvariant(); break;
                     case "watchdomains": c.WatchDomains = !IsFalse(val); break;
+                    case "internalrelays": c.InternalRelays = SplitList(val, false); break;
+                    case "forcesimplemode": c.ForceSimpleMode = IsTrue(val); break;
+                    case "allowapikeys": c.AllowApiKeys = !IsFalse(val); break;
                     case "expertmode": c.ExpertMode = IsTrue(val); break;
                     case "setupdone": if (!isAdminFile) { c.SetupDone = SplitList(val, true); c.SetupKeyPresent = true; } break;
                     case "publicsectorlist": c.PublicSectorList = !IsFalse(val); break;
@@ -207,6 +256,10 @@ namespace PhishGuard
             if (!SetupKeyPresent && userFileExists) { done.Add("intro"); done.Add("language"); }
             if (CompanyDomains.Count > 0) done.Add("company");
             if (!string.IsNullOrEmpty(ReportAddress)) done.Add("report");
+            if (IsLocked("language")) done.Add("language");
+            if (IsLocked("expertmode")) done.Add("mode");
+            if (IsLocked("companydomains") || IsLocked("company#")) done.Add("company");
+            if (IsLocked("reportaddress")) done.Add("report");
             return steps.Where(s => !done.Contains(s)).ToList();
         }
 
@@ -237,6 +290,7 @@ namespace PhishGuard
             sb.AppendLine("TrustedSenders = " + string.Join(", ", TrustedSenders.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("Language = " + Clean(Language));
             sb.AppendLine("WatchDomains = " + (WatchDomains ? "true" : "false"));
+            if (!IsLocked("internalrelays")) sb.AppendLine("InternalRelays = " + string.Join(", ", InternalRelays.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("ExpertMode = " + (ExpertMode ? "true" : "false"));
             sb.AppendLine("SetupDone = " + string.Join(", ", SetupDone.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("# Réputation : sources externes");
@@ -249,6 +303,7 @@ namespace PhishGuard
             // installations). Repli sur ce fichier, chiffré pour ce compte Windows, seulement si le coffre est indisponible.
             foreach (var k in ApiKeys)
             {
+                if (!AllowApiKeys) break;   // stratégie : pas de clé ; celles déjà rangées dans le coffre ne sont pas touchées
                 string admin;
                 adminKeys.TryGetValue(k[0], out admin);
                 string value = GetKey(k[0]).Trim();

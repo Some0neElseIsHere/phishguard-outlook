@@ -225,6 +225,63 @@ namespace PhishGuard
             return null;
         }
 
+        /// <summary>
+        /// Adresse IP d'un équipement interne déclaré par lequel le message est arrivé, ou null. Seules les informations
+        /// écrites par VOS serveurs comptent : l'IP de connexion notée par Exchange Online (CIP du premier rapport anti-spam),
+        /// puis les sauts « Received » lus depuis le haut, tant qu'ils restent sur le réseau interne. Le premier saut venu
+        /// d'une IP publique est l'entrée dans votre messagerie : tout ce qui est en dessous a pu être écrit par l'expéditeur.
+        /// </summary>
+        public static string InternalRelayIp(List<KeyValuePair<string, string>> h, ICollection<string> relays)
+        {
+            if (relays == null || relays.Count == 0 || h == null) return null;
+            string cip = Pick(@"\bCIP:([0-9a-fA-F:.]+)", First(h, "x-forefront-antispam-report") ?? "");
+            if (!string.IsNullOrEmpty(cip) && IpInList(cip, relays)) return cip;
+            foreach (var kv in h)
+            {
+                if (kv.Key != "received") continue;
+                string ip = ParseReceived(kv.Value).FromIp;
+                if (string.IsNullOrEmpty(ip)) continue;
+                if (IpInList(ip, relays)) return ip;
+                if (IsPublicIp(ip)) break;
+            }
+            return null;
+        }
+
+        /// <summary>L'IP figure dans la liste (adresses exactes ou plages CIDR, IPv4 et IPv6).</summary>
+        public static bool IpInList(string ip, IEnumerable<string> list)
+        {
+            System.Net.IPAddress addr;
+            if (!System.Net.IPAddress.TryParse((ip ?? "").Trim().Trim('[', ']'), out addr)) return false;
+            byte[] a = addr.GetAddressBytes();
+            foreach (var raw in list)
+            {
+                string item = (raw ?? "").Trim();
+                if (item.Length == 0) continue;
+                int bits = -1;
+                int slash = item.IndexOf('/');
+                if (slash > 0)
+                {
+                    if (!int.TryParse(item.Substring(slash + 1), out bits)) continue;
+                    item = item.Substring(0, slash);
+                }
+                System.Net.IPAddress net;
+                if (!System.Net.IPAddress.TryParse(item, out net)) continue;
+                byte[] n = net.GetAddressBytes();
+                if (n.Length != a.Length) continue;
+                if (bits < 0 || bits > n.Length * 8) bits = n.Length * 8;
+                bool match = true;
+                for (int i = 0; i < n.Length && match; i++)
+                {
+                    int take = Math.Min(8, Math.Max(0, bits - i * 8));
+                    if (take == 0) break;
+                    int mask = (0xFF << (8 - take)) & 0xFF;
+                    if ((a[i] & mask) != (n[i] & mask)) match = false;
+                }
+                if (match) return true;
+            }
+            return false;
+        }
+
         public static bool IsPublicIp(string ip)
         {
             if (string.IsNullOrEmpty(ip)) return false;

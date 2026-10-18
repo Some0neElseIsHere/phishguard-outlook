@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>PhishGuard pour Outlook</displayName>
+  <description>Stratégies du complément anti-phishing PhishGuard pour Outlook</description>
+  <resources>
+    <stringTable>
+      <string id="SUPPORTED_PhishGuard">PhishGuard pour Outlook 1.15 et versions ultérieures</string>
+      <string id="Cat_PhishGuard">PhishGuard pour Outlook</string>
+      <string id="Cat_Company">Entreprise</string>
+      <string id="Cat_Usage">Affichage et utilisation</string>
+      <string id="Cat_Sources">Sources et listes</string>
+      <string id="ReportAddress">Adresse de l'équipe sécurité</string>
+      <string id="ReportAddress_Help">Adresse qui reçoit les messages signalés avec le bouton « Signaler à la sécurité » (rapport HTML et message d'origine joint).
+
+Valeur de registre : Software\Policies\PhishGuard\ReportAddress</string>
+      <string id="CompanyDomains">Domaines de l'entreprise</string>
+      <string id="CompanyDomains_Help">Domaines de messagerie de l'entreprise, séparés par des virgules (ex. : exemple.fr, exemple.com). Un domaine qui les imite est classé critique, et un message à leur nom non authentifié est une usurpation.
+
+Valeur de registre : Software\Policies\PhishGuard\CompanyDomains</string>
+      <string id="Company1">Entreprise 1 et ses dirigeants</string>
+      <string id="Company1_Help">Format : Nom | Pays | Identifiant | Dirigeant; Dirigeant. Exemple : Exemple SAS | France | 552100554 | Claire Martin; Hugo Bernard. Le nom de l'entreprise et ceux des dirigeants affichés par un expéditeur externe sont signalés (fraude au président). Si une entreprise est définie par stratégie, la liste des entreprises n'est plus modifiable.
+
+Valeur de registre : Software\Policies\PhishGuard\Company1</string>
+      <string id="Company2">Entreprise 2 et ses dirigeants</string>
+      <string id="Company2_Help">Même format que l'entreprise 1 (filiale, autre entité du groupe).
+
+Valeur de registre : Software\Policies\PhishGuard\Company2</string>
+      <string id="Company3">Entreprise 3 et ses dirigeants</string>
+      <string id="Company3_Help">Même format que l'entreprise 1.
+
+Valeur de registre : Software\Policies\PhishGuard\Company3</string>
+      <string id="InternalRelays">Équipements internes qui envoient des mails</string>
+      <string id="InternalRelays_Help">Adresses IP ou plages CIDR (séparées par des virgules) des copieurs, applications et serveurs qui envoient au nom de l'entreprise sans s'authentifier, telles que les voit votre serveur de messagerie (ex. : 203.0.113.10, 203.0.113.0/28, 10.0.0.0/8). Un message à votre nom venant de là est reconnu comme interne ; venant d'ailleurs, il reste une usurpation critique. N'indiquez jamais l'adresse d'un service partagé (Microsoft 365, Google, plateforme d'envoi) : tous ses clients en profiteraient.
+
+Valeur de registre : Software\Policies\PhishGuard\InternalRelays</string>
+      <string id="TrustedDomains">Domaines de confiance</string>
+      <string id="TrustedDomains_Help">Domaines partenaires, séparés par des virgules. Les indices liés à l'expéditeur et au contenu sont abaissés ; un échec d'authentification reste toujours signalé.
+
+Valeur de registre : Software\Policies\PhishGuard\TrustedDomains</string>
+      <string id="SharedBlocklistPath">Liste de blocage partagée</string>
+      <string id="SharedBlocklistPath_Help">Chemin d'un fichier texte (un domaine malveillant par ligne) tenu par l'équipe sécurité, par exemple \\serveur\securite\phishguard.txt. Rechargé toutes les heures.
+
+Valeur de registre : Software\Policies\PhishGuard\SharedBlocklistPath</string>
+      <string id="ForceSimpleMode">Imposer le mode simple</string>
+      <string id="ForceSimpleMode_Help">Activé : la fenêtre d'analyse affiche uniquement le verdict en clair et « Que dois-je faire ? ». Le bouton « Analyse détaillée » et les réglages avancés (listes, sources de réputation) sont masqués. Recommandé pour les utilisateurs non techniques ; à ne pas appliquer à l'équipe sécurité.
+
+Valeur de registre : Software\Policies\PhishGuard\ForceSimpleMode</string>
+      <string id="Language">Langue de l'interface</string>
+      <string id="Language_Help">Langue de PhishGuard. Automatique : langue de Windows.
+
+Valeur de registre : Software\Policies\PhishGuard\Language</string>
+      <string id="Language_auto">Automatique (langue de Windows)</string>
+      <string id="Language_fr">Français</string>
+      <string id="Language_en">Anglais</string>
+      <string id="AlertLevel">Alertes à l'écran</string>
+      <string id="AlertLevel_Help">Messages pour lesquels une alerte s'affiche en bas à droite de l'écran.
+
+Valeur de registre : Software\Policies\PhishGuard\AlertLevel</string>
+      <string id="AlertLevel_dangerous">Messages dangereux uniquement</string>
+      <string id="AlertLevel_suspicious">Messages suspects et dangereux</string>
+      <string id="AlertLevel_none">Aucune alerte</string>
+      <string id="AutoAnalyze">Analyse automatique</string>
+      <string id="AutoAnalyze_Help">Activé : chaque message sélectionné ou ouvert est analysé et son score affiché dans le ruban. Désactivé : analyse sur demande uniquement.
+
+Valeur de registre : Software\Policies\PhishGuard\AutoAnalyze</string>
+      <string id="MoveAfterReport">Déplacer les messages signalés</string>
+      <string id="MoveAfterReport_Help">Activé : un message signalé à l'équipe sécurité est déplacé dans Courrier indésirable.
+
+Valeur de registre : Software\Policies\PhishGuard\MoveAfterReport</string>
+      <string id="KnownCorrespondents">Correspondants connus</string>
+      <string id="KnownCorrespondents_Help">Activé : PhishGuard apprend sur le poste les adresses auxquelles l'utilisateur a écrit (éléments envoyés, contacts) pour repérer le premier contact et les sosies de ses correspondants.
+
+Valeur de registre : Software\Policies\PhishGuard\KnownCorrespondents</string>
+      <string id="ScoreLog">Journal des scores</string>
+      <string id="ScoreLog_Help">Activé : chaque analyse est notée dans scores.csv sur le poste (date, verdict, score, domaine et indices ; ni objet ni contenu).
+
+Valeur de registre : Software\Policies\PhishGuard\ScoreLog</string>
+      <string id="AllowApiKeys">Autoriser les clés d'API</string>
+      <string id="AllowApiKeys_Help">Désactivé : aucune clé VirusTotal, abuse.ch ou AbuseIPDB n'est utilisée sur le poste et leur saisie est bloquée. Une clé ne peut pas être distribuée par stratégie : toute clé lisible par le poste l'est aussi par l'utilisateur. Les versions gratuites de certains services interdisent l'usage professionnel : vérifiez leurs conditions.
+
+Valeur de registre : Software\Policies\PhishGuard\AllowApiKeys</string>
+      <string id="RedFlagEnabled">Liste Red Flag Domains</string>
+      <string id="RedFlagEnabled_Help">Nouveaux domaines .fr suspects, téléchargés chaque jour. Licence CC BY-NC-SA 4.0 : vérifiez que votre usage est couvert.
+
+Valeur de registre : Software\Policies\PhishGuard\RedFlagEnabled</string>
+      <string id="PublicSectorList">Liste des domaines du secteur public</string>
+      <string id="PublicSectorList_Help">Liste ouverte de la DINUM (environ 100 000 domaines d'organismes publics), téléchargée chaque mois : un message authentifié d'un organisme public n'est pas pris pour un faux.
+
+Valeur de registre : Software\Policies\PhishGuard\PublicSectorList</string>
+      <string id="DomainAgeLookup">Âge des domaines</string>
+      <string id="DomainAgeLookup_Help">Interroge les registres publics (RDAP) pour connaître la date de création des domaines des expéditeurs et des liens. Seul le nom du domaine est envoyé.
+
+Valeur de registre : Software\Policies\PhishGuard\DomainAgeLookup</string>
+      <string id="BetaDnsChecks">Vérifications DNS</string>
+      <string id="BetaDnsChecks_Help">Vérifie dans le DNS de l'entreprise le domaine de l'expéditeur (MX, SPF, DMARC, BIMI) et si un domaine qui ressemble à une marque est géré par les serveurs DNS de celle-ci.
+
+Valeur de registre : Software\Policies\PhishGuard\BetaDnsChecks</string>
+      <string id="BetaCertAge">Âge des certificats (crt.sh)</string>
+      <string id="BetaCertAge_Help">Envoie le nom des domaines à crt.sh pour connaître la date de leur premier certificat HTTPS.
+
+Valeur de registre : Software\Policies\PhishGuard\BetaCertAge</string>
+      <string id="BetaOpenPhish">Liste OpenPhish</string>
+      <string id="BetaOpenPhish_Help">Pages de phishing actives, téléchargées toutes les 12 heures et comparées sur le poste. Flux communautaire réservé à un usage non commercial.
+
+Valeur de registre : Software\Policies\PhishGuard\BetaOpenPhish</string>
+      <string id="BetaTranco">Classement Tranco</string>
+      <string id="BetaTranco_Help">Sites les plus visités, téléchargés chaque semaine : réduit les fausses alertes sur les domaines très fréquentés.
+
+Valeur de registre : Software\Policies\PhishGuard\BetaTranco</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="ReportAddress"><textBox refId="ReportAddress_Value"><label>Adresse de l'équipe sécurité</label></textBox></presentation>
+      <presentation id="CompanyDomains"><textBox refId="CompanyDomains_Value"><label>Domaines de l'entreprise</label></textBox></presentation>
+      <presentation id="Company1"><textBox refId="Company1_Value"><label>Entreprise 1 et ses dirigeants</label></textBox></presentation>
+      <presentation id="Company2"><textBox refId="Company2_Value"><label>Entreprise 2 et ses dirigeants</label></textBox></presentation>
+      <presentation id="Company3"><textBox refId="Company3_Value"><label>Entreprise 3 et ses dirigeants</label></textBox></presentation>
+      <presentation id="InternalRelays"><textBox refId="InternalRelays_Value"><label>Équipements internes qui envoient des mails</label></textBox></presentation>
+      <presentation id="TrustedDomains"><textBox refId="TrustedDomains_Value"><label>Domaines de confiance</label></textBox></presentation>
+      <presentation id="SharedBlocklistPath"><textBox refId="SharedBlocklistPath_Value"><label>Liste de blocage partagée</label></textBox></presentation>
+      <presentation id="Language"><dropdownList refId="Language_Value" noSort="true">Langue de l'interface</dropdownList></presentation>
+      <presentation id="AlertLevel"><dropdownList refId="AlertLevel_Value" noSort="true">Alertes à l'écran</dropdownList></presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

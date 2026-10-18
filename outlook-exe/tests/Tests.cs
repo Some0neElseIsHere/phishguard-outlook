@@ -793,6 +793,46 @@ namespace PhishGuard.Tests
             Check("même domaine mais authentification en échec : preuve ignorée", !Ids(Analyzer.Analyze(owSpoof, cfg)).Contains("sender-owner-proven"));
             Intel.Settings.DnsChecks = false; Intel.ClearForTests();
             Correspondents.Reset();
+            // ---------- Entreprise : équipements internes déclarés ----------
+            var relays = new List<string> { "203.0.113.0/28", "10.0.0.50", "2001:db8:abcd::/48" };
+            Check("plages IP : IPv4, adresse exacte, IPv6", Forensics.IpInList("203.0.113.10", relays) && !Forensics.IpInList("203.0.113.20", relays)
+                && Forensics.IpInList("10.0.0.50", relays) && Forensics.IpInList("2001:db8:abcd:1::5", relays) && !Forensics.IpInList("2001:db8:ffff::5", relays) && !Forensics.IpInList("pas-une-ip", relays));
+            var hM365 = Analyzer.ParseHeaders("X-Forefront-Antispam-Report: CIP:203.0.113.10;CTRY:FR;LANG:fr;SCL:1\r\nReceived: from copieur (203.0.113.10) by AM0PR01.prod.outlook.com");
+            Check("relais interne vu par Exchange Online (CIP)", Forensics.InternalRelayIp(hM365, relays) == "203.0.113.10");
+            var hOnPrem = Analyzer.ParseHeaders("Received: from hub01 (10.0.0.2) by mbx01.acmetech.local\r\nReceived: from copieur (10.0.0.50) by hub01.acmetech.local");
+            Check("relais interne sur un Exchange local (sauts internes)", Forensics.InternalRelayIp(hOnPrem, relays) == "10.0.0.50");
+            var hForged = Analyzer.ParseHeaders("Received: from mail.pirate.example (198.51.100.7) by mx.acmetech.fr\r\nReceived: from copieur (10.0.0.50) by faux-serveur");
+            Check("faux saut « interne » écrit sous une IP publique : ignoré", Forensics.InternalRelayIp(hForged, relays) == null);
+            var cfgRelay = new PhishGuardConfig { CompanyName = "Acmetech", CompanyDomains = new List<string> { "acmetech.fr" }, InternalRelays = relays };
+            var scan = Base(); scan.FromName = "Copieur 2e étage"; scan.FromAddress = "scanner@acmetech.fr"; scan.Subject = "Document numérisé";
+            scan.BodyText = "Veuillez trouver ci-joint le document numérisé.";
+            scan.RawHeaders = FAIL + "\r\nX-Forefront-Antispam-Report: CIP:203.0.113.10;CTRY:FR;SCL:1";
+            var rscan = Analyzer.Analyze(scan, cfgRelay);
+            Check("copieur déclaré : interne, vert", rscan.Level == "safe" && rscan.Internal && Ids(rscan).Contains("auth-internal-relay"), rscan.Level + " " + string.Join(",", Ids(rscan).ToArray()));
+            scan.RawHeaders = FAIL + "\r\nX-Forefront-Antispam-Report: CIP:198.51.100.7;CTRY:RU;SCL:5";
+            var rspoof = Analyzer.Analyze(scan, cfgRelay);
+            Check("même mail depuis une autre IP : usurpation critique", rspoof.Level == "dangerous" && rspoof.Findings.Any(f => f.Severity == Severity.Critical && f.Category == "auth"), rspoof.Level);
+
+            // ---------- Entreprise : stratégies (GPO / Intune) ----------
+            var pol = new PhishGuardConfig { ExpertMode = true, ReportAddress = "moi@perso.example", VirusTotalKey = "cle-perso" };
+            pol.ApplyPolicies(new[] {
+                new KeyValuePair<string, string>("ReportAddress", "securite@acmetech.fr"),
+                new KeyValuePair<string, string>("ForceSimpleMode", "1"),
+                new KeyValuePair<string, string>("AllowApiKeys", "0"),
+                new KeyValuePair<string, string>("Company1", "Acmetech | France | 552100554 | Claire Martin; Hugo Bernard"),
+                new KeyValuePair<string, string>("InternalRelays", "203.0.113.0/28"),
+                new KeyValuePair<string, string>("VirusTotalKey", "cle-distribuee") });
+            Check("stratégies : valeurs imposées et verrouillées", pol.ReportAddress == "securite@acmetech.fr" && pol.IsLocked("ReportAddress") && pol.IsLocked("company#")
+                && pol.Companies.Count == 1 && pol.VipNames.Contains("Hugo Bernard") && pol.InternalRelays.Count == 1 && pol.IsLocked("internalrelays"));
+            Check("stratégies : mode simple imposé", !pol.ExpertMode && pol.ForceSimpleMode && pol.IsLocked("expertmode"));
+            Check("stratégies : clés d'API interdites, jamais distribuées", pol.VirusTotalKey == "" && pol.IsLocked("virustotalkey") && !pol.AllowApiKeys);
+            Check("stratégies : l'assistant ne repose pas les questions imposées", !pol.PendingSetup(new[] { "intro", "company", "report", "mode" }, true).Any(x => x != "intro"),
+                string.Join(",", pol.PendingSetup(new[] { "intro", "company", "report", "mode" }, true).ToArray()));
+            PhishGuardConfig.PolicySource = () => new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("Language", "en") };
+            var merged = PhishGuardConfig.LoadMerged(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "pg-absent-1.ini"), System.IO.Path.Combine(System.IO.Path.GetTempPath(), "pg-absent-2.ini"));
+            PhishGuardConfig.PolicySource = null;
+            Check("stratégies appliquées au chargement des réglages", merged.Language == "en" && merged.IsLocked("language"));
+
             var orf = Base(); orf.FromName = "Orange"; orf.FromAddress = "facture@orange.fr"; orf.Subject = "Votre facture est disponible";
             orf.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=mail.orange.fr; dkim=pass header.d=orange.fr;dmarc=pass action=none header.from=orange.fr;compauth=pass reason=100";
             Check("Orange depuis une adresse de service authentifiée", !Ids(Analyzer.Analyze(orf, cfg)).Contains("sender-brand-name"));

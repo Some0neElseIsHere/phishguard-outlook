@@ -330,6 +330,21 @@ namespace PhishGuard
                 ctx.Internal = true;
                 return;
             }
+            // Copieur, application ou serveur interne déclaré, qui envoie au nom de l'entreprise sans s'authentifier
+            if (fromCompany && ctx.Config.InternalRelays.Count > 0)
+            {
+                string relayIp = Forensics.InternalRelayIp(headers, ctx.Config.InternalRelays);
+                if (relayIp != null)
+                {
+                    string why = L.F("Envoyé par un équipement interne déclaré ({0})", relayIp);
+                    findings.Add(new Finding("auth-internal-relay", "auth", Severity.Info, L.T("Équipement interne de l’entreprise"),
+                        L.T("Copieur, application ou serveur déclaré par votre service informatique : il envoie au nom de l’entreprise sans authentification, c’est normal."), new[] { relayIp }));
+                    positives.Add(why);
+                    ctx.Trust.Add(why);
+                    ctx.Internal = true;
+                    return;
+                }
+            }
             if (headers.Count == 0)
             {
                 findings.Add(new Finding("auth-noheaders", "auth", Severity.Info, L.T("En-têtes Internet indisponibles"),
@@ -389,7 +404,8 @@ namespace PhishGuard
                     L.T("Le message a pu être modifié en chemin, ou la signature est falsifiée."), null));
             if (fromCompany && dmarc != "pass" && spf != "pass" && dkim != "pass")
                 findings.Add(new Finding("auth-company-unauth", "auth", Severity.Critical, L.T("Message « interne » venant de l’extérieur"),
-                    L.T("L’expéditeur utilise un domaine de votre entreprise mais le message vient de l’extérieur et n’est pas authentifié."), new[] { fromDomain }));
+                    L.T("L’expéditeur utilise un domaine de votre entreprise mais le message vient de l’extérieur et n’est pas authentifié.")
+                    + (ctx.Config.InternalRelays.Count > 0 ? " " + L.T("Il ne vient d’aucun équipement interne déclaré.") : ""), new[] { fromDomain }));
 
             if (spf == "pass") positives.Add(L.T("SPF valide"));
             if (dkim == "pass") positives.Add(L.T("Signature DKIM valide"));
