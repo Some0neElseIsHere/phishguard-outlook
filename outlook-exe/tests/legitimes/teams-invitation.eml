@@ -1,0 +1,39 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.173) smtp.mailfrom=client-alpha.fr; dkim=pass (signature was verified) header.d=client-alpha.fr;dmarc=pass action=none header.from=client-alpha.fr;compauth=pass reason=100
+Received: from mail.client-alpha.fr (198.51.100.90) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Paul Durand <paul.durand@client-alpha.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?R=C3=A9union_de_lancement_du_projet?=
+Date: Sat, 23 May 2026 13:56:00 +0200
+Message-ID: <c1b4c415252fed775db9e6d1cc928a6e@client-alpha.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: teams-invitation
+X-PhishGuard-Connu: oui
+Content-Type: multipart/mixed; boundary="=_pg_c1b4c41525"
+
+--=_pg_c1b4c41525
+Content-Type: multipart/alternative; boundary="alt=_pg_c1b4c41525"
+
+--alt=_pg_c1b4c41525
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkplIHZvdXMgcHJvcG9zZSB1bmUgcsOpdW5pb24gZGUgbGFuY2VtZW50IGpldWRp
+IMOgIDEwaC4KClLDqXVuaW9uIE1pY3Jvc29mdCBUZWFtcy4gUmVqb2luZHJlIHN1ciB2b3RyZSBv
+cmRpbmF0ZXVyIG91IGFwcGxpY2F0aW9uCm1vYmlsZS4KCkNsaXF1ZXogaWNpIHBvdXIgcmVqb2lu
+ZHJlIGxhIHLDqXVuaW9uIDogaHR0cHM6Ly90ZWFtcy5taWNyb3NvZnQuY29tL2wvbWVldHVwLWpv
+aW4vMTklM2FtZWV0aW5nX2FiYyU0MHRocmVhZC52Mi8wP2NvbnRleHQ9JTdiJTIyVGlkJTIyJTNh
+JTIyeCUyMiU3ZA==
+--alt=_pg_c1b4c41525
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5K
+ZSB2b3VzIHByb3Bvc2UgdW5lIHLDqXVuaW9uIGRlIGxhbmNlbWVudCBqZXVkaSDDoCAxMGguPC9w
+PjxwPlLDqXVuaW9uIE1pY3Jvc29mdCBUZWFtcy4gUmVqb2luZHJlIHN1ciB2b3RyZSBvcmRpbmF0
+ZXVyIG91IGFwcGxpY2F0aW9uIG1vYmlsZS48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly90ZWFtcy5t
+aWNyb3NvZnQuY29tL2wvbWVldHVwLWpvaW4vMTklM2FtZWV0aW5nX2FiYyU0MHRocmVhZC52Mi8w
+P2NvbnRleHQ9JTdiJTIyVGlkJTIyJTNhJTIyeCUyMiU3ZCI+Q2xpcXVleiBpY2kgcG91ciByZWpv
+aW5kcmUgbGEgcsOpdW5pb248L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_c1b4c41525--
+--=_pg_c1b4c41525--

@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.245) smtp.mailfrom=sendibm1.com; dkim=pass (signature was verified) header.d=bureautique-pro.fr;dmarc=pass action=none header.from=bureautique-pro.fr;compauth=pass reason=100
+Received: from mail.sendibm1.com (198.51.100.34) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Bureautique Pro <newsletter@bureautique-pro.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Nouveaut=C3=A9s_=3A_imprimantes_et_contrats_de_maintenance?=
+Date: Sat, 20 Jun 2026 16:20:00 +0200
+Message-ID: <cd22c40acf57e7166b83b90431b3073b@sendibm1.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: newsletter-brevo
+List-Unsubscribe: <https://unsubscribe.bureautique-pro.fr/u?id=cd22c40acf57>, <mailto:unsubscribe@sendibm1.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_cd22c40acf"
+
+--=_pg_cd22c40acf
+Content-Type: multipart/alternative; boundary="alt=_pg_cd22c40acf"
+
+--alt=_pg_cd22c40acf
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkTDqWNvdXZyZXogbm90cmUgbm91dmVsbGUgZ2FtbWUgZCdpbXByaW1hbnRlcyBt
+dWx0aWZvbmN0aW9ucy4KCk9mZnJlIHNww6ljaWFsZSBjbGllbnRzIDogLTE1ICUgc3VyIGxlcyBj
+b250cmF0cyBkZSBtYWludGVuYW5jZSBqdXNxdSdhdSAzMQpvY3RvYnJlLgoKRMOpY291dnJpciBs
+YSBnYW1tZSA6IGh0dHBzOi8vci5zZW5kaWJtMS5jb20vbWsvY2wvZi9hYmNERUYxMjM=
+--alt=_pg_cd22c40acf
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5E
+w6ljb3V2cmV6IG5vdHJlIG5vdXZlbGxlIGdhbW1lIGQnaW1wcmltYW50ZXMgbXVsdGlmb25jdGlv
+bnMuPC9wPjxwPk9mZnJlIHNww6ljaWFsZSBjbGllbnRzIDogLTE1ICUgc3VyIGxlcyBjb250cmF0
+cyBkZSBtYWludGVuYW5jZSBqdXNxdSdhdSAzMSBvY3RvYnJlLjwvcD48cD48YSBocmVmPSJodHRw
+czovL3Iuc2VuZGlibTEuY29tL21rL2NsL2YvYWJjREVGMTIzIj5Ew6ljb3V2cmlyIGxhIGdhbW1l
+PC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_cd22c40acf--
+--=_pg_cd22c40acf--

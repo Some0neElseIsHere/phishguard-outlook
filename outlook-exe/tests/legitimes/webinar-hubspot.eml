@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.191) smtp.mailfrom=hubspotemail.net; dkim=pass (signature was verified) header.d=cybersecurite-mag.fr;dmarc=pass action=none header.from=cybersecurite-mag.fr;compauth=pass reason=100
+Received: from mail.hubspotemail.net (198.51.100.15) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: CyberSécurité Mag <events@cybersecurite-mag.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Webinar_=3A_comment_rep=C3=A9rer_un_email_de_phishing?=
+Date: Sun, 20 Sep 2026 17:43:00 +0200
+Message-ID: <0d4d9652b39f036b93fdccb2ae7d59f2@hubspotemail.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: webinar-hubspot
+List-Unsubscribe: <https://unsubscribe.cybersecurite-mag.fr/u?id=0d4d9652b39f>, <mailto:unsubscribe@hubspotemail.net>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_0d4d9652b3"
+
+--=_pg_0d4d9652b3
+Content-Type: multipart/alternative; boundary="alt=_pg_0d4d9652b3"
+
+--alt=_pg_0d4d9652b3
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+SW5zY3JpdmV6LXZvdXMgw6Agbm90cmUgd2ViaW5hciBncmF0dWl0IGR1IDIyIG9jdG9icmUuCgpB
+dSBwcm9ncmFtbWUgOiBmYXV4IG1vdHMgZGUgcGFzc2UsIGZhdXNzZXMgZmFjdHVyZXMsIGZyYXVk
+ZSBhdSBwcsOpc2lkZW50LgoKSmUgbSdpbnNjcmlzIDogaHR0cHM6Ly9ocy0xMjM0NTY3LnMuaHVi
+c3BvdGVtYWlsLm5ldC9lM3QvQ3RjL2FiYw==
+--alt=_pg_0d4d9652b3
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5JbnNjcml2ZXotdm91cyDD
+oCBub3RyZSB3ZWJpbmFyIGdyYXR1aXQgZHUgMjIgb2N0b2JyZS48L3A+PHA+QXUgcHJvZ3JhbW1l
+IDogZmF1eCBtb3RzIGRlIHBhc3NlLCBmYXVzc2VzIGZhY3R1cmVzLCBmcmF1ZGUgYXUgcHLDqXNp
+ZGVudC48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9ocy0xMjM0NTY3LnMuaHVic3BvdGVtYWlsLm5l
+dC9lM3QvQ3RjL2FiYyI+SmUgbSdpbnNjcmlzPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_0d4d9652b3--
+--=_pg_0d4d9652b3--

@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.14) smtp.mailfrom=email.microsoft.com; dkim=pass (signature was verified) header.d=microsoft.com;dmarc=pass action=none header.from=microsoft.com;compauth=pass reason=100
+Received: from mail.email.microsoft.com (198.51.100.58) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Microsoft <microsoft-noreply@microsoft.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_abonnement_Microsoft_365_Business_Standard?=
+Date: Mon, 19 Jan 2026 16:25:00 +0200
+Message-ID: <764030653c71963d62f5e3a8a2705b87@email.microsoft.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: abonnement-microsoft
+Content-Type: multipart/mixed; boundary="=_pg_764030653c"
+
+--=_pg_764030653c
+Content-Type: multipart/alternative; boundary="alt=_pg_764030653c"
+
+--alt=_pg_764030653c
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGFib25uZW1lbnQgc2VyYSByZW5vdXZlbMOpIGxlIDAxLzExLzIwMjYu
+IExlIG1vbnRhbnQgZGUgMTI2LDAwIOKCrCBIVApzZXJhIHByw6lsZXbDqSBzdXIgdm90cmUgbW95
+ZW4gZGUgcGFpZW1lbnQgZW5yZWdpc3Ryw6kuCgpHw6lyZXIgdm90cmUgYWJvbm5lbWVudCA6IGh0
+dHBzOi8vYWRtaW4ubWljcm9zb2Z0LmNvbS9BZG1pbnBvcnRhbC9Ib21lIy9zdWJzY3JpcHRpb25z
+--alt=_pg_764030653c
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBhYm9ubmVtZW50IHNlcmEgcmVub3V2ZWzDqSBsZSAwMS8xMS8yMDI2LiBMZSBtb250YW50
+IGRlIDEyNiwwMCDigqwgSFQgc2VyYSBwcsOpbGV2w6kgc3VyIHZvdHJlIG1veWVuIGRlIHBhaWVt
+ZW50IGVucmVnaXN0csOpLjwvcD48cD48YSBocmVmPSJodHRwczovL2FkbWluLm1pY3Jvc29mdC5j
+b20vQWRtaW5wb3J0YWwvSG9tZSMvc3Vic2NyaXB0aW9ucyI+R8OpcmVyIHZvdHJlIGFib25uZW1l
+bnQ8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_764030653c--
+--=_pg_764030653c--

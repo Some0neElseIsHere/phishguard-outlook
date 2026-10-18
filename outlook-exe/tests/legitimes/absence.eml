@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.50) smtp.mailfrom=client-alpha.fr; dkim=pass (signature was verified) header.d=client-alpha.fr;dmarc=pass action=none header.from=client-alpha.fr;compauth=pass reason=100
+Received: from mail.client-alpha.fr (198.51.100.19) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Paul Durand <paul.durand@client-alpha.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?R=C3=A9ponse_automatique_=3A_Devis_maintenance?=
+Date: Fri, 21 Aug 2026 13:03:00 +0200
+Message-ID: <351be24aa3154abeb916761294b6f8ad@client-alpha.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: absence
+X-PhishGuard-Connu: oui
+Auto-Submitted: auto-replied
+In-Reply-To: <devis-123@exemple-pme.fr>
+References: <devis-123@exemple-pme.fr>
+Content-Type: multipart/mixed; boundary="=_pg_351be24aa3"
+
+--=_pg_351be24aa3
+Content-Type: multipart/alternative; boundary="alt=_pg_351be24aa3"
+
+--alt=_pg_351be24aa3
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkplIHN1aXMgYWJzZW50IGR1IGJ1cmVhdSBqdXNxdSdhdSAyMCBvY3RvYnJlIGF2
+ZWMgdW4gYWNjw6hzIGxpbWl0w6kgw6AgbWVzCmVtYWlscy4KClBvdXIgdG91dGUgdXJnZW5jZSwg
+Y29udGFjdGV6IG1vbiBjb2xsw6hndWUgYXUgMDQgOTQgMDAgMDAgMDAu
+--alt=_pg_351be24aa3
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5K
+ZSBzdWlzIGFic2VudCBkdSBidXJlYXUganVzcXUnYXUgMjAgb2N0b2JyZSBhdmVjIHVuIGFjY8Oo
+cyBsaW1pdMOpIMOgIG1lcyBlbWFpbHMuPC9wPjxwPlBvdXIgdG91dGUgdXJnZW5jZSwgY29udGFj
+dGV6IG1vbiBjb2xsw6hndWUgYXUgMDQgOTQgMDAgMDAgMDAuPC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_351be24aa3--
+--=_pg_351be24aa3--

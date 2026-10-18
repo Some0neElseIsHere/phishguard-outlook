@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.110) smtp.mailfrom=bounce.totalenergies.fr; dkim=pass (signature was verified) header.d=totalenergies.fr;dmarc=pass action=none header.from=totalenergies.fr;compauth=pass reason=100
+Received: from mail.bounce.totalenergies.fr (198.51.100.17) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: TotalEnergies <service-client@totalenergies.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_=C3=A9ch=C3=A9ancier_et_votre_facture?=
+Date: Sun, 08 Feb 2026 08:35:00 +0200
+Message-ID: <478cbe3cdd08434d11ce731f8dcb806c@bounce.totalenergies.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: facture-totalenergies
+List-Unsubscribe: <https://unsubscribe.totalenergies.fr/u?id=478cbe3cdd08>, <mailto:unsubscribe@bounce.totalenergies.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_478cbe3cdd"
+
+--=_pg_478cbe3cdd
+Content-Type: multipart/alternative; boundary="alt=_pg_478cbe3cdd"
+
+--alt=_pg_478cbe3cdd
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpWb3RyZSBmYWN0dXJlIGFubnVlbGxlIGRlIHLDqWd1bGFyaXNhdGlv
+biBlc3QgZGlzcG9uaWJsZS4KClZvdXMgYXZleiB1biByZW1ib3Vyc2VtZW50IGRlIDM0LDEyIOKC
+rCBxdWkgc2VyYSB2ZXJzw6kgc291cyAxNSBqb3Vycy4KClZvaXIgbWEgZmFjdHVyZSA6IGh0dHBz
+Oi8vd3d3LnRvdGFsZW5lcmdpZXMuZnIvY2xpZW50cy9jb25uZXhpb24=
+--alt=_pg_478cbe3cdd
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Vm90cmUgZmFjdHVyZSBhbm51ZWxsZSBkZSByw6lndWxhcmlzYXRpb24gZXN0IGRpc3Bv
+bmlibGUuPC9wPjxwPlZvdXMgYXZleiB1biByZW1ib3Vyc2VtZW50IGRlIDM0LDEyIOKCrCBxdWkg
+c2VyYSB2ZXJzw6kgc291cyAxNSBqb3Vycy48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly93d3cudG90
+YWxlbmVyZ2llcy5mci9jbGllbnRzL2Nvbm5leGlvbiI+Vm9pciBtYSBmYWN0dXJlPC9hPjwvcD48
+L2JvZHk+PC9odG1sPg==
+--alt=_pg_478cbe3cdd--
+--=_pg_478cbe3cdd--

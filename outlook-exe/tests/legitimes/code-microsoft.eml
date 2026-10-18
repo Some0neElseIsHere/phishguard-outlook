@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.205) smtp.mailfrom=accountprotection.microsoft.com; dkim=pass (signature was verified) header.d=microsoft.com;dmarc=pass action=none header.from=microsoft.com;compauth=pass reason=100
+Received: from mail.accountprotection.microsoft.com (198.51.100.48) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Équipe des comptes Microsoft <account-security-noreply@accountprotection.microsoft.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Code_de_s=C3=A9curit=C3=A9_du_compte_Microsoft?=
+Date: Wed, 12 Aug 2026 11:15:00 +0200
+Message-ID: <6ad8ace0e46ebddb6629cc4330b26568@accountprotection.microsoft.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: code-microsoft
+Content-Type: multipart/mixed; boundary="=_pg_6ad8ace0e4"
+
+--=_pg_6ad8ace0e4
+Content-Type: multipart/alternative; boundary="alt=_pg_6ad8ace0e4"
+
+--alt=_pg_6ad8ace0e4
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+VmV1aWxsZXogdXRpbGlzZXIgbGUgY29kZSBkZSBzw6ljdXJpdMOpIHN1aXZhbnQgcG91ciBsZSBj
+b21wdGUgTWljcm9zb2Z0CmNsKioqKipAZXhlbXBsZS1wbWUuZnIuCgpDb2RlIGRlIHPDqWN1cml0
+w6kgOiA0ODI5MTMKClNpIHZvdXMgbmUgcmVjb25uYWlzc2V6IHBhcyBjZSBjb21wdGUsIHZvdXMg
+cG91dmV6IGNsaXF1ZXIgaWNpIHBvdXIKc3VwcHJpbWVyIHZvdHJlIGFkcmVzc2UgZS1tYWlsIGRl
+IGNlIGNvbXB0ZS4KCmNsaXF1ZXIgaWNpIDogaHR0cHM6Ly9hY2NvdW50LmxpdmUuY29tL2RwP2Z0
+PWFiYzEyMw==
+--alt=_pg_6ad8ace0e4
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5WZXVpbGxleiB1dGlsaXNl
+ciBsZSBjb2RlIGRlIHPDqWN1cml0w6kgc3VpdmFudCBwb3VyIGxlIGNvbXB0ZSBNaWNyb3NvZnQg
+Y2wqKioqKkBleGVtcGxlLXBtZS5mci48L3A+PHA+Q29kZSBkZSBzw6ljdXJpdMOpIDogPGI+NDgy
+OTEzPC9iPjwvcD48cD5TaSB2b3VzIG5lIHJlY29ubmFpc3NleiBwYXMgY2UgY29tcHRlLCB2b3Vz
+IHBvdXZleiBjbGlxdWVyIGljaSBwb3VyIHN1cHByaW1lciB2b3RyZSBhZHJlc3NlIGUtbWFpbCBk
+ZSBjZSBjb21wdGUuPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vYWNjb3VudC5saXZlLmNvbS9kcD9m
+dD1hYmMxMjMiPmNsaXF1ZXIgaWNpPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_6ad8ace0e4--
+--=_pg_6ad8ace0e4--

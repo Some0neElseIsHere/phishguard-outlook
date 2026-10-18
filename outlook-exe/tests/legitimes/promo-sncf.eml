@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.152) smtp.mailfrom=info.sncf-connect.com; dkim=pass (signature was verified) header.d=sncf-connect.com;dmarc=pass action=none header.from=sncf-connect.com;compauth=pass reason=100
+Received: from mail.info.sncf-connect.com (198.51.100.48) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: SNCF Connect <newsletter@info.sncf-connect.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Vos_billets_=C3=A0_petit_prix_pour_les_vacances?=
+Date: Wed, 01 Apr 2026 14:53:00 +0200
+Message-ID: <519ede2deb71f04b2f928871bc25d69b@info.sncf-connect.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: promo-sncf
+List-Unsubscribe: <https://unsubscribe.sncf-connect.com/u?id=519ede2deb71>, <mailto:unsubscribe@info.sncf-connect.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_519ede2deb"
+
+--=_pg_519ede2deb
+Content-Type: multipart/alternative; boundary="alt=_pg_519ede2deb"
+
+--alt=_pg_519ede2deb
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpSw6lzZXJ2ZXogZMOocyBtYWludGVuYW50IHZvcyBiaWxsZXRzIHBv
+dXIgbGEgVG91c3NhaW50LgoKT2ZmcmUgc291bWlzZSDDoCBjb25kaXRpb25zLCBkYW5zIGxhIGxp
+bWl0ZSBkZXMgcGxhY2VzIGRpc3BvbmlibGVzLgoKSmUgcsOpc2VydmUgOiBodHRwczovL2NsaWNr
+LmluZm8uc25jZi1jb25uZWN0LmNvbS8/cXM9YWJjZGVmMDEyMzQ1Njc4OQ==
+--alt=_pg_519ede2deb
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+UsOpc2VydmV6IGTDqHMgbWFpbnRlbmFudCB2b3MgYmlsbGV0cyBwb3VyIGxhIFRvdXNz
+YWludC48L3A+PHA+T2ZmcmUgc291bWlzZSDDoCBjb25kaXRpb25zLCBkYW5zIGxhIGxpbWl0ZSBk
+ZXMgcGxhY2VzIGRpc3BvbmlibGVzLjwvcD48cD48YSBocmVmPSJodHRwczovL2NsaWNrLmluZm8u
+c25jZi1jb25uZWN0LmNvbS8/cXM9YWJjZGVmMDEyMzQ1Njc4OSI+SmUgcsOpc2VydmU8L2E+PC9w
+PjwvYm9keT48L2h0bWw+
+--alt=_pg_519ede2deb--
+--=_pg_519ede2deb--

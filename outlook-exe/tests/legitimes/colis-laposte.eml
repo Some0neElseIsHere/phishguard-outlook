@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.80) smtp.mailfrom=notif-colissimo-laposte.info; dkim=pass (signature was verified) header.d=notif-colissimo-laposte.info;dmarc=pass action=none header.from=notif-colissimo-laposte.info;compauth=pass reason=100
+Received: from mail.notif-colissimo-laposte.info (198.51.100.145) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: La Poste - Colissimo <noreply@notif-colissimo-laposte.info>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_colis_arrive_aujourd=27hui?=
+Date: Wed, 18 Mar 2026 08:36:00 +0200
+Message-ID: <65c59398a1b3170b9301d933e73a65e8@notif-colissimo-laposte.info>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: colis-laposte
+List-Unsubscribe: <https://unsubscribe.notif-colissimo-laposte.info/u?id=65c59398a1b3>, <mailto:unsubscribe@notif-colissimo-laposte.info>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_65c59398a1"
+
+--=_pg_65c59398a1
+Content-Type: multipart/alternative; boundary="alt=_pg_65c59398a1"
+
+--alt=_pg_65c59398a1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGNvbGlzIG7CsCA2QTEyMzQ1Njc4OTAxIHNlcmEgbGl2csOpIGF1am91
+cmQnaHVpIGVudHJlIDloIGV0IDEzaC4KCkFic2VudCA/IENob2lzaXNzZXogdW5lIGF1dHJlIGRh
+dGUgZGUgbGl2cmFpc29uLgoKU3VpdnJlIG1vbiBjb2xpcyA6IGh0dHBzOi8vd3d3LmxhcG9zdGUu
+ZnIvb3V0aWxzL3N1aXZyZS12b3MtZW52b2lzP2NvZGU9NkExMjM0NTY3ODkwMQ==
+--alt=_pg_65c59398a1
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBjb2xpcyBuwrAgNkExMjM0NTY3ODkwMSBzZXJhIGxpdnLDqSBhdWpvdXJkJ2h1aSBlbnRy
+ZSA5aCBldCAxM2guPC9wPjxwPkFic2VudCA/IENob2lzaXNzZXogdW5lIGF1dHJlIGRhdGUgZGUg
+bGl2cmFpc29uLjwvcD48cD48YSBocmVmPSJodHRwczovL3d3dy5sYXBvc3RlLmZyL291dGlscy9z
+dWl2cmUtdm9zLWVudm9pcz9jb2RlPTZBMTIzNDU2Nzg5MDEiPlN1aXZyZSBtb24gY29saXM8L2E+
+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_65c59398a1--
+--=_pg_65c59398a1--

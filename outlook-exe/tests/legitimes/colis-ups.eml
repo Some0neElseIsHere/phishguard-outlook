@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.176) smtp.mailfrom=bounce.ups.com; dkim=pass (signature was verified) header.d=ups.com;dmarc=pass action=none header.from=ups.com;compauth=pass reason=100
+Received: from mail.bounce.ups.com (198.51.100.138) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: UPS <mcinfo@ups.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Mise_=C3=A0_jour_UPS_=3A_livraison_pr=C3=A9vue_demain?=
+Date: Tue, 20 Jan 2026 10:31:00 +0200
+Message-ID: <cd6780d5c20938c95f1961521b4d9718@bounce.ups.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: colis-ups
+List-Unsubscribe: <https://unsubscribe.ups.com/u?id=cd6780d5c209>, <mailto:unsubscribe@bounce.ups.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_cd6780d5c2"
+
+--=_pg_cd6780d5c2
+Content-Type: multipart/alternative; boundary="alt=_pg_cd6780d5c2"
+
+--alt=_pg_cd6780d5c2
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGNvbGlzIDFaOTk5QUExMDEyMzQ1Njc4NCBzZXJhIGxpdnLDqSBkZW1h
+aW4uCgpFeHDDqWRpdGV1ciA6IEJ1cmVhdXRpcXVlIFBybwoKU3VpdnJlIGwnZW52b2kgOiBodHRw
+czovL3d3dy51cHMuY29tL3RyYWNrP2xvYz1mcl9GUiZ0cmFja251bT0xWjk5OUFBMTAxMjM0NTY3
+ODQ=
+--alt=_pg_cd6780d5c2
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBjb2xpcyAxWjk5OUFBMTAxMjM0NTY3ODQgc2VyYSBsaXZyw6kgZGVtYWluLjwvcD48cD5F
+eHDDqWRpdGV1ciA6IEJ1cmVhdXRpcXVlIFBybzwvcD48cD48YSBocmVmPSJodHRwczovL3d3dy51
+cHMuY29tL3RyYWNrP2xvYz1mcl9GUiZ0cmFja251bT0xWjk5OUFBMTAxMjM0NTY3ODQiPlN1aXZy
+ZSBsJ2Vudm9pPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_cd6780d5c2--
+--=_pg_cd6780d5c2--

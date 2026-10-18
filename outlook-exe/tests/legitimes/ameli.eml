@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.142) smtp.mailfrom=bounce.assurance-maladie.fr; dkim=pass (signature was verified) header.d=assurance-maladie.fr;dmarc=pass action=none header.from=assurance-maladie.fr;compauth=pass reason=100
+Received: from mail.bounce.assurance-maladie.fr (198.51.100.73) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: l'Assurance Maladie <ne_pas_repondre@assurance-maladie.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Un_nouveau_message_dans_votre_compte_ameli?=
+Date: Fri, 06 Feb 2026 14:25:00 +0200
+Message-ID: <98ec922dce0ce05344a635e10bbfb932@bounce.assurance-maladie.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: ameli
+List-Unsubscribe: <https://unsubscribe.assurance-maladie.fr/u?id=98ec922dce0c>, <mailto:unsubscribe@bounce.assurance-maladie.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_98ec922dce"
+
+--=_pg_98ec922dce
+Content-Type: multipart/alternative; boundary="alt=_pg_98ec922dce"
+
+--alt=_pg_98ec922dce
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpVbiBub3V2ZWF1IGRvY3VtZW50IGVzdCBkaXNwb25pYmxlIGRhbnMg
+dm90cmUgY29tcHRlIGFtZWxpIDogdm90cmUgcmVsZXbDqSBkZQpyZW1ib3Vyc2VtZW50cy4KCkNv
+bm5lY3Rlei12b3VzIMOgIHZvdHJlIGNvbXB0ZSBhbWVsaSBwb3VyIGxlIGNvbnN1bHRlci4KCkFj
+Y8OpZGVyIMOgIG1vbiBjb21wdGUgOiBodHRwczovL2Fzc3VyZS5hbWVsaS5mci8=
+--alt=_pg_98ec922dce
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+VW4gbm91dmVhdSBkb2N1bWVudCBlc3QgZGlzcG9uaWJsZSBkYW5zIHZvdHJlIGNvbXB0
+ZSBhbWVsaSA6IHZvdHJlIHJlbGV2w6kgZGUgcmVtYm91cnNlbWVudHMuPC9wPjxwPkNvbm5lY3Rl
+ei12b3VzIMOgIHZvdHJlIGNvbXB0ZSBhbWVsaSBwb3VyIGxlIGNvbnN1bHRlci48L3A+PHA+PGEg
+aHJlZj0iaHR0cHM6Ly9hc3N1cmUuYW1lbGkuZnIvIj5BY2PDqWRlciDDoCBtb24gY29tcHRlPC9h
+PjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_98ec922dce--
+--=_pg_98ec922dce--

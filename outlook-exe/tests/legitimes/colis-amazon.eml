@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.18) smtp.mailfrom=amazonses.com; dkim=pass (signature was verified) header.d=amazon.fr;dmarc=pass action=none header.from=amazon.fr;compauth=pass reason=100
+Received: from mail.amazonses.com (198.51.100.146) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Amazon.fr <expedition-confirmation@amazon.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Exp=C3=A9di=C3=A9_=3A_votre_commande_n=C2=B0_402-1234567-1234567?=
+Date: Thu, 04 Jun 2026 15:45:00 +0200
+Message-ID: <b9c3d3b4559080dd15b1545b9b4e7683@amazonses.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: colis-amazon
+List-Unsubscribe: <https://unsubscribe.amazon.fr/u?id=b9c3d3b45590>, <mailto:unsubscribe@amazonses.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_b9c3d3b455"
+
+--=_pg_b9c3d3b455
+Content-Type: multipart/alternative; boundary="alt=_pg_b9c3d3b455"
+
+--alt=_pg_b9c3d3b455
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpWb3RyZSBjb2xpcyBhIMOpdMOpIGV4cMOpZGnDqSBldCBhcnJpdmVy
+YSBqZXVkaS4KClRvdGFsIGRlIGxhIGNvbW1hbmRlIDogMzQsOTAg4oKsCgpBZmZpY2hlciBvdSBn
+w6lyZXIgbGEgY29tbWFuZGUgOiBodHRwczovL3d3dy5hbWF6b24uZnIvZ3AvY3NzL29yZGVyLWRl
+dGFpbHM/b3JkZXJJRD00MDItMTIzNDU2Ny0xMjM0NTY3
+--alt=_pg_b9c3d3b455
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Vm90cmUgY29saXMgYSDDqXTDqSBleHDDqWRpw6kgZXQgYXJyaXZlcmEgamV1ZGkuPC9w
+PjxwPlRvdGFsIGRlIGxhIGNvbW1hbmRlIDogMzQsOTAg4oKsPC9wPjxwPjxhIGhyZWY9Imh0dHBz
+Oi8vd3d3LmFtYXpvbi5mci9ncC9jc3Mvb3JkZXItZGV0YWlscz9vcmRlcklEPTQwMi0xMjM0NTY3
+LTEyMzQ1NjciPkFmZmljaGVyIG91IGfDqXJlciBsYSBjb21tYW5kZTwvYT48L3A+PC9ib2R5Pjwv
+aHRtbD4=
+--alt=_pg_b9c3d3b455--
+--=_pg_b9c3d3b455--

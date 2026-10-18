@@ -1,0 +1,31 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.195) smtp.mailfrom=bounce.doctolib.fr; dkim=pass (signature was verified) header.d=doctolib.fr;dmarc=pass action=none header.from=doctolib.fr;compauth=pass reason=100
+Received: from mail.bounce.doctolib.fr (198.51.100.89) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Doctolib <no-reply@doctolib.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_code_de_v=C3=A9rification_Doctolib?=
+Date: Tue, 17 Feb 2026 13:10:00 +0200
+Message-ID: <3379b558befdecfb05e830d0518a47db@bounce.doctolib.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: code-doctolib
+Content-Type: multipart/mixed; boundary="=_pg_3379b558be"
+
+--=_pg_3379b558be
+Content-Type: multipart/alternative; boundary="alt=_pg_3379b558be"
+
+--alt=_pg_3379b558be
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvaWNpIHZvdHJlIGNvZGUgZGUgdsOpcmlmaWNhdGlvbiA6IDczMSAwMDQuIEls
+IGVzdCB2YWxhYmxlIDEwIG1pbnV0ZXMuCgpOZSBsZSBjb21tdW5pcXVleiDDoCBwZXJzb25uZS4=
+--alt=_pg_3379b558be
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b2ljaSB2b3RyZSBjb2RlIGRlIHbDqXJpZmljYXRpb24gOiA3MzEgMDA0LiBJbCBlc3QgdmFsYWJs
+ZSAxMCBtaW51dGVzLjwvcD48cD5OZSBsZSBjb21tdW5pcXVleiDDoCBwZXJzb25uZS48L3A+PC9i
+b2R5PjwvaHRtbD4=
+--alt=_pg_3379b558be--
+--=_pg_3379b558be--

@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.151) smtp.mailfrom=bounce.ovh.com; dkim=pass (signature was verified) header.d=ovh.com;dmarc=pass action=none header.from=ovh.com;compauth=pass reason=100
+Received: from mail.bounce.ovh.com (198.51.100.244) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: OVHcloud <support@ovh.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Renouvellement_de_votre_nom_de_domaine_exemple-pme=2Efr?=
+Date: Sun, 08 Feb 2026 17:40:00 +0200
+Message-ID: <b6bc2b903070185533f91f27f027a490@bounce.ovh.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: renouvellement-ovh
+Content-Type: multipart/mixed; boundary="=_pg_b6bc2b9030"
+
+--=_pg_b6bc2b9030
+Content-Type: multipart/alternative; boundary="alt=_pg_b6bc2b9030"
+
+--alt=_pg_b6bc2b9030
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIG5vbSBkZSBkb21haW5lIGV4ZW1wbGUtcG1lLmZyIGV4cGlyZSBkYW5z
+IDMwIGpvdXJzLiBMZSByZW5vdXZlbGxlbWVudAphdXRvbWF0aXF1ZSBlc3QgYWN0aXbDqS4KCkF1
+Y3VuZSBhY3Rpb24gbidlc3QgcmVxdWlzZSBkZSB2b3RyZSBwYXJ0LgoKR8OpcmVyIG1lcyByZW5v
+dXZlbGxlbWVudHMgOiBodHRwczovL3d3dy5vdmguY29tL21hbmFnZXIvIy9iaWxsaW5nL2F1dG9y
+ZW5ldw==
+--alt=_pg_b6bc2b9030
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBub20gZGUgZG9tYWluZSBleGVtcGxlLXBtZS5mciBleHBpcmUgZGFucyAzMCBqb3Vycy4g
+TGUgcmVub3V2ZWxsZW1lbnQgYXV0b21hdGlxdWUgZXN0IGFjdGl2w6kuPC9wPjxwPkF1Y3VuZSBh
+Y3Rpb24gbidlc3QgcmVxdWlzZSBkZSB2b3RyZSBwYXJ0LjwvcD48cD48YSBocmVmPSJodHRwczov
+L3d3dy5vdmguY29tL21hbmFnZXIvIy9iaWxsaW5nL2F1dG9yZW5ldyI+R8OpcmVyIG1lcyByZW5v
+dXZlbGxlbWVudHM8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_b6bc2b9030--
+--=_pg_b6bc2b9030--

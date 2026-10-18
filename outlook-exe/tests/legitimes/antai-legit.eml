@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.99) smtp.mailfrom=antai.gouv.fr; dkim=pass (signature was verified) header.d=antai.gouv.fr;dmarc=pass action=none header.from=antai.gouv.fr;compauth=pass reason=100
+Received: from mail.antai.gouv.fr (198.51.100.247) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: ANTAI <ne-pas-repondre@antai.gouv.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Avis_de_contravention_disponible?=
+Date: Sun, 12 Jul 2026 17:56:00 +0200
+Message-ID: <a6c443f7070e406897cba794a7f4ee73@antai.gouv.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: antai-legit
+Content-Type: multipart/mixed; boundary="=_pg_a6c443f707"
+
+--=_pg_a6c443f707
+Content-Type: multipart/alternative; boundary="alt=_pg_a6c443f707"
+
+--alt=_pg_a6c443f707
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+TWFkYW1lLCBNb25zaWV1ciwKClVuIGF2aXMgZGUgY29udHJhdmVudGlvbiBjb25jZXJuYW50IGxl
+IHbDqWhpY3VsZSBBQi0xMjMtQ0QgZXN0IGRpc3BvbmlibGUgc3VyCnZvdHJlIGVzcGFjZS4KClZv
+dXMgcG91dmV6IGxlIGNvbnN1bHRlciBldCBsZSBwYXllciBzdXIgbGUgc2l0ZSBvZmZpY2llbCBh
+bnRhaS5nb3V2LmZyLgoKYW50YWkuZ291di5mciA6IGh0dHBzOi8vd3d3LmFudGFpLmdvdXYuZnIv
+--alt=_pg_a6c443f707
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5NYWRhbWUsIE1vbnNpZXVy
+LDwvcD48cD5VbiBhdmlzIGRlIGNvbnRyYXZlbnRpb24gY29uY2VybmFudCBsZSB2w6loaWN1bGUg
+QUItMTIzLUNEIGVzdCBkaXNwb25pYmxlIHN1ciB2b3RyZSBlc3BhY2UuPC9wPjxwPlZvdXMgcG91
+dmV6IGxlIGNvbnN1bHRlciBldCBsZSBwYXllciBzdXIgbGUgc2l0ZSBvZmZpY2llbCBhbnRhaS5n
+b3V2LmZyLjwvcD48cD48YSBocmVmPSJodHRwczovL3d3dy5hbnRhaS5nb3V2LmZyLyI+YW50YWku
+Z291di5mcjwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_a6c443f707--
+--=_pg_a6c443f707--

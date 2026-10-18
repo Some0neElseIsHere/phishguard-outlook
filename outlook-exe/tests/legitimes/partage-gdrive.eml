@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.243) smtp.mailfrom=google.com; dkim=pass (signature was verified) header.d=google.com;dmarc=pass action=none header.from=google.com;compauth=pass reason=100
+Received: from mail.google.com (198.51.100.71) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Julie Bernard (via Google Drive) <drive-shares-dm-noreply@google.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Document_partag=C3=A9_avec_vous_=3A_=C2=AB_Planning_salon_2027_?=
+ =?utf-8?q?=C2=BB?=
+Date: Mon, 03 Aug 2026 20:05:00 +0200
+Message-ID: <0746c24b12608f335d86cbdf04d4a1c5@google.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: partage-gdrive
+X-PhishGuard-Connu: oui
+Reply-To: julie.bernard@client-alpha.fr
+Content-Type: multipart/mixed; boundary="=_pg_0746c24b12"
+
+--=_pg_0746c24b12
+Content-Type: multipart/alternative; boundary="alt=_pg_0746c24b12"
+
+--alt=_pg_0746c24b12
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+SnVsaWUgQmVybmFyZCBhIHBhcnRhZ8OpIGxlIGRvY3VtZW50IHN1aXZhbnQgOgoKUGxhbm5pbmcg
+c2Fsb24gMjAyNwoKT3V2cmlyIDogaHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vZG9jdW1lbnQvZC8x
+QWJDZEVmR2hJaktsTW5PcFFyU3RVdld4WXovZWRpdD91c3A9c2hhcmluZ19laXA=
+--alt=_pg_0746c24b12
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5KdWxpZSBCZXJuYXJkIGEg
+cGFydGFnw6kgbGUgZG9jdW1lbnQgc3VpdmFudCA6PC9wPjxwPlBsYW5uaW5nIHNhbG9uIDIwMjc8
+L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vZG9jdW1lbnQvZC8xQWJDZEVm
+R2hJaktsTW5PcFFyU3RVdld4WXovZWRpdD91c3A9c2hhcmluZ19laXAiPk91dnJpcjwvYT48L3A+
+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_0746c24b12--
+--=_pg_0746c24b12--

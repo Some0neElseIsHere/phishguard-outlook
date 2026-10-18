@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.142) smtp.mailfrom=bounce.urssaf.fr; dkim=pass (signature was verified) header.d=urssaf.fr;dmarc=pass action=none header.from=urssaf.fr;compauth=pass reason=100
+Received: from mail.bounce.urssaf.fr (198.51.100.73) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Urssaf <ne-pas-repondre@urssaf.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_=C3=A9ch=C3=A9ance_de_cotisations_du_15/10/2026?=
+Date: Fri, 27 Mar 2026 13:55:00 +0200
+Message-ID: <389bbe0786910ddb773eb880a77f89c5@bounce.urssaf.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: urssaf
+List-Unsubscribe: <https://unsubscribe.urssaf.fr/u?id=389bbe078691>, <mailto:unsubscribe@bounce.urssaf.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_389bbe0786"
+
+--=_pg_389bbe0786
+Content-Type: multipart/alternative; boundary="alt=_pg_389bbe0786"
+
+--alt=_pg_389bbe0786
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIHByb2NoYWluZSDDqWNow6lhbmNlIGRlIGNvdGlzYXRpb25zIGVzdCBm
+aXjDqWUgYXUgMTUvMTAvMjAyNi4gTW9udGFudAplc3RpbcOpIDogMSA5MjAsMDAg4oKsLgoKTGUg
+cGFpZW1lbnQgcGFyIHByw6lsw6h2ZW1lbnQgc2VyYSBlZmZlY3R1w6kgYXV0b21hdGlxdWVtZW50
+LgoKTW9uIGVzcGFjZSA6IGh0dHBzOi8vd3d3LnVyc3NhZi5mci9hY2N1ZWlsL2VzcGFjZS1lbXBs
+b3lldXIuaHRtbA==
+--alt=_pg_389bbe0786
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBwcm9jaGFpbmUgw6ljaMOpYW5jZSBkZSBjb3Rpc2F0aW9ucyBlc3QgZml4w6llIGF1IDE1
+LzEwLzIwMjYuIE1vbnRhbnQgZXN0aW3DqSA6IDEgOTIwLDAwIOKCrC48L3A+PHA+TGUgcGFpZW1l
+bnQgcGFyIHByw6lsw6h2ZW1lbnQgc2VyYSBlZmZlY3R1w6kgYXV0b21hdGlxdWVtZW50LjwvcD48
+cD48YSBocmVmPSJodHRwczovL3d3dy51cnNzYWYuZnIvYWNjdWVpbC9lc3BhY2UtZW1wbG95ZXVy
+Lmh0bWwiPk1vbiBlc3BhY2U8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_389bbe0786--
+--=_pg_389bbe0786--

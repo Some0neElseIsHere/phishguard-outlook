@@ -1,0 +1,34 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.212) smtp.mailfrom=bounce.yousign.app; dkim=pass (signature was verified) header.d=yousign.app;dmarc=pass action=none header.from=yousign.app;compauth=pass reason=100
+Received: from mail.bounce.yousign.app (198.51.100.116) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Yousign <noreply@yousign.app>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Signature_demand=C3=A9e_=3A_Avenant_au_bail_commercial?=
+Date: Thu, 21 May 2026 16:43:00 +0200
+Message-ID: <9c2d50f08ea68e2a46cc576d05ae1288@bounce.yousign.app>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: yousign
+Content-Type: multipart/mixed; boundary="=_pg_9c2d50f08e"
+
+--=_pg_9c2d50f08e
+Content-Type: multipart/alternative; boundary="alt=_pg_9c2d50f08e"
+
+--alt=_pg_9c2d50f08e
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUgTWFydGluLAoKVm91cyDDqnRlcyBpbnZpdMOpKGUpIMOgIHNpZ25lciBs
+ZSBkb2N1bWVudCDCqyBBdmVuYW50IGF1IGJhaWwgY29tbWVyY2lhbCDCuwplbnZvecOpIHBhciBT
+Q0kgSG9yaXpvbi4KClNpZ25lciBsZSBkb2N1bWVudCA6IGh0dHBzOi8veW91c2lnbi5hcHAvc2ln
+bmF0dXJlcy84ZjFjMmQvc2lnbj9rPWFiYw==
+--alt=_pg_9c2d50f08e
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSBN
+YXJ0aW4sPC9wPjxwPlZvdXMgw6p0ZXMgaW52aXTDqShlKSDDoCBzaWduZXIgbGUgZG9jdW1lbnQg
+wqsgQXZlbmFudCBhdSBiYWlsIGNvbW1lcmNpYWwgwrsgZW52b3nDqSBwYXIgU0NJIEhvcml6b24u
+PC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8veW91c2lnbi5hcHAvc2lnbmF0dXJlcy84ZjFjMmQvc2ln
+bj9rPWFiYyI+U2lnbmVyIGxlIGRvY3VtZW50PC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_9c2d50f08e--
+--=_pg_9c2d50f08e--

@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.158) smtp.mailfrom=bounce.zoom.us; dkim=pass (signature was verified) header.d=zoom.us;dmarc=pass action=none header.from=zoom.us;compauth=pass reason=100
+Received: from mail.bounce.zoom.us (198.51.100.31) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Zoom <no-reply@zoom.us>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Rappel_=3A_votre_r=C3=A9union_commence_dans_1_heure?=
+Date: Thu, 15 Jan 2026 12:10:00 +0200
+Message-ID: <15913c103a5238e5a80ac2f498ee090d@bounce.zoom.us>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: zoom
+List-Unsubscribe: <https://unsubscribe.zoom.us/u?id=15913c103a52>, <mailto:unsubscribe@bounce.zoom.us>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_15913c103a"
+
+--=_pg_15913c103a
+Content-Type: multipart/alternative; boundary="alt=_pg_15913c103a"
+
+--alt=_pg_15913c103a
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpWb3RyZSByw6l1bmlvbiDCqyBQb2ludCBtZW5zdWVsIMK7IGNvbW1l
+bmNlIGRhbnMgMSBoZXVyZS4KClJlam9pbmRyZSBsYSByw6l1bmlvbiA6IGh0dHBzOi8vdXMwMndl
+Yi56b29tLnVzL2ovODEyMzQ1Njc4OTA/cHdkPWFiY0RFRg==
+--alt=_pg_15913c103a
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Vm90cmUgcsOpdW5pb24gwqsgUG9pbnQgbWVuc3VlbCDCuyBjb21tZW5jZSBkYW5zIDEg
+aGV1cmUuPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vdXMwMndlYi56b29tLnVzL2ovODEyMzQ1Njc4
+OTA/cHdkPWFiY0RFRiI+UmVqb2luZHJlIGxhIHLDqXVuaW9uPC9hPjwvcD48L2JvZHk+PC9odG1s
+Pg==
+--alt=_pg_15913c103a--
+--=_pg_15913c103a--

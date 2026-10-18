@@ -1,0 +1,39 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.14) smtp.mailfrom=mail.orange.fr; dkim=pass (signature was verified) header.d=orange.fr;dmarc=pass action=none header.from=orange.fr;compauth=pass reason=100
+Received: from mail.mail.orange.fr (198.51.100.20) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Orange <facture@orange.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_facture_Orange_est_disponible?=
+Date: Fri, 05 Jun 2026 13:41:00 +0200
+Message-ID: <aa8d5a164935a566124c4c3596fe5a2e@mail.orange.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: facture-orange
+List-Unsubscribe: <https://unsubscribe.orange.fr/u?id=aa8d5a164935>, <mailto:unsubscribe@mail.orange.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_aa8d5a1649"
+
+--=_pg_aa8d5a1649
+Content-Type: multipart/alternative; boundary="alt=_pg_aa8d5a1649"
+
+--alt=_pg_aa8d5a1649
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUgTWFydGluLAoKVm90cmUgZmFjdHVyZSBkZSBzZXB0ZW1icmUgZCd1biBt
+b250YW50IGRlIDQyLDk5IOKCrCBlc3QgZGlzcG9uaWJsZSBkYW5zIHZvdHJlCkVzcGFjZSBDbGll
+bnQuCgpMZSBwcsOpbMOodmVtZW50IHNlcmEgZWZmZWN0dcOpIGxlIDEyIG9jdG9icmUgc3VyIHZv
+dHJlIGNvbXB0ZSBiYW5jYWlyZS4KCkNvbnN1bHRlciBtYSBmYWN0dXJlIDogaHR0cHM6Ly9yLm9y
+YW5nZS5mci9yL0Vlc3BhY2VfY2xpZW50P3h0b3I9RVJFQy0xMjM=
+--alt=_pg_aa8d5a1649
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSBN
+YXJ0aW4sPC9wPjxwPlZvdHJlIGZhY3R1cmUgZGUgc2VwdGVtYnJlIGQndW4gbW9udGFudCBkZSA0
+Miw5OSDigqwgZXN0IGRpc3BvbmlibGUgZGFucyB2b3RyZSBFc3BhY2UgQ2xpZW50LjwvcD48cD5M
+ZSBwcsOpbMOodmVtZW50IHNlcmEgZWZmZWN0dcOpIGxlIDEyIG9jdG9icmUgc3VyIHZvdHJlIGNv
+bXB0ZSBiYW5jYWlyZS48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9yLm9yYW5nZS5mci9yL0Vlc3Bh
+Y2VfY2xpZW50P3h0b3I9RVJFQy0xMjMiPkNvbnN1bHRlciBtYSBmYWN0dXJlPC9hPjwvcD48L2Jv
+ZHk+PC9odG1sPg==
+--alt=_pg_aa8d5a1649--
+--=_pg_aa8d5a1649--

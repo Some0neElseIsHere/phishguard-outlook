@@ -1,0 +1,39 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.176) smtp.mailfrom=bounce.github.com; dkim=pass (signature was verified) header.d=github.com;dmarc=pass action=none header.from=github.com;compauth=pass reason=100
+Received: from mail.bounce.github.com (198.51.100.206) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: GitHub <noreply@github.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?=5BGitHub=5D_A_third-party_OAuth_application_has_been_added_to_you?=
+ =?utf-8?q?r_account?=
+Date: Fri, 28 Aug 2026 19:55:00 +0200
+Message-ID: <bf215181b5140522137b3d4f6b73544a@bounce.github.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: github
+Content-Type: multipart/mixed; boundary="=_pg_bf215181b5"
+
+--=_pg_bf215181b5
+Content-Type: multipart/alternative; boundary="alt=_pg_bf215181b5"
+
+--alt=_pg_bf215181b5
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+SGV5IGNsYWlyZS1tYXJ0aW4hCgpBIHRoaXJkLXBhcnR5IE9BdXRoIGFwcGxpY2F0aW9uIChOZXRs
+aWZ5KSB3aXRoIHJlYWQ6dXNlciBzY29wZSB3YXMgcmVjZW50bHkKYXV0aG9yaXplZCB0byBhY2Nl
+c3MgeW91ciBhY2NvdW50LgoKSWYgeW91IGRpZCBub3QgZ3JhbnQgdGhpcyBhY2Nlc3MsIHBsZWFz
+ZSByZXZpZXcgeW91ciBhdXRob3JpemVkCmFwcGxpY2F0aW9ucy4KCmh0dHBzOi8vZ2l0aHViLmNv
+bS9zZXR0aW5ncy9hcHBsaWNhdGlvbnMgOiBodHRwczovL2dpdGh1Yi5jb20vc2V0dGluZ3MvYXBw
+bGljYXRpb25z
+--alt=_pg_bf215181b5
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5IZXkgY2xhaXJlLW1hcnRp
+biE8L3A+PHA+QSB0aGlyZC1wYXJ0eSBPQXV0aCBhcHBsaWNhdGlvbiAoTmV0bGlmeSkgd2l0aCBy
+ZWFkOnVzZXIgc2NvcGUgd2FzIHJlY2VudGx5IGF1dGhvcml6ZWQgdG8gYWNjZXNzIHlvdXIgYWNj
+b3VudC48L3A+PHA+SWYgeW91IGRpZCBub3QgZ3JhbnQgdGhpcyBhY2Nlc3MsIHBsZWFzZSByZXZp
+ZXcgeW91ciBhdXRob3JpemVkIGFwcGxpY2F0aW9ucy48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9n
+aXRodWIuY29tL3NldHRpbmdzL2FwcGxpY2F0aW9ucyI+aHR0cHM6Ly9naXRodWIuY29tL3NldHRp
+bmdzL2FwcGxpY2F0aW9uczwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_bf215181b5--
+--=_pg_bf215181b5--

@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.248) smtp.mailfrom=bounce.bnpparibas.com; dkim=pass (signature was verified) header.d=bnpparibas.com;dmarc=pass action=none header.from=bnpparibas.com;compauth=pass reason=100
+Received: from mail.bounce.bnpparibas.com (198.51.100.173) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: BNP Paribas <alerte@bnpparibas.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Connexion_=C3=A0_votre_espace_client?=
+Date: Mon, 16 Mar 2026 13:02:00 +0200
+Message-ID: <f1d6dabbad5549a943d0e33fcf2d65a2@bounce.bnpparibas.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: connexion-banque
+Content-Type: multipart/mixed; boundary="=_pg_f1d6dabbad"
+
+--=_pg_f1d6dabbad
+Content-Type: multipart/alternative; boundary="alt=_pg_f1d6dabbad"
+
+--alt=_pg_f1d6dabbad
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClVuZSBjb25uZXhpb24gw6Agdm90cmUgZXNwYWNlIGNsaWVudCBhIGV1IGxpZXUg
+bGUgMDMvMTAvMjAyNiDDoCAwOToxNCBkZXB1aXMKdW4gbm91dmVsIGFwcGFyZWlsLgoKU2kgdm91
+cyBuJ8OqdGVzIHBhcyDDoCBsJ29yaWdpbmUgZGUgY2V0dGUgY29ubmV4aW9uLCBjb250YWN0ZXot
+bm91cyBhdSBudW3DqXJvCmZpZ3VyYW50IGF1IGRvcyBkZSB2b3RyZSBjYXJ0ZS4=
+--alt=_pg_f1d6dabbad
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5V
+bmUgY29ubmV4aW9uIMOgIHZvdHJlIGVzcGFjZSBjbGllbnQgYSBldSBsaWV1IGxlIDAzLzEwLzIw
+MjYgw6AgMDk6MTQgZGVwdWlzIHVuIG5vdXZlbCBhcHBhcmVpbC48L3A+PHA+U2kgdm91cyBuJ8Oq
+dGVzIHBhcyDDoCBsJ29yaWdpbmUgZGUgY2V0dGUgY29ubmV4aW9uLCBjb250YWN0ZXotbm91cyBh
+dSBudW3DqXJvIGZpZ3VyYW50IGF1IGRvcyBkZSB2b3RyZSBjYXJ0ZS48L3A+PC9ib2R5PjwvaHRt
+bD4=
+--alt=_pg_f1d6dabbad--
+--=_pg_f1d6dabbad--

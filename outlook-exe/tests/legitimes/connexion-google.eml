@@ -1,0 +1,40 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.136) smtp.mailfrom=accounts.google.com; dkim=pass (signature was verified) header.d=accounts.google.com;dmarc=pass action=none header.from=google.com;compauth=pass reason=100
+Received: from mail.accounts.google.com (198.51.100.128) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Google <no-reply@accounts.google.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Alerte_de_s=C3=A9curit=C3=A9?=
+Date: Fri, 03 Apr 2026 16:19:00 +0200
+Message-ID: <7225bcc891788bd073d1e4ed90276ef0@accounts.google.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: connexion-google
+Content-Type: multipart/mixed; boundary="=_pg_7225bcc891"
+
+--=_pg_7225bcc891
+Content-Type: multipart/alternative; boundary="alt=_pg_7225bcc891"
+
+--alt=_pg_7225bcc891
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Tm91dmVsbGUgY29ubmV4aW9uIHN1ciBXaW5kb3dzLgoKTm91cyBhdm9ucyBkw6l0ZWN0w6kgdW5l
+IG5vdXZlbGxlIGNvbm5leGlvbiDDoCB2b3RyZSBjb21wdGUgR29vZ2xlLiBTaSBjJ8OpdGFpdAp2
+b3VzLCBhdWN1bmUgYWN0aW9uIG4nZXN0IHJlcXVpc2UuCgpTaW5vbiwgbm91cyB2b3VzIGFpZGVy
+b25zIMOgIHPDqWN1cmlzZXIgdm90cmUgY29tcHRlLgoKVsOpcmlmaWVyIGwnYWN0aXZpdMOpIDog
+aHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL0FjY291bnRDaG9vc2VyP0VtYWlsPWNsYWlyZS5t
+YXJ0aW5AZXhlbXBsZS1wbWUuZnImY29udGludWU9aHR0cHM6Ly9teWFjY291bnQuZ29vZ2xlLmNv
+bS9hbGVydA==
+--alt=_pg_7225bcc891
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Ob3V2ZWxsZSBjb25uZXhp
+b24gc3VyIFdpbmRvd3MuPC9wPjxwPk5vdXMgYXZvbnMgZMOpdGVjdMOpIHVuZSBub3V2ZWxsZSBj
+b25uZXhpb24gw6Agdm90cmUgY29tcHRlIEdvb2dsZS4gU2kgYyfDqXRhaXQgdm91cywgYXVjdW5l
+IGFjdGlvbiBuJ2VzdCByZXF1aXNlLjwvcD48cD5TaW5vbiwgbm91cyB2b3VzIGFpZGVyb25zIMOg
+IHPDqWN1cmlzZXIgdm90cmUgY29tcHRlLjwvcD48cD48YSBocmVmPSJodHRwczovL2FjY291bnRz
+Lmdvb2dsZS5jb20vQWNjb3VudENob29zZXI/RW1haWw9Y2xhaXJlLm1hcnRpbkBleGVtcGxlLXBt
+ZS5mciZjb250aW51ZT1odHRwczovL215YWNjb3VudC5nb29nbGUuY29tL2FsZXJ0Ij5Ww6lyaWZp
+ZXIgbCdhY3Rpdml0w6k8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_7225bcc891--
+--=_pg_7225bcc891--
