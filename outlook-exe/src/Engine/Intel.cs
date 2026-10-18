@@ -166,6 +166,7 @@ namespace PhishGuard
             switch (service)
             {
                 case "dns": return Dns(v);
+                case "own": return Owner(v);
                 case "crt": Throttle("crt", 2000); return ParseCrt(Http("GET", "https://crt.sh/?output=json&q=" + Uri.EscapeDataString(v), null, null, null, 4000000));
                 case "vtf": Throttle("vt", 15500); return ParseVirusTotal(VtGet("files/" + v));
                 case "uhh": Throttle("abusech", 1000); return ParseUrlhaus(Http("POST", "https://urlhaus-api.abuse.ch/v1/host/", "host=" + Uri.EscapeDataString(v), "application/x-www-form-urlencoded", AbuseChHeaders(), 1000000));
@@ -396,6 +397,52 @@ namespace PhishGuard
                 DmarcPolicy = ParseDmarcPolicy(dmarcRecord, dmarcFromOrg),
                 Bimi = ParseBimi(bimi.FirstOrDefault(IsBimi) ?? "")
             };
+        }
+
+        /// <summary>Clé de la vérification « même propriétaire » : domaine à vérifier et domaines officiels de la marque.</summary>
+        public static string OwnerKey(string candidate, IEnumerable<string> officials)
+        {
+            return "own:" + (candidate ?? "").ToLowerInvariant() + "|" + string.Join(",", officials.Select(o => o.ToLowerInvariant()).Distinct().OrderBy(o => o, StringComparer.Ordinal).ToArray());
+        }
+
+        /// <summary>« Même propriétaire » : le domaine est géré par des serveurs DNS situés sous un domaine officiel
+        /// (ns1.marque.com…), ou son DMARC envoie ses rapports à un domaine officiel qui l'autorise explicitement
+        /// (enregistrement « domaine._report._dmarc.officiel », RFC 7489 §7.1). Un tiers ne peut produire ni l'un ni l'autre.</summary>
+        static IntelResult Owner(string v)
+        {
+            var parts = v.Split('|');
+            if (parts.Length < 2) return new IntelResult { Ok = false };
+            string cand = parts[0];
+            var officials = new HashSet<string>(parts[1].Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+            var ns = new List<string>();
+            int rc = Query(cand, TypeNs, ns);
+            if (rc == NameError) return new IntelResult { Ok = true, Found = false, Exists = false };
+            if (rc != 0 && rc != NoRecords) throw new Exception("DNS " + rc);
+            var dmarc = new List<string>();
+            Query("_dmarc." + cand, TypeTxt, dmarc);
+            return OwnerProof(cand, ns, dmarc.FirstOrDefault(IsDmarc) ?? "", officials, d =>
+            {
+                var auth = new List<string>();
+                Query(cand + "._report._dmarc." + d, TypeTxt, auth);
+                return auth.Any(IsDmarc);
+            });
+        }
+
+        /// <summary>Décision de la vérification « même propriétaire » (fonction pure, testée).</summary>
+        public static IntelResult OwnerProof(string cand, IEnumerable<string> nameServers, string dmarcRecord, ICollection<string> officials, Func<string, bool> reportAuthorized)
+        {
+            foreach (var h in nameServers)
+            {
+                string host = (h ?? "").TrimEnd('.').ToLowerInvariant();
+                if (officials.Contains(Domains.RegistrableDomain(host))) return new IntelResult { Ok = true, Found = true, Label = L.T("serveur DNS ") + host };
+            }
+            foreach (Match m in Regex.Matches(dmarcRecord ?? "", @"mailto:[^@,;\s]+@([A-Za-z0-9.-]+)", RegexOptions.IgnoreCase))
+            {
+                string d = m.Groups[1].Value.TrimEnd('.').ToLowerInvariant();
+                if (officials.Contains(Domains.RegistrableDomain(d)) && reportAuthorized(d))
+                    return new IntelResult { Ok = true, Found = true, Label = L.T("rapports DMARC autorisés par ") + d };
+            }
+            return new IntelResult { Ok = true, Found = false };
         }
 
         static bool IsDmarc(string t) { return t.TrimStart().StartsWith("v=DMARC1", StringComparison.OrdinalIgnoreCase); }

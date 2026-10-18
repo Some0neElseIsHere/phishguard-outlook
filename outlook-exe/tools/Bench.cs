@@ -30,6 +30,14 @@ namespace PhishGuard.Tools
             L.SetLanguage("fr");
             DomainAge.Enabled = false;
             Blocklists.SetForTests(new string[0], new string[0]);
+            // Liste du secteur public (téléchargée par le workflow), comme sur un poste où elle est activée par défaut
+            string publicList = Environment.GetEnvironmentVariable("PG_PUBLIC_SECTOR");
+            if (!string.IsNullOrEmpty(publicList) && File.Exists(publicList))
+            {
+                Feeds.LoadPublicSector(File.ReadAllLines(publicList), DateTime.Now);
+                Feeds.PublicSectorEnabled = true;
+                Console.WriteLine("Secteur public : " + Feeds.PublicSectorCount + " domaines");
+            }
 
             using (var w = new StreamWriter(args[0], false, new UTF8Encoding(false)))
             {

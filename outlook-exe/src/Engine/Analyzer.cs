@@ -66,6 +66,9 @@ namespace PhishGuard
             public bool RelationProof;   // relation établie avec vous : correspondant connu, réponse à votre message, expéditeur de confiance
             public bool BulkCompliant;   // envoi en nombre conforme (désabonnement en un clic + DMARC)
             public bool BrandSender;     // authentifié sur le domaine officiel d'une marque (hors messageries gratuites et plateformes)
+            public bool PublicBody;      // domaine d'un organisme public (.gouv.fr ou liste officielle du secteur public)
+            public string ProvenBrand;
+            public bool ProvenCompany;   // domaine prouvé de votre entreprise (autre extension, ancien nom…)   // domaine sosie dont l'appartenance à la marque est prouvée (ses serveurs DNS la gèrent)
             public bool CodeMessage;     // vrai message de code (connexion, vérification) : authentifié, liens chez l'expéditeur
             public bool MailingList;     // message adressé à une liste de diffusion dont vous êtes membre
             public bool Platform;        // plateforme qui relaie les messages de ses clients (partage, signature…), authentifiée
@@ -488,6 +491,9 @@ namespace PhishGuard
             if (fromAddr.Length == 0) return;
             ctx.SenderTrusted = cfg.TrustedSenders.Contains(fromAddr)
                 || (!isFreemail && cfg.TrustedDomains.Any(t => PhishGuard.Domains.RegistrableDomain(t) == fromOrg));
+            // Organisme public : domaine .gouv.fr (réservé à l'État) ou présent dans la liste officielle du secteur public
+            ctx.PublicBody = !isFreemail && Feeds.IsPublicSector(fromDomain);
+            if (ctx.PublicBody) ctx.Domains.Legit.Add(fromOrg);
 
             // Premier contact et sosies de vos correspondants (fournisseurs, clients...)
             // Liste de diffusion : le message est adressé à la liste (son adresse de publication figure dans À/Cc), pas à vous
@@ -529,6 +535,27 @@ namespace PhishGuard
             CheckDomainAge(fromOrg, L.T("Le domaine de l’expéditeur"), "sender-new-domain", ctx, findings);
 
             var look = listMunged ? null : PhishGuard.Domains.DetectLookalike(fromDomain, ctx.Domains);
+            // Sosie d'une marque ou de votre entreprise, mais message authentifié : le domaine est peut-être le sien
+            // (autre extension, ancien nom). Preuve vérifiable : ses serveurs DNS sont ceux de la marque.
+            if (look != null && ctx.AuthProof && !isFreemail && Intel.Settings.DnsChecks)
+            {
+                var officials = look.IsCompany ? ctx.Domains.CompanyDomains.ToList()
+                    : Lists.Brands.Where(b => b.Name == look.Brand).SelectMany(b => b.Domains).Select(d => PhishGuard.Domains.RegistrableDomain(d)).Distinct().ToList();
+                var proof = officials.Count == 0 ? null : Intel.GetOrRequest(Intel.OwnerKey(fromOrg, officials));
+                if (proof != null && proof.Ok && proof.Found)
+                {
+                    string who = look.IsCompany ? L.T("votre entreprise") : look.Brand;
+                    ctx.ProvenBrand = look.IsCompany ? null : look.Brand;
+                    ctx.ProvenCompany = look.IsCompany;
+                    ctx.Domains.Legit.Add(fromOrg);
+                    findings.Add(new Finding("sender-owner-proven", "sender", Severity.Info, L.F("Domaine rattaché à {0}", who),
+                        L.T("Il ressemble à un domaine officiel, mais il est géré par les mêmes serveurs que celui-ci : il appartient au même propriétaire."),
+                        new[] { fromOrg + " : " + proof.Label }));
+                    ctx.Trust.Add(L.F("Domaine rattaché à {0} : géré par ses propres serveurs ({1})", who, proof.Label));
+                    positives.Add(L.F("Domaine rattaché à {0}", who));
+                    look = null;
+                }
+            }
             if (look != null) findings.Add(LookalikeFinding(look, L.T("Le domaine de l’expéditeur"), "sender"));
             var listed = Blocklists.Lookup(fromDomain);
             if (listed != null) findings.Add(BlocklistFinding(listed, L.T("Le domaine de l’expéditeur figure dans une liste de domaines malveillants"), "sender", new[] { PhishGuard.Domains.ToUnicode(listed.Domain) }));
@@ -545,6 +572,7 @@ namespace PhishGuard
             foreach (var b in Lists.Brands)
             {
                 if (!b.Names.Any(n => WordMatch(nameNorm, n))) continue;
+                if ((ctx.PublicBody && ctx.AuthOk) || ctx.ProvenBrand == b.Name) break;   // organisme public authentifié, ou domaine prouvé de la marque
                 bool brandDomain = b.Domains.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg);
                 // Opérateur qui est aussi une messagerie gratuite (orange.fr, free.fr…) : seules ses adresses de service authentifiées comptent
                 bool owns = brandDomain && (!isFreemail || (ctx.AuthOk && BrandServiceLocal.IsMatch(fromAddr.Split('@')[0])));
@@ -558,7 +586,7 @@ namespace PhishGuard
                 }
             }
 
-            if (!isCompany)
+            if (!isCompany && !ctx.ProvenCompany)
             {
                 string vip = cfg.VipNames.FirstOrDefault(v => !string.IsNullOrEmpty(v) && WordMatch(nameNorm, v));
                 if (vip != null)
@@ -573,14 +601,18 @@ namespace PhishGuard
             }
 
             ctx.Platform = ctx.AuthOk && IsPlatformSender(fromDomain);
+            var ownBrand = Lists.Brands.FirstOrDefault(b => b.Domains.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg));
             ctx.BrandSender = ctx.AuthProof && !isFreemail && !ctx.Internal && !ctx.Platform && look == null
-                && Lists.Brands.Any(b => b.Domains.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg));
+                && (ownBrand != null || ctx.ProvenBrand != null || ctx.PublicBody);
             if (ctx.BrandSender)
             {
-                var brand = Lists.Brands.First(b => b.Domains.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg));
-                ctx.Trust.Add(L.F("Envoyé et authentifié par un domaine officiel de {0}", brand.Name));
-                positives.Add(L.F("Envoyé et authentifié par un domaine officiel de {0}", brand.Name));
-                ctx.RelationProof = true;   // réputation de la marque : suffit pour « Expéditeur vérifié » s'il n'y a aucun indice
+                string why = ownBrand != null ? L.F("Envoyé et authentifié par un domaine officiel de {0}", ownBrand.Name)
+                    : ctx.ProvenBrand != null ? L.F("Envoyé et authentifié par un domaine rattaché à {0}", ctx.ProvenBrand)
+                    : fromOrg.EndsWith(".gouv.fr") || fromOrg == "gouv.fr" ? L.T("Envoyé et authentifié par un domaine .gouv.fr (réservé aux services de l’État)")
+                    : L.T("Envoyé et authentifié par un organisme public (liste officielle des domaines du secteur public)");
+                ctx.Trust.Add(why);
+                positives.Add(why);
+                ctx.RelationProof = true;   // réputation de la marque ou de l'organisme : suffit pour « Expéditeur vérifié » s'il n'y a aucun indice
             }
 
             var replyTo = new List<string>();
@@ -887,7 +919,7 @@ namespace PhishGuard
                 // Exemple technique (localhost, réseau local) : pas une page qu'un escroc peut héberger
                 if (IsLocalHost(host)) continue;
                 string display = PhishGuard.Domains.ToUnicode(host);
-                bool legit = ctx.Domains.Legit.Contains(p.Registrable);
+                bool legit = ctx.Domains.Legit.Contains(p.Registrable) || Feeds.IsPublicSector(host);
                 urls.Add(url.AbsoluteUri);
                 domains.Add(p.Registrable);
 

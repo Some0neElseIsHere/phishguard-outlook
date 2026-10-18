@@ -17,7 +17,7 @@ namespace PhishGuard.AddIn
         readonly PhishGuardConfig cfg;
         readonly TextBox txtDomains, txtReport, txtVips, txtTrusted, txtCustom, txtTrustedSenders, txtShared;
         readonly CheckBox chkAuto, chkRedFlag, chkExplain, chkCorr, chkAge, chkTag, chkMove, chkLog;
-        readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert;
+        readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert, chkPublic;
         readonly TextBox txtVt, txtAbuseCh, txtAbuseIpdb;
         readonly Label lblBeta;
         readonly ComboBox cboAlert, cboLang, cboMode;
@@ -198,12 +198,14 @@ namespace PhishGuard.AddIn
             btnUpdate.Click += (s, e) => { Blocklists.StartDownload(cfg.RedFlagUrl); lblLists.Text = L.T("Téléchargement en cours…"); };
             pBeta.Controls.Add(btnUpdate);
             y += 40;
+            chkPublic = AddCheck(pBeta, ref y, L.T("Liste des domaines du secteur public (État, collectivités, hôpitaux…)"), cfg.PublicSectorList,
+                L.T("Liste ouverte de la DINUM (environ 100 000 domaines), téléchargée chaque mois : un message authentifié d’un organisme public n’est pas pris pour un faux. Les domaines .gouv.fr sont reconnus même sans la liste."));
             chkOpenPhish = AddCheck(pBeta, ref y, L.T("Liste OpenPhish des pages de phishing actives"), cfg.BetaOpenPhish,
                 L.T("Téléchargée toutes les 12 h depuis openphish.com ; la comparaison des liens se fait sur votre poste."));
             chkTranco = AddCheck(pBeta, ref y, L.T("Classement Tranco des sites les plus visités"), cfg.BetaTranco,
                 L.T("Téléchargé chaque semaine (environ 10 Mo) : reconnaît les domaines très fréquentés et réduit les faux positifs."));
             chkDns = AddCheck(pBeta, ref y, L.T("Vérifier le domaine de l’expéditeur dans le DNS (existence, MX, SPF, DMARC, BIMI)"), cfg.BetaDnsChecks,
-                L.T("Utilise le serveur DNS de votre entreprise, comme une navigation normale."));
+                L.T("Utilise le serveur DNS de votre entreprise, comme une navigation normale. Vérifie aussi si un domaine qui ressemble à une marque lui appartient (géré par ses serveurs DNS)."));
             chkCert = AddCheck(pBeta, ref y, L.T("Âge du premier certificat HTTPS des domaines (crt.sh)"), cfg.BetaCertAge,
                 L.T("Envoie le nom du domaine à crt.sh (journaux publics des certificats)."));
             y += 6;
@@ -345,6 +347,7 @@ namespace PhishGuard.AddIn
         {
             var parts = new List<string>();
             if (Feeds.OpenPhishCount > 0) parts.Add(L.F("OpenPhish : {0} adresses ({1})", Feeds.OpenPhishCount.ToString("N0"), Feeds.OpenPhishUpdated.ToString("g")));
+            if (Feeds.PublicSectorCount > 0) parts.Add(L.F("Secteur public : {0} domaines ({1})", Feeds.PublicSectorCount.ToString("N0"), Feeds.PublicSectorUpdated.ToString("d")));
             if (Feeds.TrancoCount > 0) parts.Add(L.F("Tranco : {0} domaines ({1})", Feeds.TrancoCount.ToString("N0"), Feeds.TrancoUpdated.ToString("d")));
             if (!string.IsNullOrEmpty(Feeds.LastError)) parts.Add(L.T("Dernière erreur : ") + Feeds.LastError);
             if (!string.IsNullOrEmpty(Intel.LastError)) parts.Add(L.T("Dernière erreur : ") + Intel.LastError);
@@ -463,6 +466,7 @@ namespace PhishGuard.AddIn
             cfg.SharedBlocklistPath = txtShared.Text.Trim();
             cfg.WatchDomains = chkWatch.Checked;
             cfg.ExpertMode = cboMode.SelectedIndex == 1;
+            cfg.PublicSectorList = chkPublic.Checked;
             cfg.BetaOpenPhish = chkOpenPhish.Checked;
             cfg.BetaTranco = chkTranco.Checked;
             cfg.BetaDnsChecks = chkDns.Checked;

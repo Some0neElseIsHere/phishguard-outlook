@@ -754,6 +754,45 @@ namespace PhishGuard.Tests
                 Check("adresse automatique reconnue : " + local, Ids(Analyzer.Analyze(nr, cfg)).Contains("sender-first-contact-auto"));
             }
             Correspondents.Reset();
+            // Organismes publics : .gouv.fr (réservé à l'État) et liste du secteur public
+            Correspondents.Set(new[] { "client@client-connu.fr" }, false);
+            var gv = Base(); gv.FromName = "Service des amendes"; gv.FromAddress = "ne-pas-repondre@amendes.exemple.gouv.fr"; gv.Subject = "Avis de paiement disponible";
+            gv.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=amendes.exemple.gouv.fr; dkim=pass header.d=exemple.gouv.fr;dmarc=pass action=none header.from=exemple.gouv.fr;compauth=pass reason=100";
+            gv.BodyText = "Un avis de paiement de 35 EUR est disponible. Connectez-vous à votre espace pour régler l'amende avant 45 jours.";
+            var rgv = Analyzer.Analyze(gv, cfg);
+            Check(".gouv.fr authentifié = vert, organisme public reconnu", rgv.Level == "safe" && rgv.Trust.Any(x => x.Contains(".gouv.fr")), rgv.Level + " " + rgv.Score + " " + string.Join(",", Ids(rgv).ToArray()));
+            var gvFake = Base(); gvFake.FromName = "Service des amendes"; gvFake.FromAddress = "ne-pas-repondre@amendes-gouv.example"; gvFake.Subject = gv.Subject; gvFake.BodyText = gv.BodyText; gvFake.RawHeaders = PASS;
+            Check("même texte hors .gouv.fr : pas de passe-droit", !Analyzer.Analyze(gvFake, cfg).Trust.Any(x => x.Contains("gouv")));
+            Feeds.LoadPublicSector(new[] { "name,http_status,https_status,SIREN,type,sources,script", "mairie-exemple.fr,200 OK,,,Commune,,", "www.hopital-exemple.fr,,,,Santé,,", "commune-x.wixsite.com,,,,Commune,," }, DateTime.Now);
+            Feeds.PublicSectorEnabled = true;
+            Check("liste du secteur public : domaine, sous-domaine, www retiré", Feeds.IsPublicSector("mairie-exemple.fr") && Feeds.IsPublicSector("mail.mairie-exemple.fr") && Feeds.IsPublicSector("hopital-exemple.fr"));
+            Check("liste du secteur public : hébergements partagés écartés", !Feeds.IsPublicSector("commune-x.wixsite.com") && !Feeds.IsPublicSector("wixsite.com") && !Feeds.IsPublicSector("autre-exemple.fr"));
+            var mr = Base(); mr.FromName = "Mairie"; mr.FromAddress = "accueil@mairie-exemple.fr"; mr.Subject = "Votre facture de cantine";
+            mr.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=mairie-exemple.fr; dkim=pass header.d=mairie-exemple.fr;dmarc=pass action=none header.from=mairie-exemple.fr;compauth=pass reason=100";
+            mr.BodyText = "Votre facture est disponible. Paiement en ligne par carte bancaire avant le 15.";
+            var rmr = Analyzer.Analyze(mr, cfg);
+            Check("organisme de la liste, authentifié = vert", rmr.Level == "safe" && rmr.Trust.Any(x => x.Contains("organisme public")), rmr.Level + " " + rmr.Score);
+            Feeds.LoadPublicSector(new string[0], DateTime.MinValue); Feeds.PublicSectorEnabled = false;
+
+            // Domaine qui ressemble à votre entreprise, mais géré par ses serveurs DNS : même propriétaire
+            Check("preuve de propriétaire : serveurs DNS de la marque", Intel.OwnerProof("acmetech.eu", new[] { "ns1.acmetech.fr." }, "", new HashSet<string> { "acmetech.fr" }, d => false).Found);
+            Check("preuve de propriétaire : hébergeur DNS partagé = pas de preuve", !Intel.OwnerProof("acmetech.eu", new[] { "lara.ns.cloudflare.com" }, "", new HashSet<string> { "acmetech.fr" }, d => true).Found);
+            Check("preuve de propriétaire : rapports DMARC autorisés par le domaine officiel", Intel.OwnerProof("acmetech.eu", new string[0], "v=DMARC1; p=reject; rua=mailto:rua@dmarc.acmetech.fr", new HashSet<string> { "acmetech.fr" }, d => d == "dmarc.acmetech.fr").Found
+                && !Intel.OwnerProof("acmetech.eu", new string[0], "v=DMARC1; p=reject; rua=mailto:rua@dmarc.acmetech.fr", new HashSet<string> { "acmetech.fr" }, d => false).Found);
+            var ow = Base(); ow.FromName = "Acmetech"; ow.FromAddress = "no-reply@acmetech.eu"; ow.Subject = "Confirmation de votre commande";
+            ow.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=acmetech.eu; dkim=pass header.d=acmetech.eu;dmarc=pass action=none header.from=acmetech.eu;compauth=pass reason=100";
+            ow.BodyText = "Votre commande est confirmée.";
+            Intel.Settings.DnsChecks = true;
+            var rowBefore = Analyzer.Analyze(ow, cfg);
+            Intel.SetForTests(Intel.OwnerKey("acmetech.eu", new[] { "acmetech.fr" }), new IntelResult { Ok = true, Found = true, Label = "serveur DNS ns1.acmetech.fr" });
+            var rowAfter = Analyzer.Analyze(ow, cfg);
+            Check("sosie de l'entreprise signalé tant que la preuve n'est pas arrivée", Ids(rowBefore).Any(i => i.Contains("lookalike")), string.Join(",", Ids(rowBefore).ToArray()));
+            Check("sosie de l'entreprise géré par ses serveurs DNS : rattaché, plus signalé", Ids(rowAfter).Contains("sender-owner-proven") && !Ids(rowAfter).Any(i => i.Contains("lookalike")),
+                rowAfter.Level + " " + string.Join(",", Ids(rowAfter).ToArray()));
+            var owSpoof = Base(); owSpoof.FromName = ow.FromName; owSpoof.FromAddress = ow.FromAddress; owSpoof.Subject = ow.Subject; owSpoof.BodyText = ow.BodyText; owSpoof.RawHeaders = FAIL;
+            Check("même domaine mais authentification en échec : preuve ignorée", !Ids(Analyzer.Analyze(owSpoof, cfg)).Contains("sender-owner-proven"));
+            Intel.Settings.DnsChecks = false; Intel.ClearForTests();
+            Correspondents.Reset();
             var orf = Base(); orf.FromName = "Orange"; orf.FromAddress = "facture@orange.fr"; orf.Subject = "Votre facture est disponible";
             orf.RawHeaders = "Authentication-Results: spf=pass smtp.mailfrom=mail.orange.fr; dkim=pass header.d=orange.fr;dmarc=pass action=none header.from=orange.fr;compauth=pass reason=100";
             Check("Orange depuis une adresse de service authentifiée", !Ids(Analyzer.Analyze(orf, cfg)).Contains("sender-brand-name"));
