@@ -1,0 +1,39 @@
+# Sondage ponctuel des sources (liste du secteur public, preuves de propriétaire) ; supprimé après usage.
+name: Sondage des sources
+on:
+  workflow_dispatch:
+jobs:
+  sonde:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Liste du secteur public
+        run: |
+          for u in "https://gitlab.adullact.net/dinum/noms-de-domaine-organismes-secteur-public/-/raw/master/domains.csv" \
+                   "https://gitlab.adullact.net/api/v4/projects/dinum%2Fnoms-de-domaine-organismes-secteur-public/repository/files/domains.csv/raw?ref=master" \
+                   "https://raw.githubusercontent.com/etalab/noms-de-domaine-organismes-secteur-public/master/domains.csv"; do
+            code=$(curl -sSL -A "PhishGuard-Outlook/1.0" -o f.csv -w '%{http_code}' "$u" || true)
+            n=$(wc -l < f.csv); h=$(head -c 120 f.csv | tr '\n' ' ' | tr -d '"'); last=$(curl -sSIL -A x "$u" | grep -i '^last-modified' | tail -1 | tr -d '\r')
+            gouv=$(grep -c '\.gouv\.fr' f.csv || true); siren=$(awk -F, 'NR>1 && $4!=""' f.csv | wc -l)
+            echo "::notice::code=$code lignes=$n gouv=$gouv avec_siren=$siren $last | $h | $u"
+          done
+          curl -sSL "https://gitlab.adullact.net/api/v4/projects/dinum%2Fnoms-de-domaine-organismes-secteur-public/repository/commits?per_page=1" | head -c 300 | sed 's/^/::notice::dernier commit /'
+          awk -F, 'NR>1{print $5}' f.csv | sort | uniq -c | sort -rn | head -12 | tr '\n' ';' | sed 's/^/::notice::types /'
+      - name: Preuves de propriétaire
+        run: |
+          sudo apt-get install -y -qq dnsutils >/dev/null 2>&1 || true
+          for pair in bnpparibas.eu:bnpparibas.com orange.eu:orange.fr microsoft.eu:microsoft.com credit-agricole.eu:credit-agricole.fr lcl.eu:lcl.fr amazon.eu:amazon.com paypal.eu:paypal.com laposte.eu:laposte.fr edf.eu:edf.fr axa.eu:axa.com; do
+            c=${pair%%:*}; o=${pair##*:}
+            dm=$(dig +short TXT _dmarc.$c | tr -d '"' | head -1)
+            rua=$(echo "$dm" | grep -o 'rua=[^;]*' | head -1)
+            auth=""; for d in $(echo "$rua" | grep -o '@[A-Za-z0-9.-]*' | tr -d '@' | sort -u); do auth="$auth $d:$(dig +short TXT $c._report._dmarc.$d | tr -d '"' | head -c 30)"; done
+            crt=$(curl -s -m 60 "https://crt.sh/?output=json&q=$c" | python3 -c "import sys,json
+try: d=json.load(sys.stdin)
+except Exception: print('err'); sys.exit()
+o='$o'; n=[x['name_value'] for x in d]; print(len(n), sum(1 for v in n if any(l.strip('*.')==o or l.endswith('.'+o) for l in v.split('\n'))))" 2>&1)
+            reg=$(curl -s -m 30 -L "https://rdap.org/domain/$c" | python3 -c "import sys,json
+try: d=json.load(sys.stdin)
+except Exception: print('err'); sys.exit()
+r=[e for e in d.get('entities',[]) if 'registrar' in e.get('roles',[])]
+print((r[0].get('vcardArray',[0,[[0,0,0,'?']]])[1][1][3] if r and len(r[0].get('vcardArray',[0,[]])[1])>1 else (r[0].get('handle','?') if r else 'aucun')))" 2>&1)
+            echo "::notice::$c→$o | dmarc: ${dm:0:60} | autorisation:$auth | crt(total,communs): $crt | registrar: $reg"
+          done
