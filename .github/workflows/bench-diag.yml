@@ -1,0 +1,25 @@
+# Diagnostic ponctuel du banc d'essai : un seul corpus, budget de temps limité (supprimé après usage).
+name: Diagnostic du banc
+on:
+  workflow_dispatch:
+jobs:
+  diag:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compiler
+        shell: cmd
+        working-directory: outlook-exe
+        run: |
+          set "CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          mkdir build 2>nul
+          "%CSC%" /nologo /codepage:65001 /target:exe /out:build\Bench.exe /r:System.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Drawing.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs /recurse:src\ThirdParty\*.cs tools\Bench.cs
+      - name: Analyser phishing_pot (15 min)
+        shell: pwsh
+        run: |
+          git clone -q --depth 1 https://github.com/rf-peixoto/phishing_pot.git pot
+          Write-Output "::notice::phishing_pot : $((Get-ChildItem pot -Recurse -Filter *.eml).Count) fichiers .eml, $([math]::Round(((Get-ChildItem pot -Recurse -Filter *.eml | Measure-Object Length -Sum).Sum / 1MB))) Mo"
+          New-Item -ItemType Directory -Force out | Out-Null
+          $env:PG_BUDGET_MIN = "15"
+          & outlook-exe\build\Bench.exe out\diag.csv "phish-pot=pot"
+          Write-Output "::notice::code $LASTEXITCODE ; $(Get-Content out\progress.txt -Raw -ErrorAction SilentlyContinue)"
