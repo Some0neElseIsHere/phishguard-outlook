@@ -132,7 +132,7 @@ namespace PhishGuard.Tools
         static string Host(string href)
         {
             Uri u;
-            return Uri.TryCreate(href ?? "", UriKind.Absolute, out u) ? u.Scheme + ":" + u.Host : Trunc(href, 30);
+            return Uri.TryCreate(href ?? "", UriKind.Absolute, out u) ? u.Scheme + ":" + Domains.HostOf(u) : Trunc(href, 30);
         }
 
         static string Trunc(string s, int n) { s = s ?? ""; return s.Length > n ? s.Substring(0, n) : s; }

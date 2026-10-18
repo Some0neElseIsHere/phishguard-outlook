@@ -94,7 +94,7 @@ namespace PhishGuard
         {
             Uri u;
             if (!Uri.TryCreate((url ?? "").Trim(), UriKind.Absolute, out u)) return (url ?? "").Trim().TrimEnd('/');
-            string s = u.Scheme.ToLowerInvariant() + "://" + u.Host.ToLowerInvariant() + (u.IsDefaultPort ? "" : ":" + u.Port) + u.PathAndQuery;
+            string s = u.Scheme.ToLowerInvariant() + "://" + Domains.HostOf(u) + (u.IsDefaultPort ? "" : ":" + u.Port) + u.PathAndQuery;
             return s.TrimEnd('/');
         }
 
@@ -104,7 +104,7 @@ namespace PhishGuard
             if (!OpenPhishEnabled) return null;
             string n = NormalizeUrl(url);
             Uri u;
-            string host = Uri.TryCreate(url, UriKind.Absolute, out u) ? u.Host.ToLowerInvariant() : "";
+            string host = Uri.TryCreate(url, UriKind.Absolute, out u) ? Domains.HostOf(u) : "";
             lock (Sync)
             {
                 if (phishUrls.Count == 0) return null;
@@ -207,7 +207,8 @@ namespace PhishGuard
                 Uri u;
                 if (!Uri.TryCreate(line, UriKind.Absolute, out u)) continue;
                 urls.Add(NormalizeUrl(line));
-                string h = u.Host.ToLowerInvariant();
+                string h = Domains.HostOf(u);
+                if (h.Length == 0) continue;
                 // Un hébergeur partagé (sites.google.com, github.io...) n'est pas suspect en soi : seule l'adresse exacte compte
                 if (!Domains.IsIpHost(h) && !IsSharedHost(h)) hosts.Add(h);
             }

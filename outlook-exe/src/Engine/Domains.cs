@@ -51,6 +51,17 @@ namespace PhishGuard
 
     public static class Domains
     {
+        /// <summary>Nom du serveur d'une adresse, en minuscules, sans lever d'exception : une adresse piégée peut être
+        /// acceptée par Uri.TryCreate puis faire échouer la lecture de Host (nom de serveur invalide).</summary>
+        public static string HostOf(Uri u)
+        {
+            if (u == null) return "";
+            string h = null;
+            try { h = u.IdnHost; }
+            catch (Exception) { try { h = u.Host; } catch (Exception) { h = ""; } }
+            return (h ?? "").ToLowerInvariant().Trim('[', ']');
+        }
+
         static readonly Regex Ipv4 = new Regex(@"^\d{1,3}(\.\d{1,3}){3}$");
 
         public static bool IsIpHost(string host)

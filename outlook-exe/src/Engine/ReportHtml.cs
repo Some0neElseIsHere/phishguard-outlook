@@ -165,7 +165,7 @@ namespace PhishGuard
                     if (!shown.Add(l.Href)) continue;
                     string text = (l.Text ?? "").Trim();
                     string host = "";
-                    Uri u; if (Uri.TryCreate(l.Href, UriKind.Absolute, out u)) host = u.Host;
+                    Uri u; if (Uri.TryCreate(l.Href, UriKind.Absolute, out u)) host = Domains.HostOf(u);
                     lk.Append(Row(host.Length > 0 ? host : L.T("lien"), (text.Length > 0 && text != l.Href ? "<div style='" + Font + "font-size:12px;color:#5f6b7a'>" + H(L.T("Texte affiché : ") + DefangText(text.Length > 90 ? text.Substring(0, 90) + "…" : text)) + "</div>" : "")
                         + "<span style='" + Mono + "word-break:break-all'>" + H(Analyzer.Defang(l.Href.Length > 300 ? l.Href.Substring(0, 300) + "…" : l.Href)) + "</span>"));
                 }
