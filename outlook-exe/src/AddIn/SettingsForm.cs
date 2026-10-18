@@ -335,7 +335,7 @@ namespace PhishGuard.AddIn
         /// <summary>Modifier une entreprise : nom, pays, identifiant et dirigeants (ceux que les annuaires ne connaissent pas).</summary>
         void EditCompany()
         {
-            if (lvCompanies.SelectedIndices.Count == 0) return;
+            if (lvCompanies.SelectedIndices.Count == 0 || cfg.IsLocked("company#")) return;
             using (var m = new CompanyEditForm(companies[lvCompanies.SelectedIndices[0]]))
                 if (m.ShowDialog(this) == DialogResult.OK) RefreshCompanies();
         }
@@ -432,6 +432,7 @@ namespace PhishGuard.AddIn
                 foreach (var c in kv.Value)
                 {
                     if (c == null) continue;
+                    if (c is ListView) { tip.SetToolTip(c, why); c.ForeColor = SystemColors.GrayText; continue; }   // grisée sans être désactivée : reste lisible en thème sombre
                     c.Enabled = false;
                     tip.SetToolTip(c, why);
                 }

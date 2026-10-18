@@ -21,7 +21,7 @@ namespace PhishGuard.AddIn
     internal static class ThemeUi
     {
         static string setting = "auto";
-        static bool listening;
+        static bool listening, everDark;
 
         /// <summary>Thème des applications de Windows : true si « Sombre ».</summary>
         public static bool SystemDark()
@@ -118,7 +118,7 @@ namespace PhishGuard.AddIn
         class Original
         {
             public Color Back, Fore, FlatBorder, FlatOver, FlatDown, Link, ActiveLink, VisitedLink;
-            public bool OwnBack, OwnFore, VisualBack;
+            public bool OwnBack, OwnFore, VisualBack, Themed;
             public FlatStyle Flat;
             public BorderStyle Border;
             public bool HasBorder;
@@ -171,8 +171,17 @@ namespace PhishGuard.AddIn
                 if (ll != null) { o.Link = ll.LinkColor; o.ActiveLink = ll.ActiveLinkColor; o.VisitedLink = ll.VisitedLinkColor; }
                 Originals.Add(c, o);
                 c.ControlAdded += (s, e) => { Walk(e.Control, c); NativeThemes(e.Control); };
+                var list = c as ListView;
+                if (list != null) DarkHeaders(list);
             }
             bool dark = Theme.Dark;
+            // En thème clair, une fenêtre jamais passée en sombre n'est pas modifiée
+            if (!dark && !o.Themed)
+            {
+                foreach (Control child in c.Controls) Walk(child, c);
+                return;
+            }
+            o.Themed = dark;
 
             // Couleur du texte : seulement si le contrôle a la sienne (sinon il hérite de son parent)
             if (c is Form) c.ForeColor = dark ? Text : o.Fore;
@@ -245,12 +254,34 @@ namespace PhishGuard.AddIn
 
             var lv = c as ListView;
             if (lv != null)
+            {
+                lv.OwnerDraw = dark && lv.View == View.Details;
                 foreach (ListViewItem it in lv.Items) ThemeItem(it, lv);
+            }
 
             var tabs = c as ThemedTabControl;
             if (tabs != null) tabs.Dark = dark;
 
             foreach (Control child in c.Controls) Walk(child, c);
+        }
+
+        /// <summary>En-têtes de colonnes dessinés en sombre (ceux de Windows restent clairs) ; les lignes restent dessinées par Windows.</summary>
+        static void DarkHeaders(ListView lv)
+        {
+            lv.DrawItem += (s, e) => { e.DrawDefault = true; };
+            lv.DrawSubItem += (s, e) => { e.DrawDefault = true; };
+            lv.DrawColumnHeader += (s, e) =>
+            {
+                using (var b = new SolidBrush(Color.FromArgb(0x30, 0x34, 0x3A))) e.Graphics.FillRectangle(b, e.Bounds);
+                using (var p = new Pen(Color.FromArgb(0x4B, 0x52, 0x5B)))
+                {
+                    e.Graphics.DrawLine(p, e.Bounds.Right - 1, e.Bounds.Top + 3, e.Bounds.Right - 1, e.Bounds.Bottom - 4);
+                    e.Graphics.DrawLine(p, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1);
+                }
+                var r = new Rectangle(e.Bounds.X + 6, e.Bounds.Y, e.Bounds.Width - 8, e.Bounds.Height);
+                TextRenderer.DrawText(e.Graphics, e.Header.Text, lv.Font, r, Color.FromArgb(0xB4, 0xBC, 0xC6),
+                    TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+            };
         }
 
         /// <summary>Couleur d'une ligne de liste ajoutée après l'ouverture de la fenêtre.</summary>
@@ -274,7 +305,8 @@ namespace PhishGuard.AddIn
         /// <summary>Barre de titre sombre (Windows 10 version 1809 et suivantes, Windows 11).</summary>
         static void TitleBar(Form f)
         {
-            if (!f.IsHandleCreated) return;
+            if (Theme.Dark) everDark = true;
+            if (!f.IsHandleCreated || !everDark) return;
             try
             {
                 int on = Theme.Dark ? 1 : 0;
@@ -286,23 +318,14 @@ namespace PhishGuard.AddIn
         /// <summary>Barres de défilement et en-têtes de colonnes sombres.</summary>
         static void NativeThemes(Control c)
         {
-            if (c is WebBrowser) return;
+            if (Theme.Dark) everDark = true;
+            if (c is WebBrowser || !everDark) return;
             try
             {
                 if (c.IsHandleCreated && (c is TextBoxBase || c is ListBox || c is ListView || c is TreeView || (c is ScrollableControl && !(c is Form))))
                 {
                     if (Theme.Dark) SetWindowTheme(c.Handle, "DarkMode_Explorer", null);
                     else SetWindowTheme(c.Handle, null, null);
-                    var lv = c as ListView;
-                    if (lv != null)
-                    {
-                        IntPtr header = SendMessage(lv.Handle, 0x101F, IntPtr.Zero, IntPtr.Zero);   // LVM_GETHEADER
-                        if (header != IntPtr.Zero)
-                        {
-                            if (Theme.Dark) SetWindowTheme(header, "DarkMode_ItemsView", null);
-                            else SetWindowTheme(header, null, null);
-                        }
-                    }
                 }
                 else if (!c.IsHandleCreated)
                 {
