@@ -46,6 +46,7 @@ jobs:
               curl.exe -sSL -o "apache-$n-$m.mbox" "https://lists.apache.org/api/mbox.lua?list=$l&date=$m"
             }
           }
+          curl.exe -sSfL -o "secteur-public.csv" "https://raw.githubusercontent.com/etalab/noms-de-domaine-organismes-secteur-public/master/domains.csv"
           Get-ChildItem | Format-Table Name, Length
 
       - name: Analyser
@@ -57,6 +58,7 @@ jobs:
           foreach ($f in Get-ChildItem corpus\apache-*.mbox) { if ($f.Length -gt 1000) { $a += "ham-apache-$($f.BaseName.Substring(7))=$($f.FullName)" } }
           $a += "ham-cas-difficiles=outlook-exe\tests\legitimes|exemple-pme.fr"
           New-Item -ItemType Directory -Force out | Out-Null
+          $env:PG_PUBLIC_SECTOR = (Resolve-Path corpus\secteur-public.csv).Path
           & outlook-exe\build\Bench.exe out\bench.csv @a
           if ($LASTEXITCODE -ne 0) { throw "Bench.exe : code $LASTEXITCODE" }
           Compress-Archive out\bench.csv out\bench.zip

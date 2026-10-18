@@ -74,7 +74,7 @@ namespace PhishGuard.AddIn
                 AbuseChKey = config.AbuseChKey ?? "",
                 AbuseIpdbKey = config.AbuseIpdbKey ?? ""
             };
-            Feeds.Init(config.BetaOpenPhish, config.BetaTranco);
+            Feeds.Init(config.BetaOpenPhish, config.BetaTranco, config.PublicSectorList);
             Blocklists.SharedPath = config.SharedBlocklistPath ?? "";
         }
 
@@ -102,7 +102,7 @@ namespace PhishGuard.AddIn
                 if (tickCount % 5000 == 0)                // environ toutes les heures
                 {
                     Blocklists.Init(config, InstallDir); // recharge la liste partagée et met à jour Red Flag Domains si besoin
-                    Feeds.Init(config.BetaOpenPhish, config.BetaTranco);
+                    Feeds.Init(config.BetaOpenPhish, config.BetaTranco, config.PublicSectorList);
                 }
             }
             catch (Exception ex) { Log("Tâche de fond : " + ex.Message); }

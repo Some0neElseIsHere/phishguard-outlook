@@ -1,13 +1,17 @@
 ﻿// PhishGuard - listes publiques téléchargées (bêta, sans clé) :
 // - OpenPhish (flux communautaire) : adresses de pages de phishing actives, mis à jour toutes les 12 h ;
 // - Tranco : classement des sites les plus visités (100 000 premiers), mis à jour chaque semaine,
-//   pour reconnaître les domaines très fréquentés et limiter les faux positifs.
+//   pour reconnaître les domaines très fréquentés et limiter les faux positifs ;
+// - domaines du secteur public (liste ouverte de la DINUM, Licence Ouverte 2.0) : ministères, collectivités,
+//   hôpitaux, établissements publics… mise à jour chaque mois. Les domaines .gouv.fr (réservés à l'État) sont
+//   reconnus même sans la liste.
 // Les fichiers sont gardés dans %LOCALAPPDATA%\PhishGuard ; seul le téléchargement passe par le réseau.
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -21,7 +25,14 @@ namespace PhishGuard
         static HashSet<string> phishHosts = new HashSet<string>();
         static Dictionary<string, int> tranco = new Dictionary<string, int>();
         static DateTime openPhishUpdated = DateTime.MinValue, trancoUpdated = DateTime.MinValue;
-        static bool downloadingOpenPhish, downloadingTranco;
+        static bool downloadingOpenPhish, downloadingTranco, downloadingPublic;
+        static HashSet<string> publicDomains = new HashSet<string>();
+        static DateTime publicUpdated = DateTime.MinValue;
+        public static bool PublicSectorEnabled;
+        public const string PublicSectorUrl = "https://raw.githubusercontent.com/etalab/noms-de-domaine-organismes-secteur-public/master/domains.csv";
+        static string PublicPath { get { return Path.Combine(Blocklists.DataDir, "secteur-public.txt"); } }
+        public static int PublicSectorCount { get { lock (Sync) return publicDomains.Count; } }
+        public static DateTime PublicSectorUpdated { get { lock (Sync) return publicUpdated; } }
 
         public static bool OpenPhishEnabled, TrancoEnabled;
         public static string LastError = "";
@@ -42,6 +53,19 @@ namespace PhishGuard
         /// <summary>Charge les fichiers déjà téléchargés et met à jour ceux qui sont trop anciens.</summary>
         public static void Init(bool openPhish, bool trancoOn)
         {
+            Init(openPhish, trancoOn, PublicSectorEnabled);
+        }
+
+        public static void Init(bool openPhish, bool trancoOn, bool publicSector)
+        {
+            PublicSectorEnabled = publicSector;
+            if (!publicSector) lock (Sync) publicDomains = new HashSet<string>();
+            else
+            {
+                try { if (File.Exists(PublicPath) && PublicSectorCount == 0) LoadPublicSector(File.ReadAllLines(PublicPath, Encoding.UTF8), File.GetLastWriteTime(PublicPath)); }
+                catch (Exception ex) { LastError = ex.Message; }
+                if (PublicSectorUpdated < DateTime.Now.AddDays(-30)) StartPublicDownload();
+            }
             OpenPhishEnabled = openPhish;
             TrancoEnabled = trancoOn;
             if (!openPhish) lock (Sync) { phishUrls = new HashSet<string>(); phishHosts = new HashSet<string>(); }
@@ -97,6 +121,75 @@ namespace PhishGuard
             if (!TrancoEnabled || string.IsNullOrEmpty(registrable)) return 0;
             int r;
             lock (Sync) return tranco.TryGetValue(registrable.ToLowerInvariant(), out r) ? r : 0;
+        }
+
+        /// <summary>Domaine d'un organisme public : .gouv.fr, ou présent (lui ou un domaine parent) dans la liste du secteur public.</summary>
+        public static bool IsPublicSector(string host)
+        {
+            string h = (host ?? "").Trim().TrimEnd('.').ToLowerInvariant();
+            if (h.Length == 0) return false;
+            if (h == "gouv.fr" || h.EndsWith(".gouv.fr")) return true;
+            if (!PublicSectorEnabled) return false;
+            string registrable = Domains.RegistrableDomain(h);
+            lock (Sync)
+            {
+                if (publicDomains.Count == 0) return false;
+                for (string d = h; d.Length > 0; )
+                {
+                    if (publicDomains.Contains(d)) return true;
+                    if (d == registrable) break;
+                    int i = d.IndexOf('.');
+                    if (i < 0) break;
+                    d = d.Substring(i + 1);
+                }
+            }
+            return false;
+        }
+
+        /// <summary>Lignes du fichier de la DINUM (CSV dont la première colonne est le domaine) ou du fichier local (un domaine par ligne).
+        /// Les hébergements partagés et messageries gratuites sont écartés : seul l'organisme, pas la plateforme, est reconnu.</summary>
+        public static void LoadPublicSector(IEnumerable<string> lines, DateTime updated)
+        {
+            var set = new HashSet<string>();
+            foreach (var raw in lines)
+            {
+                string d = raw.Split(',')[0].Trim().Trim('"').TrimEnd('.').ToLowerInvariant();
+                if (d.StartsWith("www.")) d = d.Substring(4);
+                if (d.Length < 4 || d == "name" || d.IndexOf('.') < 0 || d.IndexOf(' ') >= 0) continue;
+                string reg = Domains.RegistrableDomain(d);
+                if (Lists.FreemailDomains.Contains(reg) || IsSharedHost(d) || IsSharedHost(reg)) continue;
+                set.Add(d);
+            }
+            lock (Sync) { publicDomains = set; publicUpdated = updated; }
+        }
+
+        static void StartPublicDownload()
+        {
+            lock (Sync) { if (downloadingPublic) return; downloadingPublic = true; }
+            var t = new Thread(() =>
+            {
+                try
+                {
+                    Directory.CreateDirectory(Blocklists.DataDir);
+                    var lines = new List<string>();
+                    using (var resp = (HttpWebResponse)Request(PublicSectorUrl).GetResponse())
+                    using (var reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null) lines.Add(line);
+                    }
+                    if (lines.Count < 1000) throw new Exception(L.F("liste anormalement courte ({0})", lines.Count));
+                    LoadPublicSector(lines, DateTime.Now);
+                    List<string> keep;
+                    lock (Sync) keep = publicDomains.OrderBy(x => x, StringComparer.Ordinal).ToList();
+                    File.WriteAllLines(PublicPath, keep, Encoding.UTF8);
+                    Changed = true;
+                }
+                catch (Exception ex) { LastError = L.T("Secteur public : ") + ex.Message; }
+                finally { lock (Sync) downloadingPublic = false; }
+            });
+            t.IsBackground = true;
+            t.Start();
         }
 
         // -----------------------------------------------------------------
