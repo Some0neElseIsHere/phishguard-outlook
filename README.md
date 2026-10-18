@@ -274,16 +274,17 @@ outlook-exe/                  Complément Outlook (COM, C# 5, .NET Framework 4)
   src/Engine/                 Moteur d'analyse (sans dépendance à Outlook, testable)
   src/AddIn/                  Ruban, lecture des messages, fenêtres, tâches de fond
   tests/Tests.cs              Tests du moteur (lancés à chaque construction)
+  tests/legitimes/            Mails légitimes « difficiles » du banc d'essai (générés par tools/gen-legitimes.py)
   installer/                  Installeur .exe (Setup.cs) et scripts installer.cmd / desinstaller.cmd
   src/ThirdParty/ZXing/       Décodeur QR de ZXing.Net (Apache 2.0, non modifié sauf syntaxe C# 5)
-  tools/gen-lists.mjs         Génère src/Engine/Lists.cs depuis src/engine/lists.js
   config.ini, custom.txt      Configuration par défaut et liste de blocage de l'équipe sécurité
   LISEZMOI.md                 Notice incluse dans le zip de la release
   tools/Screenshots.cs        Génère les captures d'écran du README (workflow « Captures d'écran »)
-docs/                         Notes de version, captures d'écran, documentation du complément web
+  tools/Bench.cs              Banc d'essai sur des corpus publics (workflow « Banc d'essai », voir docs/banc-essai.md)
+docs/                         Notes de version, banc d'essai, captures d'écran, documentation du complément web
 src/, test/, tools/,          Version « complément web » (Office.js), voir docs/complement-web.md
 manifest.xml, server.js
-.github/workflows/            Construction, tests et releases
+.github/workflows/            Construction, tests, releases, captures d'écran, banc d'essai
 ```
 
 ---
