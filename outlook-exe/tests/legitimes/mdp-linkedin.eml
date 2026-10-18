@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.157) smtp.mailfrom=bounce.linkedin.com; dkim=pass (signature was verified) header.d=linkedin.com;dmarc=pass action=none header.from=linkedin.com;compauth=pass reason=100
+Received: from mail.bounce.linkedin.com (198.51.100.20) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: LinkedIn <security-noreply@linkedin.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Claire=2C_voici_le_lien_pour_r=C3=A9initialiser_votre_mot_de_passe?=
+Date: Wed, 24 Jun 2026 14:18:00 +0200
+Message-ID: <8cf1a700ba2be29ac632f78952e43765@bounce.linkedin.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: mdp-linkedin
+Content-Type: multipart/mixed; boundary="=_pg_8cf1a700ba"
+
+--=_pg_8cf1a700ba
+Content-Type: multipart/alternative; boundary="alt=_pg_8cf1a700ba"
+
+--alt=_pg_8cf1a700ba
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpOb3VzIGF2b25zIHJlw6d1IHVuZSBkZW1hbmRlIGRlIHLDqWluaXRp
+YWxpc2F0aW9uIGR1IG1vdCBkZSBwYXNzZSBkZSB2b3RyZQpjb21wdGUgTGlua2VkSW4uCgpDZSBs
+aWVuIGV4cGlyZXJhIGRhbnMgMjQgaGV1cmVzLiBTaSB2b3VzIG4nw6p0ZXMgcGFzIMOgIGwnb3Jp
+Z2luZSBkZSBjZXR0ZQpkZW1hbmRlLCBpZ25vcmV6IGNlIG1lc3NhZ2UuCgpSw6lpbml0aWFsaXNl
+ciBtb24gbW90IGRlIHBhc3NlIDogaHR0cHM6Ly93d3cubGlua2VkaW4uY29tL2UvdjI/ZT1hYmMm
+YT1jaGVja3BvaW50LXBhc3N3b3JkLXJlc2V0
+--alt=_pg_8cf1a700ba
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Tm91cyBhdm9ucyByZcOndSB1bmUgZGVtYW5kZSBkZSByw6lpbml0aWFsaXNhdGlvbiBk
+dSBtb3QgZGUgcGFzc2UgZGUgdm90cmUgY29tcHRlIExpbmtlZEluLjwvcD48cD5DZSBsaWVuIGV4
+cGlyZXJhIGRhbnMgMjQgaGV1cmVzLiBTaSB2b3VzIG4nw6p0ZXMgcGFzIMOgIGwnb3JpZ2luZSBk
+ZSBjZXR0ZSBkZW1hbmRlLCBpZ25vcmV6IGNlIG1lc3NhZ2UuPC9wPjxwPjxhIGhyZWY9Imh0dHBz
+Oi8vd3d3LmxpbmtlZGluLmNvbS9lL3YyP2U9YWJjJmE9Y2hlY2twb2ludC1wYXNzd29yZC1yZXNl
+dCI+UsOpaW5pdGlhbGlzZXIgbW9uIG1vdCBkZSBwYXNzZTwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_8cf1a700ba--
+--=_pg_8cf1a700ba--

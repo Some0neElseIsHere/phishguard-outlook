@@ -1,0 +1,34 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.75) smtp.mailfrom=bounce.wetransfer.com; dkim=pass (signature was verified) header.d=wetransfer.com;dmarc=pass action=none header.from=wetransfer.com;compauth=pass reason=100
+Received: from mail.bounce.wetransfer.com (198.51.100.35) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: WeTransfer <noreply@wetransfer.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Studio_Graphik_vous_a_envoy=C3=A9_des_fichiers_via_WeTransfer?=
+Date: Sun, 02 Aug 2026 10:49:00 +0200
+Message-ID: <c6f4f9a1fd589874e40e7527feb8487b@bounce.wetransfer.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: wetransfer
+Content-Type: multipart/mixed; boundary="=_pg_c6f4f9a1fd"
+
+--=_pg_c6f4f9a1fd
+Content-Type: multipart/alternative; boundary="alt=_pg_c6f4f9a1fd"
+
+--alt=_pg_c6f4f9a1fd
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+MyBmaWNoaWVycywgNDggTW8gYXUgdG90YWwuIEV4cGlyZSBkYW5zIDcgam91cnMuCgpNZXNzYWdl
+IDogwqsgVm9pY2kgbGVzIG1hcXVldHRlcyBkZSBsYSBwbGFxdWV0dGUsIGJvbm5lIHLDqWNlcHRp
+b24uIMK7CgpUw6lsw6ljaGFyZ2VyIHZvcyBmaWNoaWVycyA6IGh0dHBzOi8vd2UudGwvdC1BYkNk
+RWYxMjM0
+--alt=_pg_c6f4f9a1fd
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD4zIGZpY2hpZXJzLCA0OCBN
+byBhdSB0b3RhbC4gRXhwaXJlIGRhbnMgNyBqb3Vycy48L3A+PHA+TWVzc2FnZSA6IMKrIFZvaWNp
+IGxlcyBtYXF1ZXR0ZXMgZGUgbGEgcGxhcXVldHRlLCBib25uZSByw6ljZXB0aW9uLiDCuzwvcD48
+cD48YSBocmVmPSJodHRwczovL3dlLnRsL3QtQWJDZEVmMTIzNCI+VMOpbMOpY2hhcmdlciB2b3Mg
+ZmljaGllcnM8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_c6f4f9a1fd--
+--=_pg_c6f4f9a1fd--

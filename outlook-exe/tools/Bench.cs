@@ -4,6 +4,8 @@
 // (identifiant, gravité, catégorie) pour pouvoir recalculer d'autres barèmes sans relancer le moteur.
 //
 // Usage : Bench.exe sortie.csv libellé=chemin[|domaine-entreprise] ...
+// Les messages de tests/legitimes portent X-PhishGuard-Attendu (vert / orange), X-PhishGuard-Cas et X-PhishGuard-Connu
+// (expéditeur déjà dans vos correspondants) : voir tools/gen-legitimes.py.
 
 using System;
 using System.Collections.Generic;
@@ -31,7 +33,7 @@ namespace PhishGuard.Tools
 
             using (var w = new StreamWriter(args[0], false, new UTF8Encoding(false)))
             {
-                w.WriteLine("corpus,mode,idx,year,auth,level,score,verified,fromdomain,subject,nlinks,natt,bodylen,hosts,atts,findings");
+                w.WriteLine("corpus,mode,idx,year,auth,level,score,verified,fromdomain,subject,nlinks,natt,bodylen,hosts,atts,findings,attendu,cas");
                 for (int a = 1; a < args.Length; a++)
                 {
                     string spec = args[a];
@@ -49,12 +51,15 @@ namespace PhishGuard.Tools
                         int year;
                         try { e = Parse(raw, out year); }
                         catch (Exception) { err++; continue; }
+                        string expected = Regex.Match(e.RawHeaders, @"(?im)^X-PhishGuard-Attendu:\s*(\S+)").Groups[1].Value;
+                        string cas = Regex.Match(e.RawHeaders, @"(?im)^X-PhishGuard-Cas:\s*(\S+)").Groups[1].Value;
+                        bool known = Regex.IsMatch(e.RawHeaders, @"(?im)^X-PhishGuard-Connu:\s*oui");
                         bool auth = Regex.IsMatch(e.RawHeaders, @"^Authentication-Results:", RegexOptions.IgnoreCase | RegexOptions.Multiline);
                         // « inconnus » : carnet de correspondants chargé, l'expéditeur n'y est pas (cas d'un vrai poste)
                         // « neutre » : carnet non chargé (aucun indice de premier contact)
                         foreach (string mode in new[] { "inconnus", "neutre" })
                         {
-                            if (mode == "inconnus") Correspondents.Set(new[] { "personne@exemple.invalid" }, false); else Correspondents.Reset();
+                            if (mode == "inconnus") Correspondents.Set(known ? new[] { "personne@exemple.invalid", e.FromAddress } : new[] { "personne@exemple.invalid" }, false); else Correspondents.Reset();
                             AnalysisResult r;
                             try { r = Analyzer.Analyze(Clone(e), cfg); }
                             catch (Exception ex) { err++; Console.WriteLine(label + " #" + n + " : " + ex.GetType().Name + " " + ex.Message); continue; }
@@ -62,7 +67,7 @@ namespace PhishGuard.Tools
                             w.WriteLine(string.Join(",", new[] { label, mode, n.ToString(), year.ToString(), auth ? "1" : "0", r.Level, r.Score.ToString(),
                                 r.Verified ? "1" : "0", Csv(r.SenderDomain), Csv(Trunc(e.Subject, 90)), e.Links.Count.ToString(), e.Attachments.Count.ToString(), e.BodyText.Length.ToString(),
                                 Csv(string.Join(" ", e.Links.Select(l => Host(l.Href)).Distinct().Take(4).ToArray())),
-                                Csv(string.Join(" ", e.Attachments.Select(x => x.Name + "/" + x.ContentType + "/" + x.Magic).Take(4).ToArray())), Csv(f) }));
+                                Csv(string.Join(" ", e.Attachments.Select(x => x.Name + "/" + x.ContentType + "/" + x.Magic).Take(4).ToArray())), Csv(f), expected, cas }));
                         }
                     }
                     Console.WriteLine(label + " : " + n + " messages, " + err + " erreurs");

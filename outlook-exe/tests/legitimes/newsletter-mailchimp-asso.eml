@@ -1,0 +1,43 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.109) smtp.mailfrom=mail123.suw11.mcsv.net; dkim=pass (signature was verified) header.d=mcsv.net;dmarc=pass action=none header.from=club-entrepreneurs83.fr;compauth=pass reason=100
+Received: from mail.mail123.suw11.mcsv.net (198.51.100.138) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Club des entrepreneurs du Var <contact@club-entrepreneurs83.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?La_lettre_du_Club_-_octobre?=
+Date: Sun, 10 May 2026 07:09:00 +0200
+Message-ID: <9465831e69ffc7701bf3d2e5ac73ac13@mail123.suw11.mcsv.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: newsletter-mailchimp-asso
+List-Unsubscribe: <https://unsubscribe.club-entrepreneurs83.fr/u?id=9465831e69ff>, <mailto:unsubscribe@mail123.suw11.mcsv.net>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_9465831e69"
+
+--=_pg_9465831e69
+Content-Type: multipart/alternative; boundary="alt=_pg_9465831e69"
+
+--alt=_pg_9465831e69
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Q2hlcnMgbWVtYnJlcywKClJldHJvdXZleiBub3RyZSBwcm9ncmFtbWUgZHUgbW9pcyA6IHBldGl0
+LWTDqWpldW5lciByw6lzZWF1IGxlIDEyLCBhdGVsaWVyCmN5YmVyc8OpY3VyaXTDqSBsZSAyMC4K
+ClBlbnNleiDDoCByZW5vdXZlbGVyIHZvdHJlIGFkaMOpc2lvbiBhdmFudCBsZSAzMSBkw6ljZW1i
+cmUuCgpWb2lyIGxlIHByb2dyYW1tZSA6IGh0dHBzOi8vY2x1Yi1lbnRyZXByZW5ldXJzODMudXMx
+Mi5saXN0LW1hbmFnZS5jb20vdHJhY2svY2xpY2s/dT1hYmMmaWQ9ZGVmJmU9MTIzCgpSZW5vdXZl
+bGVyIG1vbiBhZGjDqXNpb24gOiBodHRwczovL2NsdWItZW50cmVwcmVuZXVyczgzLnVzMTIubGlz
+dC1tYW5hZ2UuY29tL3RyYWNrL2NsaWNrP3U9YWJjJmlkPWdoaSZlPTEyMw==
+--alt=_pg_9465831e69
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5DaGVycyBtZW1icmVzLDwv
+cD48cD5SZXRyb3V2ZXogbm90cmUgcHJvZ3JhbW1lIGR1IG1vaXMgOiBwZXRpdC1kw6lqZXVuZXIg
+csOpc2VhdSBsZSAxMiwgYXRlbGllciBjeWJlcnPDqWN1cml0w6kgbGUgMjAuPC9wPjxwPlBlbnNl
+eiDDoCByZW5vdXZlbGVyIHZvdHJlIGFkaMOpc2lvbiBhdmFudCBsZSAzMSBkw6ljZW1icmUuPC9w
+PjxwPjxhIGhyZWY9Imh0dHBzOi8vY2x1Yi1lbnRyZXByZW5ldXJzODMudXMxMi5saXN0LW1hbmFn
+ZS5jb20vdHJhY2svY2xpY2s/dT1hYmMmaWQ9ZGVmJmU9MTIzIj5Wb2lyIGxlIHByb2dyYW1tZTwv
+YT48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9jbHViLWVudHJlcHJlbmV1cnM4My51czEyLmxpc3Qt
+bWFuYWdlLmNvbS90cmFjay9jbGljaz91PWFiYyZpZD1naGkmZT0xMjMiPlJlbm91dmVsZXIgbW9u
+IGFkaMOpc2lvbjwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_9465831e69--
+--=_pg_9465831e69--

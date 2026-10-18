@@ -1,0 +1,45 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.76) smtp.mailfrom=bounce.bureautique-pro.fr; dkim=pass (signature was verified) header.d=bureautique-pro.fr;dmarc=pass action=none header.from=bureautique-pro.fr;compauth=pass reason=100
+Received: from mail.bounce.bureautique-pro.fr (198.51.100.109) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Comptabilité Bureautique Pro <compta@bureautique-pro.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Relance_=3A_facture_F2026-0912_=C3=A9chue?=
+Date: Sun, 18 Jan 2026 20:08:00 +0200
+Message-ID: <18cda9b52e81fb6eef2fad3473be75b5@bounce.bureautique-pro.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: relance-fournisseur
+X-PhishGuard-Connu: oui
+Content-Type: multipart/mixed; boundary="=_pg_18cda9b52e"
+
+--=_pg_18cda9b52e
+Content-Type: multipart/alternative; boundary="alt=_pg_18cda9b52e"
+
+--alt=_pg_18cda9b52e
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClNhdWYgZXJyZXVyIGRlIG5vdHJlIHBhcnQsIGxhIGZhY3R1cmUgRjIwMjYtMDkx
+MiBkdSAxMi8wOS8yMDI2IGQndW4gbW9udGFudApkZSAxIDI4NCwwMCDigqwgVFRDIHJlc3RlIGlt
+cGF5w6llLgoKTWVyY2kgZGUgcHJvY8OpZGVyIGF1IHLDqGdsZW1lbnQgcGFyIHZpcmVtZW50IHN1
+ciBub3RyZSBjb21wdGUgaGFiaXR1ZWwuCkNvcmRpYWxlbWVudCwgU2VydmljZSBjb21wdGFiaWxp
+dMOpLg==
+--alt=_pg_18cda9b52e
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5T
+YXVmIGVycmV1ciBkZSBub3RyZSBwYXJ0LCBsYSBmYWN0dXJlIEYyMDI2LTA5MTIgZHUgMTIvMDkv
+MjAyNiBkJ3VuIG1vbnRhbnQgZGUgMSAyODQsMDAg4oKsIFRUQyByZXN0ZSBpbXBhecOpZS48L3A+
+PHA+TWVyY2kgZGUgcHJvY8OpZGVyIGF1IHLDqGdsZW1lbnQgcGFyIHZpcmVtZW50IHN1ciBub3Ry
+ZSBjb21wdGUgaGFiaXR1ZWwuIENvcmRpYWxlbWVudCwgU2VydmljZSBjb21wdGFiaWxpdMOpLjwv
+cD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_18cda9b52e--
+--=_pg_18cda9b52e
+Content-Type: application/pdf; name="F2026-0912.pdf"
+Content-Disposition: attachment; filename="F2026-0912.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBv
+Ymo8PC9UeXBlL1BhZ2VzL0tpZHNbXS9Db3VudCAwPj5lbmRvYmoKdHJhaWxlcjw8L1Jvb3QgMSAw
+IFI+PgolJUVPRgo=
+--=_pg_18cda9b52e--

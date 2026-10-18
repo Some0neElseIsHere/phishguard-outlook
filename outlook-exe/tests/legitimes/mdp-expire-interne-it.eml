@@ -1,0 +1,34 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.204) smtp.mailfrom=bounce.exemple-pme.fr; dkim=pass (signature was verified) header.d=exemple-pme.fr;dmarc=pass action=none header.from=exemple-pme.fr;compauth=pass reason=100
+Received: from mail.bounce.exemple-pme.fr (198.51.100.226) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Support informatique Exemple PME <support@exemple-pme.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_mot_de_passe_expire_dans_7_jours?=
+Date: Wed, 25 Feb 2026 15:36:00 +0200
+Message-ID: <24f45fb99839383d53ad5f50e430a924@bounce.exemple-pme.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: mdp-expire-interne-it
+X-MS-Exchange-Organization-AuthAs: Internal
+Content-Type: multipart/mixed; boundary="=_pg_24f45fb998"
+
+--=_pg_24f45fb998
+Content-Type: multipart/alternative; boundary="alt=_pg_24f45fb998"
+
+--alt=_pg_24f45fb998
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpWb3RyZSBtb3QgZGUgcGFzc2UgV2luZG93cyBleHBpcmUgZGFucyA3
+IGpvdXJzLgoKUG91ciBsZSBjaGFuZ2VyIDogQ3RybCArIEFsdCArIFN1cHByIHB1aXMgwqsgTW9k
+aWZpZXIgdW4gbW90IGRlIHBhc3NlIMK7LiBOZQpjbGlxdWV6IHN1ciBhdWN1biBsaWVuLg==
+--alt=_pg_24f45fb998
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Vm90cmUgbW90IGRlIHBhc3NlIFdpbmRvd3MgZXhwaXJlIGRhbnMgNyBqb3Vycy48L3A+
+PHA+UG91ciBsZSBjaGFuZ2VyIDogQ3RybCArIEFsdCArIFN1cHByIHB1aXMgwqsgTW9kaWZpZXIg
+dW4gbW90IGRlIHBhc3NlIMK7LiBOZSBjbGlxdWV6IHN1ciBhdWN1biBsaWVuLjwvcD48L2JvZHk+
+PC9odG1sPg==
+--alt=_pg_24f45fb998--
+--=_pg_24f45fb998--

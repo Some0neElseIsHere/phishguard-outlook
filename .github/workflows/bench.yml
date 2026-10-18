@@ -37,9 +37,14 @@ jobs:
             New-Item -ItemType Directory -Force $f | Out-Null
             tar -xjf "$f.tar.bz2" -C $f
           }
-          foreach ($l in "dev@httpd.apache.org", "users@tomcat.apache.org", "dev@kafka.apache.org") {
-            $n = ($l -replace '[@.]', '-')
-            curl.exe -sSL -o "apache-$n.mbox" "https://lists.apache.org/api/mbox.lua?list=$l&date=2025-09"
+          # Listes Apache : développeurs, utilisateurs (souvent depuis Gmail ou Outlook.com) et annonces, sur quatre mois
+          $lists = "dev@httpd.apache.org", "users@tomcat.apache.org", "dev@kafka.apache.org", "users@kafka.apache.org", "user@spark.apache.org",
+                   "user@flink.apache.org", "users@maven.apache.org", "announce@apache.org", "general@incubator.apache.org", "users@solr.apache.org"
+          foreach ($l in $lists) {
+            foreach ($m in "2025-06", "2025-07", "2025-08", "2025-09") {
+              $n = ($l -replace '[@.]', '-')
+              curl.exe -sSL -o "apache-$n-$m.mbox" "https://lists.apache.org/api/mbox.lua?list=$l&date=$m"
+            }
           }
           Get-ChildItem | Format-Table Name, Length
 
@@ -50,6 +55,7 @@ jobs:
           foreach ($y in 2020..2025) { $a += "phish-$y=corpus\phishing-$y.mbox|monkey.org" }
           $a += "ham-easy=corpus\20030228_easy_ham", "ham-easy2=corpus\20030228_easy_ham_2", "ham-hard=corpus\20030228_hard_ham"
           foreach ($f in Get-ChildItem corpus\apache-*.mbox) { if ($f.Length -gt 1000) { $a += "ham-apache-$($f.BaseName.Substring(7))=$($f.FullName)" } }
+          $a += "ham-cas-difficiles=outlook-exe\tests\legitimes|exemple-pme.fr"
           New-Item -ItemType Directory -Force out | Out-Null
           & outlook-exe\build\Bench.exe out\bench.csv @a
           if ($LASTEXITCODE -ne 0) { throw "Bench.exe : code $LASTEXITCODE" }

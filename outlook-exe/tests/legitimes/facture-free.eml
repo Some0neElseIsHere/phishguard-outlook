@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.113) smtp.mailfrom=bounce.free-mobile.fr; dkim=pass (signature was verified) header.d=free-mobile.fr;dmarc=pass action=none header.from=free-mobile.fr;compauth=pass reason=100
+Received: from mail.bounce.free-mobile.fr (198.51.100.109) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Free Mobile <noreply@free-mobile.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_facture_Free_Mobile?=
+Date: Mon, 07 Sep 2026 07:05:00 +0200
+Message-ID: <eeabb88f84ac96441121452a1c15d723@bounce.free-mobile.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: facture-free
+List-Unsubscribe: <https://unsubscribe.free-mobile.fr/u?id=eeabb88f84ac>, <mailto:unsubscribe@bounce.free-mobile.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_eeabb88f84"
+
+--=_pg_eeabb88f84
+Content-Type: multipart/alternative; boundary="alt=_pg_eeabb88f84"
+
+--alt=_pg_eeabb88f84
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGZhY3R1cmUgZHUgbW9pcyBlc3QgZGlzcG9uaWJsZSBkYW5zIHZvdHJl
+IGVzcGFjZSBhYm9ubsOpLiBNb250YW50IDoKMTksOTkg4oKsLgoKQWNjw6lkZXIgw6AgbW9uIGVz
+cGFjZSBhYm9ubsOpIDogaHR0cHM6Ly9tb2JpbGUuZnJlZS5mci9hY2NvdW50Lw==
+--alt=_pg_eeabb88f84
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBmYWN0dXJlIGR1IG1vaXMgZXN0IGRpc3BvbmlibGUgZGFucyB2b3RyZSBlc3BhY2UgYWJv
+bm7DqS4gTW9udGFudCA6IDE5LDk5IOKCrC48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9tb2JpbGUu
+ZnJlZS5mci9hY2NvdW50LyI+QWNjw6lkZXIgw6AgbW9uIGVzcGFjZSBhYm9ubsOpPC9hPjwvcD48
+L2JvZHk+PC9odG1sPg==
+--alt=_pg_eeabb88f84--
+--=_pg_eeabb88f84--

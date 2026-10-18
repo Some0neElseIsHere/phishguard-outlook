@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.102) smtp.mailfrom=bounce.calendly.com; dkim=pass (signature was verified) header.d=calendly.com;dmarc=pass action=none header.from=calendly.com;compauth=pass reason=100
+Received: from mail.bounce.calendly.com (198.51.100.28) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Calendly <notifications@calendly.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Nouvel_=C3=A9v=C3=A9nement_=3A_Jean_Petit_-_Rendez-vous_d=C3=A9cou?=
+ =?utf-8?q?verte?=
+Date: Sun, 13 Sep 2026 13:25:00 +0200
+Message-ID: <d834c26c004bd650c25586a525eebeb7@bounce.calendly.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: calendly
+Content-Type: multipart/mixed; boundary="=_pg_d834c26c00"
+
+--=_pg_d834c26c00
+Content-Type: multipart/alternative; boundary="alt=_pg_d834c26c00"
+
+--alt=_pg_d834c26c00
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpVbiBub3V2ZWwgw6l2w6luZW1lbnQgYSDDqXTDqSBwbGFuaWZpw6ku
+CgpJbnZpdMOpIDogSmVhbiBQZXRpdCAoamVhbi5wZXRpdEBnbWFpbC5jb20pLiBKZXVkaSAxNiBv
+Y3RvYnJlLCAxNGgwMC4KClZvaXIgbCfDqXbDqW5lbWVudCA6IGh0dHBzOi8vY2FsZW5kbHkuY29t
+L2FwcC9zY2hlZHVsZWRfZXZlbnRzL3VzZXIvbWU=
+--alt=_pg_d834c26c00
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+VW4gbm91dmVsIMOpdsOpbmVtZW50IGEgw6l0w6kgcGxhbmlmacOpLjwvcD48cD5JbnZp
+dMOpIDogSmVhbiBQZXRpdCAoamVhbi5wZXRpdEBnbWFpbC5jb20pLiBKZXVkaSAxNiBvY3RvYnJl
+LCAxNGgwMC48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9jYWxlbmRseS5jb20vYXBwL3NjaGVkdWxl
+ZF9ldmVudHMvdXNlci9tZSI+Vm9pciBsJ8OpdsOpbmVtZW50PC9hPjwvcD48L2JvZHk+PC9odG1s
+Pg==
+--alt=_pg_d834c26c00--
+--=_pg_d834c26c00--

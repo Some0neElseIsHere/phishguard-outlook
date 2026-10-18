@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.164) smtp.mailfrom=bounce.bureautique-pro.fr; dkim=pass (signature was verified) header.d=bureautique-pro.fr;dmarc=pass action=none header.from=bureautique-pro.fr;compauth=pass reason=100
+Received: from mail.bounce.bureautique-pro.fr (198.51.100.66) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Comptabilité Bureautique Pro <compta@bureautique-pro.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Changement_de_coordonn=C3=A9es_bancaires?=
+Date: Mon, 20 Apr 2026 13:09:00 +0200
+Message-ID: <bfe512188097b7d72cabeee259cb2be5@bounce.bureautique-pro.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: orange
+X-PhishGuard-Cas: fournisseur-nouveau-rib
+X-PhishGuard-Connu: oui
+Content-Type: multipart/mixed; boundary="=_pg_bfe5121880"
+
+--=_pg_bfe5121880
+Content-Type: multipart/alternative; boundary="alt=_pg_bfe5121880"
+
+--alt=_pg_bfe5121880
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClN1aXRlIGF1IGNoYW5nZW1lbnQgZGUgbm90cmUgYmFucXVlLCBtZXJjaSBkZSBu
+b3RlciBub3Mgbm91dmVsbGVzCmNvb3Jkb25uw6llcyBiYW5jYWlyZXMgcG91ciB2b3MgcHJvY2hh
+aW5zIHZpcmVtZW50cyA6CgpJQkFOIDogRlI3NiAzMDAwIDYwMDAgMDExMiAzNDU2IDc4OTAgMTg5
+IC0gQklDIDogQUdSSUZSUFAKCkNvcmRpYWxlbWVudCwgU2VydmljZSBjb21wdGFiaWxpdMOpLg==
+--alt=_pg_bfe5121880
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5T
+dWl0ZSBhdSBjaGFuZ2VtZW50IGRlIG5vdHJlIGJhbnF1ZSwgbWVyY2kgZGUgbm90ZXIgbm9zIG5v
+dXZlbGxlcyBjb29yZG9ubsOpZXMgYmFuY2FpcmVzIHBvdXIgdm9zIHByb2NoYWlucyB2aXJlbWVu
+dHMgOjwvcD48cD5JQkFOIDogRlI3NiAzMDAwIDYwMDAgMDExMiAzNDU2IDc4OTAgMTg5IC0gQklD
+IDogQUdSSUZSUFA8L3A+PHA+Q29yZGlhbGVtZW50LCBTZXJ2aWNlIGNvbXB0YWJpbGl0w6kuPC9w
+PjwvYm9keT48L2h0bWw+
+--alt=_pg_bfe5121880--
+--=_pg_bfe5121880--

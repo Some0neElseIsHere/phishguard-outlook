@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.165) smtp.mailfrom=pickup.fr; dkim=pass (signature was verified) header.d=pickup.fr;dmarc=pass action=none header.from=pickup.fr;compauth=pass reason=100
+Received: from mail.pickup.fr (198.51.100.50) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Chronopost <chronopost@network1.pickup.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_colis_Chronopost_est_en_cours_de_livraison?=
+Date: Wed, 04 Mar 2026 16:36:00 +0200
+Message-ID: <b4fad8632c2de8a9cd47f36d2c40b70d@pickup.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: colis-chronopost
+List-Unsubscribe: <https://unsubscribe.pickup.fr/u?id=b4fad8632c2d>, <mailto:unsubscribe@pickup.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_b4fad8632c"
+
+--=_pg_b4fad8632c
+Content-Type: multipart/alternative; boundary="alt=_pg_b4fad8632c"
+
+--alt=_pg_b4fad8632c
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGNvbGlzIFhZMTIzNDU2Nzg5RlIgZXN0IGVuIGNvdXJzIGRlIGxpdnJh
+aXNvbi4KClZvdXMgcG91dmV6IG1vZGlmaWVyIHZvdHJlIGxpdnJhaXNvbiBqdXNxdSfDoCA3aCBj
+ZSBtYXRpbi4KClN1aXZyZSBvdSBtb2RpZmllciBtYSBsaXZyYWlzb24gOiBodHRwczovL3d3dy5j
+aHJvbm9wb3N0LmZyL3RyYWNraW5nLW5vLWNtcy9zdWl2aS1wYWdlP2xpc3RlTnVtZXJvc0xUPVhZ
+MTIzNDU2Nzg5RlI=
+--alt=_pg_b4fad8632c
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBjb2xpcyBYWTEyMzQ1Njc4OUZSIGVzdCBlbiBjb3VycyBkZSBsaXZyYWlzb24uPC9wPjxw
+PlZvdXMgcG91dmV6IG1vZGlmaWVyIHZvdHJlIGxpdnJhaXNvbiBqdXNxdSfDoCA3aCBjZSBtYXRp
+bi48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly93d3cuY2hyb25vcG9zdC5mci90cmFja2luZy1uby1j
+bXMvc3VpdmktcGFnZT9saXN0ZU51bWVyb3NMVD1YWTEyMzQ1Njc4OUZSIj5TdWl2cmUgb3UgbW9k
+aWZpZXIgbWEgbGl2cmFpc29uPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_b4fad8632c--
+--=_pg_b4fad8632c--

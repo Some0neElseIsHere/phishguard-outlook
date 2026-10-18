@@ -1,0 +1,32 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.40) smtp.mailfrom=gmail.com; dkim=pass (signature was verified) header.d=gmail.com;dmarc=pass action=none header.from=gmail.com;compauth=pass reason=100
+Received: from mail.gmail.com (198.51.100.139) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Jean Petit <jean.petit@gmail.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Demande_de_devis?=
+Date: Sun, 04 Jan 2026 07:36:00 +0200
+Message-ID: <4ccbcac2bf40f181b0537b625c45b29d@gmail.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: prospect-devis
+Content-Type: multipart/mixed; boundary="=_pg_4ccbcac2bf"
+
+--=_pg_4ccbcac2bf
+Content-Type: multipart/alternative; boundary="alt=_pg_4ccbcac2bf"
+
+--alt=_pg_4ccbcac2bf
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkplIHNvdWhhaXRlcmFpcyBvYnRlbmlyIHVuIGRldmlzIHBvdXIgbCdlbnRyZXRp
+ZW4gZGUgbm9zIGxvY2F1eCAoMjAwIG3Csikgw6AKVG91bG9uLgoKUG91dmV6LXZvdXMgbWUgcmFw
+cGVsZXIgYXUgMDYgMTIgMzQgNTYgNzggPyBNZXJjaSwgSmVhbiBQZXRpdA==
+--alt=_pg_4ccbcac2bf
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5K
+ZSBzb3VoYWl0ZXJhaXMgb2J0ZW5pciB1biBkZXZpcyBwb3VyIGwnZW50cmV0aWVuIGRlIG5vcyBs
+b2NhdXggKDIwMCBtwrIpIMOgIFRvdWxvbi48L3A+PHA+UG91dmV6LXZvdXMgbWUgcmFwcGVsZXIg
+YXUgMDYgMTIgMzQgNTYgNzggPyBNZXJjaSwgSmVhbiBQZXRpdDwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_4ccbcac2bf--
+--=_pg_4ccbcac2bf--

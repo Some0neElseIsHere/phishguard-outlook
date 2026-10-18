@@ -1,0 +1,39 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.151) smtp.mailfrom=bounce.dhl.com; dkim=pass (signature was verified) header.d=dhl.com;dmarc=pass action=none header.from=dhl.com;compauth=pass reason=100
+Received: from mail.bounce.dhl.com (198.51.100.238) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: DHL Express <noreply@dhl.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_envoi_DHL_=3A_frais_de_douane_=C3=A0_r=C3=A9gler?=
+Date: Sat, 25 Jul 2026 12:29:00 +0200
+Message-ID: <3a33a9d6a5096119de114bcb6feb48e5@bounce.dhl.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: colis-dhl
+List-Unsubscribe: <https://unsubscribe.dhl.com/u?id=3a33a9d6a509>, <mailto:unsubscribe@bounce.dhl.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_3a33a9d6a5"
+
+--=_pg_3a33a9d6a5
+Content-Type: multipart/alternative; boundary="alt=_pg_3a33a9d6a5"
+
+--alt=_pg_3a33a9d6a5
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGVudm9pIDEyMzQ1Njc4OTAgZW4gcHJvdmVuYW5jZSBkdSBSb3lhdW1l
+LVVuaSBlc3Qgc291bWlzIMOgIGRlcyBkcm9pdHMKZXQgdGF4ZXMgZGUgMjMsNTAg4oKsLgoKVm91
+cyBwb3V2ZXogbGVzIHLDqWdsZXIgZW4gbGlnbmUgc3VyIGxlIHNpdGUgREhMIHBvdXIgw6l2aXRl
+ciB0b3V0IHJldGFyZC4KClBheWVyIGxlcyBkcm9pdHMgZXQgdGF4ZXMgOiBodHRwczovL215ZGhs
+LmV4cHJlc3MuZGhsL2ZyL2ZyL3RyYWNraW5nLmh0bWwjL3Jlc3VsdHM/aWQ9MTIzNDU2Nzg5MA==
+--alt=_pg_3a33a9d6a5
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBlbnZvaSAxMjM0NTY3ODkwIGVuIHByb3ZlbmFuY2UgZHUgUm95YXVtZS1VbmkgZXN0IHNv
+dW1pcyDDoCBkZXMgZHJvaXRzIGV0IHRheGVzIGRlIDIzLDUwIOKCrC48L3A+PHA+Vm91cyBwb3V2
+ZXogbGVzIHLDqWdsZXIgZW4gbGlnbmUgc3VyIGxlIHNpdGUgREhMIHBvdXIgw6l2aXRlciB0b3V0
+IHJldGFyZC48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9teWRobC5leHByZXNzLmRobC9mci9mci90
+cmFja2luZy5odG1sIy9yZXN1bHRzP2lkPTEyMzQ1Njc4OTAiPlBheWVyIGxlcyBkcm9pdHMgZXQg
+dGF4ZXM8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_3a33a9d6a5--
+--=_pg_3a33a9d6a5--

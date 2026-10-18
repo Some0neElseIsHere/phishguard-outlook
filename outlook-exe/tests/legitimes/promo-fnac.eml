@@ -1,0 +1,42 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.40) smtp.mailfrom=newsletter.fnac.com; dkim=pass (signature was verified) header.d=fnac.com;dmarc=pass action=none header.from=fnac.com;compauth=pass reason=100
+Received: from mail.newsletter.fnac.com (198.51.100.61) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Fnac <fnac@newsletter.fnac.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?=E2=8F=B0_Dernier_jour_=3A_-30_=25_sur_une_s=C3=A9lection_de_PC_po?=
+ =?utf-8?q?rtables?=
+Date: Sun, 05 Apr 2026 08:11:00 +0200
+Message-ID: <0fcc3d674246f75c7a19712a01d8b97b@newsletter.fnac.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: promo-fnac
+List-Unsubscribe: <https://unsubscribe.fnac.com/u?id=0fcc3d674246>, <mailto:unsubscribe@newsletter.fnac.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_0fcc3d6742"
+
+--=_pg_0fcc3d6742
+Content-Type: multipart/alternative; boundary="alt=_pg_0fcc3d6742"
+
+--alt=_pg_0fcc3d6742
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+T2ZmcmUgdmFsYWJsZSB1bmlxdWVtZW50IGF1am91cmQnaHVpIGp1c3F1J8OgIG1pbnVpdCAhCgpQ
+cm9maXRlei1lbiB2aXRlIDogc3RvY2tzIGxpbWl0w6lzLgoKTGl2cmFpc29uIGdyYXR1aXRlIGTD
+qHMgMjUg4oKsLgoKSidlbiBwcm9maXRlIDogaHR0cHM6Ly9lLm5ld3NsZXR0ZXIuZm5hYy5jb20v
+Yy9hYmMxMjM/dXJsPWh0dHBzJTNBJTJGJTJGd3d3LmZuYWMuY29tJTJGcGMtcG9ydGFibGVzCgpW
+b2lyIHRvdXRlcyBsZXMgb2ZmcmVzIDogaHR0cHM6Ly9lLm5ld3NsZXR0ZXIuZm5hYy5jb20vYy9k
+ZWY0NTYKCnd3dy5mbmFjLmNvbSA6IGh0dHBzOi8vd3d3LmZuYWMuY29t
+--alt=_pg_0fcc3d6742
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5PZmZyZSB2YWxhYmxlIHVu
+aXF1ZW1lbnQgYXVqb3VyZCdodWkganVzcXUnw6AgbWludWl0ICE8L3A+PHA+UHJvZml0ZXotZW4g
+dml0ZSA6IHN0b2NrcyBsaW1pdMOpcy48L3A+PHA+TGl2cmFpc29uIGdyYXR1aXRlIGTDqHMgMjUg
+4oKsLjwvcD48cD48YSBocmVmPSJodHRwczovL2UubmV3c2xldHRlci5mbmFjLmNvbS9jL2FiYzEy
+Mz91cmw9aHR0cHMlM0ElMkYlMkZ3d3cuZm5hYy5jb20lMkZwYy1wb3J0YWJsZXMiPkonZW4gcHJv
+Zml0ZTwvYT48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9lLm5ld3NsZXR0ZXIuZm5hYy5jb20vYy9k
+ZWY0NTYiPlZvaXIgdG91dGVzIGxlcyBvZmZyZXM8L2E+PC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8v
+d3d3LmZuYWMuY29tIj53d3cuZm5hYy5jb208L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_0fcc3d6742--
+--=_pg_0fcc3d6742--

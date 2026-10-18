@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.17) smtp.mailfrom=docusign.net; dkim=pass (signature was verified) header.d=docusign.net;dmarc=pass action=none header.from=docusign.net;compauth=pass reason=100
+Received: from mail.docusign.net (198.51.100.189) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Cabinet Lefèvre via DocuSign <dse_NA4@docusign.net>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Veuillez_signer_=3A_Contrat_de_maintenance_2027?=
+Date: Sun, 23 Aug 2026 17:04:00 +0200
+Message-ID: <f774d7ddfffc8f1d429cd55a95ad852d@docusign.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: docusign
+Reply-To: contact@cabinet-lefevre.fr
+Content-Type: multipart/mixed; boundary="=_pg_f774d7ddff"
+
+--=_pg_f774d7ddff
+Content-Type: multipart/alternative; boundary="alt=_pg_f774d7ddff"
+
+--alt=_pg_f774d7ddff
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Q2FiaW5ldCBMZWbDqHZyZSB2b3VzIGEgZW52b3nDqSB1biBkb2N1bWVudCDDoCBjb25zdWx0ZXIg
+ZXQgw6Agc2lnbmVyLgoKTWVyY2kgZGUgc2lnbmVyIGxlIGNvbnRyYXQgYXZhbnQgbGUgMzAgb2N0
+b2JyZS4KCkNPTlNVTFRFUiBMRSBET0NVTUVOVCA6IGh0dHBzOi8vbmE0LmRvY3VzaWduLm5ldC9T
+aWduaW5nL0VtYWlsU3RhcnQuYXNweD9hPTFiMmMzZCZldHRpPTI0JmFjY3Q9YWJj
+--alt=_pg_f774d7ddff
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5DYWJpbmV0IExlZsOodnJl
+IHZvdXMgYSBlbnZvecOpIHVuIGRvY3VtZW50IMOgIGNvbnN1bHRlciBldCDDoCBzaWduZXIuPC9w
+PjxwPk1lcmNpIGRlIHNpZ25lciBsZSBjb250cmF0IGF2YW50IGxlIDMwIG9jdG9icmUuPC9wPjxw
+PjxhIGhyZWY9Imh0dHBzOi8vbmE0LmRvY3VzaWduLm5ldC9TaWduaW5nL0VtYWlsU3RhcnQuYXNw
+eD9hPTFiMmMzZCZldHRpPTI0JmFjY3Q9YWJjIj5DT05TVUxURVIgTEUgRE9DVU1FTlQ8L2E+PC9w
+PjwvYm9keT48L2h0bWw+
+--alt=_pg_f774d7ddff--
+--=_pg_f774d7ddff--

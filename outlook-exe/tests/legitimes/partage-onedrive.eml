@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.154) smtp.mailfrom=sharepointonline.com; dkim=pass (signature was verified) header.d=sharepointonline.com;dmarc=pass action=none header.from=sharepointonline.com;compauth=pass reason=100
+Received: from mail.sharepointonline.com (198.51.100.129) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Paul Durand (via OneDrive) <no-reply@sharepointonline.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Paul_Durand_a_partag=C3=A9_=C2=AB_Budget_2027=2Exlsx_=C2=BB_avec_v?=
+ =?utf-8?q?ous?=
+Date: Thu, 11 Jun 2026 18:22:00 +0200
+Message-ID: <2ab8f8183c0a43001bb07bfff4817ba1@sharepointonline.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: partage-onedrive
+Content-Type: multipart/mixed; boundary="=_pg_2ab8f8183c"
+
+--=_pg_2ab8f8183c
+Content-Type: multipart/alternative; boundary="alt=_pg_2ab8f8183c"
+
+--alt=_pg_2ab8f8183c
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+UGF1bCBEdXJhbmQgYSBwYXJ0YWfDqSB1biBmaWNoaWVyIGF2ZWMgdm91cy4KClZvaWNpIGxlIGJ1
+ZGdldCBtaXMgw6Agam91ciBhdmFudCBsYSByw6l1bmlvbiBkZSBqZXVkaS4KCk91dnJpciA6IGh0
+dHBzOi8vZXhlbXBsZXBtZS1teS5zaGFyZXBvaW50LmNvbS86eDovZy9wZXJzb25hbC9wYXVsX2R1
+cmFuZF9leGVtcGxlLXBtZV9mci9FYUJjRDEyMz9lPXh5eg==
+--alt=_pg_2ab8f8183c
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5QYXVsIER1cmFuZCBhIHBh
+cnRhZ8OpIHVuIGZpY2hpZXIgYXZlYyB2b3VzLjwvcD48cD5Wb2ljaSBsZSBidWRnZXQgbWlzIMOg
+IGpvdXIgYXZhbnQgbGEgcsOpdW5pb24gZGUgamV1ZGkuPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8v
+ZXhlbXBsZXBtZS1teS5zaGFyZXBvaW50LmNvbS86eDovZy9wZXJzb25hbC9wYXVsX2R1cmFuZF9l
+eGVtcGxlLXBtZV9mci9FYUJjRDEyMz9lPXh5eiI+T3V2cmlyPC9hPjwvcD48L2JvZHk+PC9odG1s
+Pg==
+--alt=_pg_2ab8f8183c--
+--=_pg_2ab8f8183c--

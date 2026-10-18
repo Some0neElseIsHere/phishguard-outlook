@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.16) smtp.mailfrom=email.edf.fr; dkim=pass (signature was verified) header.d=edf.fr;dmarc=pass action=none header.from=edf.fr;compauth=pass reason=100
+Received: from mail.email.edf.fr (198.51.100.234) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: EDF <noreply@edf.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_facture_d=27=C3=A9lectricit=C3=A9?=
+Date: Fri, 04 Sep 2026 12:37:00 +0200
+Message-ID: <2d68d8b3a137415b5fae699cae3de53c@email.edf.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: facture-edf
+List-Unsubscribe: <https://unsubscribe.edf.fr/u?id=2d68d8b3a137>, <mailto:unsubscribe@email.edf.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_2d68d8b3a1"
+
+--=_pg_2d68d8b3a1
+Content-Type: multipart/alternative; boundary="alt=_pg_2d68d8b3a1"
+
+--alt=_pg_2d68d8b3a1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIG5vdXZlbGxlIGZhY3R1cmUgZXN0IGRpc3BvbmlibGUuIE1vbnRhbnQg
+OiA4Nyw0MCDigqwuIERhdGUgbGltaXRlIGRlCnBhaWVtZW50IDogMjUvMTAvMjAyNi4KClBvdXIg
+bGEgY29uc3VsdGVyLCBjb25uZWN0ZXotdm91cyDDoCB2b3RyZSBlc3BhY2UgY2xpZW50LgoKTW9u
+IGVzcGFjZSBjbGllbnQgOiBodHRwczovL3BhcnRpY3VsaWVyLmVkZi5mci9mci9hY2N1ZWlsL2Vz
+cGFjZS1jbGllbnQuaHRtbA==
+--alt=_pg_2d68d8b3a1
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBub3V2ZWxsZSBmYWN0dXJlIGVzdCBkaXNwb25pYmxlLiBNb250YW50IDogODcsNDAg4oKs
+LiBEYXRlIGxpbWl0ZSBkZSBwYWllbWVudCA6IDI1LzEwLzIwMjYuPC9wPjxwPlBvdXIgbGEgY29u
+c3VsdGVyLCBjb25uZWN0ZXotdm91cyDDoCB2b3RyZSBlc3BhY2UgY2xpZW50LjwvcD48cD48YSBo
+cmVmPSJodHRwczovL3BhcnRpY3VsaWVyLmVkZi5mci9mci9hY2N1ZWlsL2VzcGFjZS1jbGllbnQu
+aHRtbCI+TW9uIGVzcGFjZSBjbGllbnQ8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_2d68d8b3a1--
+--=_pg_2d68d8b3a1--
