@@ -853,6 +853,23 @@ namespace PhishGuard.Tests
                 string.Join(" | ", Analyzer.Analyze(mb, cfg).Findings.Select(f => f.Title).ToArray()));
             L.SetLanguage("fr");
 
+            // ---------- Thème clair / sombre ----------
+            Check("thème : réglage automatique suit Windows", Theme.Resolve("auto", true) && !Theme.Resolve("auto", false) && Theme.Resolve("dark", false) && !Theme.Resolve("light", true) && !Theme.Resolve(null, false));
+            string svLight = SimpleView.Build(r2, e2, true);
+            Theme.Dark = true;
+            string svDark = SimpleView.Build(r2, e2, true);
+            Check("thème sombre : fond de page sombre", svDark.Contains("background:#1e2024") && !svLight.Contains("#1e2024"));
+            Check("thème sombre : texte clair", svDark.Contains("color:#e6e9ed") && !svDark.Contains("color:#17202b"));
+            Check("thème sombre : plus aucun fond blanc", !svDark.Contains("background:#fff;") && !svDark.Contains("background:#fff}"));
+            Check("thème sombre : texte blanc sur les pastilles conservé", svDark.Contains(".ico{float:left;width:56px;height:56px;border-radius:50%;color:#fff"));
+            Check("thème sombre : couleurs des verdicts conservées", svDark.Contains(".dangerous .ico{background:#c4262e}"));
+            Check("thème sombre : sélecteurs intacts", svDark.Replace("background:#1e2024", "").Contains(".mi.ok:before{content:'\\2713';color:"));
+            Check("thème sombre : couleur inconnue convertie", Theme.Hex("#fafafa", Theme.Kind.Back) != "#fafafa" && Theme.Hex("#123456", Theme.Kind.Back) == "#123456" && Theme.Hex("#222222", Theme.Kind.Text) != "#222222");
+            Check("thème sombre : texte et contenu du message inchangés", svDark.Replace(Theme.Css(""), "").Length > 0 && SimpleView.Build(r2, new EmailData { FromName = "#ffffff", FromAddress = "a@b.fr" }, true).Contains("#ffffff"));
+            Check("thème sombre : rapport envoyé à la sécurité toujours clair", ReportHtml.Build(r2, e2, "x@acmetech.fr").Contains("#") && !ReportHtml.Build(r2, e2, "x@acmetech.fr").Contains("#1e2024"));
+            Theme.Dark = false;
+            Check("thème clair : feuille de style inchangée", SimpleView.Build(r2, e2, true) == svLight);
+
             // ---------- Langue anglaise ----------
             L.SetLanguage("en");
             var rEn = Analyzer.Analyze(e2, cfg);

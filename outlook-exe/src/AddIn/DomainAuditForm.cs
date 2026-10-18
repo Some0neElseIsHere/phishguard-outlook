@@ -52,7 +52,7 @@ namespace PhishGuard.AddIn
                 Text = L.T("Ne sont envoyés que des noms de domaine (DNS, crt.sh) et l’adresse de votre site (mentions légales). Durée : une à deux minutes.") };
             top.Controls.AddRange(new Control[] { cboDomain, btnRun, lblStatus });
 
-            tabs = new TabControl { Dock = DockStyle.Fill, Padding = new Point(12, 4) };
+            tabs = new ThemedTabControl { Dock = DockStyle.Fill, Padding = new Point(12, 4) };
 
             // ---- Messagerie ----
             var pMail = new TabPage(L.T("Messagerie")) { Padding = new Padding(6) };
@@ -101,6 +101,7 @@ namespace PhishGuard.AddIn
             Controls.Add(tabs);
             Controls.Add(top);
             Controls.Add(bar);
+            ThemeUi.Attach(this);
             Shown += (s, e) => { if (cboDomain.Text.Trim().Length > 0) Start(); };
         }
 
@@ -144,10 +145,10 @@ namespace PhishGuard.AddIn
             {
                 string st = i.Status == "ok" ? "✓ " + L.T("Bon") : i.Status == "warn" ? "! " + L.T("À améliorer") : i.Status == "bad" ? "✗ " + L.T("Problème") : "i " + L.T("Info");
                 var it = new ListViewItem(new[] { st, i.Title, i.Detail }) { ToolTipText = i.Title + "\n" + i.Detail };
-                it.ForeColor = i.Status == "ok" ? Color.FromArgb(16, 124, 65) : i.Status == "warn" ? Color.FromArgb(168, 91, 0) : i.Status == "bad" ? Color.FromArgb(196, 22, 34) : SystemColors.GrayText;
+                it.ForeColor = ThemeUi.Fore(i.Status == "ok" ? Color.FromArgb(16, 124, 65) : i.Status == "warn" ? Color.FromArgb(168, 91, 0) : i.Status == "bad" ? Color.FromArgb(196, 22, 34) : SystemColors.GrayText);
                 lvEmail.Items.Add(it);
             }
-            foreach (var e in r.Errors) lvEmail.Items.Add(new ListViewItem(new[] { "? " + L.T("Erreur"), e, "" }) { ForeColor = SystemColors.GrayText });
+            foreach (var e in r.Errors) lvEmail.Items.Add(new ListViewItem(new[] { "? " + L.T("Erreur"), e, "" }) { ForeColor = ThemeUi.Fore(SystemColors.GrayText) });
 
             // Sosies et domaines
             var gLook = new ListViewGroup(L.F("Sosies enregistrés ({0} sur {1} variantes vérifiées)", r.Lookalikes.Count, r.VariantsChecked));
@@ -159,7 +160,7 @@ namespace PhishGuard.AddIn
                 string detail = f.LikelyOwned ? L.T("Même serveur de messagerie que votre domaine : probablement à vous (à ajouter aux domaines de l’entreprise).")
                     : f.HasMx ? L.T("Peut envoyer et recevoir des emails.") : L.T("Enregistré, sans serveur de messagerie.");
                 var it = new ListViewItem(new[] { f.Domain, f.Technique, detail }, gLook) { Tag = f, Checked = !f.LikelyOwned && f.HasMx };
-                if (f.LikelyOwned) it.ForeColor = SystemColors.GrayText;
+                if (f.LikelyOwned) it.ForeColor = ThemeUi.Fore(SystemColors.GrayText);
                 lvDomains.Items.Add(it);
             }
             foreach (var f in r.BrandCerts)

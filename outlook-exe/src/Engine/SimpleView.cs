@@ -105,7 +105,7 @@ namespace PhishGuard
         {
             var sb = new StringBuilder();
             sb.Append("<!DOCTYPE html><html><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'>");
-            sb.Append("<style>" + Css + "</style><script>" + Script + "</script></head><body><div class='page'>");
+            sb.Append("<style>" + Theme.Css(Css) + "</style><script>" + Script + "</script></head><body><div class='page'>");
 
             // ---- Verdict ----
             string title, sub, icon;

@@ -20,12 +20,13 @@ namespace PhishGuard.AddIn
         readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert, chkPublic;
         readonly TextBox txtVt, txtAbuseCh, txtAbuseIpdb;
         readonly Label lblBeta;
-        readonly ComboBox cboAlert, cboLang, cboMode;
+        readonly ComboBox cboAlert, cboLang, cboMode, cboTheme;
         readonly NumericUpDown numHash;
         readonly Label lblLists;
 
         static readonly string[] AlertValues = { "dangerous", "suspicious", "none" };
         static readonly string[] LangValues = { "auto", "fr", "en" };
+        static readonly string[] ThemeValues = { "auto", "light", "dark" };
 
         readonly string mailboxDomain;
         readonly ListView lvCompanies;
@@ -53,7 +54,7 @@ namespace PhishGuard.AddIn
             ShowInTaskbar = true;
             if (icon != null) Icon = icon;
 
-            var tabs = new TabControl { Dock = DockStyle.Fill, Padding = new Point(12, 4) };
+            var tabs = new ThemedTabControl { Dock = DockStyle.Fill, Padding = new Point(12, 4) };
 
             // ---------------- Entreprise ----------------
             var pGeneral = Page(L.T("Entreprise"));
@@ -139,7 +140,15 @@ namespace PhishGuard.AddIn
             pAnalyse.Controls.Add(cboMode);
             y += 28;
             AddHint(pAnalyse, ref y, L.T("En mode expert, les onglets Listes et Réputation et l’analyse de votre domaine apparaissent ici (rouvrez les paramètres après avoir changé)."));
-            y += 12;
+            y += 4;
+            pAnalyse.Controls.Add(new Label { Text = L.T("Thème"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
+            y += 22;
+            cboTheme = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
+            cboTheme.Items.AddRange(new object[] { L.T("Automatique (thème de Windows)"), L.T("Clair"), L.T("Sombre") });
+            int ti = Array.IndexOf(ThemeValues, (cfg.Theme ?? "auto").ToLowerInvariant());
+            cboTheme.SelectedIndex = ti < 0 ? 0 : ti;
+            pAnalyse.Controls.Add(cboTheme);
+            y += 40;
             chkAuto = new CheckBox { Text = L.T("Analyser automatiquement le message sélectionné ou ouvert"), Checked = cfg.AutoAnalyze, Location = new Point(12, y), AutoSize = true };
             pAnalyse.Controls.Add(chkAuto);
             y += 26;
@@ -254,6 +263,7 @@ namespace PhishGuard.AddIn
             Controls.Add(tabs);
             ApplyLocks();
             Controls.Add(bar);
+            ThemeUi.Attach(this);
         }
 
         /// <summary>Ajoute des lignes absentes (sans tenir compte de la casse) à une zone de texte multiligne.</summary>
@@ -405,7 +415,7 @@ namespace PhishGuard.AddIn
                 { "company#", companyControls }, { "companydomains", domainControls.Concat(new Control[] { txtDomains }) },
                 { "reportaddress", new Control[] { txtReport } }, { "trusteddomains", new Control[] { txtTrusted } },
                 { "trustedsenders", new Control[] { txtTrustedSenders } }, { "sharedblocklistpath", new Control[] { txtShared } },
-                { "autoanalyze", new Control[] { chkAuto } }, { "alertlevel", new Control[] { cboAlert } }, { "language", new Control[] { cboLang } },
+                { "autoanalyze", new Control[] { chkAuto } }, { "alertlevel", new Control[] { cboAlert } }, { "language", new Control[] { cboLang } }, { "theme", new Control[] { cboTheme } },
                 { "autohashmaxmb", new Control[] { numHash } }, { "redflagenabled", new Control[] { chkRedFlag } }, { "showexplanations", new Control[] { chkExplain } },
                 { "knowncorrespondents", new Control[] { chkCorr } }, { "domainagelookup", new Control[] { chkAge } }, { "tagcategory", new Control[] { chkTag } },
                 { "moveafterreport", new Control[] { chkMove } }, { "scorelog", new Control[] { chkLog } }, { "watchdomains", new Control[] { chkWatch } },
@@ -502,6 +512,7 @@ namespace PhishGuard.AddIn
             cfg.AutoAnalyze = chkAuto.Checked;
             cfg.AlertLevel = AlertValues[Math.Max(0, cboAlert.SelectedIndex)];
             cfg.Language = LangValues[Math.Max(0, cboLang.SelectedIndex)];
+            cfg.Theme = ThemeValues[Math.Max(0, cboTheme.SelectedIndex)];
             cfg.AutoHashMaxMB = (int)numHash.Value;
             cfg.RedFlagEnabled = chkRedFlag.Checked;
             cfg.ShowExplanations = chkExplain.Checked;
@@ -594,6 +605,7 @@ namespace PhishGuard.AddIn
             bar.Controls.AddRange(new Control[] { cancel, btnOk, manual });
             AcceptButton = btnSearch; CancelButton = cancel;
             Controls.Add(list); Controls.Add(lblInfo); Controls.Add(top); Controls.Add(bar);
+            ThemeUi.Attach(this);
         }
 
         void Search()
@@ -633,7 +645,7 @@ namespace PhishGuard.AddIn
             foreach (var c in items)
             {
                 var it = new ListViewItem(new[] { c.Name + (c.Active ? "" : " " + L.T("(fermée)")), c.City, c.Siren, string.Join(", ", c.Roles.ToArray()) });
-                if (!c.Active) it.ForeColor = SystemColors.GrayText;
+                if (!c.Active) it.ForeColor = ThemeUi.Fore(SystemColors.GrayText);
                 list.Items.Add(it);
             }
             list.Items[0].Selected = true;
@@ -687,6 +699,7 @@ namespace PhishGuard.AddIn
             bar.Controls.AddRange(new Control[] { cancel, ok });
             Controls.Add(bar);
             AcceptButton = ok; CancelButton = cancel;
+            ThemeUi.Attach(this);
         }
 
         TextBox Field(string label, string value, ref int y, bool multiline)

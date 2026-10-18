@@ -97,6 +97,7 @@ namespace PhishGuard.AddIn
             Controls.Add(bar);
             AcceptButton = ok; CancelButton = later;
             ClientSize = new Size(ClientSize.Width, y + 20 + bar.Height);
+            ThemeUi.Attach(this);
         }
 
         int Para(string text, int y) { return Para(text, y, 20); }

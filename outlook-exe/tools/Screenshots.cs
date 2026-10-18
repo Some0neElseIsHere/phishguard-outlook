@@ -90,6 +90,19 @@ namespace PhishGuard.Tools
                 new KeyValuePair<string, string>("Company1", "Exemple SAS | France | 552100554 | Claire Martin; Hugo Bernard"),
                 new KeyValuePair<string, string>("CompanyDomains", "exemple-pme.fr"), new KeyValuePair<string, string>("ForceSimpleMode", "1") });
             Capture(new SettingsForm(cfgPol, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres-strategies.png"));
+
+            // Thème sombre (Windows en mode sombre)
+            Theme.Dark = true;
+            Write(outDir, "simple-dangereux-sombre.html", SimpleView.Build(rp, p, true));
+            Write(outDir, "simple-suspect-sombre.html", SimpleView.Build(rs, s, true));
+            Write(outDir, "simple-verifie-sombre.html", SimpleView.Build(rv, v, true));
+            Write(outDir, "expert-dangereux-sombre.html", ResultForm.BuildHtml(rp, p, true));
+            Capture(new FirstRunForm(new PhishGuardConfig(), "exemple-pme.fr", null, FirstRunForm.Steps), Path.Combine(outDir, "assistant-sombre.png"));
+            Capture(new SettingsForm(cfg, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres-sombre.png"));
+            Capture(new SettingsForm(cfgPol, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres-strategies-sombre.png"));
+            Capture(new AlertForm(rp, p.Subject), Path.Combine(outDir, "alerte-sombre.png"));
+            Theme.Dark = false;
+            Capture(new AlertForm(rp, p.Subject), Path.Combine(outDir, "alerte.png"));
             return 0;
         }
 

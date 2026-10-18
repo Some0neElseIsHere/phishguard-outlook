@@ -52,6 +52,13 @@ Valeur de registre : Software\Policies\PhishGuard\Language</string>
       <string id="Language_auto">Automatique (langue de Windows)</string>
       <string id="Language_fr">Français</string>
       <string id="Language_en">Anglais</string>
+      <string id="Theme">Thème des fenêtres</string>
+      <string id="Theme_Help">Couleurs des fenêtres de PhishGuard. Automatique : suit le mode clair ou sombre choisi dans Windows (Paramètres, Personnalisation, Couleurs).
+
+Valeur de registre : Software\Policies\PhishGuard\Theme</string>
+      <string id="Theme_auto">Automatique (thème de Windows)</string>
+      <string id="Theme_light">Clair</string>
+      <string id="Theme_dark">Sombre</string>
       <string id="AlertLevel">Alertes à l'écran</string>
       <string id="AlertLevel_Help">Messages pour lesquels une alerte s'affiche en bas à droite de l'écran.
 
@@ -118,6 +125,7 @@ Valeur de registre : Software\Policies\PhishGuard\BetaTranco</string>
       <presentation id="TrustedDomains"><textBox refId="TrustedDomains_Value"><label>Domaines de confiance</label></textBox></presentation>
       <presentation id="SharedBlocklistPath"><textBox refId="SharedBlocklistPath_Value"><label>Liste de blocage partagée</label></textBox></presentation>
       <presentation id="Language"><dropdownList refId="Language_Value" noSort="true">Langue de l'interface</dropdownList></presentation>
+      <presentation id="Theme"><dropdownList refId="Theme_Value" noSort="true">Thème des fenêtres</dropdownList></presentation>
       <presentation id="AlertLevel"><dropdownList refId="AlertLevel_Value" noSort="true">Alertes à l'écran</dropdownList></presentation>
     </presentationTable>
   </resources>

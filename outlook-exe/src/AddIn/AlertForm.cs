@@ -92,8 +92,9 @@ namespace PhishGuard.AddIn
             close.Click += (s, e) => Close();
 
             // Bordure fine
-            Paint += (s, e) => { using (var p = new Pen(Color.FromArgb(225, 228, 232))) e.Graphics.DrawRectangle(p, 0, 0, Width - 1, Height - 1); };
+            Paint += (s, e) => { using (var p = new Pen(ThemeUi.Border(Color.FromArgb(225, 228, 232)))) e.Graphics.DrawRectangle(p, 0, 0, Width - 1, Height - 1); };
 
+            ThemeUi.Attach(this);
             var area = Screen.PrimaryScreen.WorkingArea;
             Location = new Point(area.Right - Width - 16, area.Bottom - Height - 16);
 
