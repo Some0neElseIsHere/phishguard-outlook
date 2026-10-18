@@ -37,6 +37,11 @@ namespace PhishGuard.Tools
                 try { File.AppendAllText(progressPath, "PLANTAGE " + ev.ExceptionObject + Environment.NewLine); } catch (Exception) { }
             };
             int warnings = 0;
+            // Budget de temps (diagnostic) : au-delà, les messages restants sont ignorés ; les plus lents sont listés à la fin
+            int budgetMin;
+            int.TryParse(Environment.GetEnvironmentVariable("PG_BUDGET_MIN") ?? "", out budgetMin);
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            var slow = new List<KeyValuePair<long, string>>();
             Action<string> warn = msg => { if (warnings++ < 40) Console.WriteLine("::warning::" + msg.Replace("\r", " ").Replace("\n", " ")); };
             L.SetLanguage("fr");
             DomainAge.Enabled = false;
@@ -70,6 +75,7 @@ namespace PhishGuard.Tools
                     foreach (var raw in Messages(path, max))
                     {
                         n++;
+                        if (budgetMin > 0 && clock.Elapsed.TotalMinutes > budgetMin) { Console.WriteLine("::notice::Budget atteint : " + label + " arrêté au message " + n); break; }
                         try { File.WriteAllText(progressPath, label + " #" + n + " (" + raw.Length + " octets) " + DateTime.Now.ToString("HH:mm:ss")); } catch (Exception) { }
                         if (raw.Length > 15 * 1024 * 1024) { warn(label + " #" + n + " ignoré : " + raw.Length / 1048576 + " Mo"); continue; }
                         EmailData e;
@@ -95,6 +101,7 @@ namespace PhishGuard.Tools
                                 warn(label + " #" + n + " (" + Trunc(e.Subject, 60) + ") : " + ex.GetType().Name + " " + Trunc(ex.Message, 200) + " @ " + Trunc((ex.StackTrace ?? "").Replace(Environment.NewLine, " | "), 400));
                                 continue;
                             }
+                            if (mode == "inconnus") { slow.Add(new KeyValuePair<long, string>(sw.ElapsedMilliseconds, label + " #" + n + " " + raw.Length / 1024 + " Ko, " + e.Attachments.Count + " PJ, " + e.Links.Count + " liens : " + Trunc(e.Subject, 50))); if (slow.Count > 400) slow = slow.OrderByDescending(x => x.Key).Take(50).ToList(); }
                             if (swa.ElapsedMilliseconds > 2000) warn(label + " #" + n + " (" + Trunc(e.Subject, 60) + ") : analyse lente, " + swa.ElapsedMilliseconds + " ms");
                             string f = string.Join(" ", r.Findings.Select(x => x.Id + ":" + (int)x.Severity + ":" + x.Category).ToArray());
                             w.WriteLine(string.Join(",", new[] { label, mode, n.ToString(), year.ToString(), auth ? "1" : "0", r.Level, r.Score.ToString(),
@@ -104,8 +111,10 @@ namespace PhishGuard.Tools
                         }
                     }
                     Console.WriteLine(label + " : " + n + " messages, " + err + " erreurs");
+                    Console.WriteLine("::notice::" + label + " : " + n + " messages en " + (int)clock.Elapsed.TotalMinutes + " min cumulées, " + err + " erreurs");
                 }
             }
+            foreach (var x in slow.OrderByDescending(x => x.Key).Take(8)) Console.WriteLine("::notice::Lent : " + x.Key + " ms (lecture + analyse) — " + x.Value.Replace("\r", " ").Replace("\n", " "));
             return 0;
         }
 
