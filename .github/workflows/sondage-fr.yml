@@ -9,19 +9,18 @@ jobs:
         shell: bash {0}
         run: |
           probe() { n=$(curl -sSL -m 120 -A "phishguard-bench" "$2" -o /tmp/f; echo $?); s=$(stat -c %s /tmp/f 2>/dev/null); t=$(file -b /tmp/f | cut -c1-40); m=$( (zcat -f /tmp/f 2>/dev/null) | grep -c '^From ' ); a=$( (zcat -f /tmp/f 2>/dev/null) | grep -ci '^authentication-results:' ); echo "::notice::$1 curl=$n taille=$s type=$t messages=$m auth=$a"; }
-          probe fedora-trans-fr "https://lists.fedoraproject.org/archives/list/trans-fr@lists.fedoraproject.org/export/trans-fr.mbox.gz?start=2024-01-01&end=2026-10-15"
-          probe opensuse-fr "https://lists.opensuse.org/archives/list/fr@lists.opensuse.org/export/fr.mbox.gz?start=2023-01-01&end=2026-10-15"
-          probe debian-user-french "https://lists.debian.org/debian-user-french/2025/09/mbox"
-          probe debian-l10n-french "https://lists.debian.org/debian-l10n-french/2025/09/mbox"
-          probe osm-talk-fr "https://lists.openstreetmap.org/pipermail/talk-fr/2025-September.txt.gz"
-          probe gnu-index "https://lists.gnu.org/archive/mbox/"
-          curl -sSL -m 60 https://lists.gnu.org/archive/mbox/ | grep -oE 'href="[^"]*(fr|french|franc)[^"]*"' | head -20 | sed 's/^/::notice::gnu /'
+      - name: Sonder 2
+        shell: bash {0}
+        run: |
+          probe() { n=$(curl -sSL -m 120 -A "phishguard-bench" "$2" -o /tmp/f; echo $?); s=$(stat -c %s /tmp/f 2>/dev/null); t=$(file -b /tmp/f | cut -c1-40); m=$( (zcat -f /tmp/f 2>/dev/null) | grep -c '^From ' ); a=$( (zcat -f /tmp/f 2>/dev/null) | grep -ci '^authentication-results:' ); echo "::notice::$1 curl=$n taille=$s type=$t messages=$m auth=$a"; }
           probe libreoffice-fr "https://listarchives.libreoffice.org/fr/users/"
           probe mageia-fr "https://ml.mageia.org/l/arc/i18n-fr"
           probe python-fr-hk "https://mail.python.org/archives/list/python-fr@python.org/export/python-fr.mbox.gz?start=2020-01-01&end=2026-10-15"
           probe postgresql-fr "https://www.postgresql.org/list/pgsql-fr-generale/mbox/pgsql-fr-generale.202509"
           probe freebsd-fr "https://lists.freebsd.org/archives/freebsd-questions/2025-September.mbox"
-          # Phishings en français dans phishing_pot
+      - name: Phishing FR
+        shell: bash {0}
+        run: |
           git clone -q --depth 1 https://github.com/rf-peixoto/phishing_pot.git pp
           python3 - <<'PY'
           import os,re,email
