@@ -33,6 +33,18 @@ namespace PhishGuard
         public string Dmarc, DmarcAction, DmarcFrom;
         public string DmarcDerived;     // absent des en-têtes mais déduit par PhishGuard : « dkim » ou « spf » (aligné)
 
+        /// <summary>Aucun résultat SPF, DKIM, DMARC ni compauth.</summary>
+        public bool Empty { get { return string.IsNullOrEmpty(Spf) && string.IsNullOrEmpty(Dkim) && DmarcShown == null && string.IsNullOrEmpty(CompAuth); } }
+
+        /// <summary>Explication d'un message interne sans authentification (vide si ce n'est pas le cas).</summary>
+        public static string InternalNote(AnalysisResult r)
+        {
+            if (r == null || !r.Internal || r.Details == null || !r.Details.Auth.Empty) return "";
+            return r.InternalHow == "relay"
+                ? L.T("Envoyé par un équipement interne déclaré par votre service informatique (copieur, application) : ces équipements n’authentifient pas leurs messages, c’est normal.")
+                : L.T("Message interne : il n’est pas passé par Internet, il n’y a donc ni SPF, ni DKIM, ni DMARC à vérifier. C’est votre serveur Exchange qui a authentifié l’expéditeur.");
+        }
+
         /// <summary>Résultat DMARC à afficher : celui du serveur, sinon « pass » s'il est déduit de l'alignement.</summary>
         public string DmarcShown { get { return !string.IsNullOrEmpty(Dmarc) ? Dmarc : DmarcDerived != null ? "pass" : null; } }
 

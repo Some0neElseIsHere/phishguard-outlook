@@ -53,6 +53,7 @@ namespace PhishGuard
             public PhishGuardConfig Config;
             public DomainContext Domains;
             public bool Internal;
+            public string InternalHow = "";   // exchange (authentifié par Exchange) ou relay (équipement interne déclaré)
             public bool IsFreemail;
             public bool IsCompany;
             public string FromOrg = "";
@@ -161,6 +162,7 @@ namespace PhishGuard
                 Score = score,
                 Level = level,
                 Internal = ctx.Internal,
+                InternalHow = ctx.InternalHow,
                 Findings = findings,
                 Positives = positives.Distinct().ToList(),
                 Urls = urls.Distinct().ToList(),
@@ -329,6 +331,7 @@ namespace PhishGuard
             {
                 positives.Add(L.T("Message interne, authentifié par votre serveur Exchange"));
                 ctx.Internal = true;
+                ctx.InternalHow = "exchange";
                 return;
             }
             // Copieur, application ou serveur interne déclaré, qui envoie au nom de l'entreprise sans s'authentifier
@@ -343,6 +346,7 @@ namespace PhishGuard
                     positives.Add(why);
                     ctx.Trust.Add(why);
                     ctx.Internal = true;
+                    ctx.InternalHow = "relay";
                     return;
                 }
             }
