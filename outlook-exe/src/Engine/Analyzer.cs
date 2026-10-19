@@ -1373,6 +1373,9 @@ namespace PhishGuard
         // Contenu
         // =====================================================================
 
+        static readonly Regex IncomingMoneyRe = new Regex(@"\b(vous avez recu (un|le) (virement|paiement|versement)|virement recu|paiement recu|(a|ont) ete (credites?|verses?|vires?)|(sera|seront) (credites?|verses?|vires?)|est en route|you (have )?received (a )?(payment|transfer)|payment received|has been (credited|deposited|paid out))\b", RegexOptions.Compiled);
+        static readonly Regex PaymentRequestRe = new Regex(@"\b(merci de (regler|payer|proceder|effectuer|confirmer|valider|renseigner)|veuillez (regler|payer|proceder|effectuer|confirmer|valider|renseigner|remplir)|reglez|payez|effectuer (le|un|votre) (paiement|virement|reglement)|frais (de|a)|a regler|coordonnees bancaires|carte bancaire|numero de carte|rib|iban|eligible|formulaire|pour (recevoir|percevoir|obtenir|debloquer)|confirm|verify|update your|fee)\b", RegexOptions.Compiled);
+
         static List<string> MatchRule(string text, Lists.ContentRule rule)
         {
             var hits = new List<string>();
@@ -1465,7 +1468,9 @@ namespace PhishGuard
             if (ctx.IsFreemail && (fin || cred) && !ctx.MailingList)
                 findings.Add(new Finding("content-freemail-request", "content", Severity.Medium, L.T("Demande sensible envoyée depuis une messagerie gratuite"),
                     L.T("Une banque, une administration ou un fournisseur n’écrit pas depuis Gmail, Outlook.com ou Orange."), null));
-            if (ctx.FirstContact && (fin || cred) && !ctx.BrandSender && !ctx.CodeMessage && !ctx.PublicListed)
+            // Avis d'argent reçu (virement reçu, remboursement versé) : une information, pas une demande, tant que rien n'est réclamé
+            bool moneyNotice = fin && !cred && !sec && IncomingMoneyRe.IsMatch(text) && !PaymentRequestRe.IsMatch(text);
+            if (ctx.FirstContact && (fin || cred) && !moneyNotice && !ctx.BrandSender && !ctx.CodeMessage && !ctx.PublicListed)
                 findings.Add(new Finding("content-first-contact-request", "content", Severity.Medium, L.T("Demande sensible dès le premier message"),
                     L.T("Un inconnu qui demande un paiement ou des identifiants dès son premier email : prudence maximale."), null));
 

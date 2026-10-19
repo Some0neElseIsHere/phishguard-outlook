@@ -868,6 +868,17 @@ namespace PhishGuard.Tests
             Check("FortiMail : signature d'un autre domaine, DMARC non déduit", rFmlOther.Details.Auth.DmarcShown == null && Ids(rFmlOther).Contains("auth-dkim-thirdparty"), string.Join(",", Ids(rFmlOther).ToArray()));
             Check("DMARC du serveur prioritaire sur la déduction", Analyzer.Analyze(Base(), cfg).Details.Auth.DmarcNote.Length == 0);
 
+            // ---------- Avis d'argent reçu : information, pas demande ----------
+            Correspondents.Set(new[] { "paul@exemple-pme.fr" }, false);
+            var avis = new EmailData { FromName = "Banque Pro", FromAddress = "no-reply@banque-pro-exemple.fr", Subject = "Virement reçu : 12 400,00 € de CLIENT ALPHA SAS",
+                BodyText = "Bonjour, vous avez reçu un virement de 12 400,00 € de CLIENT ALPHA SAS. Référence : facture F2026-0877.",
+                RawHeaders = PASS.Replace("exemple-pme.fr", "banque-pro-exemple.fr") };
+            Check("virement reçu d'un inconnu : pas « demande sensible »", !Ids(Analyzer.Analyze(avis, cfg)).Contains("content-first-contact-request"), string.Join(",", Ids(Analyzer.Analyze(avis, cfg)).ToArray()));
+            avis.BodyText = "Bonjour, vous avez reçu un remboursement de 245,00 €. Pour le recevoir, confirmez vos coordonnées bancaires.";
+            avis.Subject = "Remboursement : 245,00 €";
+            Check("faux remboursement qui réclame des coordonnées : toujours signalé", Ids(Analyzer.Analyze(avis, cfg)).Contains("content-first-contact-request"), string.Join(",", Ids(Analyzer.Analyze(avis, cfg)).ToArray()));
+            Correspondents.Reset();
+
             // ---------- Message interne : pas de SPF/DKIM/DMARC, c'est normal ----------
             var inner = new EmailData { FromName = "Paul", FromAddress = "paul@acmetech.fr", Subject = "Réunion", BodyText = "Bonjour, réunion à 14 h.",
                 RawHeaders = "Received: from SRV1.acmetech.local (10.0.0.1) by SRV2.acmetech.local (10.0.0.2) with Microsoft SMTP Server; Mon, 19 Oct 2026 10:00:00 +0200\r\nX-MS-Exchange-Organization-AuthAs: Internal\r\nX-MS-Exchange-Organization-AuthSource: SRV1.acmetech.local\r\n" };
