@@ -1,0 +1,45 @@
+Authentication-Results: mx.exemple-pme.fr; spf=pass smtp.mailfrom=mail.lesechos.fr; dkim=pass header.d=lesechos.fr; dmarc=pass header.from=lesechos.fr
+X-Mailinblack-Status: clean
+X-VR-SPAMSTATE: OK
+Received: from mail.mail.lesechos.fr (198.51.100.72) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Les Echos <newsletters@lesechos.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?La_Matinale_=3A_les_PME_face_aux_cyberattaques?=
+Date: Wed, 02 Sep 2026 10:12:00 +0200
+Message-ID: <5ad6f5999ddd37780ef61346c21e4a77@mail.lesechos.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: newsletter-lesechos
+List-Unsubscribe: <https://unsubscribe.lesechos.fr/u?id=5ad6f5999ddd>, <mailto:unsubscribe@mail.lesechos.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_5ad6f5999d"
+
+--=_pg_5ad6f5999d
+Content-Type: multipart/alternative; boundary="alt=_pg_5ad6f5999d"
+
+--alt=_pg_5ad6f5999d
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClJhbsOnb25naWNpZWxzLCBmYXV4IHZpcmVtZW50cywgdXN1cnBhdGlvbiBkJ2lk
+ZW50aXTDqSA6IGxlcyBQTUUgcmVzdGVudCBsYQpjaWJsZSBudW3DqXJvIHVuLgoKw4lnYWxlbWVu
+dCBjZSBtYXRpbiA6IGxlIGNyw6lkaXQgZCdpbXDDtHQgcmVjaGVyY2hlLCBsZXMgdGF1eCBkJ2Vt
+cHJ1bnQsIGxhCmNvbmpvbmN0dXJlLgoKTGlyZSBsJ2FydGljbGUgOiBodHRwczovL2xpbmsubGVz
+ZWNob3MuZnIvYy9hYmMxMjMKClRvdXRlcyBsZXMgYWN0dWFsaXTDqXMgOiBodHRwczovL2xpbmsu
+bGVzZWNob3MuZnIvYy9kZWY0NTYKCkfDqXJlciBtZXMgbmV3c2xldHRlcnMgOiBodHRwczovL2xp
+bmsubGVzZWNob3MuZnIvYy9naGk3ODk=
+--alt=_pg_5ad6f5999d
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5S
+YW7Dp29uZ2ljaWVscywgZmF1eCB2aXJlbWVudHMsIHVzdXJwYXRpb24gZCdpZGVudGl0w6kgOiBs
+ZXMgUE1FIHJlc3RlbnQgbGEgY2libGUgbnVtw6lybyB1bi48L3A+PHA+w4lnYWxlbWVudCBjZSBt
+YXRpbiA6IGxlIGNyw6lkaXQgZCdpbXDDtHQgcmVjaGVyY2hlLCBsZXMgdGF1eCBkJ2VtcHJ1bnQs
+IGxhIGNvbmpvbmN0dXJlLjwvcD48cD48YSBocmVmPSJodHRwczovL2xpbmsubGVzZWNob3MuZnIv
+Yy9hYmMxMjMiPkxpcmUgbCdhcnRpY2xlPC9hPjwvcD48cD48YSBocmVmPSJodHRwczovL2xpbmsu
+bGVzZWNob3MuZnIvYy9kZWY0NTYiPlRvdXRlcyBsZXMgYWN0dWFsaXTDqXM8L2E+PC9wPjxwPjxh
+IGhyZWY9Imh0dHBzOi8vbGluay5sZXNlY2hvcy5mci9jL2doaTc4OSI+R8OpcmVyIG1lcyBuZXdz
+bGV0dGVyczwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_5ad6f5999d--
+--=_pg_5ad6f5999d--

@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.9) smtp.mailfrom=bounce.qonto.com; dkim=pass (signature was verified) header.d=qonto.com;dmarc=pass action=none header.from=qonto.com;compauth=pass reason=100
+Received: from mail.bounce.qonto.com (198.51.100.9) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Qonto <no-reply@qonto.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?3_justificatifs_manquants?=
+Date: Wed, 16 Sep 2026 12:46:00 +0200
+Message-ID: <c919fb2744b80642d4e3ca0320be8f05@bounce.qonto.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: qonto-justificatif
+List-Unsubscribe: <https://unsubscribe.qonto.com/u?id=c919fb2744b8>, <mailto:unsubscribe@bounce.qonto.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_c919fb2744"
+
+--=_pg_c919fb2744
+Content-Type: multipart/alternative; boundary="alt=_pg_c919fb2744"
+
+--alt=_pg_c919fb2744
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgozIHRyYW5zYWN0aW9ucyBkZSBzZXB0ZW1icmUgbidvbnQgcGFzIGVu
+Y29yZSBkZSBqdXN0aWZpY2F0aWYuCgpBam91dGV6LWxlcyBkZXB1aXMgbCdhcHBsaWNhdGlvbiBw
+b3VyIGZhY2lsaXRlciBsYSBjbMO0dHVyZSBhdmVjIHZvdHJlCmV4cGVydC1jb21wdGFibGUuCgpB
+am91dGVyIGxlcyBqdXN0aWZpY2F0aWZzIDogaHR0cHM6Ly9hcHAucW9udG8uY29tL3RyYW5zYWN0
+aW9ucz9hdHRhY2htZW50cz1taXNzaW5n
+--alt=_pg_c919fb2744
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+MyB0cmFuc2FjdGlvbnMgZGUgc2VwdGVtYnJlIG4nb250IHBhcyBlbmNvcmUgZGUganVz
+dGlmaWNhdGlmLjwvcD48cD5Bam91dGV6LWxlcyBkZXB1aXMgbCdhcHBsaWNhdGlvbiBwb3VyIGZh
+Y2lsaXRlciBsYSBjbMO0dHVyZSBhdmVjIHZvdHJlIGV4cGVydC1jb21wdGFibGUuPC9wPjxwPjxh
+IGhyZWY9Imh0dHBzOi8vYXBwLnFvbnRvLmNvbS90cmFuc2FjdGlvbnM/YXR0YWNobWVudHM9bWlz
+c2luZyI+QWpvdXRlciBsZXMganVzdGlmaWNhdGlmczwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_c919fb2744--
+--=_pg_c919fb2744--

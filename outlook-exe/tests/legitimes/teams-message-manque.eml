@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.215) smtp.mailfrom=email.teams.microsoft.com; dkim=pass (signature was verified) header.d=microsoft.com;dmarc=pass action=none header.from=microsoft.com;compauth=pass reason=100
+Received: from mail.email.teams.microsoft.com (198.51.100.35) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Microsoft Teams <noreply@email.teams.microsoft.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Vous_avez_manqu=C3=A9_des_messages_de_Paul_Durand?=
+Date: Tue, 09 Jun 2026 15:26:00 +0200
+Message-ID: <263497878f062705ca6aa36bcf32492f@email.teams.microsoft.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: teams-message-manque
+List-Unsubscribe: <https://unsubscribe.microsoft.com/u?id=263497878f06>, <mailto:unsubscribe@email.teams.microsoft.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_263497878f"
+
+--=_pg_263497878f
+Content-Type: multipart/alternative; boundary="alt=_pg_263497878f"
+
+--alt=_pg_263497878f
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+UGF1bCBEdXJhbmQgdm91cyBhIGVudm95w6kgdW4gbWVzc2FnZSA6IMKrIFR1IHBldXggbWUgcmVu
+dm95ZXIgbGUgZGV2aXMgc2lnbsOpCj8gwrsKClLDqXBvbmRyZSBkYW5zIFRlYW1zIDogaHR0cHM6
+Ly90ZWFtcy5taWNyb3NvZnQuY29tL2wvbWVzc2FnZS8xOTphYmNAdGhyZWFkLnYyLzEyMw==
+--alt=_pg_263497878f
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5QYXVsIER1cmFuZCB2b3Vz
+IGEgZW52b3nDqSB1biBtZXNzYWdlIDogwqsgVHUgcGV1eCBtZSByZW52b3llciBsZSBkZXZpcyBz
+aWduw6kgPyDCuzwvcD48cD48YSBocmVmPSJodHRwczovL3RlYW1zLm1pY3Jvc29mdC5jb20vbC9t
+ZXNzYWdlLzE5OmFiY0B0aHJlYWQudjIvMTIzIj5Sw6lwb25kcmUgZGFucyBUZWFtczwvYT48L3A+
+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_263497878f--
+--=_pg_263497878f--

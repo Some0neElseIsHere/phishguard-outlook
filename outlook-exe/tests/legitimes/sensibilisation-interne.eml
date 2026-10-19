@@ -1,0 +1,39 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.197) smtp.mailfrom=bounce.exemple-pme.fr; dkim=pass (signature was verified) header.d=exemple-pme.fr;dmarc=pass action=none header.from=exemple-pme.fr;compauth=pass reason=100
+Received: from mail.bounce.exemple-pme.fr (198.51.100.152) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Service informatique <informatique@exemple-pme.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Attention_=3A_campagne_de_phishing_en_cours?=
+Date: Fri, 10 Apr 2026 15:15:00 +0200
+Message-ID: <82a8ea151e7b4041e3b162d8ea76c294@bounce.exemple-pme.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: sensibilisation-interne
+X-MS-Exchange-Organization-AuthAs: Internal
+Content-Type: multipart/mixed; boundary="=_pg_82a8ea151e"
+
+--=_pg_82a8ea151e
+Content-Type: multipart/alternative; boundary="alt=_pg_82a8ea151e"
+
+--alt=_pg_82a8ea151e
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciDDoCB0b3VzLAoKUGx1c2lldXJzIGNvbGxhYm9yYXRldXJzIG9udCByZcOndSB1biBm
+YXV4IG1haWwgwqsgVm90cmUgbW90IGRlIHBhc3NlIGV4cGlyZQphdWpvdXJkJ2h1aSDCuyBxdWkg
+ZGVtYW5kZSBkZSBzYWlzaXIgdm9zIGlkZW50aWZpYW50cy4KCk5lIGNsaXF1ZXogcGFzIHN1ciBs
+ZSBsaWVuLCBzdXBwcmltZXogbGUgbWVzc2FnZSBldCBzaWduYWxlei1sZSBhdmVjIGxlCmJvdXRv
+biDCqyBTaWduYWxlciDCuy4gTGUgc2VydmljZSBpbmZvcm1hdGlxdWUgbmUgdm91cyBkZW1hbmRl
+cmEgamFtYWlzIHZvdHJlCm1vdCBkZSBwYXNzZS4=
+--alt=_pg_82a8ea151e
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIMOgIHRvdXMs
+PC9wPjxwPlBsdXNpZXVycyBjb2xsYWJvcmF0ZXVycyBvbnQgcmXDp3UgdW4gZmF1eCBtYWlsIMKr
+IFZvdHJlIG1vdCBkZSBwYXNzZSBleHBpcmUgYXVqb3VyZCdodWkgwrsgcXVpIGRlbWFuZGUgZGUg
+c2Fpc2lyIHZvcyBpZGVudGlmaWFudHMuPC9wPjxwPk5lIGNsaXF1ZXogcGFzIHN1ciBsZSBsaWVu
+LCBzdXBwcmltZXogbGUgbWVzc2FnZSBldCBzaWduYWxlei1sZSBhdmVjIGxlIGJvdXRvbiDCqyBT
+aWduYWxlciDCuy4gTGUgc2VydmljZSBpbmZvcm1hdGlxdWUgbmUgdm91cyBkZW1hbmRlcmEgamFt
+YWlzIHZvdHJlIG1vdCBkZSBwYXNzZS48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_82a8ea151e--
+--=_pg_82a8ea151e--

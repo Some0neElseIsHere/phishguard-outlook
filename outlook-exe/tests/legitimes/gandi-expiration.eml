@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.37) smtp.mailfrom=bounce.gandi.net; dkim=pass (signature was verified) header.d=gandi.net;dmarc=pass action=none header.from=gandi.net;compauth=pass reason=100
+Received: from mail.bounce.gandi.net (198.51.100.113) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Gandi <noreply@gandi.net>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?exemple-pme=2Ecom_expire_dans_7_jours?=
+Date: Tue, 17 Feb 2026 18:59:00 +0200
+Message-ID: <a07c653ed2a7b38ce84fa52762c23d14@bounce.gandi.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: gandi-expiration
+Content-Type: multipart/mixed; boundary="=_pg_a07c653ed2"
+
+--=_pg_a07c653ed2
+Content-Type: multipart/alternative; boundary="alt=_pg_a07c653ed2"
+
+--alt=_pg_a07c653ed2
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkxlIGRvbWFpbmUgZXhlbXBsZS1wbWUuY29tIGV4cGlyZSBsZSAyNi8xMC8yMDI2
+LiBMZSByZW5vdXZlbGxlbWVudAphdXRvbWF0aXF1ZSBuJ2VzdCBwYXMgYWN0aXbDqS4KClJlbm91
+dmVsZXotbGUgZGVwdWlzIHZvdHJlIGludGVyZmFjZSBwb3VyIG5lIHBhcyBwZXJkcmUgdm90cmUg
+c2l0ZSBldCB2b3MKZW1haWxzLgoKUmVub3V2ZWxlciA6IGh0dHBzOi8vYWRtaW4uZ2FuZGkubmV0
+L2RvbWFpbi9leGVtcGxlLXBtZS5jb20vcmVuZXc=
+--alt=_pg_a07c653ed2
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5M
+ZSBkb21haW5lIGV4ZW1wbGUtcG1lLmNvbSBleHBpcmUgbGUgMjYvMTAvMjAyNi4gTGUgcmVub3V2
+ZWxsZW1lbnQgYXV0b21hdGlxdWUgbidlc3QgcGFzIGFjdGl2w6kuPC9wPjxwPlJlbm91dmVsZXot
+bGUgZGVwdWlzIHZvdHJlIGludGVyZmFjZSBwb3VyIG5lIHBhcyBwZXJkcmUgdm90cmUgc2l0ZSBl
+dCB2b3MgZW1haWxzLjwvcD48cD48YSBocmVmPSJodHRwczovL2FkbWluLmdhbmRpLm5ldC9kb21h
+aW4vZXhlbXBsZS1wbWUuY29tL3JlbmV3Ij5SZW5vdXZlbGVyPC9hPjwvcD48L2JvZHk+PC9odG1s
+Pg==
+--alt=_pg_a07c653ed2--
+--=_pg_a07c653ed2--

@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.119) smtp.mailfrom=sharepointonline.com; dkim=pass (signature was verified) header.d=sharepointonline.com;dmarc=pass action=none header.from=sharepointonline.com;compauth=pass reason=100
+Received: from mail.sharepointonline.com (198.51.100.171) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Julie Bernard <no-reply@sharepointonline.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Julie_Bernard_a_partag=C3=A9_=C2=AB_Bon_de_commande_sign=C3=A9=2Ep?=
+ =?utf-8?q?df_=C2=BB_avec_vous?=
+Date: Sat, 24 Jan 2026 12:57:00 +0200
+Message-ID: <fdf4a8b2cd4181227fa2b3af6d70621e@sharepointonline.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: sharepoint-client
+Content-Type: multipart/mixed; boundary="=_pg_fdf4a8b2cd"
+
+--=_pg_fdf4a8b2cd
+Content-Type: multipart/alternative; boundary="alt=_pg_fdf4a8b2cd"
+
+--alt=_pg_fdf4a8b2cd
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+SnVsaWUgQmVybmFyZCAoQ2xpZW50IEFscGhhKSBhIHBhcnRhZ8OpIHVuIGZpY2hpZXIgYXZlYyB2
+b3VzLgoKVm9pY2kgbGUgYm9uIGRlIGNvbW1hbmRlIHNpZ27DqSwgYm9ubmUgcsOpY2VwdGlvbi4K
+Ck91dnJpciA6IGh0dHBzOi8vY2xpZW50YWxwaGEuc2hhcmVwb2ludC5jb20vOmI6L3MvYWNoYXRz
+L0VhQmNENDU2P2U9YWJj
+--alt=_pg_fdf4a8b2cd
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5KdWxpZSBCZXJuYXJkIChD
+bGllbnQgQWxwaGEpIGEgcGFydGFnw6kgdW4gZmljaGllciBhdmVjIHZvdXMuPC9wPjxwPlZvaWNp
+IGxlIGJvbiBkZSBjb21tYW5kZSBzaWduw6ksIGJvbm5lIHLDqWNlcHRpb24uPC9wPjxwPjxhIGhy
+ZWY9Imh0dHBzOi8vY2xpZW50YWxwaGEuc2hhcmVwb2ludC5jb20vOmI6L3MvYWNoYXRzL0VhQmNE
+NDU2P2U9YWJjIj5PdXZyaXI8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_fdf4a8b2cd--
+--=_pg_fdf4a8b2cd--

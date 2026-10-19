@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.134) smtp.mailfrom=bounce.swile.co; dkim=pass (signature was verified) header.d=swile.co;dmarc=pass action=none header.from=swile.co;compauth=pass reason=100
+Received: from mail.bounce.swile.co (198.51.100.95) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Swile <hello@swile.co>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_carte_Swile_a_=C3=A9t=C3=A9_recharg=C3=A9e?=
+Date: Mon, 23 Feb 2026 20:16:00 +0200
+Message-ID: <af0cffc843fc8d101cc6cb0c4dccbcc7@bounce.swile.co>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: swile-recharge
+List-Unsubscribe: <https://unsubscribe.swile.co/u?id=af0cffc843fc>, <mailto:unsubscribe@bounce.swile.co>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_af0cffc843"
+
+--=_pg_af0cffc843
+Content-Type: multipart/alternative; boundary="alt=_pg_af0cffc843"
+
+--alt=_pg_af0cffc843
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpWb3RyZSBlbXBsb3lldXIgYSBjcsOpZGl0w6kgMTY4LDAwIOKCrCBk
+ZSB0aXRyZXMtcmVzdGF1cmFudCBzdXIgdm90cmUgY2FydGUKU3dpbGUuCgpCb24gYXBww6l0aXQg
+IQoKVm9pciBtb24gc29sZGUgOiBodHRwczovL3RlYW0uc3dpbGUuY28vd2FsbGV0cw==
+--alt=_pg_af0cffc843
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Vm90cmUgZW1wbG95ZXVyIGEgY3LDqWRpdMOpIDE2OCwwMCDigqwgZGUgdGl0cmVzLXJl
+c3RhdXJhbnQgc3VyIHZvdHJlIGNhcnRlIFN3aWxlLjwvcD48cD5Cb24gYXBww6l0aXQgITwvcD48
+cD48YSBocmVmPSJodHRwczovL3RlYW0uc3dpbGUuY28vd2FsbGV0cyI+Vm9pciBtb24gc29sZGU8
+L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_af0cffc843--
+--=_pg_af0cffc843--

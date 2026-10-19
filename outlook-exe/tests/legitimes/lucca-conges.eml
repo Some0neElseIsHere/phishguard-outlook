@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.166) smtp.mailfrom=bounce.ilucca.net; dkim=pass (signature was verified) header.d=ilucca.net;dmarc=pass action=none header.from=ilucca.net;compauth=pass reason=100
+Received: from mail.bounce.ilucca.net (198.51.100.223) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Lucca <notifications@ilucca.net>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Demande_d=27absence_de_Paul_Durand_=C3=A0_valider?=
+Date: Sun, 25 Jan 2026 15:19:00 +0200
+Message-ID: <af1ddb5c7a105682577fcffb5e71aa6f@bounce.ilucca.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: lucca-conges
+Content-Type: multipart/mixed; boundary="=_pg_af1ddb5c7a"
+
+--=_pg_af1ddb5c7a
+Content-Type: multipart/alternative; boundary="alt=_pg_af1ddb5c7a"
+
+--alt=_pg_af1ddb5c7a
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpQYXVsIER1cmFuZCBhIHBvc8OpIHVuZSBkZW1hbmRlIGRlIGNvbmfD
+qXMgcGF5w6lzIGR1IDIyLzEyLzIwMjYgYXUgMDIvMDEvMjAyNwooOCBqb3VycykuCgpNZXJjaSBk
+ZSBsYSB2YWxpZGVyIG91IGRlIGxhIHJlZnVzZXIuCgpWYWxpZGVyIG91IHJlZnVzZXIgOiBodHRw
+czovL2V4ZW1wbGUtcG1lLmlsdWNjYS5uZXQvdGltbWkvYWJzZW5jZXMvYXBwcm92YWxz
+--alt=_pg_af1ddb5c7a
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+UGF1bCBEdXJhbmQgYSBwb3PDqSB1bmUgZGVtYW5kZSBkZSBjb25nw6lzIHBhecOpcyBk
+dSAyMi8xMi8yMDI2IGF1IDAyLzAxLzIwMjcgKDggam91cnMpLjwvcD48cD5NZXJjaSBkZSBsYSB2
+YWxpZGVyIG91IGRlIGxhIHJlZnVzZXIuPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vZXhlbXBsZS1w
+bWUuaWx1Y2NhLm5ldC90aW1taS9hYnNlbmNlcy9hcHByb3ZhbHMiPlZhbGlkZXIgb3UgcmVmdXNl
+cjwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_af1ddb5c7a--
+--=_pg_af1ddb5c7a--

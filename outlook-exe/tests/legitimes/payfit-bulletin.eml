@@ -1,0 +1,42 @@
+Authentication-Results: fml01.exemple-pme.fr;
+	spf=pass (exemple-pme.fr: domain of bounce-1378@mail.payfit.com designates 198.51.100.54 as permitted sender) smtp.mailfrom=bounce-9654@mail.payfit.com;
+	dkim=pass header.i=@payfit.com;
+X-FEAS-DKIM: Valid
+X-FE-Policy-ID: 0:1:2:exemple-pme.fr
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-MS-Exchange-Organization-AuthSource: SRV-EXCH02.exemple-pme.local
+Received: from mail.bounce.payfit.com (198.51.100.236) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: PayFit <noreply@payfit.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_bulletin_de_paie_d=27octobre_est_disponible?=
+Date: Fri, 05 Jun 2026 18:34:00 +0200
+Message-ID: <1158669bdb48a9af42d08f16391f74c7@bounce.payfit.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: payfit-bulletin
+Content-Type: multipart/mixed; boundary="=_pg_1158669bdb"
+
+--=_pg_1158669bdb
+Content-Type: multipart/alternative; boundary="alt=_pg_1158669bdb"
+
+--alt=_pg_1158669bdb
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpWb3RyZSBidWxsZXRpbiBkZSBwYWllIGR1IG1vaXMgZCdvY3RvYnJl
+IDIwMjYgZXN0IGRpc3BvbmlibGUgZGFucyB2b3RyZQplc3BhY2UgUGF5Rml0LgoKUG91ciBkZXMg
+cmFpc29ucyBkZSBjb25maWRlbnRpYWxpdMOpLCBpbCBuJ2VzdCBwYXMgam9pbnQgw6AgY2UgbWVz
+c2FnZS4KClZvaXIgbW9uIGJ1bGxldGluIDogaHR0cHM6Ly9hcHAucGF5Zml0LmNvbS9wYXlzbGlw
+cw==
+--alt=_pg_1158669bdb
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Vm90cmUgYnVsbGV0aW4gZGUgcGFpZSBkdSBtb2lzIGQnb2N0b2JyZSAyMDI2IGVzdCBk
+aXNwb25pYmxlIGRhbnMgdm90cmUgZXNwYWNlIFBheUZpdC48L3A+PHA+UG91ciBkZXMgcmFpc29u
+cyBkZSBjb25maWRlbnRpYWxpdMOpLCBpbCBuJ2VzdCBwYXMgam9pbnQgw6AgY2UgbWVzc2FnZS48
+L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9hcHAucGF5Zml0LmNvbS9wYXlzbGlwcyI+Vm9pciBtb24g
+YnVsbGV0aW48L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_1158669bdb--
+--=_pg_1158669bdb--

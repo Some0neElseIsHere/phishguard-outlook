@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.226) smtp.mailfrom=bounce.adobesign.com; dkim=pass (signature was verified) header.d=adobesign.com;dmarc=pass action=none header.from=adobesign.com;compauth=pass reason=100
+Received: from mail.bounce.adobesign.com (198.51.100.130) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Groupe Horizon via Adobe Acrobat Sign <adobesign@adobesign.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Contrat_cadre_2027_=E2=80=93_signature_requise?=
+Date: Mon, 14 Sep 2026 20:58:00 +0200
+Message-ID: <b2f52b1cdda91a3b7e102931e22abaa9@bounce.adobesign.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: adobe-sign
+Reply-To: achats@groupe-horizon.fr
+Content-Type: multipart/mixed; boundary="=_pg_b2f52b1cdd"
+
+--=_pg_b2f52b1cdd
+Content-Type: multipart/alternative; boundary="alt=_pg_b2f52b1cdd"
+
+--alt=_pg_b2f52b1cdd
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+R3JvdXBlIEhvcml6b24gdm91cyBkZW1hbmRlIGRlIHNpZ25lciDCqyBDb250cmF0IGNhZHJlIDIw
+MjcgwrsuCgpDbGlxdWV6IGNpLWRlc3NvdXMgcG91ciBjb25zdWx0ZXIgZXQgc2lnbmVyIGxlIGRv
+Y3VtZW50LgoKQ29uc3VsdGVyIGV0IHNpZ25lciA6IGh0dHBzOi8vc2VjdXJlLmV1MS5hZG9iZXNp
+Z24uY29tL3B1YmxpYy9hcGllc2lnbj9waWQ9Q0JGQ0lCQUEzQUFBQkxibHFaaEE=
+--alt=_pg_b2f52b1cdd
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Hcm91cGUgSG9yaXpvbiB2
+b3VzIGRlbWFuZGUgZGUgc2lnbmVyIMKrIENvbnRyYXQgY2FkcmUgMjAyNyDCuy48L3A+PHA+Q2xp
+cXVleiBjaS1kZXNzb3VzIHBvdXIgY29uc3VsdGVyIGV0IHNpZ25lciBsZSBkb2N1bWVudC48L3A+
+PHA+PGEgaHJlZj0iaHR0cHM6Ly9zZWN1cmUuZXUxLmFkb2Jlc2lnbi5jb20vcHVibGljL2FwaWVz
+aWduP3BpZD1DQkZDSUJBQTNBQUFCTGJscVpoQSI+Q29uc3VsdGVyIGV0IHNpZ25lcjwvYT48L3A+
+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_b2f52b1cdd--
+--=_pg_b2f52b1cdd--

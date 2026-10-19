@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.29) smtp.mailfrom=bounce.linkedin.com; dkim=pass (signature was verified) header.d=linkedin.com;dmarc=pass action=none header.from=linkedin.com;compauth=pass reason=100
+Received: from mail.bounce.linkedin.com (198.51.100.228) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: LinkedIn <messages-noreply@linkedin.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Jean_Petit_vous_a_envoy=C3=A9_un_message?=
+Date: Wed, 16 Sep 2026 19:49:00 +0200
+Message-ID: <cbf9a9711dafbf62f21771cee2801b27@bounce.linkedin.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: linkedin-message
+List-Unsubscribe: <https://unsubscribe.linkedin.com/u?id=cbf9a9711daf>, <mailto:unsubscribe@bounce.linkedin.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_cbf9a9711d"
+
+--=_pg_cbf9a9711d
+Content-Type: multipart/alternative; boundary="alt=_pg_cbf9a9711d"
+
+--alt=_pg_cbf9a9711d
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+SmVhbiBQZXRpdCwgUmVzcG9uc2FibGUgYWNoYXRzIGNoZXogR3JvdXBlIEhvcml6b24gOgoKwqsg
+Qm9uam91ciBDbGFpcmUsIHN1aXRlIGF1IHNhbG9uLCBwb3V2b25zLW5vdXMgw6ljaGFuZ2VyIHN1
+ciB2b3RyZSBvZmZyZSBkZQptYWludGVuYW5jZSA/IMK7CgpSw6lwb25kcmUgOiBodHRwczovL3d3
+dy5saW5rZWRpbi5jb20vY29tbS9tZXNzYWdpbmcvdGhyZWFkLzItYWJj
+--alt=_pg_cbf9a9711d
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5KZWFuIFBldGl0LCBSZXNw
+b25zYWJsZSBhY2hhdHMgY2hleiBHcm91cGUgSG9yaXpvbiA6PC9wPjxwPsKrIEJvbmpvdXIgQ2xh
+aXJlLCBzdWl0ZSBhdSBzYWxvbiwgcG91dm9ucy1ub3VzIMOpY2hhbmdlciBzdXIgdm90cmUgb2Zm
+cmUgZGUgbWFpbnRlbmFuY2UgPyDCuzwvcD48cD48YSBocmVmPSJodHRwczovL3d3dy5saW5rZWRp
+bi5jb20vY29tbS9tZXNzYWdpbmcvdGhyZWFkLzItYWJjIj5Sw6lwb25kcmU8L2E+PC9wPjwvYm9k
+eT48L2h0bWw+
+--alt=_pg_cbf9a9711d--
+--=_pg_cbf9a9711d--

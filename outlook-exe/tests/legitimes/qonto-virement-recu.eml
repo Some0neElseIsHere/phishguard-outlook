@@ -1,0 +1,40 @@
+Authentication-Results: fml01.exemple-pme.fr;
+	spf=pass (exemple-pme.fr: domain of bounce-4197@mail.qonto.com designates 198.51.100.208 as permitted sender) smtp.mailfrom=bounce-4922@mail.qonto.com;
+	dkim=pass header.i=@qonto.com;
+X-FEAS-DKIM: Valid
+X-FE-Policy-ID: 0:1:2:exemple-pme.fr
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-MS-Exchange-Organization-AuthSource: SRV-EXCH02.exemple-pme.local
+Received: from mail.bounce.qonto.com (198.51.100.53) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Qonto <no-reply@qonto.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Virement_re=C3=A7u_=3A_12_400=2C00_=E2=82=AC_de_CLIENT_ALPHA_SAS?=
+Date: Fri, 24 Jul 2026 19:14:00 +0200
+Message-ID: <9b57ef0a3545c85663a94dd79160ef64@bounce.qonto.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: qonto-virement-recu
+Content-Type: multipart/mixed; boundary="=_pg_9b57ef0a35"
+
+--=_pg_9b57ef0a35
+Content-Type: multipart/alternative; boundary="alt=_pg_9b57ef0a35"
+
+--alt=_pg_9b57ef0a35
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpWb3VzIGF2ZXogcmXDp3UgdW4gdmlyZW1lbnQgZGUgMTIgNDAwLDAw
+IOKCrCBkZSBDTElFTlQgQUxQSEEgU0FTLgoKUsOpZsOpcmVuY2UgOiBGQUNUVVJFIEYyMDI2LTA4
+NzcuCgpWb2lyIGxhIHRyYW5zYWN0aW9uIDogaHR0cHM6Ly9hcHAucW9udG8uY29tL3RyYW5zYWN0
+aW9ucw==
+--alt=_pg_9b57ef0a35
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Vm91cyBhdmV6IHJlw6d1IHVuIHZpcmVtZW50IGRlIDEyIDQwMCwwMCDigqwgZGUgQ0xJ
+RU5UIEFMUEhBIFNBUy48L3A+PHA+UsOpZsOpcmVuY2UgOiBGQUNUVVJFIEYyMDI2LTA4NzcuPC9w
+PjxwPjxhIGhyZWY9Imh0dHBzOi8vYXBwLnFvbnRvLmNvbS90cmFuc2FjdGlvbnMiPlZvaXIgbGEg
+dHJhbnNhY3Rpb248L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_9b57ef0a35--
+--=_pg_9b57ef0a35--

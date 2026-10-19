@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.187) smtp.mailfrom=bounce.vinci-autoroutes.com; dkim=pass (signature was verified) header.d=vinci-autoroutes.com;dmarc=pass action=none header.from=vinci-autoroutes.com;compauth=pass reason=100
+Received: from mail.bounce.vinci-autoroutes.com (198.51.100.32) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Ulys by VINCI Autoroutes <ne-pas-repondre@ulys.vinci-autoroutes.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_facture_de_t=C3=A9l=C3=A9p=C3=A9age_est_disponible?=
+Date: Thu, 05 Mar 2026 14:39:00 +0200
+Message-ID: <a77861491ba0c93c68fa84173b060536@bounce.vinci-autoroutes.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: ulys-facture
+List-Unsubscribe: <https://unsubscribe.vinci-autoroutes.com/u?id=a77861491ba0>, <mailto:unsubscribe@bounce.vinci-autoroutes.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_a77861491b"
+
+--=_pg_a77861491b
+Content-Type: multipart/alternative; boundary="alt=_pg_a77861491b"
+
+--alt=_pg_a77861491b
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGZhY3R1cmUgZCdvY3RvYnJlICg0OCwzMCDigqwgVFRDKSBlc3QgZGlz
+cG9uaWJsZSBkYW5zIHZvdHJlIGVzcGFjZQpjbGllbnQuCgpFbGxlIHNlcmEgcHLDqWxldsOpZSBs
+ZSAxMCBkdSBtb2lzIHByb2NoYWluLgoKVm9pciBtYSBmYWN0dXJlIDogaHR0cHM6Ly93d3cudWx5
+cy52aW5jaS1hdXRvcm91dGVzLmNvbS9lc3BhY2UtY2xpZW50L2ZhY3R1cmVz
+--alt=_pg_a77861491b
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBmYWN0dXJlIGQnb2N0b2JyZSAoNDgsMzAg4oKsIFRUQykgZXN0IGRpc3BvbmlibGUgZGFu
+cyB2b3RyZSBlc3BhY2UgY2xpZW50LjwvcD48cD5FbGxlIHNlcmEgcHLDqWxldsOpZSBsZSAxMCBk
+dSBtb2lzIHByb2NoYWluLjwvcD48cD48YSBocmVmPSJodHRwczovL3d3dy51bHlzLnZpbmNpLWF1
+dG9yb3V0ZXMuY29tL2VzcGFjZS1jbGllbnQvZmFjdHVyZXMiPlZvaXIgbWEgZmFjdHVyZTwvYT48
+L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_a77861491b--
+--=_pg_a77861491b--

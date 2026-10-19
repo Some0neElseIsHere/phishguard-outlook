@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.103) smtp.mailfrom=bounce.urssaf.fr; dkim=pass (signature was verified) header.d=urssaf.fr;dmarc=pass action=none header.from=urssaf.fr;compauth=pass reason=100
+Received: from mail.bounce.urssaf.fr (198.51.100.120) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Urssaf <ne-pas-repondre@urssaf.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_attestation_de_vigilance_est_disponible?=
+Date: Wed, 03 Jun 2026 19:46:00 +0200
+Message-ID: <3f478642a2c6da60c01a55750bd9dab3@bounce.urssaf.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: urssaf-vigilance
+Content-Type: multipart/mixed; boundary="=_pg_3f478642a2"
+
+--=_pg_3f478642a2
+Content-Type: multipart/alternative; boundary="alt=_pg_3f478642a2"
+
+--alt=_pg_3f478642a2
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGF0dGVzdGF0aW9uIGRlIHZpZ2lsYW5jZSBlc3QgZGlzcG9uaWJsZSBk
+YW5zIHZvdHJlIGVzcGFjZSBlbiBsaWduZS4KCkVsbGUgcGV1dCDDqnRyZSBkZW1hbmTDqWUgcGFy
+IHZvcyBkb25uZXVycyBkJ29yZHJlIHBvdXIgdG91dCBjb250cmF0IGRlIDUgMDAwCuKCrCBIVCBv
+dSBwbHVzLgoKTW9uIGVzcGFjZSA6IGh0dHBzOi8vd3d3LnVyc3NhZi5mci9hY2N1ZWlsL2VzcGFj
+ZS1lbXBsb3lldXIuaHRtbA==
+--alt=_pg_3f478642a2
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBhdHRlc3RhdGlvbiBkZSB2aWdpbGFuY2UgZXN0IGRpc3BvbmlibGUgZGFucyB2b3RyZSBl
+c3BhY2UgZW4gbGlnbmUuPC9wPjxwPkVsbGUgcGV1dCDDqnRyZSBkZW1hbmTDqWUgcGFyIHZvcyBk
+b25uZXVycyBkJ29yZHJlIHBvdXIgdG91dCBjb250cmF0IGRlIDUgMDAwIOKCrCBIVCBvdSBwbHVz
+LjwvcD48cD48YSBocmVmPSJodHRwczovL3d3dy51cnNzYWYuZnIvYWNjdWVpbC9lc3BhY2UtZW1w
+bG95ZXVyLmh0bWwiPk1vbiBlc3BhY2U8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_3f478642a2--
+--=_pg_3f478642a2--

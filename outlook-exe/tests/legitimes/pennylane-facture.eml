@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.179) smtp.mailfrom=bounce.pennylane.com; dkim=pass (signature was verified) header.d=pennylane.com;dmarc=pass action=none header.from=pennylane.com;compauth=pass reason=100
+Received: from mail.bounce.pennylane.com (198.51.100.156) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Pennylane <no-reply@pennylane.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Nouvelle_facture_fournisseur_=C3=A0_valider?=
+Date: Sat, 16 May 2026 11:12:00 +0200
+Message-ID: <ad81944527a22c8a389fc149a0294d16@bounce.pennylane.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: pennylane-facture
+Content-Type: multipart/mixed; boundary="=_pg_ad81944527"
+
+--=_pg_ad81944527
+Content-Type: multipart/alternative; boundary="alt=_pg_ad81944527"
+
+--alt=_pg_ad81944527
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClVuZSBub3V2ZWxsZSBmYWN0dXJlIGRlIEJVUkVBVVRJUVVFIFBSTyAoMSAyODQs
+MDAg4oKsIFRUQywgw6ljaMOpYW5jZQozMC8xMC8yMDI2KSBhIMOpdMOpIHJlw6d1ZS4KClZhbGlk
+ZXotbGEgcG91ciBsYSBtZXR0cmUgZW4gcGFpZW1lbnQuCgpWYWxpZGVyIGxhIGZhY3R1cmUgOiBo
+dHRwczovL2FwcC5wZW5ueWxhbmUuY29tL2NvbXBhbmllcy8xMjM0NTYvc3VwcGxpZXJfaW52b2lj
+ZXM=
+--alt=_pg_ad81944527
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5V
+bmUgbm91dmVsbGUgZmFjdHVyZSBkZSBCVVJFQVVUSVFVRSBQUk8gKDEgMjg0LDAwIOKCrCBUVEMs
+IMOpY2jDqWFuY2UgMzAvMTAvMjAyNikgYSDDqXTDqSByZcOndWUuPC9wPjxwPlZhbGlkZXotbGEg
+cG91ciBsYSBtZXR0cmUgZW4gcGFpZW1lbnQuPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vYXBwLnBl
+bm55bGFuZS5jb20vY29tcGFuaWVzLzEyMzQ1Ni9zdXBwbGllcl9pbnZvaWNlcyI+VmFsaWRlciBs
+YSBmYWN0dXJlPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_ad81944527--
+--=_pg_ad81944527--

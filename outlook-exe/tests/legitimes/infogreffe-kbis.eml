@@ -1,0 +1,41 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.158) smtp.mailfrom=bounce.infogreffe.fr; dkim=pass (signature was verified) header.d=infogreffe.fr;dmarc=pass action=none header.from=infogreffe.fr;compauth=pass reason=100
+Received: from mail.bounce.infogreffe.fr (198.51.100.213) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Infogreffe <commande@infogreffe.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_extrait_Kbis?=
+Date: Wed, 26 Aug 2026 17:09:00 +0200
+Message-ID: <dec7444fd2ab3c447246ed2534d98476@bounce.infogreffe.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: infogreffe-kbis
+Content-Type: multipart/mixed; boundary="=_pg_dec7444fd2"
+
+--=_pg_dec7444fd2
+Content-Type: multipart/alternative; boundary="alt=_pg_dec7444fd2"
+
+--alt=_pg_dec7444fd2
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZldWlsbGV6IHRyb3V2ZXIgY2ktam9pbnQgbCdleHRyYWl0IEtiaXMgZGUgbGEg
+c29jacOpdMOpIEVYRU1QTEUgUE1FIGNvbW1hbmTDqQpsZSAxNC8xMC8yMDI2LgoKSWwgZXN0IMOp
+Z2FsZW1lbnQgZGlzcG9uaWJsZSBkYW5zIHZvdHJlIGVzcGFjZSBwZW5kYW50IDMgbW9pcy4=
+--alt=_pg_dec7444fd2
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+ZXVpbGxleiB0cm91dmVyIGNpLWpvaW50IGwnZXh0cmFpdCBLYmlzIGRlIGxhIHNvY2nDqXTDqSBF
+WEVNUExFIFBNRSBjb21tYW5kw6kgbGUgMTQvMTAvMjAyNi48L3A+PHA+SWwgZXN0IMOpZ2FsZW1l
+bnQgZGlzcG9uaWJsZSBkYW5zIHZvdHJlIGVzcGFjZSBwZW5kYW50IDMgbW9pcy48L3A+PC9ib2R5
+PjwvaHRtbD4=
+--alt=_pg_dec7444fd2--
+--=_pg_dec7444fd2
+Content-Type: application/pdf; name="Kbis_EXEMPLE_PME.pdf"
+Content-Disposition: attachment; filename="Kbis_EXEMPLE_PME.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBv
+Ymo8PC9UeXBlL1BhZ2VzL0tpZHNbXS9Db3VudCAwPj5lbmRvYmoKdHJhaWxlcjw8L1Jvb3QgMSAw
+IFI+PgolJUVPRgo=
+--=_pg_dec7444fd2--

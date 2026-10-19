@@ -1,0 +1,41 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.158) smtp.mailfrom=bounce.groupe-horizon.fr; dkim=pass (signature was verified) header.d=groupe-horizon.fr;dmarc=pass action=none header.from=groupe-horizon.fr;compauth=pass reason=100
+Received: from mail.bounce.groupe-horizon.fr (198.51.100.217) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Achats Groupe Horizon <no-reply-achats@groupe-horizon.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Bon_de_commande_4500123456?=
+Date: Thu, 16 Apr 2026 16:57:00 +0200
+Message-ID: <0bae36d8a6d280cdc601a59d4877f53e@bounce.groupe-horizon.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: bon-de-commande
+Content-Type: multipart/mixed; boundary="=_pg_0bae36d8a6"
+
+--=_pg_0bae36d8a6
+Content-Type: multipart/alternative; boundary="alt=_pg_0bae36d8a6"
+
+--alt=_pg_0bae36d8a6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZldWlsbGV6IHRyb3V2ZXIgY2ktam9pbnQgbm90cmUgYm9uIGRlIGNvbW1hbmRl
+IG7CsCA0NTAwMTIzNDU2LgoKTWVyY2kgZGUgcmFwcGVsZXIgY2UgbnVtw6lybyBzdXIgdm90cmUg
+ZmFjdHVyZS4gQ2UgbWVzc2FnZSBlc3QgZW52b3nDqQphdXRvbWF0aXF1ZW1lbnQu
+--alt=_pg_0bae36d8a6
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+ZXVpbGxleiB0cm91dmVyIGNpLWpvaW50IG5vdHJlIGJvbiBkZSBjb21tYW5kZSBuwrAgNDUwMDEy
+MzQ1Ni48L3A+PHA+TWVyY2kgZGUgcmFwcGVsZXIgY2UgbnVtw6lybyBzdXIgdm90cmUgZmFjdHVy
+ZS4gQ2UgbWVzc2FnZSBlc3QgZW52b3nDqSBhdXRvbWF0aXF1ZW1lbnQuPC9wPjwvYm9keT48L2h0
+bWw+
+--alt=_pg_0bae36d8a6--
+--=_pg_0bae36d8a6
+Content-Type: application/pdf; name="BC_4500123456.pdf"
+Content-Disposition: attachment; filename="BC_4500123456.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBv
+Ymo8PC9UeXBlL1BhZ2VzL0tpZHNbXS9Db3VudCAwPj5lbmRvYmoKdHJhaWxlcjw8L1Jvb3QgMSAw
+IFI+PgolJUVPRgo=
+--=_pg_0bae36d8a6--

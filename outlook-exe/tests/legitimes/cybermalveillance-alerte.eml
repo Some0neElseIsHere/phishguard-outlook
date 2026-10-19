@@ -1,0 +1,43 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.142) smtp.mailfrom=cybermalveillance.gouv.fr; dkim=pass (signature was verified) header.d=cybermalveillance.gouv.fr;dmarc=pass action=none header.from=cybermalveillance.gouv.fr;compauth=pass reason=100
+Received: from mail.cybermalveillance.gouv.fr (198.51.100.142) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Cybermalveillance.gouv.fr <newsletter@cybermalveillance.gouv.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Alerte_=3A_faux_mails_de_factures_Chorus_Pro?=
+Date: Sat, 22 Aug 2026 12:09:00 +0200
+Message-ID: <b4f9f38daef331177e099849b4c4c126@cybermalveillance.gouv.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: cybermalveillance-alerte
+List-Unsubscribe: <https://unsubscribe.cybermalveillance.gouv.fr/u?id=b4f9f38daef3>, <mailto:unsubscribe@cybermalveillance.gouv.fr>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_b4f9f38dae"
+
+--=_pg_b4f9f38dae
+Content-Type: multipart/alternative; boundary="alt=_pg_b4f9f38dae"
+
+--alt=_pg_b4f9f38dae
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClVuZSBjYW1wYWduZSBkZSBmYXV4IGNvdXJyaWVscyBpbWl0YW50IENob3J1cyBQ
+cm8gZXN0IGVuIGNvdXJzLiBMZXMgbWVzc2FnZXMKaW52aXRlbnQgw6AgY2xpcXVlciBwb3VyIHLD
+qWdsZXIgdW5lIGZhY3R1cmUgZW4gcmV0YXJkIG91IMOgIHNhaXNpciB2b3MKaWRlbnRpZmlhbnRz
+LgoKTmUgY2xpcXVleiBwYXMsIG5lIGNvbW11bmlxdWV6IGphbWFpcyB2b3RyZSBtb3QgZGUgcGFz
+c2UgZXQgc2lnbmFsZXogbGUKbWVzc2FnZSBzdXIgc2lnbmFsLXNwYW0uZnIuCgpMaXJlIGwnYWxl
+cnRlIDogaHR0cHM6Ly93d3cuY3liZXJtYWx2ZWlsbGFuY2UuZ291di5mci90b3VzLW5vcy1jb250
+ZW51cy9hY3R1YWxpdGVzL2FsZXJ0ZS1jaG9ydXMtcHJv
+--alt=_pg_b4f9f38dae
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5V
+bmUgY2FtcGFnbmUgZGUgZmF1eCBjb3VycmllbHMgaW1pdGFudCBDaG9ydXMgUHJvIGVzdCBlbiBj
+b3Vycy4gTGVzIG1lc3NhZ2VzIGludml0ZW50IMOgIGNsaXF1ZXIgcG91ciByw6lnbGVyIHVuZSBm
+YWN0dXJlIGVuIHJldGFyZCBvdSDDoCBzYWlzaXIgdm9zIGlkZW50aWZpYW50cy48L3A+PHA+TmUg
+Y2xpcXVleiBwYXMsIG5lIGNvbW11bmlxdWV6IGphbWFpcyB2b3RyZSBtb3QgZGUgcGFzc2UgZXQg
+c2lnbmFsZXogbGUgbWVzc2FnZSBzdXIgc2lnbmFsLXNwYW0uZnIuPC9wPjxwPjxhIGhyZWY9Imh0
+dHBzOi8vd3d3LmN5YmVybWFsdmVpbGxhbmNlLmdvdXYuZnIvdG91cy1ub3MtY29udGVudXMvYWN0
+dWFsaXRlcy9hbGVydGUtY2hvcnVzLXBybyI+TGlyZSBsJ2FsZXJ0ZTwvYT48L3A+PC9ib2R5Pjwv
+aHRtbD4=
+--alt=_pg_b4f9f38dae--
+--=_pg_b4f9f38dae--

@@ -1,0 +1,37 @@
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@alan.com header.s=s1 header.b=Ab12Cd34;
+       spf=pass (google.com: domain of bounce@mail.alan.com designates 198.51.100.234 as permitted sender) smtp.mailfrom=bounce@mail.alan.com;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=alan.com
+Received: from mail.bounce.alan.com (198.51.100.138) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Alan <no-reply@alan.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_remboursement_de_45=2C00_=E2=82=AC_est_en_route?=
+Date: Thu, 12 Mar 2026 19:14:00 +0200
+Message-ID: <f9c469e5b3448d596e793189cbe31ed5@bounce.alan.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: alan-remboursement
+Content-Type: multipart/mixed; boundary="=_pg_f9c469e5b3"
+
+--=_pg_f9c469e5b3
+Content-Type: multipart/alternative; boundary="alt=_pg_f9c469e5b3"
+
+--alt=_pg_f9c469e5b3
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpOb3VzIGF2b25zIHRyYWl0w6kgdm90cmUgY29uc3VsdGF0aW9uIGR1
+IDAyLzEwLzIwMjYuIDQ1LDAwIOKCrCBzZXJvbnQgdmVyc8OpcwpzdXIgdm90cmUgY29tcHRlIGJh
+bmNhaXJlIHNvdXMgNDggaC4KClZvaXIgbGUgZMOpdGFpbCA6IGh0dHBzOi8vYWxhbi5jb20vYXBw
+L2Rhc2hib2FyZA==
+--alt=_pg_f9c469e5b3
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Tm91cyBhdm9ucyB0cmFpdMOpIHZvdHJlIGNvbnN1bHRhdGlvbiBkdSAwMi8xMC8yMDI2
+LiA0NSwwMCDigqwgc2Vyb250IHZlcnPDqXMgc3VyIHZvdHJlIGNvbXB0ZSBiYW5jYWlyZSBzb3Vz
+IDQ4IGguPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vYWxhbi5jb20vYXBwL2Rhc2hib2FyZCI+Vm9p
+ciBsZSBkw6l0YWlsPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_f9c469e5b3--
+--=_pg_f9c469e5b3--

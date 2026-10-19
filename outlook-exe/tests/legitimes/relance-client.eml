@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.206) smtp.mailfrom=bounce.client-alpha.fr; dkim=pass (signature was verified) header.d=client-alpha.fr;dmarc=pass action=none header.from=client-alpha.fr;compauth=pass reason=100
+Received: from mail.bounce.client-alpha.fr (198.51.100.166) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Client Alpha <comptabilite@client-alpha.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?RE=3A_Facture_F2026-0877?=
+Date: Fri, 16 Jan 2026 17:22:00 +0200
+Message-ID: <d619eefb2dc73ad859c9887b8be2eca7@bounce.client-alpha.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: relance-client
+X-PhishGuard-Connu: oui
+In-Reply-To: <f2026-0877@exemple-pme.fr>
+References: <f2026-0877@exemple-pme.fr>
+Content-Type: multipart/mixed; boundary="=_pg_d619eefb2d"
+
+--=_pg_d619eefb2d
+Content-Type: multipart/alternative; boundary="alt=_pg_d619eefb2d"
+
+--alt=_pg_d619eefb2d
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkxlIHZpcmVtZW50IGEgw6l0w6kgw6ltaXMgY2UgbWF0aW4sIHZvdXMgZGV2cmll
+eiBsZSByZWNldm9pciBzb3VzIDQ4IGguCgpDb3JkaWFsZW1lbnQsIFNlcnZpY2UgY29tcHRhYmls
+aXTDqQ==
+--alt=_pg_d619eefb2d
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5M
+ZSB2aXJlbWVudCBhIMOpdMOpIMOpbWlzIGNlIG1hdGluLCB2b3VzIGRldnJpZXogbGUgcmVjZXZv
+aXIgc291cyA0OCBoLjwvcD48cD5Db3JkaWFsZW1lbnQsIFNlcnZpY2UgY29tcHRhYmlsaXTDqTwv
+cD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_d619eefb2d--
+--=_pg_d619eefb2d--

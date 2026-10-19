@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.204) smtp.mailfrom=bounce.net-entreprises.fr; dkim=pass (signature was verified) header.d=net-entreprises.fr;dmarc=pass action=none header.from=net-entreprises.fr;compauth=pass reason=100
+Received: from mail.bounce.net-entreprises.fr (198.51.100.164) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: net-entreprises.fr <ne-pas-repondre@net-entreprises.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?DSN_mensuelle_=3A_bilan_de_traitement?=
+Date: Thu, 16 Apr 2026 09:27:00 +0200
+Message-ID: <a665d90a24fc3b1e1da7174c9487a1f2@bounce.net-entreprises.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: net-entreprises-dsn
+Content-Type: multipart/mixed; boundary="=_pg_a665d90a24"
+
+--=_pg_a665d90a24
+Content-Type: multipart/alternative; boundary="alt=_pg_a665d90a24"
+
+--alt=_pg_a665d90a24
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGTDqWNsYXJhdGlvbiBzb2NpYWxlIG5vbWluYXRpdmUgZHUgbW9pcyBk
+ZSBzZXB0ZW1icmUgMjAyNiBhIMOpdMOpCnRyYWl0w6llLiBBdWN1bmUgYW5vbWFsaWUgYmxvcXVh
+bnRlLgoKTGUgYmlsYW4gZXN0IGRpc3BvbmlibGUgZGFucyB2b3RyZSB0YWJsZWF1IGRlIGJvcmQu
+CgpuZXQtZW50cmVwcmlzZXMuZnIgOiBodHRwczovL3d3dy5uZXQtZW50cmVwcmlzZXMuZnIv
+--alt=_pg_a665d90a24
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBkw6ljbGFyYXRpb24gc29jaWFsZSBub21pbmF0aXZlIGR1IG1vaXMgZGUgc2VwdGVtYnJl
+IDIwMjYgYSDDqXTDqSB0cmFpdMOpZS4gQXVjdW5lIGFub21hbGllIGJsb3F1YW50ZS48L3A+PHA+
+TGUgYmlsYW4gZXN0IGRpc3BvbmlibGUgZGFucyB2b3RyZSB0YWJsZWF1IGRlIGJvcmQuPC9wPjxw
+PjxhIGhyZWY9Imh0dHBzOi8vd3d3Lm5ldC1lbnRyZXByaXNlcy5mci8iPm5ldC1lbnRyZXByaXNl
+cy5mcjwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_a665d90a24--
+--=_pg_a665d90a24--
