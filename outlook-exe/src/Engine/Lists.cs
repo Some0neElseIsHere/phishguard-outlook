@@ -57,6 +57,14 @@ namespace PhishGuard
             new Brand("Coinbase", new string[] { "coinbase.com" }, new string[] { "coinbase" }, new string[] { "coinbase" }, false),
             new Brand("Salesforce", new string[] { "salesforce.com", "force.com" }, new string[] { "salesforce" }, new string[] { "salesforce" }, false),
             new Brand("Yousign", new string[] { "yousign.app", "yousign.com", "yousign.fr" }, new string[] { "yousign" }, new string[] { "yousign" }, false),
+            new Brand("Mon Compte Formation (CPF)", new string[] { "moncompteformation.gouv.fr", "caissedesdepots.fr" }, new string[] { "moncompteformation" }, new string[] { "mon compte formation", "moncompteformation", "cpf" }, false),
+            new Brand("VINCI Autoroutes", new string[] { "vinci-autoroutes.com", "vinci.com", "ulys.fr" }, new string[] { "vinci-autoroutes", "vinciautoroutes" }, new string[] { "vinci autoroutes", "ulys" }, false),
+            new Brand("Qonto", new string[] { "qonto.com", "qonto.eu", "qonto.fr" }, new string[] { "qonto" }, new string[] { "qonto" }, false),
+            new Brand("OVHcloud", new string[] { "ovh.com", "ovhcloud.com", "ovh.net", "ovh.fr" }, new string[] { "ovhcloud" }, new string[] { "ovh", "ovhcloud" }, false),
+            new Brand("SNCF", new string[] { "sncf.com", "sncf.fr", "sncf-connect.com", "sncf-voyageurs.com", "sncf-reseau.com", "oui.sncf", "ouigo.com", "transilien.com" }, new string[] { "sncf" }, new string[] { "sncf", "sncf connect", "ouigo" }, false),
+            new Brand("Chorus Pro", new string[] { "chorus-pro.gouv.fr", "aife.economie.gouv.fr", "economie.gouv.fr" }, new string[] { "choruspro", "chorus-pro" }, new string[] { "chorus pro" }, false),
+            new Brand("Urssaf", new string[] { "urssaf.fr", "net-entreprises.fr" }, new string[] { "urssaf" }, new string[] { "urssaf" }, false),
+            new Brand("Crit'Air", new string[] { "certificat-air.gouv.fr" }, new string[] { "critair", "crit-air" }, new string[] { "crit air", "critair" }, false),
             new Brand("Doctolib", new string[] { "doctolib.fr", "doctolib.com", "doctolib.de" }, new string[] { "doctolib" }, new string[] { "doctolib" }, false),
             new Brand("Okta", new string[] { "okta.com", "oktacdn.com" }, new string[] { "okta" }, new string[] {  }, false)
         };
