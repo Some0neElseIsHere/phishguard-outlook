@@ -868,6 +868,14 @@ namespace PhishGuard.Tests
             Check("FortiMail : signature d'un autre domaine, DMARC non déduit", rFmlOther.Details.Auth.DmarcShown == null && Ids(rFmlOther).Contains("auth-dkim-thirdparty"), string.Join(",", Ids(rFmlOther).ToArray()));
             Check("DMARC du serveur prioritaire sur la déduction", Analyzer.Analyze(Base(), cfg).Details.Auth.DmarcNote.Length == 0);
 
+            // ---------- Message interne : pas de SPF/DKIM/DMARC, c'est normal ----------
+            var inner = new EmailData { FromName = "Paul", FromAddress = "paul@acmetech.fr", Subject = "Réunion", BodyText = "Bonjour, réunion à 14 h.",
+                RawHeaders = "Received: from SRV1.acmetech.local (10.0.0.1) by SRV2.acmetech.local (10.0.0.2) with Microsoft SMTP Server; Mon, 19 Oct 2026 10:00:00 +0200\r\nX-MS-Exchange-Organization-AuthAs: Internal\r\nX-MS-Exchange-Organization-AuthSource: SRV1.acmetech.local\r\n" };
+            var rInner = Analyzer.Analyze(inner, cfg);
+            Check("interne : authentification absente expliquée", rInner.Internal && rInner.InternalHow == "exchange" && AuthDetails.InternalNote(rInner).Contains("Exchange"));
+            Check("interne : expliqué aussi dans le rapport", ReportHtml.Build(rInner, inner, "x").Contains("par Internet"));
+            Check("externe : pas d'explication « interne »", AuthDetails.InternalNote(Analyzer.Analyze(Base(), cfg)).Length == 0);
+
             // ---------- Thème clair / sombre ----------
             Check("thème : réglage automatique suit Windows", Theme.Resolve("auto", true) && !Theme.Resolve("auto", false) && Theme.Resolve("dark", false) && !Theme.Resolve("light", true) && !Theme.Resolve(null, false));
             string svLight = SimpleView.Build(r2, e2, true);

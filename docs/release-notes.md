@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.16.2** : messages internes. Au lieu de « SPF absent, DKIM absent, DMARC absent », la fenêtre d'analyse et le rapport de signalement expliquent pourquoi : le message n'est pas passé par Internet, et c'est le serveur Exchange (ou un équipement interne déclaré) qui garantit l'expéditeur.
+
 - **v1.16.1** : passerelles de messagerie qui ne donnent pas de résultat DMARC (FortiMail, par exemple). La signature DKIM est maintenant reconnue quand la passerelle n'indique que `header.i`. Si la signature DKIM ou le SPF est valide et appartient au domaine affiché, DMARC s'affiche « pass », avec la mention « déduit par PhishGuard », au lieu de « absent ». La politique DMARC publiée par le domaine est formulée plus clairement, pour ne plus être confondue avec le résultat du contrôle.
 
 - **v1.16.0** : **thème sombre**. Les fenêtres de PhishGuard (analyse, paramètres, assistant, alerte) suivent le mode clair ou sombre de Windows, y compris quand il change pendant qu'Outlook est ouvert. Le thème peut aussi être choisi dans Paramètres → Analyse → Thème, ou imposé par stratégie (`Theme`). Le rapport envoyé à l'équipe sécurité reste en clair.

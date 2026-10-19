@@ -411,7 +411,10 @@ namespace PhishGuard.AddIn
             sb.Append("<div class='row'><span class='k'>" + H(L.T("De")) + "</span><b>" + H(string.IsNullOrEmpty(e.FromName) ? L.T("(sans nom)") : e.FromName)
                 + "</b> <span class='mono muted'>&lt;" + H(e.FromAddress) + "&gt;</span></div>");
             sb.Append("<div class='row'><span class='k'>" + H(L.T("Objet")) + "</span>" + H(string.IsNullOrEmpty(e.Subject) ? L.T("(sans objet)") : e.Subject) + "</div>");
-            if (d.All.Count > 0)
+            string internalNote = AuthDetails.InternalNote(r);
+            if (internalNote.Length > 0)
+                sb.Append("<div class='row'><span class='k'>" + H(L.T("Authentification")) + "</span><span class='ac ok' title='" + H(internalNote) + "'>" + H(L.T("Interne") + " \u2713") + "</span></div>");
+            else if (d.All.Count > 0)
                 sb.Append("<div class='row'><span class='k'>" + H(L.T("Authentification")) + "</span>" + AuthChip("SPF", d.Auth.Spf) + AuthChip("DKIM", d.Auth.Dkim) + AuthChip("DMARC", d.Auth.DmarcShown, d.Auth.DmarcNote)
                     + (string.IsNullOrEmpty(d.Auth.CompAuth) ? "" : AuthChip("Microsoft", d.Auth.CompAuth)) + "</div>");
             var meta = new List<string>();
@@ -476,6 +479,8 @@ namespace PhishGuard.AddIn
 
                 var a = d.Auth;
                 sb.Append("<h2>" + H(L.T("Authentification")) + "</h2><div class='tw'><table>");
+                if (internalNote.Length > 0) sb.Append(Row(L.T("Message interne"), Badge("pass").Replace(">pass<", ">" + H(L.T("interne")) + "<") + " " + H(internalNote)));
+                else {
                 sb.Append(Row("SPF", Badge(a.Spf) + (string.IsNullOrEmpty(a.SpfMailFrom) ? "" : " &nbsp;" + H(L.T("domaine d’envoi :")) + " <span class='mono'>" + H(a.SpfMailFrom) + "</span>")
                     + (string.IsNullOrEmpty(a.SpfIp) ? "" : " &nbsp;IP : <span class='mono'>" + H(a.SpfIp) + "</span>")));
                 sb.Append(Row("DKIM", Badge(a.Dkim) + (string.IsNullOrEmpty(a.DkimDomain) ? "" : " &nbsp;" + H(L.T("domaine signataire :")) + " <span class='mono'>" + H(a.DkimDomain) + "</span>")
@@ -485,6 +490,7 @@ namespace PhishGuard.AddIn
                 if (!string.IsNullOrEmpty(a.CompAuth))
                     sb.Append(Row("Microsoft compauth", Badge(a.CompAuth) + (string.IsNullOrEmpty(a.CompAuthReason) ? "" : " &nbsp;" + H(L.T("raison")) + " " + H(a.CompAuthReason))));
                 sb.Append(Row(L.T("Source des résultats"), H(string.IsNullOrEmpty(a.Source) ? L.T("aucun en-tête d’authentification") : a.Source)));
+                }
                 sb.Append("</table></div>");
 
                 if (d.FilterHeaders.Count > 0)

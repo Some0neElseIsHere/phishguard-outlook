@@ -78,6 +78,7 @@ namespace PhishGuard
         public string LevelLabel;
         public string Advice;
         public bool Internal;
+        public string InternalHow = "";   // exchange ou relay : pourquoi il n'y a pas d'authentification SPF/DKIM/DMARC
         public List<Finding> Findings = new List<Finding>();
         public List<string> Positives = new List<string>();
         public List<string> LinkDomains = new List<string>();
