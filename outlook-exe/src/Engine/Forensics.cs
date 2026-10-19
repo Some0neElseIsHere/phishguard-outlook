@@ -31,6 +31,22 @@ namespace PhishGuard
         public string Spf, SpfMailFrom, SpfIp;
         public string Dkim, DkimDomain, DkimSelector;
         public string Dmarc, DmarcAction, DmarcFrom;
+        public string DmarcDerived;     // absent des en-têtes mais déduit par PhishGuard : « dkim » ou « spf » (aligné)
+
+        /// <summary>Résultat DMARC à afficher : celui du serveur, sinon « pass » s'il est déduit de l'alignement.</summary>
+        public string DmarcShown { get { return !string.IsNullOrEmpty(Dmarc) ? Dmarc : DmarcDerived != null ? "pass" : null; } }
+
+        /// <summary>Explication quand le résultat DMARC est déduit par PhishGuard (vide sinon).</summary>
+        public string DmarcNote
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Dmarc) || DmarcDerived == null) return "";
+                return DmarcDerived == "dkim"
+                    ? L.T("déduit par PhishGuard : votre serveur n’indique pas de résultat DMARC, mais la signature DKIM valide appartient au domaine affiché")
+                    : L.T("déduit par PhishGuard : votre serveur n’indique pas de résultat DMARC, mais le serveur d’envoi est autorisé (SPF) par le domaine affiché");
+            }
+        }
         public string CompAuth, CompAuthReason;
         public string Source;           // en-tête d'où viennent les résultats
     }
@@ -414,6 +430,32 @@ namespace PhishGuard
         // -----------------------------------------------------------------
         // Authentication-Results complété par ARC-Authentication-Results
         // -----------------------------------------------------------------
+
+        static readonly Regex DkimPassRe = new Regex(@"\bdkim=pass\b((?:(?!\b(?:dkim|spf|dmarc|arc|compauth|bimi)=)[^;])*)", RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// Domaines des signatures DKIM valides : header.d=, sinon header.i=@domaine (FortiMail n'écrit que header.i,
+        /// qui est toujours le domaine signataire ou l'un de ses sous-domaines).
+        /// </summary>
+        public static List<string> DkimPassDomains(string ar)
+        {
+            var list = new List<string>();
+            foreach (Match m in DkimPassRe.Matches(ar ?? ""))
+            {
+                string seg = m.Groups[1].Value;
+                var d = Regex.Match(seg, @"\bheader\.d=([^\s;]+)", RegexOptions.IgnoreCase);
+                string dom = d.Success ? d.Groups[1].Value : null;
+                if (dom == null)
+                {
+                    var i = Regex.Match(seg, @"\bheader\.i=[^@\s;]*@([^\s;]+)", RegexOptions.IgnoreCase);
+                    if (i.Success) dom = i.Groups[1].Value;
+                }
+                if (dom == null) continue;
+                dom = dom.ToLowerInvariant().TrimEnd('.');
+                if (!list.Contains(dom)) list.Add(dom);
+            }
+            return list;
+        }
 
         static string AuthServId(string value, bool arc)
         {

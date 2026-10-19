@@ -144,9 +144,10 @@ namespace PhishGuard
             if (d.All.Count == 0) au.Append(Row(L.T("En-têtes"), H(L.T("Indisponibles (message interne ou envoyé depuis cette boîte)."))));
             else
             {
-                au.Append(Row(L.T("Résultats"), Chip("SPF", a.Spf) + Chip("DKIM", a.Dkim) + Chip("DMARC", a.Dmarc) + (string.IsNullOrEmpty(a.CompAuth) ? "" : Chip("compauth", a.CompAuth + (string.IsNullOrEmpty(a.CompAuthReason) ? "" : " " + a.CompAuthReason)))));
+                au.Append(Row(L.T("Résultats"), Chip("SPF", a.Spf) + Chip("DKIM", a.Dkim) + Chip("DMARC", a.DmarcShown) + (string.IsNullOrEmpty(a.CompAuth) ? "" : Chip("compauth", a.CompAuth + (string.IsNullOrEmpty(a.CompAuthReason) ? "" : " " + a.CompAuthReason)))));
                 if (!string.IsNullOrEmpty(a.SpfMailFrom)) au.Append(Row(L.T("Enveloppe (SPF)"), "<span style='" + Mono + "'>" + H(a.SpfMailFrom) + "</span>"));
                 if (!string.IsNullOrEmpty(a.DkimDomain)) au.Append(Row(L.T("Signature (DKIM)"), "<span style='" + Mono + "'>d=" + H(a.DkimDomain) + (string.IsNullOrEmpty(a.DkimSelector) ? "" : " s=" + H(a.DkimSelector)) + "</span>"));
+                if (a.DmarcNote.Length > 0) au.Append(Row("DMARC", H(a.DmarcNote)));
                 if (!string.IsNullOrEmpty(a.DmarcFrom)) au.Append(Row("DMARC header.from", "<span style='" + Mono + "'>" + H(a.DmarcFrom) + "</span>"));
                 if (d.OriginIp.Length > 0) au.Append(Row(L.T("IP d’origine"), "<span style='" + Mono + "'>" + H(d.OriginIp) + "</span>" + (d.Country.Length > 0 ? " (" + H(d.Country) + ")" : "") + (d.OriginHost.Length > 0 && d.OriginHost != d.OriginIp ? " &middot; " + H(d.OriginHost) : "")));
                 if (d.Hops.Count > 0) au.Append(Row(L.T("Parcours"), H(L.F("{0} serveur(s) : ", d.Hops.Count)) + "<span style='" + Mono + "'>" + H(string.Join(" → ", d.Hops.Select(h => h.FromHost.Length > 0 ? h.FromHost : h.ByHost).Where(x => x.Length > 0).Take(8).ToArray())) + "</span>"));

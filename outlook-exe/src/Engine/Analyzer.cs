@@ -62,6 +62,7 @@ namespace PhishGuard
             public bool AuthOk;          // DMARC valide, ou SPF et DKIM valides
             // Preuves de légitimité (affichées dans la fenêtre d'analyse ; ne masquent jamais un indice Élevé ou Critique)
             public List<string> Trust = new List<string>();
+            public string DmarcDerived;   // DMARC absent des en-têtes, mais SPF ou DKIM aligné : « dkim » ou « spf »
             public bool AuthProof;       // l'expéditeur affiché est authentifié (DMARC, DKIM aligné, compauth 1xx)
             public bool RelationProof;   // relation établie avec vous : correspondant connu, réponse à votre message, expéditeur de confiance
             public bool BulkCompliant;   // envoi en nombre conforme (désabonnement en un clic + DMARC)
@@ -97,6 +98,7 @@ namespace PhishGuard
             AnalyzeContent(e, headers, ctx, findings);
             AnalyzeFilters(e, headers, ctx, findings);
             var details = Forensics.ParseHeaders(e.RawHeaders);
+            details.Auth.DmarcDerived = ctx.DmarcDerived;
             var sources = new List<SourceStatus>();
             AnalyzeIntel(e, ctx, details, findings, positives, urls, linkDomains, sources);
 
@@ -412,15 +414,16 @@ namespace PhishGuard
             ctx.AuthOk = dmarc == "pass" || (spf == "pass" && dkim == "pass" && dmarc != "fail");
 
             // Alignement : la signature DKIM / l'enveloppe SPF appartiennent-elles au domaine affiché ?
-            var dkimPass = new List<string>();
-            foreach (Match m in Regex.Matches(ar, @"\bdkim=pass\b[^;]*?\bheader\.d=([^\s;]+)", RegexOptions.IgnoreCase))
-                dkimPass.Add(m.Groups[1].Value.ToLowerInvariant().TrimEnd('.'));
+            var dkimPass = Forensics.DkimPassDomains(ar);
             bool dkimAligned = fromOrg.Length > 0 && dkimPass.Any(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg);
             string mailFrom = Pick(@"smtp\.mailfrom=([^\s;]+)", ar) ?? "";
             string mailFromDomain = mailFrom.Contains("@") ? PhishGuard.Domains.DomainOfAddress(mailFrom) : mailFrom.TrimEnd('.');
             bool spfAligned = spf == "pass" && fromOrg.Length > 0 && PhishGuard.Domains.RegistrableDomain(mailFromDomain) == fromOrg;
             bool dmarcOk = dmarc == "pass";
             bool compStrong = compauth == "pass" && reason.StartsWith("1");
+            // Passerelle qui vérifie SPF et DKIM sans écrire de résultat DMARC (FortiMail, par exemple) :
+            // DMARC réussit dès que l'un des deux est valide ET aligné sur le domaine affiché (RFC 7489). Affiché, sans changer le score.
+            if (dmarc == null && (dkimAligned || spfAligned)) ctx.DmarcDerived = dkimAligned ? "dkim" : "spf";
 
             if (dkimAligned && dmarc != "fail")
                 ctx.Trust.Add(L.F("Signé (DKIM) par le domaine de l’expéditeur : {0}", dkimPass.First(d => PhishGuard.Domains.RegistrableDomain(d) == fromOrg)));
@@ -1158,7 +1161,7 @@ namespace PhishGuard
                     if (dnsR != null && dnsR.Exists)
                     {
                         if (dnsR.DmarcPolicy == "reject" || dnsR.DmarcPolicy == "quarantine")
-                            ctx.Trust.Add(L.F("Domaine protégé contre l’usurpation (DMARC p={0})", dnsR.DmarcPolicy));
+                            ctx.Trust.Add(L.F("Le domaine demande d’écarter les messages usurpés (politique DMARC publiée : p={0})", dnsR.DmarcPolicy));
                         if (dnsR.Bimi == "vmc" && ctx.AuthProof)
                         {
                             ctx.Trust.Add(L.T("Marque vérifiée : logo BIMI avec certificat VMC/CMC"));
@@ -1593,7 +1596,7 @@ namespace PhishGuard
             var a = d.Auth;
             sb.AppendLine(L.T("Authentification : SPF=") + (a.Spf ?? L.T("absent")) + (a.SpfMailFrom != null ? " (" + a.SpfMailFrom + ")" : "")
                 + " ; DKIM=" + (a.Dkim ?? L.T("absent")) + (a.DkimDomain != null ? " (d=" + a.DkimDomain + (a.DkimSelector != null ? ", s=" + a.DkimSelector : "") + ")" : "")
-                + " ; DMARC=" + (a.Dmarc ?? L.T("absent")) + (a.DmarcFrom != null ? " (" + a.DmarcFrom + ")" : ""));
+                + " ; DMARC=" + (a.DmarcShown ?? L.T("absent")) + (a.DmarcNote.Length > 0 ? " (" + a.DmarcNote + ")" : "") + (a.DmarcFrom != null ? " (" + a.DmarcFrom + ")" : ""));
             sb.AppendLine();
             sb.AppendLine(L.T("--- Indices ---"));
             foreach (var f in r.Findings.Where(x => x.Severity != Severity.Info))
