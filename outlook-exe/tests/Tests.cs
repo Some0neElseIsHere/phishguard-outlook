@@ -853,6 +853,21 @@ namespace PhishGuard.Tests
                 string.Join(" | ", Analyzer.Analyze(mb, cfg).Findings.Select(f => f.Title).ToArray()));
             L.SetLanguage("fr");
 
+            // ---------- Passerelle FortiMail : DKIM en header.i, pas de résultat DMARC ----------
+            const string FML = "Authentication-Results: fml01.acmetech.fr;\r\n\tspf=pass (acmetech.fr: domain of bounce-123@mail01.go.fournisseur-alpha.fr designates 192.0.2.10 as permitted sender) smtp.mailfrom=bounce-123@mail01.go.fournisseur-alpha.fr;\r\n\tdkim=pass header.i=@routeur-emailing.example\r\n\tdkim=pass header.i=@news.fournisseur-alpha.fr;\r\n"
+                + "DKIM-Signature: v=1; a=rsa-sha256; d=news.fournisseur-alpha.fr; s=m1; bh=x; b=y\r\n";
+            Check("FortiMail : domaines DKIM lus dans header.i", string.Join(",", Forensics.DkimPassDomains("x; dkim=pass header.i=@a.example\r\n\tdkim=pass header.i=bob@b.example; dkim=fail header.i=@c.example; dkim=pass header.d=d.example header.i=@sub.d.example").ToArray()) == "a.example,b.example,d.example");
+            var fml = new EmailData { FromName = "Fournisseur Alpha", FromAddress = "news@news.fournisseur-alpha.fr", Subject = "Invitation : réunion partenaires",
+                BodyText = "Bonjour, nous avons le plaisir de vous inviter à notre réunion partenaires.", RawHeaders = FML + "From: Fournisseur Alpha <news@news.fournisseur-alpha.fr>\r\n" };
+            var rFml = Analyzer.Analyze(fml, cfg);
+            Check("FortiMail : DKIM aligné reconnu", rFml.Trust.Any(t => t.Contains("news.fournisseur-alpha.fr")) && !Ids(rFml).Contains("auth-dkim-thirdparty"), string.Join(" | ", rFml.Trust.ToArray()));
+            Check("FortiMail : DMARC déduit (pass, DKIM)", rFml.Details.Auth.Dmarc == null && rFml.Details.Auth.DmarcShown == "pass" && rFml.Details.Auth.DmarcDerived == "dkim" && rFml.Details.Auth.DmarcNote.Length > 0);
+            var fmlOther = new EmailData { FromName = "Fournisseur Alpha", FromAddress = "news@autre-domaine.fr", Subject = "Invitation",
+                BodyText = "Bonjour.", RawHeaders = FML + "From: <news@autre-domaine.fr>\r\n" };
+            var rFmlOther = Analyzer.Analyze(fmlOther, cfg);
+            Check("FortiMail : signature d'un autre domaine, DMARC non déduit", rFmlOther.Details.Auth.DmarcShown == null && Ids(rFmlOther).Contains("auth-dkim-thirdparty"), string.Join(",", Ids(rFmlOther).ToArray()));
+            Check("DMARC du serveur prioritaire sur la déduction", Analyzer.Analyze(Base(), cfg).Details.Auth.DmarcNote.Length == 0);
+
             // ---------- Thème clair / sombre ----------
             Check("thème : réglage automatique suit Windows", Theme.Resolve("auto", true) && !Theme.Resolve("auto", false) && Theme.Resolve("dark", false) && !Theme.Resolve("light", true) && !Theme.Resolve(null, false));
             string svLight = SimpleView.Build(r2, e2, true);
