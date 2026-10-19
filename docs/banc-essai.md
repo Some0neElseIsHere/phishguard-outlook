@@ -12,7 +12,7 @@ Le banc se relance à tout moment depuis l'onglet **Actions** du dépôt (workfl
 | [phishing_pot](https://github.com/rf-peixoto/phishing_pot) | vrais phishings et arnaques capturés par des pièges à spam, 2023 à 2026, en plusieurs langues (adresses des victimes remplacées par `phishing@pot`) | 12 271 |
 | [SPAM Archive](https://untroubled.org/spam) (Bruce Guenter) | spam reçu de juin à octobre 2026, échantillon régulier | 3 000 |
 | Listes de diffusion Apache (10 listes, juin à septembre 2025) | messages légitimes récents avec en-têtes d'authentification modernes : développeurs, utilisateurs (souvent depuis Gmail ou Outlook.com), annonces | 4 459 |
-| Cas difficiles (`outlook-exe/tests/legitimes`) | mails légitimes français qui ressemblent à du phishing : factures, colis, codes de vérification, réinitialisation de mot de passe, partages OneDrive et Google Drive, DocuSign, Yousign, impots.gouv, ameli, newsletters, fournisseurs | 41 |
+| Cas difficiles (`outlook-exe/tests/legitimes`) | mails légitimes français qui ressemblent à du phishing : factures, colis, codes de vérification, réinitialisation de mot de passe, partages OneDrive et Google Drive, DocuSign, Yousign, impots.gouv, ameli, newsletters, fournisseurs ; et la vie courante d'une PME : paie (PayFit, Lucca, Swile, Alan), banque pro (Qonto), comptabilité (Pennylane, expert-comptable, factures et bons de commande), Chorus Pro, net-entreprises, Urssaf, Infogreffe, OVHcloud, Gandi, Teams, SharePoint, Adobe Sign, SNCF, télépéage | 77 |
 | [SpamAssassin public corpus](https://spamassassin.apache.org/old/publiccorpus/) (easy_ham, easy_ham_2, hard_ham) | messages légitimes de 2002 et 2003, dont des newsletters commerciales (hard_ham) | 4 150 |
 
 Les cas difficiles sont fictifs (aucun corpus public ne contient ce genre de mails avec leurs en-têtes), mais construits
@@ -121,6 +121,28 @@ exception partout, et un test passe en revue une série de liens piégés. Les e
 chaque message (mots-clés, noms de marques) ont été remplacées par une recherche directe ou mises en cache : le
 message le plus lent passe de 4,6 s à 0,6 s, et l'ensemble du banc (plus de 25 000 messages) de plus de 30 minutes à 9.
 Le banc impose un délai maximal de 3 secondes à chaque expression régulière : aucun message n'a déclenché ce délai.
+
+## Mails d'entreprise français (v1.16.3)
+
+Aucun corpus public ne contient de vrais mails d'entreprise français avec leurs en-têtes (ils sont personnels) ; les
+listes de diffusion francophones encore actives sont rares, et la plupart n'exportent pas leurs archives. Deux sources
+ont donc servi :
+
+- **Les 421 phishings en français de phishing_pot** (faux Chronopost, CPF, rachat de crédit, mutuelle, VINCI
+  Autoroutes, faux bons d'achat…) : **99,8 % signalés, 84 % en rouge** (83 % avant). Les mots-clés français font
+  leur travail.
+- **32 nouveaux cas difficiles** construits sur le modèle des vrais mails d'une PME, reçus par **différentes passerelles** :
+  Microsoft 365, **FortiMail** (SPF et DKIM sans résultat DMARC, signature notée `header.i`), Google Workspace et un
+  filtre français. Deux fausses alertes trouvées et corrigées : un **avis de virement reçu** (Qonto) et un
+  **remboursement de mutuelle** (Alan) étaient pris pour une « demande sensible dès le premier message ». Un avis
+  d'argent reçu n'est plus une demande, sauf s'il réclame quelque chose (coordonnées bancaires, formulaire, frais…) :
+  le faux remboursement qui demande votre RIB reste signalé.
+- **Marques françaises ajoutées** : Mon Compte Formation (CPF), VINCI Autoroutes, Qonto, OVHcloud, SNCF, Chorus Pro,
+  Urssaf, Crit'Air. Leurs vrais mails obtiennent « Expéditeur vérifié » ; un faux à leur nom envoyé d'un autre domaine
+  est signalé.
+
+Résultat : **77 cas difficiles sur 77 corrects**, 27 avec « Expéditeur vérifié » ; détection des phishings 78,6 %
+(78,4 % avant), fausses alertes inchangées sur les listes Apache (3,0 %).
 
 ## Ce qui reste manqué
 
