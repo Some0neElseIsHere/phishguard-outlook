@@ -1,0 +1,42 @@
+# Temporaire : repère des sources publiques de mails français (comptes uniquement, aucun contenu affiché).
+name: Sondage corpus FR
+on: workflow_dispatch
+jobs:
+  sonde:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sonder
+        shell: bash {0}
+        run: |
+          probe() { n=$(curl -sSL -m 120 -A "phishguard-bench" "$2" -o /tmp/f; echo $?); s=$(stat -c %s /tmp/f 2>/dev/null); t=$(file -b /tmp/f | cut -c1-40); m=$( (zcat -f /tmp/f 2>/dev/null) | grep -c '^From ' ); a=$( (zcat -f /tmp/f 2>/dev/null) | grep -ci '^authentication-results:' ); echo "::notice::$1 curl=$n taille=$s type=$t messages=$m auth=$a"; }
+          probe fedora-trans-fr "https://lists.fedoraproject.org/archives/list/trans-fr@lists.fedoraproject.org/export/trans-fr.mbox.gz?start=2024-01-01&end=2026-10-15"
+          probe opensuse-fr "https://lists.opensuse.org/archives/list/fr@lists.opensuse.org/export/fr.mbox.gz?start=2023-01-01&end=2026-10-15"
+          probe debian-user-french "https://lists.debian.org/debian-user-french/2025/09/mbox"
+          probe debian-l10n-french "https://lists.debian.org/debian-l10n-french/2025/09/mbox"
+          probe osm-talk-fr "https://lists.openstreetmap.org/pipermail/talk-fr/2025-September.txt.gz"
+          probe gnu-index "https://lists.gnu.org/archive/mbox/"
+          curl -sSL -m 60 https://lists.gnu.org/archive/mbox/ | grep -oE 'href="[^"]*(fr|french|franc)[^"]*"' | head -20 | sed 's/^/::notice::gnu /'
+          probe libreoffice-fr "https://listarchives.libreoffice.org/fr/users/"
+          probe mageia-fr "https://ml.mageia.org/l/arc/i18n-fr"
+          probe python-fr-hk "https://mail.python.org/archives/list/python-fr@python.org/export/python-fr.mbox.gz?start=2020-01-01&end=2026-10-15"
+          probe postgresql-fr "https://www.postgresql.org/list/pgsql-fr-generale/mbox/pgsql-fr-generale.202509"
+          probe freebsd-fr "https://lists.freebsd.org/archives/freebsd-questions/2025-September.mbox"
+          # Phishings en français dans phishing_pot
+          git clone -q --depth 1 https://github.com/rf-peixoto/phishing_pot.git pp
+          python3 - <<'PY'
+          import os,re,email
+          from email import policy
+          fr=re.compile(r"\b(vous|votre|nous|compte|colis|livraison|facture|merci|cordialement|bonjour|cliquez|paiement|remboursement|identifiant)\b",re.I)
+          n=tot=0
+          for root,_,fs in os.walk('pp'):
+              for f in fs:
+                  if not f.endswith('.eml'): continue
+                  tot+=1
+                  try:
+                      m=email.message_from_bytes(open(os.path.join(root,f),'rb').read(),policy=policy.default)
+                      b=m.get_body(preferencelist=('plain','html'))
+                      t=(m.get('subject','') or '')+' '+(b.get_content() if b else '')
+                  except Exception: continue
+                  if len(fr.findall(t[:20000]))>=6: n+=1
+          print(f"::notice::phishing_pot en français : {n} sur {tot}")
+          PY
