@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.16.1** : passerelles de messagerie qui ne donnent pas de résultat DMARC (FortiMail, par exemple). La signature DKIM est maintenant reconnue quand la passerelle n'indique que `header.i`. Si la signature DKIM ou le SPF est valide et appartient au domaine affiché, DMARC s'affiche « pass », avec la mention « déduit par PhishGuard », au lieu de « absent ». La politique DMARC publiée par le domaine est formulée plus clairement, pour ne plus être confondue avec le résultat du contrôle.
+
 - **v1.16.0** : **thème sombre**. Les fenêtres de PhishGuard (analyse, paramètres, assistant, alerte) suivent le mode clair ou sombre de Windows, y compris quand il change pendant qu'Outlook est ouvert. Le thème peut aussi être choisi dans Paramètres → Analyse → Thème, ou imposé par stratégie (`Theme`). Le rapport envoyé à l'équipe sécurité reste en clair.
 
 - **v1.15.1** : testé sur 12 271 phishings récents supplémentaires (phishing_pot, 2023-2026) : 78 % détectés, comme sur le premier corpus. **Analyse jusqu'à 7 fois plus rapide** sur les messages chargés en liens, et un lien au nom de serveur invalide ne peut plus faire échouer l'analyse.
