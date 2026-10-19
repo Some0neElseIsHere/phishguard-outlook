@@ -1373,7 +1373,7 @@ namespace PhishGuard
         // Contenu
         // =====================================================================
 
-        static readonly Regex IncomingMoneyRe = new Regex(@"\b(vous avez recu (un|le) (virement|paiement|versement)|virement recu|paiement recu|(a|ont) ete (credites?|verses?|vires?)|(sera|seront) (credites?|verses?|vires?)|est en route|you (have )?received (a )?(payment|transfer)|payment received|has been (credited|deposited|paid out))\b", RegexOptions.Compiled);
+        static readonly Regex IncomingMoneyRe = new Regex(@"\b(vous avez recu (un|le) (virement|versement)|virement recu|(a|ont) ete (credites?|verses?|vires?) sur votre compte|(sera|seront) (credites?|verses?|vires?) sur votre compte)\b", RegexOptions.Compiled);   // français uniquement : « payment received » est la formule des fausses factures à rappeler
         static readonly Regex PaymentRequestRe = new Regex(@"\b(merci de (regler|payer|proceder|effectuer|confirmer|valider|renseigner)|veuillez (regler|payer|proceder|effectuer|confirmer|valider|renseigner|remplir)|reglez|payez|effectuer (le|un|votre) (paiement|virement|reglement)|frais (de|a)|a regler|coordonnees bancaires|carte bancaire|numero de carte|rib|iban|eligible|formulaire|pour (recevoir|percevoir|obtenir|debloquer)|confirm|verify|update your|fee)\b", RegexOptions.Compiled);
 
         static List<string> MatchRule(string text, Lists.ContentRule rule)
