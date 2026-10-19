@@ -7,6 +7,11 @@ name: Banc d'essai
 
 on:
   workflow_dispatch:
+    inputs:
+      rapide:
+        description: "Seulement les cas difficiles (sans télécharger les corpus publics)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -27,6 +32,7 @@ jobs:
           if errorlevel 1 exit /b 1
 
       - name: Télécharger les corpus
+        if: ${{ !inputs.rapide }}
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force corpus | Out-Null
@@ -61,14 +67,17 @@ jobs:
         shell: pwsh
         run: |
           $a = @()
+          if ("${{ inputs.rapide }}" -ne "true") {
           foreach ($y in 2020..2025) { $a += "phish-$y=corpus\phishing-$y.mbox|monkey.org" }
           $a += "ham-easy=corpus\20030228_easy_ham", "ham-easy2=corpus\20030228_easy_ham_2", "ham-hard=corpus\20030228_hard_ham"
           foreach ($f in Get-ChildItem corpus\apache-*.mbox) { if ($f.Length -gt 1000) { $a += "ham-apache-$($f.BaseName.Substring(7))=$($f.FullName)" } }
-          $a += "ham-cas-difficiles=outlook-exe\tests\legitimes|exemple-pme.fr"
           $a += "phish-pot=corpus\phishing_pot"
           if (Test-Path corpus\spam-2026) { $a += "spam-2026=corpus\spam-2026|untroubled.org|3000" }
+          }
+          $a += "ham-cas-difficiles=outlook-exe\tests\legitimes|exemple-pme.fr"
           New-Item -ItemType Directory -Force out | Out-Null
-          $env:PG_PUBLIC_SECTOR = (Resolve-Path corpus\secteur-public.csv).Path
+          if (-not (Test-Path corpus\secteur-public.csv)) { New-Item -ItemType Directory -Force corpus | Out-Null; curl.exe -sSfL -o corpus\secteur-public.csv "https://raw.githubusercontent.com/etalab/noms-de-domaine-organismes-secteur-public/master/domains.csv" }
+          if (Test-Path corpus\secteur-public.csv) { $env:PG_PUBLIC_SECTOR = (Resolve-Path corpus\secteur-public.csv).Path }
           & outlook-exe\build\Bench.exe out\bench.csv @a
           $code = $LASTEXITCODE
           if ($code -ne 0) { Write-Output "::error::Bench.exe : code $code ; dernier message : $(Get-Content out\progress.txt -Raw -ErrorAction SilentlyContinue)" }

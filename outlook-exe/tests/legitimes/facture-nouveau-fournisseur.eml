@@ -1,0 +1,48 @@
+Authentication-Results: fml01.exemple-pme.fr;
+	spf=pass (exemple-pme.fr: domain of bounce-6974@transports-martin.fr designates 198.51.100.22 as permitted sender) smtp.mailfrom=bounce-4612@transports-martin.fr;
+	dkim=pass header.i=@transports-martin.fr;
+X-FEAS-DKIM: Valid
+X-FE-Policy-ID: 0:1:2:exemple-pme.fr
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-MS-Exchange-Organization-AuthSource: SRV-EXCH02.exemple-pme.local
+Received: from mail.bounce.transports-martin.fr (198.51.100.88) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Transports Martin <facturation@transports-martin.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Facture_FA-2026-1043?=
+Date: Sun, 08 Feb 2026 14:12:00 +0200
+Message-ID: <569f16a2a0aac6004971a2e65e9ced5b@bounce.transports-martin.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: facture-nouveau-fournisseur
+Content-Type: multipart/mixed; boundary="=_pg_569f16a2a0"
+
+--=_pg_569f16a2a0
+Content-Type: multipart/alternative; boundary="alt=_pg_569f16a2a0"
+
+--alt=_pg_569f16a2a0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+TWFkYW1lLCBNb25zaWV1ciwKClZldWlsbGV6IHRyb3V2ZXIgY2ktam9pbnQgbm90cmUgZmFjdHVy
+ZSBGQS0yMDI2LTEwNDMgcmVsYXRpdmUgYXUgdHJhbnNwb3J0CmR1IDA4LzEwLzIwMjYuCgpSw6hn
+bGVtZW50IMOgIDMwIGpvdXJzIGZpbiBkZSBtb2lzLiBOb3VzIHJlc3RvbnMgw6Agdm90cmUgZGlz
+cG9zaXRpb24uIFNlcnZpY2UKZmFjdHVyYXRpb24=
+--alt=_pg_569f16a2a0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5NYWRhbWUsIE1vbnNpZXVy
+LDwvcD48cD5WZXVpbGxleiB0cm91dmVyIGNpLWpvaW50IG5vdHJlIGZhY3R1cmUgRkEtMjAyNi0x
+MDQzIHJlbGF0aXZlIGF1IHRyYW5zcG9ydCBkdSAwOC8xMC8yMDI2LjwvcD48cD5Sw6hnbGVtZW50
+IMOgIDMwIGpvdXJzIGZpbiBkZSBtb2lzLiBOb3VzIHJlc3RvbnMgw6Agdm90cmUgZGlzcG9zaXRp
+b24uIFNlcnZpY2UgZmFjdHVyYXRpb248L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_569f16a2a0--
+--=_pg_569f16a2a0
+Content-Type: application/pdf; name="FA-2026-1043.pdf"
+Content-Disposition: attachment; filename="FA-2026-1043.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBv
+Ymo8PC9UeXBlL1BhZ2VzL0tpZHNbXS9Db3VudCAwPj5lbmRvYmoKdHJhaWxlcjw8L1Jvb3QgMSAw
+IFI+PgolJUVPRgo=
+--=_pg_569f16a2a0--

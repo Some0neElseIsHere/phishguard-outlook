@@ -1,0 +1,36 @@
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@uber.com header.s=s1 header.b=Ab12Cd34;
+       spf=pass (google.com: domain of bounce@uber.com designates 198.51.100.144 as permitted sender) smtp.mailfrom=bounce@uber.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=uber.com
+Received: from mail.bounce.uber.com (198.51.100.137) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Uber Receipts <noreply@uber.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_course_de_jeudi_matin_avec_Uber?=
+Date: Sun, 11 Jan 2026 17:33:00 +0200
+Message-ID: <909f3c13b35bbbb5784b9ac4c5220ebb@bounce.uber.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: uber-recu
+Content-Type: multipart/mixed; boundary="=_pg_909f3c13b3"
+
+--=_pg_909f3c13b3
+Content-Type: multipart/alternative; boundary="alt=_pg_909f3c13b3"
+
+--alt=_pg_909f3c13b3
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+TWVyY2kgZCdhdm9pciBjaG9pc2kgVWJlciwgQ2xhaXJlLgoKVG90YWwgOiAzMiw0MCDigqwuIFBh
+ecOpIGF2ZWMgbGUgcHJvZmlsIHByb2Zlc3Npb25uZWwgRXhlbXBsZSBQTUUuCgpWb2lyIGxlIHJl
+w6d1IDogaHR0cHM6Ly9yaWRlcnMudWJlci5jb20vdHJpcHMvYWJjMTIz
+--alt=_pg_909f3c13b3
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5NZXJjaSBkJ2F2b2lyIGNo
+b2lzaSBVYmVyLCBDbGFpcmUuPC9wPjxwPlRvdGFsIDogMzIsNDAg4oKsLiBQYXnDqSBhdmVjIGxl
+IHByb2ZpbCBwcm9mZXNzaW9ubmVsIEV4ZW1wbGUgUE1FLjwvcD48cD48YSBocmVmPSJodHRwczov
+L3JpZGVycy51YmVyLmNvbS90cmlwcy9hYmMxMjMiPlZvaXIgbGUgcmXDp3U8L2E+PC9wPjwvYm9k
+eT48L2h0bWw+
+--alt=_pg_909f3c13b3--
+--=_pg_909f3c13b3--

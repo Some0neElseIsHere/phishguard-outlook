@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.234) smtp.mailfrom=aife.economie.gouv.fr; dkim=pass (signature was verified) header.d=aife.economie.gouv.fr;dmarc=pass action=none header.from=aife.economie.gouv.fr;compauth=pass reason=100
+Received: from mail.aife.economie.gouv.fr (198.51.100.101) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Chorus Pro <ne-pas-repondre@aife.economie.gouv.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_facture_a_=C3=A9t=C3=A9_mise_=C3=A0_disposition_du_destinata?=
+ =?utf-8?q?ire?=
+Date: Fri, 27 Feb 2026 17:07:00 +0200
+Message-ID: <b8eda04618c96e1aa05887721f02b374@aife.economie.gouv.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: chorus-pro
+Content-Type: multipart/mixed; boundary="=_pg_b8eda04618"
+
+--=_pg_b8eda04618
+Content-Type: multipart/alternative; boundary="alt=_pg_b8eda04618"
+
+--alt=_pg_b8eda04618
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkxhIGZhY3R1cmUgbsKwIEYyMDI2LTA4NzcgZMOpcG9zw6llIGxlIDA4LzEwLzIw
+MjYgYSDDqXTDqSBtaXNlIMOgIGRpc3Bvc2l0aW9uIGRlCmxhIHN0cnVjdHVyZSBkZXN0aW5hdGFp
+cmUuCgpWb3VzIHBvdXZleiBzdWl2cmUgc29uIHRyYWl0ZW1lbnQgZGVwdWlzIHZvdHJlIGVzcGFj
+ZSBDaG9ydXMgUHJvLgoKQWNjw6lkZXIgw6AgQ2hvcnVzIFBybyA6IGh0dHBzOi8vcG9ydGFpbC5j
+aG9ydXMtcHJvLmdvdXYuZnIvYWlmZV9jc20=
+--alt=_pg_b8eda04618
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5M
+YSBmYWN0dXJlIG7CsCBGMjAyNi0wODc3IGTDqXBvc8OpZSBsZSAwOC8xMC8yMDI2IGEgw6l0w6kg
+bWlzZSDDoCBkaXNwb3NpdGlvbiBkZSBsYSBzdHJ1Y3R1cmUgZGVzdGluYXRhaXJlLjwvcD48cD5W
+b3VzIHBvdXZleiBzdWl2cmUgc29uIHRyYWl0ZW1lbnQgZGVwdWlzIHZvdHJlIGVzcGFjZSBDaG9y
+dXMgUHJvLjwvcD48cD48YSBocmVmPSJodHRwczovL3BvcnRhaWwuY2hvcnVzLXByby5nb3V2LmZy
+L2FpZmVfY3NtIj5BY2PDqWRlciDDoCBDaG9ydXMgUHJvPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_b8eda04618--
+--=_pg_b8eda04618--

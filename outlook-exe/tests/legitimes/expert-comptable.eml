@@ -1,0 +1,39 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.187) smtp.mailfrom=bounce.ferrand-expertise.fr; dkim=pass (signature was verified) header.d=ferrand-expertise.fr;dmarc=pass action=none header.from=ferrand-expertise.fr;compauth=pass reason=100
+Received: from mail.bounce.ferrand-expertise.fr (198.51.100.91) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Cabinet Ferrand Expertise <m.ferrand@ferrand-expertise.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Pi=C3=A8ces_manquantes_pour_la_cl=C3=B4ture?=
+Date: Mon, 15 Jun 2026 19:59:00 +0200
+Message-ID: <35d21d89d911eaf14517b117e3c06dfe@bounce.ferrand-expertise.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: expert-comptable
+X-PhishGuard-Connu: oui
+Content-Type: multipart/mixed; boundary="=_pg_35d21d89d9"
+
+--=_pg_35d21d89d9
+Content-Type: multipart/alternative; boundary="alt=_pg_35d21d89d9"
+
+--alt=_pg_35d21d89d9
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpQb3VyIGZpbmFsaXNlciBsYSBjbMO0dHVyZSBhdSAzMS8xMiwgaWwg
+bm91cyBtYW5xdWUgbGVzIHJlbGV2w6lzIGJhbmNhaXJlcyBkZQpub3ZlbWJyZSBldCBsYSBmYWN0
+dXJlIGQnYWNoYXQgZHUgdsOpaGljdWxlLgoKTWVyY2kgZGUgbGVzIGTDqXBvc2VyIHN1ciB2b3Ry
+ZSBlc3BhY2UgY2xpZW50IGTDqHMgcXVlIHBvc3NpYmxlLiBCaWVuCmNvcmRpYWxlbWVudCwgTWFy
+YyBGZXJyYW5kCgpFc3BhY2UgY2xpZW50IDogaHR0cHM6Ly9mZXJyYW5kLWV4cGVydGlzZS5pbnFv
+bS5jb20vZXNwYWNlLWNsaWVudA==
+--alt=_pg_35d21d89d9
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+UG91ciBmaW5hbGlzZXIgbGEgY2zDtHR1cmUgYXUgMzEvMTIsIGlsIG5vdXMgbWFucXVl
+IGxlcyByZWxldsOpcyBiYW5jYWlyZXMgZGUgbm92ZW1icmUgZXQgbGEgZmFjdHVyZSBkJ2FjaGF0
+IGR1IHbDqWhpY3VsZS48L3A+PHA+TWVyY2kgZGUgbGVzIGTDqXBvc2VyIHN1ciB2b3RyZSBlc3Bh
+Y2UgY2xpZW50IGTDqHMgcXVlIHBvc3NpYmxlLiBCaWVuIGNvcmRpYWxlbWVudCwgTWFyYyBGZXJy
+YW5kPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vZmVycmFuZC1leHBlcnRpc2UuaW5xb20uY29tL2Vz
+cGFjZS1jbGllbnQiPkVzcGFjZSBjbGllbnQ8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_35d21d89d9--
+--=_pg_35d21d89d9--

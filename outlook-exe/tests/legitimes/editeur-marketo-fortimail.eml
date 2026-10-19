@@ -1,0 +1,44 @@
+Authentication-Results: fml01.exemple-pme.fr;
+	spf=pass (exemple-pme.fr: domain of bounce-3142@mail01.go.logiciel-pro.com designates 198.51.100.138 as permitted sender) smtp.mailfrom=bounce-3487@mail01.go.logiciel-pro.com;
+	dkim=pass header.i=@mktdns.com
+	dkim=pass header.i=@partner.logiciel-pro.com;
+X-FEAS-DKIM: Valid
+X-FE-Policy-ID: 0:1:2:exemple-pme.fr
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-MS-Exchange-Organization-AuthSource: SRV-EXCH02.exemple-pme.local
+Received: from mail.mail01.go.logiciel-pro.com (198.51.100.114) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Logiciel Pro Partner Program <engage@partner.logiciel-pro.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Invitation_=3A_session_partenaires_du_5_novembre?=
+Date: Thu, 17 Sep 2026 07:55:00 +0200
+Message-ID: <68c03e93515428a5e148113f5da68b3c@mail01.go.logiciel-pro.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: editeur-marketo-fortimail
+List-Unsubscribe: <https://unsubscribe.logiciel-pro.com/u?id=68c03e935154>, <mailto:unsubscribe@mail01.go.logiciel-pro.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_68c03e9351"
+
+--=_pg_68c03e9351
+Content-Type: multipart/alternative; boundary="alt=_pg_68c03e9351"
+
+--alt=_pg_68c03e9351
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCk5vdXMgYXZvbnMgbGUgcGxhaXNpciBkZSB2b3VzIGludml0ZXIgw6Agbm90cmUg
+c2Vzc2lvbiBwYXJ0ZW5haXJlcyBlbiBsaWduZS4KCkF1IHByb2dyYW1tZSA6IG5vdXZlYXV0w6lz
+IHByb2R1aXQgZXQgZmV1aWxsZSBkZSByb3V0ZSAyMDI3LgoKSmUgbSdpbnNjcmlzIDogaHR0cHM6
+Ly9jbGljay5sb2dpY2llbC1wcm8uY29tL3UvTkRJM0xWUkNReTAwTnpRQUFBR2s4cE9mamtQb0Fr
+--alt=_pg_68c03e9351
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5O
+b3VzIGF2b25zIGxlIHBsYWlzaXIgZGUgdm91cyBpbnZpdGVyIMOgIG5vdHJlIHNlc3Npb24gcGFy
+dGVuYWlyZXMgZW4gbGlnbmUuPC9wPjxwPkF1IHByb2dyYW1tZSA6IG5vdXZlYXV0w6lzIHByb2R1
+aXQgZXQgZmV1aWxsZSBkZSByb3V0ZSAyMDI3LjwvcD48cD48YSBocmVmPSJodHRwczovL2NsaWNr
+LmxvZ2ljaWVsLXByby5jb20vdS9OREkzTFZSQ1F5MDBOelFBQUFHazhwT2Zqa1BvQWsiPkplIG0n
+aW5zY3JpczwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_68c03e9351--
+--=_pg_68c03e9351--

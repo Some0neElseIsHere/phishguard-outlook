@@ -265,6 +265,157 @@ def main():
          "Vous n'avez pas demandé ce code ? Quelqu'un essaie peut-être d'accéder à votre compte : changez votre mot de passe sans délai."], bulk=False)
 
 
+# ---- Passerelles de messagerie des entreprises françaises ----
+# Le format d'Authentication-Results dépend de la passerelle qui reçoit le message : Microsoft 365 (par défaut ci-dessus),
+# FortiMail (SPF et DKIM sans DMARC, signature notée header.i), Google Workspace, ou un filtre français (Mailinblack, Vade…).
+def gw_fortimail(mailfrom, dkim_domains):
+    lines = [f"Authentication-Results: fml01.exemple-pme.fr;\n\tspf=pass (exemple-pme.fr: domain of bounce-{random.randint(1000, 9999)}@{mailfrom} designates 198.51.100.{random.randint(2, 250)} as permitted sender) smtp.mailfrom=bounce-{random.randint(1000, 9999)}@{mailfrom};"]
+    lines[0] += "".join(f"\n\tdkim=pass header.i=@{d}" for d in dkim_domains) + ";"
+    return lines + ["X-FEAS-DKIM: Valid", "X-FE-Policy-ID: 0:1:2:exemple-pme.fr", "X-MS-Exchange-Organization-AuthAs: Anonymous",
+                    "X-MS-Exchange-Organization-AuthSource: SRV-EXCH02.exemple-pme.local"]
+
+
+def gw_google(mailfrom, dkim, org, policy="QUARANTINE"):
+    return [f"Authentication-Results: mx.google.com;\n       dkim=pass header.i=@{dkim} header.s=s1 header.b=Ab12Cd34;\n       spf=pass (google.com: domain of bounce@{mailfrom} designates 198.51.100.{random.randint(2, 250)} as permitted sender) smtp.mailfrom=bounce@{mailfrom};\n       dmarc=pass (p={policy} sp={policy} dis=NONE) header.from={org}"]
+
+
+def gw_filtre_fr(mailfrom, dkim, org):
+    return [f"Authentication-Results: mx.exemple-pme.fr; spf=pass smtp.mailfrom={mailfrom}; dkim=pass header.d={dkim}; dmarc=pass header.from={org}",
+            "X-Mailinblack-Status: clean", "X-VR-SPAMSTATE: OK"]
+
+
+def entreprise():
+    """Mails courants dans une PME française : paie, RH, banque pro, comptabilité, administrations, fournisseurs, outils."""
+    # ---- Paie, RH, avantages salariés ----
+    msg("payfit-bulletin", "vert", "PayFit", "noreply@payfit.com", "Votre bulletin de paie d'octobre est disponible",
+        ["Bonjour Claire,", "Votre bulletin de paie du mois d'octobre 2026 est disponible dans votre espace PayFit.",
+         "Pour des raisons de confidentialité, il n'est pas joint à ce message."],
+        [("https://app.payfit.com/payslips", "Voir mon bulletin")], bulk=False, raw_auth=gw_fortimail("mail.payfit.com", ["payfit.com"]))
+    msg("lucca-conges", "vert", "Lucca", "notifications@ilucca.net", "Demande d'absence de Paul Durand à valider",
+        ["Bonjour Claire,", "Paul Durand a posé une demande de congés payés du 22/12/2026 au 02/01/2027 (8 jours).",
+         "Merci de la valider ou de la refuser."],
+        [("https://exemple-pme.ilucca.net/timmi/absences/approvals", "Valider ou refuser")], bulk=False)
+    msg("swile-recharge", "vert", "Swile", "hello@swile.co", "Votre carte Swile a été rechargée",
+        ["Bonjour Claire,", "Votre employeur a crédité 168,00 € de titres-restaurant sur votre carte Swile.", "Bon appétit !"],
+        [("https://team.swile.co/wallets", "Voir mon solde")])
+    msg("alan-remboursement", "vert", "Alan", "no-reply@alan.com", "Votre remboursement de 45,00 € est en route",
+        ["Bonjour Claire,", "Nous avons traité votre consultation du 02/10/2026. 45,00 € seront versés sur votre compte bancaire sous 48 h."],
+        [("https://alan.com/app/dashboard", "Voir le détail")], bulk=False, raw_auth=gw_google("mail.alan.com", "alan.com", "alan.com"))
+    msg("medecine-travail", "vert", "Service de santé au travail", "convocations@sante-travail-var.fr", "Convocation à votre visite d'information et de prévention",
+        ["Madame,", "Vous êtes convoquée le 12/11/2026 à 9 h 30 au centre de Toulon pour votre visite d'information et de prévention.",
+         "Merci de vous munir de votre carte Vitale. En cas d'empêchement, prévenez votre employeur."],
+        attachments=[("Convocation_VIP.pdf", "application/pdf", PDF)], bulk=False)
+
+    # ---- Banque professionnelle et comptabilité ----
+    msg("qonto-virement-recu", "vert", "Qonto", "no-reply@qonto.com", "Virement reçu : 12 400,00 € de CLIENT ALPHA SAS",
+        ["Bonjour Claire,", "Vous avez reçu un virement de 12 400,00 € de CLIENT ALPHA SAS.", "Référence : FACTURE F2026-0877."],
+        [("https://app.qonto.com/transactions", "Voir la transaction")], bulk=False, raw_auth=gw_fortimail("mail.qonto.com", ["qonto.com"]))
+    msg("qonto-justificatif", "vert", "Qonto", "no-reply@qonto.com", "3 justificatifs manquants",
+        ["Bonjour Claire,", "3 transactions de septembre n'ont pas encore de justificatif.",
+         "Ajoutez-les depuis l'application pour faciliter la clôture avec votre expert-comptable."],
+        [("https://app.qonto.com/transactions?attachments=missing", "Ajouter les justificatifs")])
+    msg("pennylane-facture", "vert", "Pennylane", "no-reply@pennylane.com", "Nouvelle facture fournisseur à valider",
+        ["Bonjour,", "Une nouvelle facture de BUREAUTIQUE PRO (1 284,00 € TTC, échéance 30/10/2026) a été reçue.",
+         "Validez-la pour la mettre en paiement."],
+        [("https://app.pennylane.com/companies/123456/supplier_invoices", "Valider la facture")], bulk=False)
+    msg("expert-comptable", "vert", "Cabinet Ferrand Expertise", "m.ferrand@ferrand-expertise.fr", "Pièces manquantes pour la clôture",
+        ["Bonjour Claire,", "Pour finaliser la clôture au 31/12, il nous manque les relevés bancaires de novembre et la facture d'achat du véhicule.",
+         "Merci de les déposer sur votre espace client dès que possible. Bien cordialement, Marc Ferrand"],
+        [("https://ferrand-expertise.inqom.com/espace-client", "Espace client")], bulk=False, known=True)
+    msg("facture-nouveau-fournisseur", "vert", "Transports Martin", "facturation@transports-martin.fr", "Facture FA-2026-1043",
+        ["Madame, Monsieur,", "Veuillez trouver ci-joint notre facture FA-2026-1043 relative au transport du 08/10/2026.",
+         "Règlement à 30 jours fin de mois. Nous restons à votre disposition. Service facturation"],
+        attachments=[("FA-2026-1043.pdf", "application/pdf", PDF)], bulk=False, raw_auth=gw_fortimail("transports-martin.fr", ["transports-martin.fr"]))
+    msg("bon-de-commande", "vert", "Achats Groupe Horizon", "no-reply-achats@groupe-horizon.fr", "Bon de commande 4500123456",
+        ["Bonjour,", "Veuillez trouver ci-joint notre bon de commande n° 4500123456.", "Merci de rappeler ce numéro sur votre facture. Ce message est envoyé automatiquement."],
+        attachments=[("BC_4500123456.pdf", "application/pdf", PDF)], bulk=False)
+    msg("relance-client", "vert", "Client Alpha", "comptabilite@client-alpha.fr", "RE: Facture F2026-0877",
+        ["Bonjour,", "Le virement a été émis ce matin, vous devriez le recevoir sous 48 h.", "Cordialement, Service comptabilité"],
+        bulk=False, known=True, extra_headers=["In-Reply-To: <f2026-0877@exemple-pme.fr>", "References: <f2026-0877@exemple-pme.fr>"])
+
+    # ---- Administrations et organismes ----
+    msg("chorus-pro", "vert", "Chorus Pro", "ne-pas-repondre@aife.economie.gouv.fr", "Votre facture a été mise à disposition du destinataire",
+        ["Bonjour,", "La facture n° F2026-0877 déposée le 08/10/2026 a été mise à disposition de la structure destinataire.",
+         "Vous pouvez suivre son traitement depuis votre espace Chorus Pro."],
+        [("https://portail.chorus-pro.gouv.fr/aife_csm", "Accéder à Chorus Pro")], mailfrom="aife.economie.gouv.fr", dkim="aife.economie.gouv.fr", bulk=False)
+    msg("net-entreprises-dsn", "vert", "net-entreprises.fr", "ne-pas-repondre@net-entreprises.fr", "DSN mensuelle : bilan de traitement",
+        ["Bonjour,", "Votre déclaration sociale nominative du mois de septembre 2026 a été traitée. Aucune anomalie bloquante.",
+         "Le bilan est disponible dans votre tableau de bord."],
+        [("https://www.net-entreprises.fr/", "net-entreprises.fr")], bulk=False)
+    msg("urssaf-vigilance", "vert", "Urssaf", "ne-pas-repondre@urssaf.fr", "Votre attestation de vigilance est disponible",
+        ["Bonjour,", "Votre attestation de vigilance est disponible dans votre espace en ligne.",
+         "Elle peut être demandée par vos donneurs d'ordre pour tout contrat de 5 000 € HT ou plus."],
+        [("https://www.urssaf.fr/accueil/espace-employeur.html", "Mon espace")], bulk=False)
+    msg("impots-pro", "vert", "impots.gouv.fr", "ne-pas-repondre@dgfip.finances.gouv.fr", "Vous avez reçu un message dans votre messagerie sécurisée",
+        ["Madame, Monsieur,", "Un nouveau message est disponible dans la messagerie sécurisée de votre espace professionnel.",
+         "Pour le consulter, connectez-vous à impots.gouv.fr. Ce courriel ne contient aucun lien, par sécurité."],
+        mailfrom="dgfip.finances.gouv.fr", dkim="dgfip.finances.gouv.fr", bulk=False, raw_auth=gw_fortimail("dgfip.finances.gouv.fr", ["dgfip.finances.gouv.fr"]))
+    msg("infogreffe-kbis", "vert", "Infogreffe", "commande@infogreffe.fr", "Votre extrait Kbis",
+        ["Bonjour,", "Veuillez trouver ci-joint l'extrait Kbis de la société EXEMPLE PME commandé le 14/10/2026.",
+         "Il est également disponible dans votre espace pendant 3 mois."],
+        attachments=[("Kbis_EXEMPLE_PME.pdf", "application/pdf", PDF)], bulk=False)
+    msg("cybermalveillance-alerte", "vert", "Cybermalveillance.gouv.fr", "newsletter@cybermalveillance.gouv.fr", "Alerte : faux mails de factures Chorus Pro",
+        ["Bonjour,", "Une campagne de faux courriels imitant Chorus Pro est en cours. Les messages invitent à cliquer pour régler une facture en retard ou à saisir vos identifiants.",
+         "Ne cliquez pas, ne communiquez jamais votre mot de passe et signalez le message sur signal-spam.fr."],
+        [("https://www.cybermalveillance.gouv.fr/tous-nos-contenus/actualites/alerte-chorus-pro", "Lire l'alerte")], mailfrom="cybermalveillance.gouv.fr", dkim="cybermalveillance.gouv.fr")
+
+    # ---- Informatique et outils ----
+    msg("ovh-prelevement-echoue", "vert", "OVHcloud", "noreply@ovh.com", "Échec du prélèvement de votre commande",
+        ["Bonjour,", "Le prélèvement de 23,99 € pour la facture FR12345678 n'a pas pu être effectué.",
+         "Pour éviter la suspension de vos services, réglez cette facture depuis votre espace client OVHcloud."],
+        [("https://www.ovh.com/manager/#/billing/history", "Régler ma facture")], mailfrom="ovh.net", dkim="ovh.com", bulk=False)
+    msg("gandi-expiration", "vert", "Gandi", "noreply@gandi.net", "exemple-pme.com expire dans 7 jours",
+        ["Bonjour,", "Le domaine exemple-pme.com expire le 26/10/2026. Le renouvellement automatique n'est pas activé.",
+         "Renouvelez-le depuis votre interface pour ne pas perdre votre site et vos emails."],
+        [("https://admin.gandi.net/domain/exemple-pme.com/renew", "Renouveler")], bulk=False)
+    msg("quota-boite-interne", "vert", "Microsoft Exchange", "MicrosoftExchange329e71ec88ae4615bbc36ab6ce41109e@exemple-pme.fr", "Votre boîte aux lettres est presque pleine",
+        ["Votre boîte aux lettres a atteint 90 % de sa taille maximale.", "Supprimez ou archivez des éléments pour continuer à recevoir des messages."],
+        bulk=False, extra_headers=["X-MS-Exchange-Organization-AuthAs: Internal", "Auto-Submitted: auto-generated"])
+    msg("sensibilisation-interne", "vert", "Service informatique", "informatique@exemple-pme.fr", "Attention : campagne de phishing en cours",
+        ["Bonjour à tous,", "Plusieurs collaborateurs ont reçu un faux mail « Votre mot de passe expire aujourd'hui » qui demande de saisir vos identifiants.",
+         "Ne cliquez pas sur le lien, supprimez le message et signalez-le avec le bouton « Signaler ». Le service informatique ne vous demandera jamais votre mot de passe."],
+        bulk=False, extra_headers=["X-MS-Exchange-Organization-AuthAs: Internal"])
+    msg("teams-message-manque", "vert", "Microsoft Teams", "noreply@email.teams.microsoft.com", "Vous avez manqué des messages de Paul Durand",
+        ["Paul Durand vous a envoyé un message : « Tu peux me renvoyer le devis signé ? »"],
+        [("https://teams.microsoft.com/l/message/19:abc@thread.v2/123", "Répondre dans Teams")], mailfrom="email.teams.microsoft.com", dkim="microsoft.com")
+    msg("sharepoint-client", "vert", "Julie Bernard", "no-reply@sharepointonline.com", "Julie Bernard a partagé « Bon de commande signé.pdf » avec vous",
+        ["Julie Bernard (Client Alpha) a partagé un fichier avec vous.", "Voici le bon de commande signé, bonne réception."],
+        [("https://clientalpha.sharepoint.com/:b:/s/achats/EaBcD456?e=abc", "Ouvrir")], mailfrom="sharepointonline.com", bulk=False)
+    msg("adobe-sign", "vert", "Groupe Horizon via Adobe Acrobat Sign", "adobesign@adobesign.com", "Contrat cadre 2027 – signature requise",
+        ["Groupe Horizon vous demande de signer « Contrat cadre 2027 ».", "Cliquez ci-dessous pour consulter et signer le document."],
+        [("https://secure.eu1.adobesign.com/public/apiesign?pid=CBFCIBAA3AAABLblqZhA", "Consulter et signer")], bulk=False,
+        reply_to="achats@groupe-horizon.fr")
+    msg("editeur-marketo-fortimail", "vert", "Logiciel Pro Partner Program", "engage@partner.logiciel-pro.com", "Invitation : session partenaires du 5 novembre",
+        ["Bonjour,", "Nous avons le plaisir de vous inviter à notre session partenaires en ligne.", "Au programme : nouveautés produit et feuille de route 2027."],
+        [("https://click.logiciel-pro.com/u/NDI3LVRCQy00NzQAAAGk8pOfjkPoAk", "Je m'inscris")], bulk=True,
+        raw_auth=gw_fortimail("mail01.go.logiciel-pro.com", ["mktdns.com", "partner.logiciel-pro.com"]), mailfrom="mail01.go.logiciel-pro.com")
+
+    # ---- Déplacements ----
+    msg("sncf-ebillet", "vert", "SNCF Connect", "ne-pas-repondre@sncf-connect.com", "Votre e-billet Paris → Toulon du 12/11",
+        ["Bonjour Claire,", "Voici votre e-billet pour le TGV INOUI 6171 du 12/11/2026, départ 08:07.", "Présentez-le à bord sur votre téléphone ou imprimé."],
+        attachments=[("e-billet.pdf", "application/pdf", PDF)], bulk=False)
+    msg("ulys-facture", "vert", "Ulys by VINCI Autoroutes", "ne-pas-repondre@ulys.vinci-autoroutes.com", "Votre facture de télépéage est disponible",
+        ["Bonjour,", "Votre facture d'octobre (48,30 € TTC) est disponible dans votre espace client.", "Elle sera prélevée le 10 du mois prochain."],
+        [("https://www.ulys.vinci-autoroutes.com/espace-client/factures", "Voir ma facture")])
+    msg("uber-recu", "vert", "Uber Receipts", "noreply@uber.com", "Votre course de jeudi matin avec Uber",
+        ["Merci d'avoir choisi Uber, Claire.", "Total : 32,40 €. Payé avec le profil professionnel Exemple PME."],
+        [("https://riders.uber.com/trips/abc123", "Voir le reçu")], bulk=False, raw_auth=gw_google("uber.com", "uber.com", "uber.com", "REJECT"))
+
+    # ---- Commerciaux et veille ----
+    msg("linkedin-message", "vert", "LinkedIn", "messages-noreply@linkedin.com", "Jean Petit vous a envoyé un message",
+        ["Jean Petit, Responsable achats chez Groupe Horizon :", "« Bonjour Claire, suite au salon, pouvons-nous échanger sur votre offre de maintenance ? »"],
+        [("https://www.linkedin.com/comm/messaging/thread/2-abc", "Répondre")], bulk=True)
+    msg("newsletter-lesechos", "vert", "Les Echos", "newsletters@lesechos.fr", "La Matinale : les PME face aux cyberattaques",
+        ["Bonjour,", "Rançongiciels, faux virements, usurpation d'identité : les PME restent la cible numéro un.",
+         "Également ce matin : le crédit d'impôt recherche, les taux d'emprunt, la conjoncture."],
+        [("https://link.lesechos.fr/c/abc123", "Lire l'article"), ("https://link.lesechos.fr/c/def456", "Toutes les actualités"),
+         ("https://link.lesechos.fr/c/ghi789", "Gérer mes newsletters")], mailfrom="mail.lesechos.fr", raw_auth=gw_filtre_fr("mail.lesechos.fr", "lesechos.fr", "lesechos.fr"))
+    msg("salon-badge", "vert", "Euromaritime", "badge@euromaritime.fr", "Votre badge visiteur Euromaritime 2027",
+        ["Bonjour Claire Martin,", "Votre inscription est confirmée. Votre badge est joint à ce message : imprimez-le ou présentez-le sur votre téléphone."],
+        attachments=[("Badge_Euromaritime_2027.pdf", "application/pdf", PDF)], bulk=False)
+
+
 if __name__ == "__main__":
     main()
+    entreprise()
     print(len([f for f in os.listdir(OUT) if f.endswith(".eml")]), "messages dans", os.path.normpath(OUT))

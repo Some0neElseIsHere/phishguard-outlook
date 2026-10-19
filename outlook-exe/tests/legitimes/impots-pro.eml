@@ -1,0 +1,42 @@
+Authentication-Results: fml01.exemple-pme.fr;
+	spf=pass (exemple-pme.fr: domain of bounce-7576@dgfip.finances.gouv.fr designates 198.51.100.192 as permitted sender) smtp.mailfrom=bounce-2391@dgfip.finances.gouv.fr;
+	dkim=pass header.i=@dgfip.finances.gouv.fr;
+X-FEAS-DKIM: Valid
+X-FE-Policy-ID: 0:1:2:exemple-pme.fr
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-MS-Exchange-Organization-AuthSource: SRV-EXCH02.exemple-pme.local
+Received: from mail.dgfip.finances.gouv.fr (198.51.100.40) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: impots.gouv.fr <ne-pas-repondre@dgfip.finances.gouv.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Vous_avez_re=C3=A7u_un_message_dans_votre_messagerie_s=C3=A9curis?=
+ =?utf-8?q?=C3=A9e?=
+Date: Fri, 06 Mar 2026 09:01:00 +0200
+Message-ID: <74d6da01d61d0796f9e5996890003da1@dgfip.finances.gouv.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: impots-pro
+Content-Type: multipart/mixed; boundary="=_pg_74d6da01d6"
+
+--=_pg_74d6da01d6
+Content-Type: multipart/alternative; boundary="alt=_pg_74d6da01d6"
+
+--alt=_pg_74d6da01d6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+TWFkYW1lLCBNb25zaWV1ciwKClVuIG5vdXZlYXUgbWVzc2FnZSBlc3QgZGlzcG9uaWJsZSBkYW5z
+IGxhIG1lc3NhZ2VyaWUgc8OpY3VyaXPDqWUgZGUgdm90cmUKZXNwYWNlIHByb2Zlc3Npb25uZWwu
+CgpQb3VyIGxlIGNvbnN1bHRlciwgY29ubmVjdGV6LXZvdXMgw6AgaW1wb3RzLmdvdXYuZnIuIENl
+IGNvdXJyaWVsIG5lIGNvbnRpZW50CmF1Y3VuIGxpZW4sIHBhciBzw6ljdXJpdMOpLg==
+--alt=_pg_74d6da01d6
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5NYWRhbWUsIE1vbnNpZXVy
+LDwvcD48cD5VbiBub3V2ZWF1IG1lc3NhZ2UgZXN0IGRpc3BvbmlibGUgZGFucyBsYSBtZXNzYWdl
+cmllIHPDqWN1cmlzw6llIGRlIHZvdHJlIGVzcGFjZSBwcm9mZXNzaW9ubmVsLjwvcD48cD5Qb3Vy
+IGxlIGNvbnN1bHRlciwgY29ubmVjdGV6LXZvdXMgw6AgaW1wb3RzLmdvdXYuZnIuIENlIGNvdXJy
+aWVsIG5lIGNvbnRpZW50IGF1Y3VuIGxpZW4sIHBhciBzw6ljdXJpdMOpLjwvcD48L2JvZHk+PC9o
+dG1sPg==
+--alt=_pg_74d6da01d6--
+--=_pg_74d6da01d6--

@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.250) smtp.mailfrom=ovh.net; dkim=pass (signature was verified) header.d=ovh.com;dmarc=pass action=none header.from=ovh.com;compauth=pass reason=100
+Received: from mail.ovh.net (198.51.100.187) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: OVHcloud <noreply@ovh.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?=C3=89chec_du_pr=C3=A9l=C3=A8vement_de_votre_commande?=
+Date: Sun, 01 Mar 2026 07:51:00 +0200
+Message-ID: <0c163433375df1584cb68115a03bd396@ovh.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: ovh-prelevement-echoue
+Content-Type: multipart/mixed; boundary="=_pg_0c16343337"
+
+--=_pg_0c16343337
+Content-Type: multipart/alternative; boundary="alt=_pg_0c16343337"
+
+--alt=_pg_0c16343337
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkxlIHByw6lsw6h2ZW1lbnQgZGUgMjMsOTkg4oKsIHBvdXIgbGEgZmFjdHVyZSBG
+UjEyMzQ1Njc4IG4nYSBwYXMgcHUgw6p0cmUKZWZmZWN0dcOpLgoKUG91ciDDqXZpdGVyIGxhIHN1
+c3BlbnNpb24gZGUgdm9zIHNlcnZpY2VzLCByw6lnbGV6IGNldHRlIGZhY3R1cmUgZGVwdWlzIHZv
+dHJlCmVzcGFjZSBjbGllbnQgT1ZIY2xvdWQuCgpSw6lnbGVyIG1hIGZhY3R1cmUgOiBodHRwczov
+L3d3dy5vdmguY29tL21hbmFnZXIvIy9iaWxsaW5nL2hpc3Rvcnk=
+--alt=_pg_0c16343337
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5M
+ZSBwcsOpbMOodmVtZW50IGRlIDIzLDk5IOKCrCBwb3VyIGxhIGZhY3R1cmUgRlIxMjM0NTY3OCBu
+J2EgcGFzIHB1IMOqdHJlIGVmZmVjdHXDqS48L3A+PHA+UG91ciDDqXZpdGVyIGxhIHN1c3BlbnNp
+b24gZGUgdm9zIHNlcnZpY2VzLCByw6lnbGV6IGNldHRlIGZhY3R1cmUgZGVwdWlzIHZvdHJlIGVz
+cGFjZSBjbGllbnQgT1ZIY2xvdWQuPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vd3d3Lm92aC5jb20v
+bWFuYWdlci8jL2JpbGxpbmcvaGlzdG9yeSI+UsOpZ2xlciBtYSBmYWN0dXJlPC9hPjwvcD48L2Jv
+ZHk+PC9odG1sPg==
+--alt=_pg_0c16343337--
+--=_pg_0c16343337--
