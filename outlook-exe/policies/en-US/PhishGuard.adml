@@ -94,8 +94,8 @@ Registry value: Software\Policies\PhishGuard\RedFlagEnabled</string>
       <string id="PublicSectorList_Help">Open list from DINUM (about 100,000 French public-body domains), downloaded monthly: an authenticated message from a public body is not mistaken for a fake.
 
 Registry value: Software\Policies\PhishGuard\PublicSectorList</string>
-      <string id="DomainAgeLookup">Domain age</string>
-      <string id="DomainAgeLookup_Help">Queries public registries (RDAP) for the creation date of sender and link domains. Only the domain name is sent.
+      <string id="DomainAgeLookup">Domain age (automatic lookup)</string>
+      <string id="DomainAgeLookup_Help">Enabled: automatically queries public registries (RDAP) for the creation date of sender and link domains. Not configured: the user starts it with one click in the Reputation tab (default). Only the domain name is sent.
 
 Registry value: Software\Policies\PhishGuard\DomainAgeLookup</string>
       <string id="BetaDnsChecks">DNS checks</string>

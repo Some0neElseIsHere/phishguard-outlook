@@ -94,8 +94,8 @@ Valeur de registre : Software\Policies\PhishGuard\RedFlagEnabled</string>
       <string id="PublicSectorList_Help">Liste ouverte de la DINUM (environ 100 000 domaines d'organismes publics), téléchargée chaque mois : un message authentifié d'un organisme public n'est pas pris pour un faux.
 
 Valeur de registre : Software\Policies\PhishGuard\PublicSectorList</string>
-      <string id="DomainAgeLookup">Âge des domaines</string>
-      <string id="DomainAgeLookup_Help">Interroge les registres publics (RDAP) pour connaître la date de création des domaines des expéditeurs et des liens. Seul le nom du domaine est envoyé.
+      <string id="DomainAgeLookup">Âge des domaines (recherche automatique)</string>
+      <string id="DomainAgeLookup_Help">Activée : interroge automatiquement les registres publics (RDAP) pour connaître la date de création des domaines des expéditeurs et des liens. Non configurée : l'utilisateur la lance d'un clic dans l'onglet Réputation (par défaut). Seul le nom du domaine est envoyé.
 
 Valeur de registre : Software\Policies\PhishGuard\DomainAgeLookup</string>
       <string id="BetaDnsChecks">Vérifications DNS</string>

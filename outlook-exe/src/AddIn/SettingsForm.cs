@@ -138,8 +138,8 @@ namespace PhishGuard.AddIn
             y += 8;
             chkCorr = AddCheck(pAnalyse, ref y, L.T("Repérer les premiers contacts et les sosies de mes correspondants"), cfg.KnownCorrespondents,
                 L.F("Utilise les adresses de vos éléments envoyés et de vos contacts ({0} connues), sans rien envoyer à l’extérieur.", Correspondents.Count));
-            chkAge = AddCheck(pAnalyse, ref y, L.T("Vérifier l’âge des domaines (RDAP)"), cfg.DomainAgeLookup,
-                L.T("Envoie uniquement le nom du domaine à rdap.org et au registre concerné, jamais le contenu des messages."));
+            chkAge = AddCheck(pAnalyse, ref y, L.T("Rechercher automatiquement l’âge des domaines (RDAP)"), cfg.DomainAgeLookup,
+                L.T("Sinon, d’un clic dans l’onglet Réputation de l’analyse détaillée. Seul le nom du domaine est envoyé à rdap.org et au registre concerné."));
             chkMove = AddCheck(pAnalyse, ref y, L.T("Déplacer le message dans « Courrier indésirable » après l’avoir signalé"), cfg.MoveAfterReport, null);
             chkLog = AddCheck(pAnalyse, ref y, L.T("Tenir un journal des scores (scores.csv) pour ajuster les réglages"), cfg.ScoreLog,
                 L.T("Date, verdict, score, domaine de l’expéditeur et indices ; ni l’objet ni le contenu des messages."));
@@ -423,7 +423,7 @@ namespace PhishGuard.AddIn
                 { "trustedsenders", new Control[] { txtTrustedSenders } }, { "sharedblocklistpath", new Control[] { txtShared } },
                 { "autoanalyze", new Control[] { chkAuto } }, { "alertlevel", new Control[] { cboAlert } }, { "language", new Control[] { cboLang } }, { "theme", new Control[] { cboTheme } },
                 { "autohashmaxmb", new Control[] { numHash } }, { "redflagenabled", new Control[] { chkRedFlag } }, { "showexplanations", new Control[] { chkExplain } },
-                { "knowncorrespondents", new Control[] { chkCorr } }, { "domainagelookup", new Control[] { chkAge } }, { "tagcategory", new Control[] { chkTag } },
+                { "knowncorrespondents", new Control[] { chkCorr } }, { "domainagelookup", new Control[] { chkAge } }, { "domainageauto", new Control[] { chkAge } }, { "tagcategory", new Control[] { chkTag } },
                 { "moveafterreport", new Control[] { chkMove } }, { "scorelog", new Control[] { chkLog } }, { "watchdomains", new Control[] { chkWatch } },
                 { "expertmode", new Control[] { cboMode } }, { "publicsectorlist", new Control[] { chkPublic } }, { "betaopenphish", new Control[] { chkOpenPhish } },
                 { "betatranco", new Control[] { chkTranco } }, { "betadnschecks", new Control[] { chkDns } }, { "betacertage", new Control[] { chkCert } },

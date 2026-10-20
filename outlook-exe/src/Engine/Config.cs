@@ -25,7 +25,7 @@ namespace PhishGuard
         public int AutoHashMaxMB = 5;            // empreintes des pièces jointes en analyse automatique
         public bool ShowExplanations = true;     // explications pédagogiques sous chaque indice
         public bool KnownCorrespondents = true;  // premier contact et sosies de vos correspondants
-        public bool DomainAgeLookup = true;      // âge des domaines (RDAP, sans clé)
+        public bool DomainAgeLookup = false;     // âge des domaines recherché automatiquement (RDAP) ; sinon d'un clic, onglet Réputation
         public bool TagCategory = false;         // catégorie de couleur sur les messages suspects/dangereux
         public bool MoveAfterReport = true;      // déplacer en Courrier indésirable après signalement
         public bool ScoreLog = true;             // journal des scores (scores.csv)
@@ -220,7 +220,10 @@ namespace PhishGuard
                     case "redflagmaxagehours": int h; if (int.TryParse(val, out h) && h > 0) c.RedFlagMaxAgeHours = h; break;
                     case "showexplanations": c.ShowExplanations = !IsFalse(val); break;
                     case "knowncorrespondents": c.KnownCorrespondents = !IsFalse(val); break;
-                    case "domainagelookup": c.DomainAgeLookup = !IsFalse(val); break;
+                    case "domainageauto": c.DomainAgeLookup = !IsFalse(val); break;
+                    // Ancienne clé : respectée telle quelle dans config.ini et les stratégies ; dans les réglages de l'utilisateur,
+                    // elle valait « true » par défaut jusqu'à la v1.18.4 : seul un « false » choisi est repris.
+                    case "domainagelookup": if (isAdminFile || IsFalse(val)) c.DomainAgeLookup = !IsFalse(val); break;
                     case "tagcategory": c.TagCategory = !IsFalse(val); break;
                     case "moveafterreport": c.MoveAfterReport = !IsFalse(val); break;
                     case "scorelog": c.ScoreLog = !IsFalse(val); break;
@@ -284,7 +287,7 @@ namespace PhishGuard
             sb.AppendLine("RedFlagEnabled = " + (RedFlagEnabled ? "true" : "false"));
             sb.AppendLine("ShowExplanations = " + (ShowExplanations ? "true" : "false"));
             sb.AppendLine("KnownCorrespondents = " + (KnownCorrespondents ? "true" : "false"));
-            sb.AppendLine("DomainAgeLookup = " + (DomainAgeLookup ? "true" : "false"));
+            sb.AppendLine("DomainAgeAuto = " + (DomainAgeLookup ? "true" : "false"));
             sb.AppendLine("TagCategory = " + (TagCategory ? "true" : "false"));
             sb.AppendLine("MoveAfterReport = " + (MoveAfterReport ? "true" : "false"));
             sb.AppendLine("ScoreLog = " + (ScoreLog ? "true" : "false"));
