@@ -1028,8 +1028,9 @@ namespace PhishGuard.Tests
                 && Redirects.PageRedirect("<p>Bonjour</p>", new Uri("https://a.test/")) == null);
 
             var baseR = Analyzer.Analyze(Base(), cfg);
+            string baseLevel = baseR.Level;
             var withD = Analyzer.WithFindings(baseR, repD.Findings, repD);
-            Check("analyse approfondie : verdict recalculé", baseR.Level == "safe" && withD.Level == "dangerous" && withD.Deep == repD && !withD.Verified, withD.Level + " " + withD.Score);
+            Check("analyse approfondie : verdict recalculé", baseLevel == "safe" && withD.Level == "dangerous" && withD.Deep == repD && !withD.Verified, withD.Level + " " + withD.Score);
             var offline = new DeepOptions { DomainAge = false, Certificates = false, Hashes = false, HopIps = false };
             var em = Base(); em.Attachments.Add(attD);
             var repRun = DeepAnalysis.Run(em, Analyzer.Analyze(em, cfg), new List<KeyValuePair<AttachmentInfo, byte[]>> { new KeyValuePair<AttachmentInfo, byte[]>(new AttachmentInfo { Name = "Facture.docm", Magic = "zip" }, docm) },
