@@ -26,6 +26,14 @@ namespace PhishGuard
         public List<string> ExtraLinks = new List<string>();  // destinations découvertes (redirections), analysées ensuite comme des liens
         public DateTime When = DateTime.Now;
         public TimeSpan Duration;
+        public bool FollowedLinks, SentUrls;                 // vérifications faites avec l'accord de l'utilisateur
+    }
+
+    /// <summary>État de l'onglet « Approfondie » de la fenêtre d'analyse.</summary>
+    public class DeepUi
+    {
+        public bool Running;            // analyse en cours : l'onglet se mettra à jour à la fin
+        public bool CanFollow, CanUrls; // vérifications proposées (autorisées par la stratégie, clé disponible)
     }
 
     public class DeepOptions
@@ -58,6 +66,8 @@ namespace PhishGuard
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
             rep = rep ?? new DeepReport();
+            rep.FollowedLinks = o.FollowLinks;
+            rep.SentUrls = o.SendUrls && keys.VirusTotalKey.Length > 0;
             Action<string> say = s => { if (progress != null) try { progress(s); } catch (Exception) { } };
             var company = new HashSet<string>(cfg.CompanyDomains.Select(Domains.RegistrableDomain));
 

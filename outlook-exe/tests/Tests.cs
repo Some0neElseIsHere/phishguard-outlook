@@ -1037,7 +1037,8 @@ namespace PhishGuard.Tests
                 offline, cfg, new IntelSettings(), null, null);
             Check("analyse approfondie hors ligne : rien ne sort du poste", repRun.Sent.Count == 0 && repRun.Findings.Any(f => f.Id == "deep-vba-dropper"));
             var fin = DeepAnalysis.Complete(em, repRun, cfg);
-            Check("analyse approfondie : le lien du modèle distant est analysé", fin.Level == "dangerous" && SimpleView.Build(fin, em, true).Contains(System.Net.WebUtility.HtmlEncode(L.T("Analyse approfondie"))));
+            Check("analyse approfondie : le lien du modèle distant est analysé", fin.Level == "dangerous" && fin.Deep != null);
+            Check("analyse approfondie : rien en mode simple", !SimpleView.Build(fin, em, true).Contains(System.Net.WebUtility.HtmlEncode(L.T("Analyse approfondie"))));
 
             // ---------- Robustesse : messages malformés aléatoires ----------
             int fuzzN;

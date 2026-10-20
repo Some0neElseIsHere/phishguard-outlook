@@ -24,7 +24,7 @@ namespace PhishGuard.AddIn
     internal class ResultForm : Form, IThemed
     {
         readonly WebBrowser browser;
-        readonly Button btnReport, btnClose, btnTrust, btnSettings, btnMode, btnDeep;
+        readonly Button btnReport, btnClose, btnTrust, btnSettings, btnMode;
         readonly Label status;
         AnalysisResult result;
         EmailData email;
@@ -36,9 +36,10 @@ namespace PhishGuard.AddIn
         public bool AllowExpert = true;
         /// <summary>L'utilisateur a changé de mode (Expert contient le nouveau mode).</summary>
         public event EventHandler ModeChanged;
-        public event EventHandler DeepRequested;
-        /// <summary>Ouvrir l'onglet de l'analyse approfondie au prochain affichage (juste après l'avoir lancée).</summary>
-        public bool OpenDeepTab;
+        /// <summary>Action demandée depuis l'onglet « Approfondie » : "follow" (suivre les liens) ou "urls" (liens vers VirusTotal).</summary>
+        public event Action<string> DeepAction;
+        /// <summary>État de l'onglet « Approfondie » (mode expert).</summary>
+        public DeepUi Deep = new DeepUi();
 
         /// <summary>true : analyse détaillée (onglets) ; false : mode simple.</summary>
         public bool Expert;
@@ -86,9 +87,8 @@ namespace PhishGuard.AddIn
             btnTrust = MakeButton(false);
             btnSettings = MakeButton(false);
             btnMode = MakeButton(false);
-            btnDeep = MakeButton(false);
             btnClose = MakeButton(false);
-            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnDeep, btnMode, btnSettings, btnClose });
+            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnMode, btnSettings, btnClose });
 
             status = new Label
             {
@@ -110,7 +110,6 @@ namespace PhishGuard.AddIn
             btnReport.Click += (s, e) => Raise(ReportRequested);
             btnTrust.Click += (s, e) => Raise(NotPhishingRequested);
             btnSettings.Click += (s, e) => Raise(SettingsRequested);
-            btnDeep.Click += (s, e) => Raise(DeepRequested);
             btnMode.Click += (s, e) =>
             {
                 Expert = !Expert;
@@ -140,7 +139,6 @@ namespace PhishGuard.AddIn
             btnSettings.Text = L.T("Paramètres");
             btnClose.Text = L.T("Fermer");
             btnMode.Text = Expert ? L.T("Mode simple") : L.T("Analyse détaillée");
-            btnDeep.Text = result != null && result.Deep != null ? L.T("Relancer l’analyse approfondie") : L.T("Analyse approfondie");
             btnMode.Visible = AllowExpert;
         }
 
@@ -157,6 +155,13 @@ namespace PhishGuard.AddIn
             string url = e.Url.ToString();
             if (url.StartsWith("about:")) return;
             e.Cancel = true;
+            if (url.StartsWith("pgaction://", StringComparison.OrdinalIgnoreCase))
+            {
+                string act = url.Substring(11).Trim('/').ToLowerInvariant();
+                var h = DeepAction;
+                if (h != null && (act == "follow" || act == "urls")) h(act);
+                return;
+            }
             Uri u = e.Url;
             if ((u.Scheme == "https") && Forensics.LookupHosts.Contains(PhishGuard.Domains.HostOf(u)))
             {
@@ -215,8 +220,9 @@ namespace PhishGuard.AddIn
             ApplyTexts();
             btnTrust.Visible = r.Level != "safe";
             status.Text = Expert ? listStatus : "";
-            browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations, OpenDeepTab) : SimpleView.Build(r, e, showExplanations);
-            OpenDeepTab = false;
+            // L'onglet affiché est conservé quand la page est reconstruite (fin de l'analyse approfondie, résultats en ligne)
+            string tab = CurrentTab();
+            browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations, tab, Deep) : SimpleView.Build(r, e, showExplanations);
             if (!activate) return;
             if (!Visible) Show();
             if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
@@ -225,11 +231,37 @@ namespace PhishGuard.AddIn
 
         public void SetStatus(string text) { status.Text = text; }
 
-        /// <summary>Analyse approfondie en cours : bouton désactivé, avancement dans la ligne d'état.</summary>
-        public void SetDeepRunning(bool running, string text)
+        /// <summary>Nouveau résultat (fin de l'analyse approfondie) : page reconstruite sur le même onglet, sans prendre le focus.</summary>
+        public void UpdateResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations)
         {
-            btnDeep.Enabled = !running;
+            if (Visible) ShowResult(r, e, listStatus, showExplanations, false);
+            else { result = r; email = e; }
+        }
+
+        /// <summary>Onglet actuellement affiché dans la page (mode expert), ou "".</summary>
+        string CurrentTab()
+        {
+            try
+            {
+                var doc = browser.Document;
+                if (doc == null) return "";
+                foreach (HtmlElement a in doc.GetElementsByTagName("a"))
+                    if ((a.GetAttribute("className") ?? "") == "tab on") return a.GetAttribute("data-t") ?? "";
+            }
+            catch (Exception) { }
+            return "";
+        }
+
+        /// <summary>Avancement de l'analyse approfondie, dans la ligne d'état.</summary>
+        public void SetDeepStatus(string text)
+        {
             if (text != null) status.Text = text;
+        }
+
+        /// <summary>Reconstruit la page (début ou fin de l'analyse approfondie) en restant sur le même onglet.</summary>
+        public void Redraw()
+        {
+            if (result != null && Visible) ShowResult(result, email, lastListStatus, lastShowExplanations, false);
         }
 
         // =================================================================
@@ -374,10 +406,11 @@ namespace PhishGuard.AddIn
                 + "</svg><div class='num'>" + score + "</div><div class='of'>/ 100</div></div>";
         }
 
-        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations) { return BuildHtml(r, e, showExplanations, false); }
+        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations) { return BuildHtml(r, e, showExplanations, "", new DeepUi()); }
 
-        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations, bool openDeep)
+        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations, string openTab, DeepUi deepUi)
         {
+            deepUi = deepUi ?? new DeepUi();
             var d = r.Details ?? new HeaderDetails();
             var sb = new StringBuilder();
             sb.Append("<!DOCTYPE html><html><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'>");
@@ -395,7 +428,7 @@ namespace PhishGuard.AddIn
             Tab(sb, "s-att", L.T("Pièces jointes"), nAtt);
             Tab(sb, "s-raw", L.T("Source"), -1);
             Tab(sb, "s-beta", L.T("Réputation"), beta.Count);
-            if (r.Deep != null) Tab(sb, "s-deep", L.T("Approfondie"), r.Deep.Findings.Count(f => f.Severity != Severity.Info));
+            Tab(sb, "s-deep", L.T("Approfondie") + (deepUi.Running ? " …" : ""), r.Deep == null ? 0 : r.Deep.Findings.Count(f => f.Severity != Severity.Info));
             sb.Append("</div><div class='page'>");
 
             // ---------------- Résumé ----------------
@@ -659,11 +692,12 @@ namespace PhishGuard.AddIn
             InfoList(sb, r.Findings.Where(f => f.Severity == Severity.Info && Analyzer.IsBetaFinding(f)).ToList(), showExplanations);
             sb.Append("</div>");
 
-            if (r.Deep != null) DeepSection(sb, r.Deep, showExplanations);
+            DeepSection(sb, r.Deep, showExplanations, deepUi);
 
             sb.Append("<p class='foot'>" + H(L.T("Analyse locale : le contenu du message ne quitte pas votre poste.")) + "</p>");
             sb.Append("</div>");
-            if (openDeep && r.Deep != null) sb.Append("<script>window.onload=function(){show('s-deep');};</script>");
+            if (!string.IsNullOrEmpty(openTab) && System.Text.RegularExpressions.Regex.IsMatch(openTab, "^s-[a-z]+$"))
+                sb.Append("<script>window.onload=function(){show('" + openTab + "');};</script>");
             sb.Append("</body></html>");
             return sb.ToString();
         }
@@ -682,12 +716,36 @@ namespace PhishGuard.AddIn
             }
         }
 
+        /// <summary>Vérifications qui demandent l'accord de l'utilisateur : un clic sur le lien vaut accord, après confirmation.</summary>
+        static void DeepActions(StringBuilder sb, DeepReport d, DeepUi ui)
+        {
+            if (ui.Running) return;
+            var items = new List<string>();
+            if (ui.CanFollow && (d == null || !d.FollowedLinks))
+                items.Add("<li><span class='ic inf'>›</span><a href='pgaction://follow'>" + H(L.T("Suivre les liens jusqu’à leur vraie destination")) + "</a><div class='muted'>"
+                    + H(L.T("Les sites sont contactés, sans cookie et sans exécuter de code : l’expéditeur peut savoir que le message a été ouvert.")) + "</div></li>");
+            if (ui.CanUrls && (d == null || !d.SentUrls))
+                items.Add("<li><span class='ic inf'>›</span><a href='pgaction://urls'>" + H(L.T("Consulter VirusTotal avec l’adresse complète des liens")) + "</a><div class='muted'>"
+                    + H(L.T("Une adresse de lien peut contenir un jeton personnel (lien de connexion, de réinitialisation).")) + "</div></li>");
+            if (items.Count == 0) return;
+            sb.Append("<h2>" + H(L.T("Aller plus loin (avec votre accord)")) + "</h2><div class='card'><ul class='list'>" + string.Join("", items.ToArray()) + "</ul></div>");
+        }
+
         /// <summary>Onglet « Approfondie » : uniquement ce que l'analyse approfondie a découvert en plus.</summary>
-        static void DeepSection(StringBuilder sb, DeepReport d, bool showExplanations)
+        static void DeepSection(StringBuilder sb, DeepReport d, bool showExplanations, DeepUi ui)
         {
             sb.Append("<div class='sec' id='s-deep'>");
+            if (d == null || ui.Running)
+            {
+                sb.Append(Empty(ui.Running ? L.T("Analyse approfondie en cours : contenu des pièces jointes, historique de votre boîte, âge et certificats de tous les domaines… Cet onglet se met à jour tout seul à la fin.")
+                    : L.T("L’analyse approfondie n’a pas encore été faite pour ce message.")));
+                DeepActions(sb, d, ui);
+                sb.Append("</div>");
+                return;
+            }
             sb.Append("<p class='note'>" + H(L.F("Analyse approfondie du {0}, en {1} s. Seuls les éléments nouveaux par rapport aux autres onglets sont affichés.",
                 d.When.ToString("dd/MM/yyyy HH:mm"), Math.Max(1, (int)Math.Round(d.Duration.TotalSeconds)))) + "</p>");
+            DeepActions(sb, d, ui);
             var found = d.Findings.Where(f => f.Severity != Severity.Info).OrderByDescending(f => (int)f.Severity).ToList();
             if (found.Count > 0)
             {

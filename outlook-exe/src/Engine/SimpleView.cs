@@ -157,22 +157,6 @@ namespace PhishGuard
                 sb.Append("</div>");
             }
 
-            // ---- Analyse approfondie : ce qu'elle a découvert en plus ----
-            if (r.Deep != null)
-            {
-                var facts = r.Deep.Facts.Where(x => x.Status == "bad" || x.Status == "warn").OrderBy(x => x.Status == "bad" ? 0 : 1).Take(10).ToList();
-                sb.Append("<h2>" + H(L.T("Analyse approfondie")) + "</h2><div class='card'>");
-                if (facts.Count == 0)
-                    sb.Append("<div class='why'><span class='wt'>" + H(L.T("Rien de plus à signaler")) + "</span><div class='wd'>"
-                        + H(L.T("Pièces jointes, destinations des liens, domaines et historique ne révèlent rien de plus.")) + "</div></div>");
-                foreach (var x in facts)
-                    sb.Append("<div class='why'><span class='chip " + (x.Status == "bad" ? "cd" : "cs") + "'>" + H(x.Status == "bad" ? L.T("Dangereux") : L.T("À vérifier")) + "</span>"
-                        + "<span class='wd' style='margin-left:0'>" + H(ReportHtml.DefangText(x.Text)) + "</span></div>");
-                if (r.Deep.Unchecked.Count > 0)
-                    sb.Append("<div class='why'><div class='wd' style='margin-left:0'>" + H(L.F("{0} vérification(s) n’ont pas pu être faites (voir l’analyse détaillée).", r.Deep.Unchecked.Distinct().Count())) + "</div></div>");
-                sb.Append("</div>");
-            }
-
             // ---- Que dois-je faire ----
             sb.Append("<h2>" + H(L.T("Que dois-je faire ?")) + "</h2><div class='todo'>");
             foreach (var s in Actions(r))

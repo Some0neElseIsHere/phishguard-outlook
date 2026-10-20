@@ -108,9 +108,9 @@ namespace PhishGuard.Tools
             dr.Sent.Add("Visite de bit[.]ly (sans cookie, sans exécuter de code)"); dr.Sent.Add("Nom de domaine micros0ft-support.com → rdap.org"); dr.Sent.Add("Nom de domaine micros0ft-support.com → crt.sh");
             dr.Unchecked.Add("Serveurs traversés : pas de clé AbuseIPDB");
             var rd = Analyzer.WithFindings(Analyzer.Analyze(p, cfg), dr.Findings, dr);
-            Write(outDir, "expert-approfondie.html", ResultForm.BuildHtml(rd, p, true, true));
-            Write(outDir, "simple-approfondie.html", SimpleView.Build(rd, p, true));
-            Capture(new DeepForm(cfg, new IntelSettings { VirusTotalKey = "x" }, null), Path.Combine(outDir, "approfondie-accord.png"));
+            dr.FollowedLinks = true;
+            Write(outDir, "expert-approfondie.html", ResultForm.BuildHtml(rd, p, true, "s-deep", new DeepUi { CanFollow = true, CanUrls = true }));
+            Write(outDir, "expert-approfondie-encours.html", ResultForm.BuildHtml(Analyzer.Analyze(p, cfg), p, true, "s-deep", new DeepUi { Running = true }));
 
             // Thème sombre (Windows en mode sombre)
             Theme.Dark = true;
