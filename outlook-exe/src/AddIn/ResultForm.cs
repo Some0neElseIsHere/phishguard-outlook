@@ -24,7 +24,7 @@ namespace PhishGuard.AddIn
     internal class ResultForm : Form, IThemed
     {
         readonly WebBrowser browser;
-        readonly Button btnReport, btnClose, btnTrust, btnSettings, btnMode;
+        readonly Button btnReport, btnClose, btnTrust, btnSettings, btnMode, btnDeep;
         readonly Label status;
         AnalysisResult result;
         EmailData email;
@@ -36,6 +36,9 @@ namespace PhishGuard.AddIn
         public bool AllowExpert = true;
         /// <summary>L'utilisateur a changé de mode (Expert contient le nouveau mode).</summary>
         public event EventHandler ModeChanged;
+        public event EventHandler DeepRequested;
+        /// <summary>Ouvrir l'onglet de l'analyse approfondie au prochain affichage (juste après l'avoir lancée).</summary>
+        public bool OpenDeepTab;
 
         /// <summary>true : analyse détaillée (onglets) ; false : mode simple.</summary>
         public bool Expert;
@@ -83,8 +86,9 @@ namespace PhishGuard.AddIn
             btnTrust = MakeButton(false);
             btnSettings = MakeButton(false);
             btnMode = MakeButton(false);
+            btnDeep = MakeButton(false);
             btnClose = MakeButton(false);
-            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnMode, btnSettings, btnClose });
+            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnDeep, btnMode, btnSettings, btnClose });
 
             status = new Label
             {
@@ -106,6 +110,7 @@ namespace PhishGuard.AddIn
             btnReport.Click += (s, e) => Raise(ReportRequested);
             btnTrust.Click += (s, e) => Raise(NotPhishingRequested);
             btnSettings.Click += (s, e) => Raise(SettingsRequested);
+            btnDeep.Click += (s, e) => Raise(DeepRequested);
             btnMode.Click += (s, e) =>
             {
                 Expert = !Expert;
@@ -135,6 +140,7 @@ namespace PhishGuard.AddIn
             btnSettings.Text = L.T("Paramètres");
             btnClose.Text = L.T("Fermer");
             btnMode.Text = Expert ? L.T("Mode simple") : L.T("Analyse détaillée");
+            btnDeep.Text = result != null && result.Deep != null ? L.T("Relancer l’analyse approfondie") : L.T("Analyse approfondie");
             btnMode.Visible = AllowExpert;
         }
 
@@ -209,7 +215,8 @@ namespace PhishGuard.AddIn
             ApplyTexts();
             btnTrust.Visible = r.Level != "safe";
             status.Text = Expert ? listStatus : "";
-            browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations) : SimpleView.Build(r, e, showExplanations);
+            browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations, OpenDeepTab) : SimpleView.Build(r, e, showExplanations);
+            OpenDeepTab = false;
             if (!activate) return;
             if (!Visible) Show();
             if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
@@ -217,6 +224,13 @@ namespace PhishGuard.AddIn
         }
 
         public void SetStatus(string text) { status.Text = text; }
+
+        /// <summary>Analyse approfondie en cours : bouton désactivé, avancement dans la ligne d'état.</summary>
+        public void SetDeepRunning(bool running, string text)
+        {
+            btnDeep.Enabled = !running;
+            if (text != null) status.Text = text;
+        }
 
         // =================================================================
         // HTML
@@ -311,7 +325,7 @@ namespace PhishGuard.AddIn
             ".lesson b{font-weight:600}" +
             ".list{margin:0;padding:0;list-style:none}.list li{padding:5px 0 5px 24px;position:relative;border-top:1px solid #f0f2f5}.list li:first-child{border-top:0}" +
             ".list li .ic{position:absolute;left:0;top:5px;width:16px;height:16px;border-radius:50%;font-size:10px;font-weight:700;text-align:center;line-height:16px}" +
-            ".ic.okc{background:#e7f5ee;color:#13804a}.ic.inf{background:#eef1f5;color:#5f6b7a}" +
+            ".ic.okc{background:#e7f5ee;color:#13804a}.ic.inf{background:#eef1f5;color:#5f6b7a}.ic.bad{background:#fdeced;color:#c4262e}.ic.mid{background:#fff3e0;color:#a85b00}" +
             ".empty{background:#fff;border:1px dashed #d3d9e1;border-radius:12px;padding:22px;text-align:center;color:#5f6b7a;margin-top:12px}" +
             ".muted{color:#5f6b7a}.mono{font-family:Consolas,'Courier New',monospace;font-size:12px;word-wrap:break-word;word-break:break-all}" +
             ".tw{background:#fff;border:1px solid #e3e7ed;border-radius:12px;overflow:hidden;margin-top:4px}" +
@@ -360,7 +374,9 @@ namespace PhishGuard.AddIn
                 + "</svg><div class='num'>" + score + "</div><div class='of'>/ 100</div></div>";
         }
 
-        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations)
+        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations) { return BuildHtml(r, e, showExplanations, false); }
+
+        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations, bool openDeep)
         {
             var d = r.Details ?? new HeaderDetails();
             var sb = new StringBuilder();
@@ -379,6 +395,7 @@ namespace PhishGuard.AddIn
             Tab(sb, "s-att", L.T("Pièces jointes"), nAtt);
             Tab(sb, "s-raw", L.T("Source"), -1);
             Tab(sb, "s-beta", L.T("Réputation"), beta.Count);
+            if (r.Deep != null) Tab(sb, "s-deep", L.T("Approfondie"), r.Deep.Findings.Count(f => f.Severity != Severity.Info));
             sb.Append("</div><div class='page'>");
 
             // ---------------- Résumé ----------------
@@ -642,9 +659,64 @@ namespace PhishGuard.AddIn
             InfoList(sb, r.Findings.Where(f => f.Severity == Severity.Info && Analyzer.IsBetaFinding(f)).ToList(), showExplanations);
             sb.Append("</div>");
 
+            if (r.Deep != null) DeepSection(sb, r.Deep, showExplanations);
+
             sb.Append("<p class='foot'>" + H(L.T("Analyse locale : le contenu du message ne quitte pas votre poste.")) + "</p>");
-            sb.Append("</div></body></html>");
+            sb.Append("</div>");
+            if (openDeep && r.Deep != null) sb.Append("<script>window.onload=function(){show('s-deep');};</script>");
+            sb.Append("</body></html>");
             return sb.ToString();
+        }
+
+        static readonly string[] DeepSections = { "att", "links", "domains", "hops", "history" };
+
+        static string DeepSectionTitle(string id)
+        {
+            switch (id)
+            {
+                case "att": return L.T("Contenu des pièces jointes");
+                case "links": return L.T("Destination réelle des liens");
+                case "domains": return L.T("Âge et certificats de tous les domaines");
+                case "hops": return L.T("Serveurs traversés");
+                default: return L.T("Dans votre boîte");
+            }
+        }
+
+        /// <summary>Onglet « Approfondie » : uniquement ce que l'analyse approfondie a découvert en plus.</summary>
+        static void DeepSection(StringBuilder sb, DeepReport d, bool showExplanations)
+        {
+            sb.Append("<div class='sec' id='s-deep'>");
+            sb.Append("<p class='note'>" + H(L.F("Analyse approfondie du {0}, en {1} s. Seuls les éléments nouveaux par rapport aux autres onglets sont affichés.",
+                d.When.ToString("dd/MM/yyyy HH:mm"), Math.Max(1, (int)Math.Round(d.Duration.TotalSeconds)))) + "</p>");
+            var found = d.Findings.Where(f => f.Severity != Severity.Info).OrderByDescending(f => (int)f.Severity).ToList();
+            if (found.Count > 0)
+            {
+                sb.Append("<h2>" + H(L.T("Nouveaux indices")) + "<span class='c'>" + found.Count + "</span></h2>");
+                foreach (var f in found) FindingCard(sb, f, showExplanations);
+            }
+            foreach (var s in DeepSections)
+            {
+                var facts = d.Facts.Where(x => x.Section == s).ToList();
+                if (facts.Count == 0) continue;
+                sb.Append("<h2>" + H(DeepSectionTitle(s)) + "</h2><div class='card'><ul class='list'>");
+                foreach (var x in facts.OrderBy(x => x.Status == "bad" ? 0 : x.Status == "warn" ? 1 : x.Status == "info" ? 2 : 3))
+                {
+                    string ic = x.Status == "ok" ? "<span class='ic okc'>&#10003;</span>" : x.Status == "bad" ? "<span class='ic bad'>!</span>" : x.Status == "warn" ? "<span class='ic mid'>!</span>" : "<span class='ic inf'>i</span>";
+                    sb.Append("<li>" + ic + "<span class='mono'>" + H(x.Text) + "</span></li>");
+                }
+                sb.Append("</ul></div>");
+            }
+            if (found.Count == 0 && d.Facts.Count == 0) sb.Append(Empty(L.T("Rien de plus à signaler : l’analyse approfondie n’a rien trouvé que les autres onglets ne montrent déjà.")));
+            if (d.Unchecked.Count > 0)
+            {
+                sb.Append("<h2>" + H(L.T("Non vérifié")) + "</h2><div class='card'><ul class='list'>");
+                foreach (var u in d.Unchecked.Distinct()) sb.Append("<li><span class='ic inf'>–</span>" + H(u) + "</li>");
+                sb.Append("</ul></div>");
+            }
+            sb.Append("<h2>" + H(L.T("Ce qui est sorti du poste")) + "<span class='c'>" + d.Sent.Distinct().Count() + "</span></h2><div class='card'>");
+            if (d.Sent.Count == 0) sb.Append("<p class='muted'>" + H(L.T("Rien : toutes les vérifications ont été faites sur votre poste.")) + "</p>");
+            else { sb.Append("<ul class='list'>"); foreach (var u in d.Sent.Distinct()) sb.Append("<li><span class='ic inf'>›</span><span class='mono'>" + H(u) + "</span></li>"); sb.Append("</ul>"); }
+            sb.Append("</div></div>");
         }
 
         static void FindingCard(StringBuilder sb, Finding f, bool showExplanations)

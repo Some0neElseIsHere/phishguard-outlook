@@ -70,6 +70,27 @@ namespace PhishGuard
             }
         }
 
+        /// <summary>Date de création, en attendant la réponse si besoin (analyse approfondie, hors du fil d'Outlook).</summary>
+        public static DateTime? LookupNow(string domain, out bool ok)
+        {
+            ok = true;
+            DateTime? created;
+            if (TryGetCreated(domain, out created)) return created;
+            string d = (domain ?? "").ToLowerInvariant();
+            try { created = Lookup(d); LastError = ""; }
+            catch (Exception ex) { LastError = ex.Message; ok = false; return null; }
+            lock (Sync) { EnsureLoaded(); known[d] = created; checkedOn[d] = DateTime.UtcNow; }
+            try
+            {
+                Directory.CreateDirectory(Blocklists.DataDir);
+                File.AppendAllText(CachePath, d + ";" + (created.HasValue ? created.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "?")
+                    + ";" + DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + Environment.NewLine, Encoding.UTF8);
+            }
+            catch (Exception) { }
+            Changed = true;
+            return created;
+        }
+
         public static void Request(string domain)
         {
             if (!Enabled) return;
