@@ -112,8 +112,8 @@ namespace PhishGuard.Tests
             Check("Safe Links", u != null && u.Host == "niicrosoft.com", u == null ? "null" : u.Host);
 
             // Liens réécrits par les passerelles de sécurité
-            u = Analyzer.UnwrapUrl("https://urldefense.com/v3/__https://www.sonema.com/__;!!AbCdEf12!xYz-123$", null);
-            Check("Proofpoint v3", u != null && u.Host == "www.sonema.com", u == null ? "null" : u.AbsoluteUri);
+            u = Analyzer.UnwrapUrl("https://urldefense.com/v3/__https://www.lorema.com/__;!!AbCdEf12!xYz-123$", null);
+            Check("Proofpoint v3", u != null && u.Host == "www.lorema.com", u == null ? "null" : u.AbsoluteUri);
             string v3 = Rewriters.ProofpointV3("https://urldefense.com/v3/__https://ex.fr/a?b=1*x**A__;IyYm!!tok$");
             Check("Proofpoint v3 caractères remplacés", v3 == "https://ex.fr/a?b=1#x&&", v3);
             u = Analyzer.UnwrapUrl("https://urldefense.proofpoint.com/v2/url?u=https-3A__niicrosoft.com_login-3Fa-3D1&d=DwMF&c=abc", null);
@@ -463,6 +463,16 @@ namespace PhishGuard.Tests
 
             // DMARC (politique) et BIMI par DNS (bêta)
             Check("DMARC p=reject", Intel.ParseDmarcPolicy("v=DMARC1; p=reject; rua=mailto:x@y", false) == "reject");
+            Check("DMARC pct=", Intel.ParseDmarcPct("v=DMARC1; p=reject; pct=25") == 25 && Intel.ParseDmarcPct("v=DMARC1; p=reject") == 100 && Intel.ParseDmarcPct("v=DMARC1; pct=abc") == 100);
+            Check("SPF : qualificatif de « all »", Intel.SpfAllQualifier("v=spf1 mx -all") == "-" && Intel.SpfAllQualifier("v=spf1 include:x ~all") == "~" && Intel.SpfAllQualifier("v=spf1 +all") == "+"
+                && Intel.SpfAllQualifier("v=spf1 all") == "+" && Intel.SpfAllQualifier("v=spf1 ?all") == "?" && Intel.SpfAllQualifier("v=spf1 mx") == "" && Intel.SpfAllQualifier("") == "");
+            Check("DKIM : taille des clés", Intel.DkimKeyBits("v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAonZ1hwxNxVXU71uHoNqovNO2MbLxMkCK9+3jZ0f2s/KOBJF6B1i0VyUfw1A3EJVAzKLU3x4QJkoRx+DPnLIexqCjkCPttgl6ZxWohomB0GyiC4Kw+iYua+clxc5LrfuLaUDbJq4wXSgLzP5h0rkBkfM1fbUS5m2lAPAhNzkS97N2eaRyKYpwa5bmGQMozdzrKV1k+qFU5stwP/nO+pE7tYwxSicNYpFnyWb4yfGWhZfYaYSfjcJmDuAG/DcUA4fLC4rWBiYX07T+PA9yDAvSEWl6uw5CqkHD/MkGnjYciWtuko2huLyh4/AA7BMxdxZqZvwisECcsZrbqxywyz9AeQIDAQAB") == 2048 && Intel.DkimKeyBits("v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC53UZ5tpzgVkDvHtVwYQ5L2ZDiV7IY2nsSUl15hkVIFIWkkZ5bI8dEVz4c6yfqgaBl6BxqgeOxIHPEON8l/a8LxhkFJPRcHomViUcuEqVJy9QIefHcd2MZAJC75LXbnsO95wjgG6aEJe2C++Q/+xay1NAzXZ55QwLcw4t4CxjEuQIDAQAB") == 1024
+                && Intel.DkimKeyBits("v=DKIM1; p=MIGJAoGBAJyc8WaUWHtzz33YVPk0xQ9fWvUy9BNftpTmUyYqR9+gjSCTq8oEzceJ9+fBB/g03HsSSa9Ft4O0lH+qe7JDeC37ylbLGW0Vwh37eSMBj6np4ImV8gRVHv76LPFnSKrBVnvlckynq3XWnwromElozwbmyZYzLqI+EhZjE5q1ty0ZAgMBAAE=") == 1024 && Intel.DkimKeyBits("v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=") == 256
+                && Intel.DkimKeyBits("v=DKIM1; p=") == 0 && Intel.DkimKeyBits("v=DKIM1; p=%%%") == -1 && Intel.DkimKeyBits("v=DKIM1; p=AAAA") == -1,
+                Intel.DkimKeyBits("v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAonZ1hwxNxVXU71uHoNqovNO2MbLxMkCK9+3jZ0f2s/KOBJF6B1i0VyUfw1A3EJVAzKLU3x4QJkoRx+DPnLIexqCjkCPttgl6ZxWohomB0GyiC4Kw+iYua+clxc5LrfuLaUDbJq4wXSgLzP5h0rkBkfM1fbUS5m2lAPAhNzkS97N2eaRyKYpwa5bmGQMozdzrKV1k+qFU5stwP/nO+pE7tYwxSicNYpFnyWb4yfGWhZfYaYSfjcJmDuAG/DcUA4fLC4rWBiYX07T+PA9yDAvSEWl6uw5CqkHD/MkGnjYciWtuko2huLyh4/AA7BMxdxZqZvwisECcsZrbqxywyz9AeQIDAQAB") + " / " + Intel.DkimKeyBits("v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC53UZ5tpzgVkDvHtVwYQ5L2ZDiV7IY2nsSUl15hkVIFIWkkZ5bI8dEVz4c6yfqgaBl6BxqgeOxIHPEON8l/a8LxhkFJPRcHomViUcuEqVJy9QIefHcd2MZAJC75LXbnsO95wjgG6aEJe2C++Q/+xay1NAzXZ55QwLcw4t4CxjEuQIDAQAB") + " / " + Intel.DkimKeyBits("v=DKIM1; p=MIGJAoGBAJyc8WaUWHtzz33YVPk0xQ9fWvUy9BNftpTmUyYqR9+gjSCTq8oEzceJ9+fBB/g03HsSSa9Ft4O0lH+qe7JDeC37ylbLGW0Vwh37eSMBj6np4ImV8gRVHv76LPFnSKrBVnvlckynq3XWnwromElozwbmyZYzLqI+EhZjE5q1ty0ZAgMBAAE="));
+            var auk = DomainAudit.AuditRecords("x.fr", new List<string> { "mx.x.fr" }, new List<string> { "v=spf1 mx -all" }, new List<string> { "v=DMARC1; p=reject" },
+                new List<string>(), new List<string>(), new List<string>(), new List<string> { "s1", "s2" }, new List<string>(), new Dictionary<string, int> { { "s1", 2048 }, { "s2", 1024 } });
+            Check("bilan email : clé DKIM de 1024 bits signalée", auk.Any(x => x.Status == "warn" && x.Title.Contains("1024")) && auk.Any(x => x.Detail.Contains("s1 (2048 bits)")));
             Check("DMARC sp= pour un sous-domaine", Intel.ParseDmarcPolicy("v=DMARC1; p=reject; sp=none", true) == "none" && Intel.ParseDmarcPolicy("v=DMARC1; p=quarantine", true) == "quarantine");
             Check("BIMI avec certificat", Intel.ParseBimi("v=BIMI1; l=https://x/logo.svg; a=https://x/vmc.pem") == "vmc");
             Check("BIMI sans certificat", Intel.ParseBimi("v=BIMI1; l=https://x/logo.svg; a=;") == "logo" && Intel.ParseBimi("") == "");
@@ -478,36 +488,36 @@ namespace PhishGuard.Tests
 
             // ---------- Annuaire des Entreprises ----------
             const string ANNUAIRE = "{\"results\":[{\"siren\":\"111\",\"nom_complet\":\"ACME (FERMEE)\",\"etat_administratif\":\"C\",\"siege\":{\"libelle_commune\":\"LYON\"},\"dirigeants\":[]},"
-                + "{\"siren\":\"449397173\",\"nom_complet\":\"SONEMA\",\"etat_administratif\":\"A\",\"siege\":{\"libelle_commune\":\"FREJUS\"},\"dirigeants\":["
-                + "{\"nom\":\"DUFOURCQ\",\"prenoms\":\"CHARLES AUGUSTIN MARIE\",\"qualite\":\"Gérant\",\"type_dirigeant\":\"personne physique\"},"
+                + "{\"siren\":\"123456782\",\"nom_complet\":\"LOREMA\",\"etat_administratif\":\"A\",\"siege\":{\"libelle_commune\":\"TOULON\"},\"dirigeants\":["
+                + "{\"nom\":\"MARTIN\",\"prenoms\":\"CLAIRE ANNE MARIE\",\"qualite\":\"Gérant\",\"type_dirigeant\":\"personne physique\"},"
                 + "{\"siren\":\"999\",\"denomination\":\"HOLDING X\",\"qualite\":\"Président\",\"type_dirigeant\":\"personne morale\"},"
-                + "{\"nom\":\"GORIN-TRIANA\",\"prenoms\":\"JEAN-PIERRE\",\"type_dirigeant\":\"personne physique\"}]}],\"total_results\":2}";
+                + "{\"nom\":\"DURAND-PETIT\",\"prenoms\":\"JEAN-PAUL\",\"type_dirigeant\":\"personne physique\"}]}],\"total_results\":2}";
             var co = CompanyLookup.Parse(ANNUAIRE);
             Check("annuaire : entreprises lues", co.Count == 2, co.Count.ToString());
-            Check("annuaire : active en premier", co.Count == 2 && co[0].Name == "SONEMA" && co[0].City == "Frejus" && !co[1].Active);
-            Check("annuaire : dirigeants personnes physiques", co.Count == 2 && co[0].Directors.Count == 2 && co[0].Directors[0] == "Charles Dufourcq"
-                && co[0].Directors[1] == "Jean-Pierre Gorin-Triana" && co[0].Roles[0] == "Charles Dufourcq (Gérant)", co.Count > 0 ? string.Join(" | ", co[0].Directors.ToArray()) : "");
+            Check("annuaire : active en premier", co.Count == 2 && co[0].Name == "LOREMA" && co[0].City == "Toulon" && !co[1].Active);
+            Check("annuaire : dirigeants personnes physiques", co.Count == 2 && co[0].Directors.Count == 2 && co[0].Directors[0] == "Claire Martin"
+                && co[0].Directors[1] == "Jean-Paul Durand-Petit" && co[0].Roles[0] == "Claire Martin (Gérant)", co.Count > 0 ? string.Join(" | ", co[0].Directors.ToArray()) : "");
             Check("annuaire : réponse vide", CompanyLookup.Parse("{}").Count == 0 && CompanyLookup.Parse("{\"results\":[]}").Count == 0);
 
             // ---------- Analyse de votre domaine ----------
-            var va = DomainAudit.Variants("sonema.com");
+            var va = DomainAudit.Variants("lorema.com");
             Func<string, bool> hasV = d => va.Any(x => x.Key == d);
-            Check("variantes : extension, caractère, faute, mot", hasV("sonema.fr") && hasV("s0nema.com") && hasV("sonerna.com") && hasV("sonnema.com")
-                && hasV("snoema.com") && hasV("sonema-paiement.com") && hasV("sonema-fr.com") && hasV("sonema-com.fr"), va.Count.ToString());
-            Check("variantes : sans le domaine lui-même ni doublon", !hasV("sonema.com") && va.Select(x => x.Key).Distinct().Count() == va.Count);
+            Check("variantes : extension, caractère, faute, mot", hasV("lorema.fr") && hasV("l0rema.com") && hasV("lorerna.com") && hasV("lorrema.com")
+                && hasV("lroema.com") && hasV("lorema-paiement.com") && hasV("lorema-fr.com") && hasV("lorema-com.fr"), va.Count.ToString());
+            Check("variantes : sans le domaine lui-même ni doublon", !hasV("lorema.com") && va.Select(x => x.Key).Distinct().Count() == va.Count);
             Check("variantes : nombre raisonnable", va.Count > 80 && va.Count < 400, va.Count.ToString());
-            Check("variantes : pas de touche voisine", !hasV("sinema.com"));
-            Check("SIREN : clé de Luhn", DomainAudit.IsValidSiren("449397173") && !DomainAudit.IsValidSiren("449397174") && !DomainAudit.IsValidSiren("12345"));
-            Check("SIREN : RCS", DomainAudit.FindSiren("<footer>SONEMA SAS au capital de 10&nbsp;000 € – RCS Fréjus 449 397 173</footer>") == "449397173");
-            Check("SIREN : SIRET", DomainAudit.FindSiren("<p>SIRET : <b>449 397 173 00047</b></p>") == "449397173");
-            Check("SIREN : TVA", DomainAudit.FindSiren("N° TVA intracommunautaire : FR 12 449397173") == "449397173");
-            Check("SIREN : numéro invalide ignoré", DomainAudit.FindSiren("Téléphone 04 94 12 34 56 – SIREN 449 397 174") == "");
-            var ll = DomainAudit.LegalLinks("<a href='/fr/contact'>Contact</a><a href=\"/mentions-legales/\">Mentions légales</a><a href='https://autre.fr/legal'>x</a><a href='cgv.html'>CGV</a>", "https://www.sonema.com/");
-            Check("mentions légales : liens", ll.Count == 2 && ll[0] == "https://www.sonema.com/mentions-legales/" && ll[1] == "https://www.sonema.com/cgv.html", string.Join(" ", ll.ToArray()));
+            Check("variantes : pas de touche voisine", !hasV("lirema.com"));
+            Check("SIREN : clé de Luhn", DomainAudit.IsValidSiren("123456782") && !DomainAudit.IsValidSiren("123456783") && !DomainAudit.IsValidSiren("12345"));
+            Check("SIREN : RCS", DomainAudit.FindSiren("<footer>LOREMA SAS au capital de 10&nbsp;000 € – RCS Toulon 123 456 782</footer>") == "123456782");
+            Check("SIREN : SIRET", DomainAudit.FindSiren("<p>SIRET : <b>123 456 782 00047</b></p>") == "123456782");
+            Check("SIREN : TVA", DomainAudit.FindSiren("N° TVA intracommunautaire : FR 12 123456782") == "123456782");
+            Check("SIREN : numéro invalide ignoré", DomainAudit.FindSiren("Téléphone 04 94 12 34 56 – SIREN 123 456 783") == "");
+            var ll = DomainAudit.LegalLinks("<a href='/fr/contact'>Contact</a><a href=\"/mentions-legales/\">Mentions légales</a><a href='https://autre.fr/legal'>x</a><a href='cgv.html'>CGV</a>", "https://www.lorema.com/");
+            Check("mentions légales : liens", ll.Count == 2 && ll[0] == "https://www.lorema.com/mentions-legales/" && ll[1] == "https://www.lorema.com/cgv.html", string.Join(" ", ll.ToArray()));
             var snd = new List<string>();
-            var au = DomainAudit.AuditRecords("sonema.com", new List<string> { "sonema-com.mail.protection.outlook.com" },
+            var au = DomainAudit.AuditRecords("lorema.com", new List<string> { "lorema-com.mail.protection.outlook.com" },
                 new List<string> { "v=spf1 include:spf.protection.outlook.com include:spf.sendinblue.com -all", "google-site-verification=x" },
-                new List<string> { "v=DMARC1; p=reject; rua=mailto:dmarc@sonema.com" }, new List<string>(), new List<string>(), new List<string>(), new List<string> { "selector1" }, snd);
+                new List<string> { "v=DMARC1; p=reject; rua=mailto:dmarc@lorema.com" }, new List<string>(), new List<string>(), new List<string>(), new List<string> { "selector1" }, snd);
             Check("bilan email : domaine protégé", au[0].Status == "ok" && !au.Any(x => x.Status == "bad"), string.Join(" | ", au.Select(x => x.Status + ":" + x.Title).ToArray()));
             Check("bilan email : services autorisés", snd.Contains("Microsoft 365") && snd.Contains("Brevo"), string.Join(",", snd.ToArray()));
             var au2 = DomainAudit.AuditRecords("x.fr", new List<string>(), new List<string> { "v=spf1 +all" }, new List<string>(), new List<string>(), new List<string>(), new List<string>(), new List<string>(), new List<string>());
@@ -515,20 +525,20 @@ namespace PhishGuard.Tests
             var au3 = DomainAudit.AuditRecords("x.fr", new List<string> { "mx.x.fr" }, new List<string> { "v=spf1 mx ~all" }, new List<string> { "v=DMARC1; p=none" },
                 new List<string>(), new List<string>(), new List<string>(), new List<string>(), new List<string>());
             Check("bilan email : p=none à améliorer", au3[0].Status == "warn" && au3.Any(x => x.Title.Contains("p=none")));
-            const string CRT = "[{\"name_value\":\"sonema.com\\nwww.sonema.com\\nsonema.fr\",\"not_before\":\"2026-10-10T08:00:00\"},"
-                + "{\"name_value\":\"*.sonema.com\\nsonema-group.com\",\"not_before\":\"2026-01-01T00:00:00\"},"
-                + "{\"name_value\":\"a.com\\nb.com\\nc.com\\nd.com\\ne.com\\nsonema.com\",\"not_before\":\"2026-01-01T00:00:00\"},"
-                + "{\"name_value\":\"sonema-paiement.net\\nwww.sonema-paiement.net\",\"not_before\":\"2026-10-12T00:00:00\"},"
-                + "{\"name_value\":\"personema.com\",\"not_before\":\"2026-10-12T00:00:00\"}]";
-            var rel = DomainAudit.ParseRelated(CRT, new[] { "sonema.com" });
-            Check("certificats : domaines liés", rel.Count == 2 && rel.Any(x => x.Domain == "sonema.fr") && rel.Any(x => x.Domain == "sonema-group.com"), string.Join(",", rel.Select(x => x.Domain).ToArray()));
-            var bc = DomainAudit.ParseBrandCerts(CRT, "sonema", new[] { "sonema.com" }, new DateTime(2026, 10, 1));
-            Check("certificats : marque sur un autre domaine", bc.Count == 2 && bc.Any(x => x.Domain == "sonema-paiement.net") && bc.Any(x => x.Domain == "sonema.fr") && !bc.Any(x => x.Domain == "personema.com"),
+            const string CRT = "[{\"name_value\":\"lorema.com\\nwww.lorema.com\\nlorema.fr\",\"not_before\":\"2026-10-10T08:00:00\"},"
+                + "{\"name_value\":\"*.lorema.com\\nlorema-group.com\",\"not_before\":\"2026-01-01T00:00:00\"},"
+                + "{\"name_value\":\"a.com\\nb.com\\nc.com\\nd.com\\ne.com\\nlorema.com\",\"not_before\":\"2026-01-01T00:00:00\"},"
+                + "{\"name_value\":\"lorema-paiement.net\\nwww.lorema-paiement.net\",\"not_before\":\"2026-10-12T00:00:00\"},"
+                + "{\"name_value\":\"perlorema.com\",\"not_before\":\"2026-10-12T00:00:00\"}]";
+            var rel = DomainAudit.ParseRelated(CRT, new[] { "lorema.com" });
+            Check("certificats : domaines liés", rel.Count == 2 && rel.Any(x => x.Domain == "lorema.fr") && rel.Any(x => x.Domain == "lorema-group.com"), string.Join(",", rel.Select(x => x.Domain).ToArray()));
+            var bc = DomainAudit.ParseBrandCerts(CRT, "lorema", new[] { "lorema.com" }, new DateTime(2026, 10, 1));
+            Check("certificats : marque sur un autre domaine", bc.Count == 2 && bc.Any(x => x.Domain == "lorema-paiement.net") && bc.Any(x => x.Domain == "lorema.fr") && !bc.Any(x => x.Domain == "perlorema.com"),
                 string.Join(",", bc.Select(x => x.Domain).ToArray()));
-            Check("marque dans un nom", DomainAudit.BrandInHost("sonema-paiement.com", "sonema") && DomainAudit.BrandInHost("sonema.secure-login.net", "sonema")
-                && DomainAudit.BrandInHost("compte-sonema.fr", "sonema") && !DomainAudit.BrandInHost("personema.com", "sonema"));
-            Blocklists.SetForTests(new string[0], new string[0], new[] { "sonema-pay.com" });
-            var eW = Base(); eW.FromAddress = "compta@sonema-pay.com";
+            Check("marque dans un nom", DomainAudit.BrandInHost("lorema-paiement.com", "lorema") && DomainAudit.BrandInHost("lorema.secure-login.net", "lorema")
+                && DomainAudit.BrandInHost("compte-lorema.fr", "lorema") && !DomainAudit.BrandInHost("perlorema.com", "lorema"));
+            Blocklists.SetForTests(new string[0], new string[0], new[] { "lorema-pay.com" });
+            var eW = Base(); eW.FromAddress = "compta@lorema-pay.com";
             Check("surveillance : sosie apparu bloqué", Analyzer.Analyze(eW, cfg).Findings.Any(f => f.Id == "sender-blocklist-watch" && f.Severity == Severity.High), string.Join(",", Ids(Analyzer.Analyze(eW, cfg)).ToArray()));
             Blocklists.SetForTests(new string[0], new string[0]);
 
@@ -545,9 +555,9 @@ namespace PhishGuard.Tests
             Check("désarmement du texte", ReportHtml.DefangText("voir http://a.b/c et https://x.y") == "voir hxxp://a[.]b/c et hxxps://x[.]y");
 
             // ---------- Plusieurs Authentication-Results du même serveur ----------
-            var hd = Forensics.ParseHeaders("Authentication-Results: mx.sonema.com; dkim=pass header.d=x.fr\r\nAuthentication-Results: mx.sonema.com; spf=pass smtp.mailfrom=x.fr; dmarc=pass header.from=x.fr\r\nAuthentication-Results: mx.attaquant.net; spf=pass");
+            var hd = Forensics.ParseHeaders("Authentication-Results: mx.lorema.com; dkim=pass header.d=x.fr\r\nAuthentication-Results: mx.lorema.com; spf=pass smtp.mailfrom=x.fr; dmarc=pass header.from=x.fr\r\nAuthentication-Results: mx.attaquant.net; spf=pass");
             Check("AR multiples : regroupés", hd.Auth.Spf == "pass" && hd.Auth.Dkim == "pass" && hd.Auth.Dmarc == "pass", hd.Auth.Spf + "/" + hd.Auth.Dkim + "/" + hd.Auth.Dmarc);
-            var hd2 = Forensics.ParseHeaders("Authentication-Results: mx.sonema.com; dkim=pass header.d=x.fr\r\nAuthentication-Results: mx.attaquant.net; spf=pass; dmarc=pass");
+            var hd2 = Forensics.ParseHeaders("Authentication-Results: mx.lorema.com; dkim=pass header.d=x.fr\r\nAuthentication-Results: mx.attaquant.net; spf=pass; dmarc=pass");
             Check("AR d'un autre serveur ignoré", hd2.Auth.Spf == null && hd2.Auth.Dmarc == null);
             Check("rapport HTML : contrôles séparés", ReportHtml.Build(Analyzer.Analyze(Base(), cfg), Base(), "").Contains("</span>&nbsp;&nbsp; "));
 
@@ -619,9 +629,9 @@ namespace PhishGuard.Tests
             Check("assistant : déjà vu", cDone.PendingSetup(setupSteps, true).Count == 0 && cDone.PendingSetup(setupSteps.Concat(new[] { "nouveau" }), true).SequenceEqual(new[] { "nouveau" }));
 
             // ---------- Plusieurs entreprises ----------
-            var ceTest = CompanyEntry.Parse("Sonema | FR | 449397173 | Charles Dufourcq; Jean-Pierre Gorin");
-            Check("entreprise : lecture", ceTest != null && ceTest.Name == "Sonema" && ceTest.Country == "FR" && ceTest.Id == "449397173" && ceTest.Directors.Count == 2);
-            Check("entreprise : écriture", CompanyEntry.Parse(ceTest.Serialize()).Directors[1] == "Jean-Pierre Gorin");
+            var ceTest = CompanyEntry.Parse("Lorema | FR | 123456782 | Claire Martin; Jean-Paul Durand");
+            Check("entreprise : lecture", ceTest != null && ceTest.Name == "Lorema" && ceTest.Country == "FR" && ceTest.Id == "123456782" && ceTest.Directors.Count == 2);
+            Check("entreprise : écriture", CompanyEntry.Parse(ceTest.Serialize()).Directors[1] == "Jean-Paul Durand");
             string tmpDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "pg-tests-" + Guid.NewGuid().ToString("N"));
             System.IO.Directory.CreateDirectory(tmpDir);
             string adminIni = System.IO.Path.Combine(tmpDir, "config.ini"), userIni = System.IO.Path.Combine(tmpDir, "config.user.ini");

@@ -101,7 +101,7 @@ namespace PhishGuard
                     add(w + "-" + label, s, tWord);
                     if (s == suffix) add(label + w, s, tWord);
                 }
-            foreach (var s in new[] { "com", "fr" }) add(label + "-" + suffix.Replace(".", "-"), s, tWord);   // sonema-com.fr
+            foreach (var s in new[] { "com", "fr" }) add(label + "-" + suffix.Replace(".", "-"), s, tWord);   // exemple-com.fr
             return list;
         }
 
@@ -180,7 +180,7 @@ namespace PhishGuard
 
         /// <summary>Bilan à partir des enregistrements DNS déjà lus (testable sans réseau).</summary>
         public static List<AuditItem> AuditRecords(string domain, List<string> mx, List<string> txt, List<string> dmarcTxt, List<string> bimiTxt,
-            List<string> mtaStsTxt, List<string> tlsRptTxt, List<string> dkimSelectors, List<string> senders)
+            List<string> mtaStsTxt, List<string> tlsRptTxt, List<string> dkimSelectors, List<string> senders, Dictionary<string, int> dkimBits = null)
         {
             var items = new List<AuditItem>();
             var spf = txt.Where(t => t.TrimStart().StartsWith("v=spf1", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -249,7 +249,21 @@ namespace PhishGuard
 
             // ---- DKIM ----
             if (dkimSelectors.Count > 0)
-                items.Add(new AuditItem("ok", L.T("Signature DKIM publiée"), L.T("Sélecteurs trouvés : ") + string.Join(", ", dkimSelectors.ToArray())));
+            {
+                Func<string, string> desc = s => { int b; return dkimBits != null && dkimBits.TryGetValue(s, out b) && b > 0 ? s + " (" + b + " bits)" : s; };
+                items.Add(new AuditItem("ok", L.T("Signature DKIM publiée"), L.T("Sélecteurs trouvés : ") + string.Join(", ", dkimSelectors.Select(desc).ToArray())));
+                if (dkimBits != null)
+                {
+                    var weak = dkimSelectors.Where(s => dkimBits.ContainsKey(s) && dkimBits[s] > 256 && dkimBits[s] < 2048).ToList();
+                    if (weak.Any(s => dkimBits[s] < 1024))
+                        items.Add(new AuditItem("bad", L.T("Clé DKIM trop faible (moins de 1024 bits)"), L.T("Une clé aussi courte peut être cassée et vos emails imités avec une signature valide. Générez une clé de 2048 bits : ") + string.Join(", ", weak.Select(desc).ToArray())));
+                    else if (weak.Count > 0)
+                        items.Add(new AuditItem("warn", L.T("Clé DKIM de 1024 bits"), L.T("Encore acceptée, mais déconseillée : passez à 2048 bits lors de la prochaine rotation des clés. ") + string.Join(", ", weak.Select(desc).ToArray())));
+                    var revoked = dkimSelectors.Where(s => dkimBits.ContainsKey(s) && dkimBits[s] == 0).ToList();
+                    if (revoked.Count > 0)
+                        items.Add(new AuditItem("info", L.T("Clé DKIM révoquée"), L.T("Ce sélecteur est publié sans clé (p= vide) : les messages signés avec lui seront refusés. ") + string.Join(", ", revoked.ToArray())));
+                }
+            }
             else
                 items.Add(new AuditItem("info", L.T("Aucun sélecteur DKIM courant trouvé"), L.T("Il peut exister sous un autre nom : vérifiez dans l’en-tête « DKIM-Signature » (s=) d’un de vos emails.")));
 
@@ -297,14 +311,16 @@ namespace PhishGuard
             Intel.Query("_mta-sts." + domain, Intel.TypeTxt, sts);
             Intel.Query("_smtp._tls." + domain, Intel.TypeTxt, rpt);
             var found = new List<string>();
+            var bits = new Dictionary<string, int>();
             var sync = new object();
             Parallel.ForEach(DkimSelectors, new ParallelOptions { MaxDegreeOfParallelism = 6 }, s =>
             {
                 var v = new List<string>();
                 Intel.Query(s + "._domainkey." + domain, Intel.TypeTxt, v);
-                if (v.Any(x => x.Contains("p=") || x.Contains("k=rsa"))) lock (sync) found.Add(s);
+                string rec = v.FirstOrDefault(x => x.Contains("p=") || x.Contains("k=rsa"));
+                if (rec != null) lock (sync) { found.Add(s); bits[s] = Intel.DkimKeyBits(rec); }
             });
-            return AuditRecords(domain, mx, txt, dmarc, bimi, sts, rpt, DkimSelectors.Where(found.Contains).ToList(), senders);
+            return AuditRecords(domain, mx, txt, dmarc, bimi, sts, rpt, DkimSelectors.Where(found.Contains).ToList(), senders, bits);
         }
 
         // =================================================================
@@ -451,7 +467,7 @@ namespace PhishGuard
                 .Select(kv => new FoundDomain { Domain = kv.Key, Kind = "related", Count = kv.Value }).ToList();
         }
 
-        /// <summary>La marque apparaît comme un mot dans l'un des labels (sonema-paiement.com, sonema.secure-login.net), pas au milieu d'un autre mot.</summary>
+        /// <summary>La marque apparaît comme un mot dans l'un des labels (exemple-paiement.com, exemple.secure-login.net), pas au milieu d'un autre mot.</summary>
         public static bool BrandInHost(string host, string brand)
         {
             if (string.IsNullOrEmpty(brand) || brand.Length < 4) return false;

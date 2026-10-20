@@ -34,6 +34,8 @@ namespace PhishGuard
         public bool HasMx, HasSpf, HasDmarc;
         public string DmarcPolicy = "";   // DNS : none, quarantine, reject (politique appliquée au domaine)
         public string Bimi = "";          // DNS : "vmc" (logo avec certificat VMC/CMC), "logo" (logo sans certificat), "" (aucun)
+        public string SpfAll = "";        // DNS : fin du SPF : "-" (strict), "~" (échec doux), "?" (neutre), "+" (tout le monde), "" (absent)
+        public int DmarcPct = 100;        // DNS : part des messages à laquelle la politique DMARC s'applique
         public DateTime When = DateTime.UtcNow;
     }
 
@@ -395,6 +397,8 @@ namespace PhishGuard
                 HasSpf = txt.Any(t => t.TrimStart().StartsWith("v=spf1", StringComparison.OrdinalIgnoreCase)),
                 HasDmarc = dmarcRecord.Length > 0,
                 DmarcPolicy = ParseDmarcPolicy(dmarcRecord, dmarcFromOrg),
+                DmarcPct = ParseDmarcPct(dmarcRecord),
+                SpfAll = SpfAllQualifier(txt.FirstOrDefault(t => t.TrimStart().StartsWith("v=spf1", StringComparison.OrdinalIgnoreCase)) ?? ""),
                 Bimi = ParseBimi(bimi.FirstOrDefault(IsBimi) ?? "")
             };
         }
@@ -463,6 +467,72 @@ namespace PhishGuard
 
         /// <summary>Politique DMARC d'un enregistrement (« none », « quarantine », « reject » ou "").
         /// forSubdomain : l'enregistrement est celui du domaine parent, la politique « sp= » s'applique si elle existe.</summary>
+        /// <summary>Part des messages couverte par la politique DMARC (pct=, 100 par défaut).</summary>
+        public static int ParseDmarcPct(string record)
+        {
+            string v; int n;
+            if (Tags(record).TryGetValue("pct", out v) && int.TryParse(v.Trim(), out n)) return Math.Max(0, Math.Min(100, n));
+            return 100;
+        }
+
+        /// <summary>Qualificatif du mécanisme « all » d'un SPF : "-", "~", "?", "+" ("all" seul vaut "+"), ou "" s'il n'y en a pas.</summary>
+        public static string SpfAllQualifier(string record)
+        {
+            if (string.IsNullOrEmpty(record)) return "";
+            string q = "";
+            foreach (var tok in record.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                string t = tok.Trim().ToLowerInvariant();
+                if (t == "all") q = "+";
+                else if (t.Length == 4 && t.EndsWith("all") && "+-~?".IndexOf(t[0]) >= 0) q = t.Substring(0, 1);
+            }
+            return q;
+        }
+
+        /// <summary>
+        /// Taille de la clé d'un enregistrement DKIM (« v=DKIM1; k=rsa; p=MIIB… ») en bits : 256 pour ed25519,
+        /// 0 si la clé est révoquée (p= vide), -1 si elle est illisible. Lit la plus grande valeur entière de la
+        /// structure ASN.1 (le module RSA), que la clé soit publiée au format SubjectPublicKeyInfo ou PKCS#1.
+        /// </summary>
+        public static int DkimKeyBits(string record)
+        {
+            var t = Tags(record);
+            string k, p;
+            if (t.TryGetValue("k", out k) && k.Trim().Equals("ed25519", StringComparison.OrdinalIgnoreCase)) return 256;
+            if (!t.TryGetValue("p", out p)) return -1;
+            p = System.Text.RegularExpressions.Regex.Replace(p, @"\s+", "");
+            if (p.Length == 0) return 0;
+            byte[] der;
+            try { der = Convert.FromBase64String(p); } catch (FormatException) { return -1; }
+            int best = 0;
+            LargestInteger(der, 0, der.Length, 0, ref best);
+            return best > 0 ? best : -1;
+        }
+
+        static void LargestInteger(byte[] d, int start, int end, int depth, ref int best)
+        {
+            int i = start;
+            while (i + 2 <= end && depth < 6)
+            {
+                byte tag = d[i++];
+                int len = d[i++];
+                if ((len & 0x80) != 0)
+                {
+                    int n = len & 0x7F; if (n == 0 || n > 3 || i + n > end) return;
+                    len = 0; for (int j = 0; j < n; j++) len = (len << 8) | d[i++];
+                }
+                if (len < 0 || i + len > end) return;
+                if (tag == 0x02)          // INTEGER : nombre de bits significatifs
+                {
+                    int s = i; while (s < i + len && d[s] == 0) s++;
+                    if (s < i + len) { int bits = (i + len - s) * 8; byte top = d[s]; while ((top & 0x80) == 0) { bits--; top <<= 1; } if (bits > best) best = bits; }
+                }
+                else if (tag == 0x30) LargestInteger(d, i, i + len, depth + 1, ref best);          // SEQUENCE
+                else if (tag == 0x03 && len > 1) LargestInteger(d, i + 1, i + len, depth + 1, ref best);   // BIT STRING (octet de bourrage)
+                i += len;
+            }
+        }
+
         public static string ParseDmarcPolicy(string record, bool forSubdomain)
         {
             var t = Tags(record);
