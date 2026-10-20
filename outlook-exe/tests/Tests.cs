@@ -959,20 +959,20 @@ namespace PhishGuard.Tests
             {
                 var ms = new System.IO.MemoryStream();
                 using (var z = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
-                    foreach (var kv in entries) { var en = z.CreateEntry(kv.Key); using (var s = en.Open()) s.Write(kv.Value, 0, kv.Value.Length); }
+                    foreach (var kv in entries) { var zen = z.CreateEntry(kv.Key); using (var s = zen.Open()) s.Write(kv.Value, 0, kv.Value.Length); }
                 return ms.ToArray();
             };
             Func<string, byte[]> utf8 = s => System.Text.Encoding.UTF8.GetBytes(s);
             Func<string, byte[]> vbaCompress = src =>
             {
                 // Bloc MS-OVBA « compressé » fait uniquement de littéraux (octet d'indicateurs 0 puis 8 octets)
-                var raw = System.Text.Encoding.GetEncoding(1252).GetBytes(src);
+                var vraw = System.Text.Encoding.GetEncoding(1252).GetBytes(src);
                 var o = new List<byte> { 1 };
-                for (int pos = 0; pos < raw.Length; pos += 4000)
+                for (int pos = 0; pos < vraw.Length; pos += 4000)
                 {
                     var chunk = new List<byte>();
-                    int end = Math.Min(raw.Length, pos + 4000);
-                    for (int i = pos; i < end; i += 8) { chunk.Add(0); for (int j = i; j < Math.Min(end, i + 8); j++) chunk.Add(raw[j]); }
+                    int end = Math.Min(vraw.Length, pos + 4000);
+                    for (int i = pos; i < end; i += 8) { chunk.Add(0); for (int j = i; j < Math.Min(end, i + 8); j++) chunk.Add(vraw[j]); }
                     int size = chunk.Count + 2;
                     int header = 0x8000 | 0x3000 | (size - 3);
                     o.Add((byte)(header & 0xFF)); o.Add((byte)(header >> 8)); o.AddRange(chunk);
@@ -1012,8 +1012,8 @@ namespace PhishGuard.Tests
             Check("PDF : lien et code cachés dans une partie compressée", attP.EmbeddedUrls.Contains("https://cache-cache.test/login?u=1") && repP.Findings.Any(f => f.Id == "deep-pdf-hidden-code") && repP.Findings.Any(f => f.Id == "deep-pdf-autoaction"),
                 string.Join(",", repP.Findings.Select(f => f.Id).ToArray()) + " | " + string.Join(",", attP.EmbeddedUrls.ToArray()));
 
-            var inner = zipOf(new Dictionary<string, byte[]> { { "Facture.pdf.js", utf8("WScript.Echo(1)") } });
-            var outer = zipOf(new Dictionary<string, byte[]> { { "documents.zip", inner }, { "lisez-moi.txt", utf8("x") } });
+            var innerZip = zipOf(new Dictionary<string, byte[]> { { "Facture.pdf.js", utf8("WScript.Echo(1)") } });
+            var outer = zipOf(new Dictionary<string, byte[]> { { "documents.zip", innerZip }, { "lisez-moi.txt", utf8("x") } });
             var repZ = new DeepReport(); DeepScan.Inspect(new AttachmentInfo { Name = "Commande.zip", Magic = "zip" }, outer, repZ);
             Check("archive imbriquée : script caché au deuxième niveau", repZ.Findings.Any(f => f.Id == "deep-archive-nested-danger"), string.Join(",", repZ.Findings.Select(f => f.Id).ToArray()));
 
