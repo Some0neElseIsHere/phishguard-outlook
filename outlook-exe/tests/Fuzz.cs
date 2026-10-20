@@ -120,6 +120,7 @@ namespace PhishGuard.Tests
                 {
                     var e = Message(r);
                     step = "analyse"; var res = Analyzer.Analyze(e, cfg);
+                    if (res.Error != null) throw new Exception("analyse interrompue : " + res.Error);
                     step = "en-têtes"; Forensics.ParseHeaders(e.RawHeaders);
                     step = "liens HTML"; string h = HtmlJunk(r); HtmlScan.Links(h); HtmlScan.HasForm(h); HtmlScan.HasPasswordInput(h);
                     step = "mode simple"; SimpleView.Build(res, e, true);

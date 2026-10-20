@@ -167,13 +167,29 @@ namespace PhishGuard
             return d;
         }
 
+        /// <summary>Remplace les demi-caractères Unicode isolés (texte mal encodé ou piégé), que .NET refuse de normaliser.</summary>
+        public static string ValidUnicode(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return s ?? "";
+            StringBuilder sb = null;
+            for (int i = 0; i < s.Length; i++)
+            {
+                char c = s[i];
+                bool bad = char.IsHighSurrogate(c) ? !(i + 1 < s.Length && char.IsLowSurrogate(s[i + 1])) : char.IsLowSurrogate(c) && !(i > 0 && char.IsHighSurrogate(s[i - 1]));
+                if (bad && sb == null) sb = new StringBuilder(s, 0, i, s.Length);
+                if (sb != null) sb.Append(bad ? '\uFFFD' : c);
+            }
+            return sb == null ? s : sb.ToString();
+        }
+
         public static string RemoveDiacritics(string s)
         {
-            string n = (s ?? "").Normalize(NormalizationForm.FormD);
+            string n = ValidUnicode(s ?? "");
+            try { n = n.Normalize(NormalizationForm.FormD); } catch (ArgumentException) { }
             var sb = new StringBuilder(n.Length);
             foreach (char c in n)
                 if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark) sb.Append(c);
-            return sb.ToString().Normalize(NormalizationForm.FormC);
+            try { return sb.ToString().Normalize(NormalizationForm.FormC); } catch (ArgumentException) { return sb.ToString(); }
         }
 
         public static string Skeleton(string s)
