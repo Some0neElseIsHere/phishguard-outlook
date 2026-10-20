@@ -51,6 +51,8 @@ if not defined PG_VERSION set "PG_VERSION=dev"
   /resource:assets\icon-32.png,PhishGuard.icon-32.png /resource:assets\report-32.png,PhishGuard.report-32.png /resource:assets\settings-32.png,PhishGuard.settings-32.png ^
   src\Engine\*.cs src\AddIn\*.cs /recurse:src\ThirdParty\*.cs build\BuildVersion.cs
 if errorlevel 1 goto compilefail
+rem Signature Authenticode facultative : PG_SIGN_PFX = chemin du certificat .pfx, PG_SIGN_PASSWORD = son mot de passe
+if defined PG_SIGN_PFX call :sign build\package\PhishGuard.dll || goto fail
 
 echo [3/4] Preparation de l'installation...
 for %%F in (config.ini custom.txt assets\phishguard.ico installer\installer.cmd installer\desinstaller.cmd) do copy /y "%%F" build\package\ >nul
@@ -71,6 +73,7 @@ if errorlevel 1 (
   echo       L'exe n'a pas pu etre cree. L'installation reste possible avec build\package\installer.cmd
   if defined CI goto fail
 )
+if defined PG_SIGN_PFX if exist build\PhishGuard-Outlook.exe call :sign build\PhishGuard-Outlook.exe || goto fail
 
 echo.
 echo ============================================================
@@ -81,6 +84,15 @@ echo  ou, si l'exe est bloque :
 echo    build\package\installer.cmd
 echo ============================================================
 goto end
+
+:sign
+rem Signe %1 avec signtool (Windows SDK) et un horodatage, pour que la signature reste valide apres expiration du certificat
+if not defined SIGNTOOL for /f "delims=" %%s in ('powershell -NoProfile -Command "(Get-ChildItem \"${env:ProgramFiles(x86)}\Windows Kits\10\bin\" -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue | Where-Object FullName -like '*x64*' | Select-Object -Last 1).FullName"') do set "SIGNTOOL=%%s"
+if not defined SIGNTOOL (echo       signtool introuvable : installez le Windows SDK & exit /b 1)
+"%SIGNTOOL%" sign /f "%PG_SIGN_PFX%" /p "%PG_SIGN_PASSWORD%" /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /q %1
+if errorlevel 1 (echo       Signature de %1 impossible & exit /b 1)
+echo       Signe : %1
+exit /b 0
 
 :nocsc
 echo Le compilateur .NET Framework 4 est introuvable sur ce poste.

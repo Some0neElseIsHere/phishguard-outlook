@@ -109,7 +109,9 @@ namespace PhishGuard.Tests
         /// <summary>Lance n messages aléatoires. Renvoie (exceptions, messages trop lents, temps le plus long en ms, description).</summary>
         public static void Run(int n, PhishGuardConfig cfg, Action<string, bool, string> check)
         {
-            var r = new Random(20261020);
+            int seed;
+            if (!int.TryParse(Environment.GetEnvironmentVariable("PG_FUZZ_SEED") ?? "", out seed)) seed = 20261020;
+            var r = new Random(seed);
             int errors = 0, slow = 0; long worst = 0; string firstError = null, worstWhat = "";
             var sw = new Stopwatch();
             for (int i = 0; i < n; i++)
@@ -136,6 +138,7 @@ namespace PhishGuard.Tests
                 if (ms > 2000) slow++;
                 if (ms > worst) { worst = ms; worstWhat = "message " + i; }
             }
+            if (firstError != null) firstError += " (graine " + seed + ")";
             check("robustesse : " + n + " messages malformés sans exception", errors == 0, firstError);
             check("robustesse : aucun message malformé ne dépasse 2 s", slow == 0, "le plus lent : " + worst + " ms (" + worstWhat + ")");
         }
