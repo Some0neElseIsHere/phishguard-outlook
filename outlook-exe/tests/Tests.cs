@@ -881,6 +881,21 @@ namespace PhishGuard.Tests
             Analyzer.Analyze(bombMail, cfg);
             Check("HTML et en-têtes piégés : lus en moins de 5 s", swDos.ElapsedMilliseconds < 5000, swDos.ElapsedMilliseconds + " ms");
 
+            // ---------- Faux conseiller, données de carte, lien dans la pièce jointe ----------
+            Correspondents.Set(new[] { "paul@exemple-pme.fr" }, false);
+            var fc = new EmailData { FromName = "Service sécurité", FromAddress = "alerte@securite-banque-exemple.fr", Subject = "Fraude détectée",
+                BodyText = "Une fraude a été détectée. Votre conseiller va vous appeler : validez l'opération avec le code reçu par SMS. Ne raccrochez pas.", RawHeaders = PASS };
+            Check("faux conseiller annoncé : signalé", Ids(Analyzer.Analyze(fc, cfg)).Contains("content-combo-phone") && Analyzer.Analyze(fc, cfg).Level != "safe");
+            fc.BodyText = "Des escrocs se font passer pour votre conseiller. Votre conseiller va vous appeler ? Il ne vous demandera jamais de valider une opération ni le code reçu par SMS.";
+            Check("prévention du faux conseiller : pas signalée", !Ids(Analyzer.Analyze(fc, cfg)).Contains("content-combo-phone"));
+            var card = new EmailData { FromName = "Acheteur", FromAddress = "paiement@paiement-securise-exemple.fr", Subject = "Votre acheteur a payé",
+                BodyText = "Pour recevoir l'argent, saisissez votre numéro de carte bancaire et le cryptogramme.", RawHeaders = PASS };
+            Check("données de carte demandées : signalé", Ids(Analyzer.Analyze(card, cfg)).Contains("content-combo-card"));
+            var pdfl = new EmailData { FromName = "Cabinet", FromAddress = "contact@cabinet-exemple.fr", Subject = "Documents", BodyText = "Cliquez sur le lien du document pour y accéder.", RawHeaders = PASS };
+            var pa = new AttachmentInfo { Name = "docs.pdf" }; pa.EmbeddedUrls.Add("https://partage-exemple.com/f/1"); pdfl.Attachments.Add(pa);
+            Check("lien caché dans la pièce jointe : signalé", Ids(Analyzer.Analyze(pdfl, cfg)).Contains("content-attachment-link"));
+            Correspondents.Reset();
+
             // ---------- Avis d'argent reçu : information, pas demande ----------
             Correspondents.Set(new[] { "paul@exemple-pme.fr" }, false);
             var avis = new EmailData { FromName = "Banque Pro", FromAddress = "no-reply@banque-pro-exemple.fr", Subject = "Virement reçu : 12 400,00 € de CLIENT ALPHA SAS",
