@@ -441,7 +441,9 @@ namespace PhishGuard
             // (exigence de Gmail, Yahoo et Microsoft depuis 2024)
             bool noSpf = spf == null || spf == "none" || spf == "temperror" || spf == "permerror";
             bool noDkim = dkim == null || dkim == "none";
-            if (!fromCompany && noSpf && noDkim && dmarc != "pass" && compauth != "pass")
+            // Listes de diffusion exclues : elles réécrivent le message et ses résultats d'authentification sont souvent perdus
+            bool mailingList = HeaderValues(headers, "list-id").Any() || HeaderValues(headers, "list-post").Any() || HeaderValues(headers, "mailing-list").Any();
+            if (!fromCompany && !mailingList && noSpf && noDkim && dmarc != "pass" && compauth != "pass")
             {
                 bool bulk = HeaderValues(headers, "precedence").Any(v => v.Trim().ToLowerInvariant() == "bulk") || HeaderValues(headers, "list-unsubscribe").Any();
                 findings.Add(new Finding("auth-none", "auth", bulk ? Severity.Medium : Severity.Low, L.T("Aucune authentification de l’expéditeur"),
