@@ -204,6 +204,7 @@ namespace PhishGuard.AddIn
         {
             result = r; email = e;
             lastListStatus = listStatus; lastShowExplanations = showExplanations;
+            ThemeUi.EnsureCurrent(this);   // avant la page : le bandeau du bas et la page ont toujours le même thème
             shownSignature = Signature(r) + "|" + Expert + "|" + Theme.Dark;
             ApplyTexts();
             btnTrust.Visible = r.Level != "safe";
