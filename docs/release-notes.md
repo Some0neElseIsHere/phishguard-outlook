@@ -12,6 +12,13 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.18.7** : nouveaux indices, issus d'un spam de casino :
+  - **domaine d'expéditeur impossible** (tiret au début ou à la fin, caractère interdit) : il n'existe dans aucun registre, l'adresse est fabriquée ;
+  - **nom de domaine tiré au hasard** (suite de lettres et de chiffres sans voyelles) ;
+  - **aucune authentification** (ni SPF ni DKIM), plus grave pour un envoi en nombre, que Gmail, Yahoo et Microsoft exigent authentifié depuis 2024 ; les listes de diffusion ne sont pas concernées ;
+  - **publicité pour un casino en ligne** : interdit en France (seuls paris sportifs, hippiques et poker agréés par l'ANJ).
+  Banc d'essai : 83,6 % des phishings alertés (58 % en rouge), faux positifs inchangés (Apache 3,0 %, SpamAssassin 10,6 %, 78/78 cas légitimes difficiles).
+
 - **v1.18.6** : correction de la v1.18.5 : le fichier `config.ini` installé réactivait la recherche automatique de l'âge des domaines. Elle se fait maintenant vraiment d'un clic par défaut. Décocher l'option arrête aussi les recherches déjà en attente. L'option est déplacée dans Paramètres → **Réputation**, avec les autres sources en ligne. Les âges trouvés restent enregistrés sur le poste : un domaine déjà vérifié n'est plus jamais redemandé (une date restée inconnue est retentée au bout de 7 jours).
 
 - **v1.18.5** : l'âge des domaines n'est plus recherché automatiquement : vous le lancez quand vous le décidez, avec **Récupérer l'âge des domaines** dans l'onglet Réputation. Les autres résultats n'attendent plus ces recherches. Pour revenir à la recherche automatique : Paramètres → Réputation → « Rechercher automatiquement l'âge des domaines ». Le service informatique peut toujours l'imposer (stratégie ou `config.ini`, `DomainAgeLookup`).
