@@ -410,6 +410,10 @@ def entreprise():
          "Également ce matin : le crédit d'impôt recherche, les taux d'emprunt, la conjoncture."],
         [("https://link.lesechos.fr/c/abc123", "Lire l'article"), ("https://link.lesechos.fr/c/def456", "Toutes les actualités"),
          ("https://link.lesechos.fr/c/ghi789", "Gérer mes newsletters")], mailfrom="mail.lesechos.fr", raw_auth=gw_filtre_fr("mail.lesechos.fr", "lesechos.fr", "lesechos.fr"))
+    msg("banque-prevention-fraude", "vert", "BNP Paribas", "information@bnpparibas.com", "Arnaque au faux conseiller : les bons réflexes",
+        ["Bonjour,", "Des escrocs se font passer pour votre conseiller : ils vous appellent, annoncent une fraude et vous demandent de valider une opération ou de donner le code reçu par SMS.",
+         "Votre conseiller ne vous demandera jamais de valider une opération par téléphone ni de communiquer un code. Raccrochez et appelez le numéro au dos de votre carte."],
+        [("https://mabanque.bnpparibas/fr/securite", "Nos conseils de sécurité")])
     msg("salon-badge", "vert", "Euromaritime", "badge@euromaritime.fr", "Votre badge visiteur Euromaritime 2027",
         ["Bonjour Claire Martin,", "Votre inscription est confirmée. Votre badge est joint à ce message : imprimez-le ou présentez-le sur votre téléphone."],
         attachments=[("Badge_Euromaritime_2027.pdf", "application/pdf", PDF)], bulk=False)

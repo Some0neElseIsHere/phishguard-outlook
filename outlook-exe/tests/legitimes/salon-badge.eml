@@ -1,9 +1,9 @@
-Authentication-Results: spf=pass (sender IP is 198.51.100.117) smtp.mailfrom=bounce.euromaritime.fr; dkim=pass (signature was verified) header.d=euromaritime.fr;dmarc=pass action=none header.from=euromaritime.fr;compauth=pass reason=100
-Received: from mail.bounce.euromaritime.fr (198.51.100.145) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+Authentication-Results: spf=pass (sender IP is 198.51.100.85) smtp.mailfrom=bounce.euromaritime.fr; dkim=pass (signature was verified) header.d=euromaritime.fr;dmarc=pass action=none header.from=euromaritime.fr;compauth=pass reason=100
+Received: from mail.bounce.euromaritime.fr (198.51.100.158) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
 From: Euromaritime <badge@euromaritime.fr>
 To: claire.martin@exemple-pme.fr
 Subject: =?utf-8?q?Votre_badge_visiteur_Euromaritime_2027?=
-Date: Sun, 25 Jan 2026 08:32:00 +0200
+Date: Sun, 25 Jan 2026 08:28:00 +0200
 Message-ID: <026fbbfd8e964e9824d2720788dabfc8@bounce.euromaritime.fr>
 MIME-Version: 1.0
 X-PhishGuard-Attendu: vert

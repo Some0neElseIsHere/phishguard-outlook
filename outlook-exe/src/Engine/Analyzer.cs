@@ -1376,6 +1376,12 @@ namespace PhishGuard
         static readonly Regex IncomingMoneyRe = new Regex(@"\b(vous avez recu (un|le) (virement|versement)|virement recu|(a|ont) ete (credites?|verses?|vires?) sur votre compte|(sera|seront) (credites?|verses?|vires?) sur votre compte)\b", RegexOptions.Compiled);   // français uniquement : « payment received » est la formule des fausses factures à rappeler
         static readonly Regex PaymentRequestRe = new Regex(@"\b(merci de (regler|payer|proceder|effectuer|confirmer|valider|renseigner)|veuillez (regler|payer|proceder|effectuer|confirmer|valider|renseigner|remplir)|reglez|payez|effectuer (le|un|votre) (paiement|virement|reglement)|frais (de|a)|a regler|coordonnees bancaires|carte bancaire|numero de carte|rib|iban|eligible|formulaire|pour (recevoir|percevoir|obtenir|debloquer)|confirm|verify|update your|fee)\b", RegexOptions.Compiled);
 
+        static readonly Regex CardAskRe = new Regex(@"\b((saisi(r|ssez)|indiqu(er|ez)|renseign(er|ez)|entr(er|ez)|confirm(er|ez)|communiqu(er|ez)|verifi(er|ez)) (votre |le |les |vos )?(numero de (votre )?carte( bancaire)?|cryptogramme|code cvv|donnees de (votre )?carte|coordonnees de (votre )?carte)|cryptogramme visuel|enter your (credit |debit )?card (number|details)|card verification (code|value))\b", RegexOptions.Compiled);
+        static readonly Regex PhoneCallRe = new Regex(@"\b((votre |un )?conseiller (va|vous) (vous )?(appeler|rappeler|contacter|telephoner)|vous (allez|aller) (recevoir|etre) (un )?appel|vous serez (appele|contacte|rappele)|nous allons vous (appeler|rappeler))\b", RegexOptions.Compiled);
+        static readonly Regex PhoneFraudRe = new Regex(@"\b(code (recu|envoye|que vous recevrez) par sms|code sms|valider une (operation|transaction)|valider l operation|securiser (vos fonds|votre compte|votre argent|votre epargne)|compte (de securite|securise|refuge)|ne raccrochez pas)\b", RegexOptions.Compiled);
+        static readonly Regex NeverAskRe = new Regex(@"\b(ne vous (demander(a|ons|ont)|demande) jamais|ne (communiquez|donnez|transmettez|saisissez) jamais|n.?(est|a) jamais besoin|will never ask)\b", RegexOptions.Compiled);
+        static readonly Regex AttachmentLinkLureRe = new Regex(@"\b((le |un )?(lien|bouton) (du|dans le|contenu dans le|present dans le|figurant dans le) (document|fichier|pdf)|cliquez (sur le lien|sur le bouton) (du|dans le) (document|fichier|pdf)|click the (link|button) in the (attached |)(document|file|pdf)|ouvrez (le|la) (document|fichier|piece jointe) (joint |)et cliquez)\b", RegexOptions.Compiled);
+
         static List<string> MatchRule(string text, Lists.ContentRule rule)
         {
             var hits = new List<string>();
@@ -1438,6 +1444,20 @@ namespace PhishGuard
             if (mailbox && (cred || urg) && !ctx.CodeMessage)
                 findings.Add(new Finding("content-combo-mailbox", "content", Severity.High, L.T("Fausse alerte de votre messagerie"),
                     L.T("Messages bloqués, boîte pleine, mot de passe qui expire : prétexte n° 1 pour voler les identifiants. Votre service informatique ne vous demande jamais de vous reconnecter par un lien."), null));
+
+            // Données de carte bancaire demandées par email (faux acheteur, faux remboursement, faux frais de livraison)
+            if (CardAskRe.IsMatch(text) && ctx.FirstContact && !ctx.BrandSender && !ctx.CodeMessage && !ctx.Internal && !NeverAskRe.IsMatch(text))
+                findings.Add(new Finding("content-combo-card", "content", Severity.High, L.T("Demande de vos données de carte bancaire"),
+                    L.T("Pour vous payer ou vous rembourser, personne n’a besoin de votre numéro de carte ni de son cryptogramme. Ne les saisissez jamais depuis un lien reçu par email."), null));
+            // Préparation d'une arnaque au faux conseiller : « votre conseiller va vous appeler, validez l'opération avec le code reçu par SMS »
+            if (PhoneCallRe.IsMatch(text) && PhoneFraudRe.IsMatch(text) && !ctx.Internal && !NeverAskRe.IsMatch(text))
+                findings.Add(new Finding("content-combo-phone", "content", Severity.High, L.T("Annonce d’un appel d’un faux conseiller"),
+                    L.T("Arnaque au faux conseiller bancaire : un appel suit le message et vous fait valider une opération ou dicter un code reçu par SMS. Votre banque ne vous le demande jamais : raccrochez et appelez le numéro de votre carte."), null));
+            // Lien caché dans la pièce jointe : technique pour échapper aux filtres qui analysent les liens du message
+            if (!ctx.Internal && e.Attachments.Any(a => a.EmbeddedUrls.Count > 0) && AttachmentLinkLureRe.IsMatch(text))
+                findings.Add(new Finding("content-attachment-link", "content", Severity.Medium, L.T("Le message vous envoie vers un lien caché dans la pièce jointe"),
+                    L.T("Mettre le lien dans un PDF plutôt que dans le message permet d’échapper aux filtres de messagerie. Vérifiez l’adresse avant de cliquer, ou passez par le site officiel."),
+                    e.Attachments.Where(a => a.EmbeddedUrls.Count > 0).SelectMany(a => a.EmbeddedUrls).Take(2).Select(u => Defang(u))));
 
             // Votre propre adresse dans l'objet ou en guise de salutation : personnalisation automatique typique des campagnes
             if (!ctx.Internal)

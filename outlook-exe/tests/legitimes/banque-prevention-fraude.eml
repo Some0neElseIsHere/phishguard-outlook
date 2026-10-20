@@ -1,0 +1,44 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.117) smtp.mailfrom=bounce.bnpparibas.com; dkim=pass (signature was verified) header.d=bnpparibas.com;dmarc=pass action=none header.from=bnpparibas.com;compauth=pass reason=100
+Received: from mail.bounce.bnpparibas.com (198.51.100.145) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: BNP Paribas <information@bnpparibas.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Arnaque_au_faux_conseiller_=3A_les_bons_r=C3=A9flexes?=
+Date: Sun, 25 Jan 2026 08:32:00 +0200
+Message-ID: <2f94a2650748b804a2954cc60a518667@bounce.bnpparibas.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: vert
+X-PhishGuard-Cas: banque-prevention-fraude
+List-Unsubscribe: <https://unsubscribe.bnpparibas.com/u?id=2f94a2650748>, <mailto:unsubscribe@bounce.bnpparibas.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/mixed; boundary="=_pg_2f94a26507"
+
+--=_pg_2f94a26507
+Content-Type: multipart/alternative; boundary="alt=_pg_2f94a26507"
+
+--alt=_pg_2f94a26507
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkRlcyBlc2Nyb2NzIHNlIGZvbnQgcGFzc2VyIHBvdXIgdm90cmUgY29uc2VpbGxl
+ciA6IGlscyB2b3VzIGFwcGVsbGVudCwKYW5ub25jZW50IHVuZSBmcmF1ZGUgZXQgdm91cyBkZW1h
+bmRlbnQgZGUgdmFsaWRlciB1bmUgb3DDqXJhdGlvbiBvdSBkZSBkb25uZXIKbGUgY29kZSByZcOn
+dSBwYXIgU01TLgoKVm90cmUgY29uc2VpbGxlciBuZSB2b3VzIGRlbWFuZGVyYSBqYW1haXMgZGUg
+dmFsaWRlciB1bmUgb3DDqXJhdGlvbiBwYXIKdMOpbMOpcGhvbmUgbmkgZGUgY29tbXVuaXF1ZXIg
+dW4gY29kZS4gUmFjY3JvY2hleiBldCBhcHBlbGV6IGxlIG51bcOpcm8gYXUgZG9zCmRlIHZvdHJl
+IGNhcnRlLgoKTm9zIGNvbnNlaWxzIGRlIHPDqWN1cml0w6kgOiBodHRwczovL21hYmFucXVlLmJu
+cHBhcmliYXMvZnIvc2VjdXJpdGU=
+--alt=_pg_2f94a26507
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5E
+ZXMgZXNjcm9jcyBzZSBmb250IHBhc3NlciBwb3VyIHZvdHJlIGNvbnNlaWxsZXIgOiBpbHMgdm91
+cyBhcHBlbGxlbnQsIGFubm9uY2VudCB1bmUgZnJhdWRlIGV0IHZvdXMgZGVtYW5kZW50IGRlIHZh
+bGlkZXIgdW5lIG9ww6lyYXRpb24gb3UgZGUgZG9ubmVyIGxlIGNvZGUgcmXDp3UgcGFyIFNNUy48
+L3A+PHA+Vm90cmUgY29uc2VpbGxlciBuZSB2b3VzIGRlbWFuZGVyYSBqYW1haXMgZGUgdmFsaWRl
+ciB1bmUgb3DDqXJhdGlvbiBwYXIgdMOpbMOpcGhvbmUgbmkgZGUgY29tbXVuaXF1ZXIgdW4gY29k
+ZS4gUmFjY3JvY2hleiBldCBhcHBlbGV6IGxlIG51bcOpcm8gYXUgZG9zIGRlIHZvdHJlIGNhcnRl
+LjwvcD48cD48YSBocmVmPSJodHRwczovL21hYmFucXVlLmJucHBhcmliYXMvZnIvc2VjdXJpdGUi
+Pk5vcyBjb25zZWlscyBkZSBzw6ljdXJpdMOpPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_2f94a26507--
+--=_pg_2f94a26507--
