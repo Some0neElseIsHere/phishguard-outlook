@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.18.2** : l'analyse approfondie ne se lance plus d'elle-même : un bouton **Lancer l'analyse approfondie** dans l'onglet Approfondie la démarre, pour le message affiché uniquement. Ouvrir l'analyse détaillée redevient instantané. La recherche dans votre boîte (messages déjà reçus de l'expéditeur) ne parcourt plus les messages un par un, ce qui la rend beaucoup plus rapide dans une grosse boîte.
+
 - **v1.18.1** : l'analyse approfondie devient un onglet **Approfondie**, toujours présent en mode expert. Elle se lance d'elle-même à l'ouverture de l'analyse détaillée (une fois par message, avec les sources activées dans les paramètres) et l'onglet se met à jour à la fin, sans changer l'onglet affiché ni voler le focus. Suivre les liens et consulter VirusTotal avec l'adresse complète restent soumis à votre accord, par un lien dans l'onglet. Plus d'analyse approfondie en mode simple.
 
 - **v1.18.0** : **analyse approfondie** pour les messages douteux. Elle ne montre que ce que les autres onglets ne voient pas, et recalcule le verdict :
