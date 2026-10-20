@@ -25,7 +25,7 @@ namespace PhishGuard.AddIn
                 var l = new Label { Text = t, Location = new Point(16, y), MaximumSize = new Size(w, 0), AutoSize = true };
                 if (bold) l.Font = new Font(Font, FontStyle.Bold);
                 Controls.Add(l);
-                y += TextRenderer.MeasureText(t, l.Font, new Size(w, 0), TextFormatFlags.WordBreak).Height + 6;
+                y += TextRenderer.MeasureText(t, l.Font, new Size(w - 30, 0), TextFormatFlags.WordBreak).Height + 6;
                 return l;
             };
             label(L.T("L’analyse approfondie va plus loin que l’analyse habituelle et ne montre que ce qu’elle découvre en plus. Elle peut durer jusqu’à une minute."), false, 570);

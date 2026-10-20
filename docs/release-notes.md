@@ -12,6 +12,13 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.18.0** : **analyse approfondie**, un bouton de la fenêtre d'analyse pour les messages douteux. Elle ne montre que ce que les autres onglets ne voient pas, et recalcule le verdict :
+  - **pièces jointes, sur le poste** : code des macros (lancement automatique, téléchargement ou exécution d'un programme), modèles et objets distants des documents Office, accès à un partage réseau (vol du mot de passe Windows), champs DDE, liens et code cachés dans les parties compressées des PDF, actions à l'ouverture, archives imbriquées, bombes de décompression, pages HTML qui fabriquent un fichier, QR codes de toutes les images ;
+  - **votre boîte, sur le poste** : premier message de cette adresse, même nom déjà vu avec une autre adresse (usurpation d'un collègue ou d'un fournisseur), conversation citée introuvable ;
+  - **en ligne, sans contenu** : âge et premier certificat de tous les domaines du message, réputation de chaque serveur traversé (AbuseIPDB) et de toutes les pièces jointes (VirusTotal, MalwareBazaar) ;
+  - **avec votre accord, case par case** : suivre les liens jusqu'à leur destination réelle (page qui demande un mot de passe, téléchargement direct) et consulter VirusTotal avec l'adresse complète des liens. Deux stratégies permettent au service informatique de l'interdire (`AllowLinkFollowing`, `AllowUrlLookup`).
+  - Un récapitulatif indique ce qui a été vérifié, ce qui ne l'a pas été, et tout ce qui est sorti du poste.
+
 - **v1.17.3** : sources de réputation. crt.sh, souvent surchargé, et les autres services sont retentés automatiquement après quelques secondes en cas d'erreur passagère. L'onglet Réputation de l'analyse détaillée distingue maintenant un service momentanément indisponible (nouvel essai dans 10 minutes) d'une clé d'API refusée, au lieu d'afficher « Service injoignable ou clé refusée » pour tout, y compris pour crt.sh qui n'utilise aucune clé.
 
 - **v1.17.2** : paramètres réorganisés. Nouvel onglet **Affichage** : langue, fenêtre d'analyse (simple ou expert), thème, alerte à l'écran, explications pédagogiques et couleur des messages suspects. L'onglet **Analyse** ne garde que ce qui règle l'analyse elle-même.
