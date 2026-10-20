@@ -35,6 +35,21 @@ jobs:
           "%CSC%" /nologo /codepage:65001 /target:exe /out:build\Bench.exe /r:System.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Drawing.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs /recurse:src\ThirdParty\*.cs tools\Bench.cs
           if errorlevel 1 exit /b 1
 
+      - name: Tests de robustesse approfondis (5 000 messages malformés, graine du mois)
+        continue-on-error: true
+        shell: cmd
+        working-directory: outlook-exe
+        run: |
+          set "CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          "%CSC%" /nologo /codepage:65001 /target:exe /out:build\Fuzz-Tests.exe /r:System.Drawing.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs /recurse:src\ThirdParty\*.cs /recurse:tests\ZXingEncoder\*.cs tests\Tests.cs tests\Fuzz.cs
+          if errorlevel 1 exit /b 1
+          for /f %%d in ('powershell -NoProfile -Command "Get-Date -Format yyyyMM"') do set "PG_FUZZ_SEED=%%d"
+          set "PG_FUZZ=5000"
+          build\Fuzz-Tests.exe > build\fuzz.txt
+          set "RC=%ERRORLEVEL%"
+          findstr /C:"ECHEC" build\fuzz.txt
+          if not "%RC%"=="0" (echo ::error::Tests de robustesse en echec & exit /b 1)
+
       - name: Télécharger les corpus
         if: ${{ !inputs.rapide }}
         shell: pwsh
@@ -99,6 +114,7 @@ jobs:
           $prev = gh api "repos/${{ github.repository }}/releases" --jq '[.[] | select(.draft and (.tag_name | startswith("bench")))][0].assets[] | select(.name == "summary.json") | .id'
           if ($prev) { gh api -H "Accept: application/octet-stream" "repos/${{ github.repository }}/releases/assets/$prev" > out\previous.json }
           if (Test-Path out\bench.csv) {
+            $env:PG_FUZZ_LOG = "outlook-exe\build\fuzz.txt"
             python outlook-exe\tools\bench-summary.py out\bench.csv out\summary.json out\previous.json
             if (Test-Path out\summary.json) { Compress-Archive -Force out\bench.csv, out\progress.txt, out\summary.json out\bench.zip }
           }

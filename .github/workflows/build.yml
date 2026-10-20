@@ -32,7 +32,16 @@ jobs:
         env:
           CI: "true"
           PG_VERSION: ${{ github.event.inputs.version || (startsWith(github.ref, 'refs/tags/v') && github.ref_name) || '' }}
+          # Signature facultative : secrets SIGN_PFX_BASE64 (certificat de signature de code, en base 64) et SIGN_PASSWORD
+          SIGN_PFX_BASE64: ${{ secrets.SIGN_PFX_BASE64 }}
+          PG_SIGN_PASSWORD: ${{ secrets.SIGN_PASSWORD }}
         run: |
+          if ($env:SIGN_PFX_BASE64) {
+            $pfx = Join-Path $env:RUNNER_TEMP "signature.pfx"
+            [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGN_PFX_BASE64))
+            $env:PG_SIGN_PFX = $pfx
+            Write-Output "Signature Authenticode activée"
+          }
           cmd /c construire.bat 2>&1 | Tee-Object -FilePath build-log.txt
           $rc = $LASTEXITCODE
           if ($rc -ne 0) {

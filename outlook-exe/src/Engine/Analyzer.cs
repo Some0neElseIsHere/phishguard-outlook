@@ -1186,7 +1186,11 @@ namespace PhishGuard
                 IntelResult dnsR = null;
                 if (cfg.BetaDnsChecks && cat == "sender" && !personal)
                 {
-                    dnsR = ask("dns:" + fromDomain + "|" + fromOrg, "dns");
+                    // Accusé de lecture : un sous-domaine unique par destinataire (x7k2.domaine-arnaque.com) permettrait à son
+                    // propriétaire de savoir quand le message est ouvert. Pour un domaine inconnu, seul le domaine principal est interrogé.
+                    bool reputed = Feeds.TrancoRank(fromOrg) > 0 || Feeds.IsPublicSector(fromOrg) || Lists.Brands.Any(b => b.Domains.Contains(fromOrg));
+                    string dnsDomain = reputed ? fromDomain : fromOrg;
+                    dnsR = ask("dns:" + dnsDomain + "|" + fromOrg, "dns");
                     if (dnsR != null && dnsR.Exists)
                     {
                         if (dnsR.DmarcPolicy == "reject" || dnsR.DmarcPolicy == "quarantine")

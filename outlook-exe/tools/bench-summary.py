@@ -104,6 +104,11 @@ def main():
         md.append(f"| {label}{'' if fixed else ' *'} | {s['n']} | {s['alert_pct']:.1f} % | {s['red_pct']:.1f} % | {delta} |")
     md.append("")
     md.append("\\* corpus qui s'enrichit chaque mois : comparaison indicative.")
+    fuzz = os.environ.get("PG_FUZZ_LOG")
+    if fuzz and os.path.exists(fuzz):
+        bad = [l.strip() for l in open(fuzz, encoding="utf-8", errors="replace") if "ECHEC" in l and "robustesse" in l]
+        md += ["", "**Tests de robustesse :** " + ("en échec" if bad else "aucune exception, aucun message trop lent")] + [f"- {x}" for x in bad]
+        regress += [f"Robustesse : {x}" for x in bad]
     if cur["cas_ko"]:
         md += ["", "**Cas fictifs en erreur :**"] + [f"- {x}" for x in cur["cas_ko"]]
         regress += [f"Cas fictif en erreur : {x}" for x in cur["cas_ko"]]
