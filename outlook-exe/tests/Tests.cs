@@ -326,10 +326,10 @@ namespace PhishGuard.Tests
             };
             casino.ReplyTo.Add("reply-7HQWZTRA@Q7ZK22918XBR4PLMWNQRAYUCC0WE.com");
             casino.Links.Add(new LinkInfo("http://9q2k7RtXa4Ze.nuagerelais-exemple.cc/cl/48211_rd/4/0", "RÉCLAMER MON BONUS"));
-            var rc = Analyzer.Analyze(casino, cfg);
-            var rcIds = Ids(rc);
+            var rCasino = Analyzer.Analyze(casino, cfg);
+            var rcIds = Ids(rCasino);
             Check("casino : domaine impossible, aucune authentification, publicité de casino", rcIds.Contains("sender-invalid-domain") && rcIds.Contains("auth-none") && rcIds.Contains("content-gambling"), string.Join(",", rcIds.ToArray()));
-            Check("casino : dangereux même sans filtre anti-spam", rc.Level == "dangerous", rc.Level + " " + rc.Score);
+            Check("casino : dangereux même sans filtre anti-spam", rCasino.Level == "dangerous", rCasino.Level + " " + rCasino.Score);
             var lotoOk = Base(); lotoOk.Subject = "Votre ticket de loto"; lotoOk.BodyText = "Le tirage a lieu ce soir. Jackpot de 12 millions.";
             Check("casino : un seul terme ne suffit pas", !Ids(Analyzer.Analyze(lotoOk, cfg)).Contains("content-gambling"));
 
