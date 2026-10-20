@@ -124,44 +124,11 @@ namespace PhishGuard.AddIn
             // ---------------- Analyse ----------------
             var pAnalyse = Page(L.T("Analyse"));
             y = 12;
-            pAnalyse.Controls.Add(new Label { Text = L.T("Langue de PhishGuard") + " / Language", Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
-            y += 22;
-            cboLang = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
-            cboLang.Items.AddRange(langLabels);
-            int li = Array.IndexOf(LangValues, (cfg.Language ?? "auto").ToLowerInvariant());
-            cboLang.SelectedIndex = li < 0 ? 0 : li;
-            pAnalyse.Controls.Add(cboLang);
-            y += 36;
-            pAnalyse.Controls.Add(new Label { Text = L.T("Affichage"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
-            y += 22;
-            cboMode = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
-            cboMode.Items.AddRange(new object[] { L.T("Simple : le verdict et quoi faire (recommandé)"), L.T("Expert : analyse technique détaillée") });
-            cboMode.SelectedIndex = cfg.ExpertMode ? 1 : 0;
-            pAnalyse.Controls.Add(cboMode);
-            y += 28;
-            AddHint(pAnalyse, ref y, L.T("En mode expert, les onglets Listes et Réputation et l’analyse de votre domaine apparaissent ici (rouvrez les paramètres après avoir changé)."));
-            y += 4;
-            pAnalyse.Controls.Add(new Label { Text = L.T("Thème"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
-            y += 22;
-            cboTheme = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
-            cboTheme.Items.AddRange(new object[] { L.T("Automatique (thème de Windows)"), L.T("Clair"), L.T("Sombre") });
-            int ti = Array.IndexOf(ThemeValues, (cfg.Theme ?? "auto").ToLowerInvariant());
-            cboTheme.SelectedIndex = ti < 0 ? 0 : ti;
-            pAnalyse.Controls.Add(cboTheme);
-            y += 40;
             chkAuto = new CheckBox { Text = L.T("Analyser automatiquement le message sélectionné ou ouvert"), Checked = cfg.AutoAnalyze, Location = new Point(12, y), AutoSize = true };
             pAnalyse.Controls.Add(chkAuto);
             y += 26;
             AddHint(pAnalyse, ref y, L.T("Le score s’affiche alors en permanence dans le ruban."));
             y += 8;
-            pAnalyse.Controls.Add(new Label { Text = L.T("Alerte en bas à droite de l’écran"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
-            y += 22;
-            cboAlert = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
-            cboAlert.Items.AddRange(alertLabels);
-            int idx = Array.IndexOf(AlertValues, (cfg.AlertLevel ?? "dangerous").ToLowerInvariant());
-            cboAlert.SelectedIndex = idx < 0 ? 0 : idx;
-            pAnalyse.Controls.Add(cboAlert);
-            y += 36;
             pAnalyse.Controls.Add(new Label { Text = L.T("Empreintes des pièces jointes en analyse automatique, jusqu’à (Mo)"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
             y += 22;
             numHash = new NumericUpDown { Minimum = 0, Maximum = 40, Value = Math.Max(0, Math.Min(40, cfg.AutoHashMaxMB)), Location = new Point(12, y), Width = 80 };
@@ -169,18 +136,57 @@ namespace PhishGuard.AddIn
             y += 30;
             AddHint(pAnalyse, ref y, L.T("Au-delà, les empreintes sont calculées à l’ouverture du détail. 0 = jamais en automatique."));
             y += 8;
-            chkExplain = AddCheck(pAnalyse, ref y, L.T("Afficher les explications pédagogiques sous chaque indice"), cfg.ShowExplanations,
-                L.T("À décocher pour les utilisateurs à l’aise avec la sécurité : seuls les indices bruts sont affichés."));
             chkCorr = AddCheck(pAnalyse, ref y, L.T("Repérer les premiers contacts et les sosies de mes correspondants"), cfg.KnownCorrespondents,
                 L.F("Utilise les adresses de vos éléments envoyés et de vos contacts ({0} connues), sans rien envoyer à l’extérieur.", Correspondents.Count));
             chkAge = AddCheck(pAnalyse, ref y, L.T("Vérifier l’âge des domaines (RDAP)"), cfg.DomainAgeLookup,
                 L.T("Envoie uniquement le nom du domaine à rdap.org et au registre concerné, jamais le contenu des messages."));
-            chkTag = AddCheck(pAnalyse, ref y, L.T("Marquer les messages suspects d’une couleur dans l’en-tête et la liste (catégorie Outlook)"), cfg.TagCategory,
-                L.T("Ajoute une catégorie au message : bande de couleur dans son en-tête et dans la liste des messages."));
             chkMove = AddCheck(pAnalyse, ref y, L.T("Déplacer le message dans « Courrier indésirable » après l’avoir signalé"), cfg.MoveAfterReport, null);
             chkLog = AddCheck(pAnalyse, ref y, L.T("Tenir un journal des scores (scores.csv) pour ajuster les réglages"), cfg.ScoreLog,
                 L.T("Date, verdict, score, domaine de l’expéditeur et indices ; ni l’objet ni le contenu des messages."));
             tabs.TabPages.Add(pAnalyse);
+
+            // ---------------- Affichage ----------------
+            var pDisplay = Page(L.T("Affichage"));
+            y = 12;
+            pDisplay.Controls.Add(new Label { Text = L.T("Langue de PhishGuard") + " / Language", Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
+            y += 22;
+            cboLang = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
+            cboLang.Items.AddRange(langLabels);
+            int li = Array.IndexOf(LangValues, (cfg.Language ?? "auto").ToLowerInvariant());
+            cboLang.SelectedIndex = li < 0 ? 0 : li;
+            pDisplay.Controls.Add(cboLang);
+            y += 36;
+            pDisplay.Controls.Add(new Label { Text = L.T("Fenêtre d’analyse"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
+            y += 22;
+            cboMode = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
+            cboMode.Items.AddRange(new object[] { L.T("Simple : le verdict et quoi faire (recommandé)"), L.T("Expert : analyse technique détaillée") });
+            cboMode.SelectedIndex = cfg.ExpertMode ? 1 : 0;
+            pDisplay.Controls.Add(cboMode);
+            y += 28;
+            AddHint(pDisplay, ref y, L.T("En mode expert, les onglets Listes et Réputation et l’analyse de votre domaine s’ajoutent aux paramètres (rouvrez-les après avoir changé)."));
+            y += 10;
+            pDisplay.Controls.Add(new Label { Text = L.T("Thème"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
+            y += 22;
+            cboTheme = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
+            cboTheme.Items.AddRange(new object[] { L.T("Automatique (thème de Windows)"), L.T("Clair"), L.T("Sombre") });
+            int ti = Array.IndexOf(ThemeValues, (cfg.Theme ?? "auto").ToLowerInvariant());
+            cboTheme.SelectedIndex = ti < 0 ? 0 : ti;
+            pDisplay.Controls.Add(cboTheme);
+            y += 40;
+            pDisplay.Controls.Add(new Label { Text = L.T("Alerte en bas à droite de l’écran"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
+            y += 22;
+            cboAlert = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300 };
+            cboAlert.Items.AddRange(alertLabels);
+            int idx = Array.IndexOf(AlertValues, (cfg.AlertLevel ?? "dangerous").ToLowerInvariant());
+            cboAlert.SelectedIndex = idx < 0 ? 0 : idx;
+            pDisplay.Controls.Add(cboAlert);
+            y += 36;
+            chkExplain = AddCheck(pDisplay, ref y, L.T("Afficher les explications pédagogiques sous chaque indice"), cfg.ShowExplanations,
+                L.T("À décocher pour les utilisateurs à l’aise avec la sécurité : seuls les indices bruts sont affichés."));
+            chkTag = AddCheck(pDisplay, ref y, L.T("Marquer les messages suspects d’une couleur dans l’en-tête et la liste (catégorie Outlook)"), cfg.TagCategory,
+                L.T("Ajoute une catégorie au message : bande de couleur dans son en-tête et dans la liste des messages."));
+            tabs.TabPages.Add(pDisplay);
+
 
             // ---------------- Listes ----------------
             var pLists = Page(L.T("Listes"));

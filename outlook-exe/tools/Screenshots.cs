@@ -85,6 +85,9 @@ namespace PhishGuard.Tools
             Application.EnableVisualStyles();
             Capture(new FirstRunForm(new PhishGuardConfig(), "exemple-pme.fr", null, FirstRunForm.Steps), Path.Combine(outDir, "assistant.png"));
             Capture(new SettingsForm(cfg, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres.png"));
+            var fAff = new SettingsForm(cfg, null, "exemple-pme.fr");
+            foreach (var tc in fAff.Controls.OfType<TabControl>()) tc.SelectedIndex = 2;   // onglet Affichage
+            Capture(fAff, Path.Combine(outDir, "parametres-affichage.png"));
             var cfgPol = new PhishGuardConfig { CompanyDomains = new List<string> { "exemple-pme.fr" }, ExpertMode = true };
             cfgPol.ApplyPolicies(new[] { new KeyValuePair<string, string>("ReportAddress", "securite@exemple-pme.fr"),
                 new KeyValuePair<string, string>("Company1", "Exemple SAS | France | 552100554 | Claire Martin; Hugo Bernard"),
