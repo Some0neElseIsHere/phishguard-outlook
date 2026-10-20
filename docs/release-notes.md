@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.17.1** : niveaux de protection SPF, DKIM et DMARC (avec les vérifications DNS activées). Un expéditeur inconnu dont le SPF se termine par « +all » (n'importe quel serveur peut envoyer en son nom) est signalé. Une politique DMARC appliquée à une partie des messages seulement (pct inférieur à 100) n'est plus comptée comme preuve de protection. « Analyser mon domaine » indique la taille de vos clés DKIM et signale une clé de 1024 bits ou moins, ainsi qu'une clé révoquée.
+
 - **v1.17.0** :
   - **Nouvelles arnaques détectées** : l'annonce d'un appel d'un faux conseiller bancaire (« validez l'opération avec le code reçu par SMS »), la demande de numéro de carte ou de cryptogramme, et le lien caché dans un PDF joint. Nouvelles marques : leboncoin, Vinted.
   - **31 faux phishings français fictifs** ajoutés au banc d'essai : tous signalés, 27 en rouge. Les mails légitimes difficiles restent tous verts (78 sur 78).
