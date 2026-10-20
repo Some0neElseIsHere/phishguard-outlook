@@ -15,9 +15,6 @@ namespace PhishGuard.AddIn
         const string PR_ATTACH_MIME_TAG = "http://schemas.microsoft.com/mapi/proptag/0x370E001F";
         public const int OlMail = 43;
 
-        static readonly Regex AnchorRe = new Regex(@"<a\b[^>]*?\bhref\s*=\s*(?:""([^""]*)""|'([^']*)'|([^\s>]+))[^>]*>(.*?)</a\s*>",
-            RegexOptions.IgnoreCase | RegexOptions.Singleline);
-        static readonly Regex TagRe = new Regex(@"<[^>]+>", RegexOptions.Singleline);
         static readonly Regex PlainUrlRe = new Regex(@"\bhttps?://[^\s<>""')]+", RegexOptions.IgnoreCase);
 
         static string Str(Func<object> getter)
@@ -128,17 +125,12 @@ namespace PhishGuard.AddIn
 
             // Liens et formulaires (dans le HTML)
             string html = Str(() => mail.HTMLBody);
+            // Lecture en temps linéaire (HtmlScan) : un HTML piégé ne peut pas figer Outlook
             var seen = new HashSet<string>();
-            foreach (Match m in AnchorRe.Matches(html))
-            {
-                string href = m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Success ? m.Groups[2].Value : m.Groups[3].Value;
-                href = WebUtility.HtmlDecode(href).Trim();
-                string text = WebUtility.HtmlDecode(TagRe.Replace(m.Groups[4].Value, " "));
-                text = Regex.Replace(text, @"\s+", " ").Trim();
-                if (seen.Add(href + "|" + text)) e.Links.Add(new LinkInfo(href, text));
-            }
-            e.HasForm = Regex.IsMatch(html, @"<form\b", RegexOptions.IgnoreCase);
-            e.HasPasswordInput = Regex.IsMatch(html, @"<input\b[^>]*\btype\s*=\s*[""']?password", RegexOptions.IgnoreCase);
+            foreach (var l in HtmlScan.Links(html))
+                if (seen.Add(l.Href + "|" + l.Text)) e.Links.Add(l);
+            e.HasForm = HtmlScan.HasForm(html);
+            e.HasPasswordInput = HtmlScan.HasPasswordInput(html);
 
             // URL écrites en clair dans le texte
             foreach (Match m in PlainUrlRe.Matches(e.BodyText))

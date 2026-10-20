@@ -333,7 +333,7 @@ namespace PhishGuard
         /// <summary>SIREN trouvé dans une page (mentions légales, pied de page), ou "".</summary>
         public static string FindSiren(string html)
         {
-            string text = WebUtility.HtmlDecode(Regex.Replace(html ?? "", @"<script[\s\S]*?</script>|<style[\s\S]*?</style>|<[^>]+>", " ", RegexOptions.IgnoreCase));
+            string text = WebUtility.HtmlDecode(Regex.Replace(html ?? "", @"<script[\s\S]{0,200000}?</script>|<style[\s\S]{0,200000}?</style>|<[^>]{1,4000}>", " ", RegexOptions.IgnoreCase));
             foreach (Match m in SirenRe.Matches(text))
             {
                 string raw = m.Groups[2].Value;
@@ -351,7 +351,7 @@ namespace PhishGuard
             var list = new List<string>();
             Uri b;
             if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out b)) return list;
-            foreach (Match m in Regex.Matches(html ?? "", @"<a\b[^>]*?href\s*=\s*[""']([^""'#]+)[""'][^>]*>([\s\S]{0,200}?)</a>", RegexOptions.IgnoreCase))
+            foreach (Match m in Regex.Matches(html ?? "", @"<a\b[^>]{0,2000}?href\s*=\s*[""']([^""'#]{1,2000})[""'][^>]{0,2000}>([\s\S]{0,200}?)</a>", RegexOptions.IgnoreCase))
             {
                 string href = WebUtility.HtmlDecode(m.Groups[1].Value.Trim());
                 string text = Regex.Replace(m.Groups[2].Value, "<[^>]+>", " ");

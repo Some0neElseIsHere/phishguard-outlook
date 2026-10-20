@@ -868,6 +868,19 @@ namespace PhishGuard.Tests
             Check("FortiMail : signature d'un autre domaine, DMARC non déduit", rFmlOther.Details.Auth.DmarcShown == null && Ids(rFmlOther).Contains("auth-dkim-thirdparty"), string.Join(",", Ids(rFmlOther).ToArray()));
             Check("DMARC du serveur prioritaire sur la déduction", Analyzer.Analyze(Base(), cfg).Details.Auth.DmarcNote.Length == 0);
 
+            // ---------- Robustesse : HTML piégé (ne doit jamais figer Outlook) ----------
+            var lk = HtmlScan.Links("<p>Bonjour</p><a class=\"btn\" href=\"https://exemple.fr/a?x=1&amp;y=2\">Mon <b>compte</b></a> et <A HREF='http://b.example/'>ici</A > <a name=x>sans lien</a> <abbr>x</abbr>");
+            Check("liens HTML : href, texte et entités", lk.Count == 2 && lk[0].Href == "https://exemple.fr/a?x=1&y=2" && lk[0].Text == "Mon compte" && lk[1].Href == "http://b.example/" && lk[1].Text == "ici",
+                string.Join(" | ", lk.Select(x => x.Href + " = " + x.Text).ToArray()));
+            Check("formulaire et mot de passe détectés", HtmlScan.HasForm("<FORM action=x>") && HtmlScan.HasPasswordInput("<input name=p type='password'>") && !HtmlScan.HasPasswordInput("<input type=text> password") && !HtmlScan.HasForm("<formation>"));
+            var swDos = System.Diagnostics.Stopwatch.StartNew();
+            var bomb1 = new System.Text.StringBuilder(); for (int k = 0; k < 200000; k++) bomb1.Append("<a href=x>");
+            var bomb2 = new System.Text.StringBuilder(); for (int k = 0; k < 300000; k++) bomb2.Append("<a <input ");
+            HtmlScan.Links(bomb1.ToString()); HtmlScan.Links(bomb2.ToString()); HtmlScan.HasPasswordInput(bomb2.ToString());
+            var bombMail = new EmailData { FromName = "x", FromAddress = "x@exemple.fr", Subject = "x", BodyText = new string('a', 300000) + "@" , RawHeaders = "Return-Path: <" + new string('b', 200000) + ">\r\nTo: " + new string('c', 200000) + "\r\n" };
+            Analyzer.Analyze(bombMail, cfg);
+            Check("HTML et en-têtes piégés : lus en moins de 5 s", swDos.ElapsedMilliseconds < 5000, swDos.ElapsedMilliseconds + " ms");
+
             // ---------- Avis d'argent reçu : information, pas demande ----------
             Correspondents.Set(new[] { "paul@exemple-pme.fr" }, false);
             var avis = new EmailData { FromName = "Banque Pro", FromAddress = "no-reply@banque-pro-exemple.fr", Subject = "Virement reçu : 12 400,00 € de CLIENT ALPHA SAS",

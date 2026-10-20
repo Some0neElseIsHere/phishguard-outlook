@@ -240,7 +240,7 @@ namespace PhishGuard
         public static DateTimeOffset? ParseDate(string s)
         {
             if (string.IsNullOrEmpty(s)) return null;
-            string t = Regex.Replace(s, @"\([^)]*\)", "").Trim();
+            string t = Regex.Replace(s, @"\([^()]{0,1000}\)", "").Trim();
             t = Regex.Replace(t, @"\s+", " ");
             t = Regex.Replace(t, @"([+-]\d{2})(\d{2})$", "$1:$2");
             t = Regex.Replace(t, @"\s(GMT|UT|UTC|Z)$", " +00:00");
@@ -689,8 +689,8 @@ namespace PhishGuard
         static void InspectHtml(AttachmentInfo a, byte[] d)
         {
             string s = Encoding.UTF8.GetString(d, 0, Math.Min(d.Length, 5 * 1024 * 1024));
-            bool pwd = Regex.IsMatch(s, @"<input\b[^>]*\btype\s*=\s*[""']?password", RegexOptions.IgnoreCase);
-            bool form = Regex.IsMatch(s, @"<form\b", RegexOptions.IgnoreCase);
+            bool pwd = HtmlScan.HasPasswordInput(s);
+            bool form = HtmlScan.HasForm(s);
             if (pwd)
                 a.ContentFindings.Add(F("att-content-html-password", Severity.Critical, L.T("Fausse page de connexion en pièce jointe"), L.T("Le fichier contient un champ « mot de passe » : il sert à voler vos identifiants."), a.Name));
             else if (form)
