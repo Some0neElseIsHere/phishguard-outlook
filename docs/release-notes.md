@@ -12,7 +12,9 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
-- **v1.18.5** : l'âge des domaines n'est plus recherché automatiquement : vous le lancez quand vous le décidez, avec **Récupérer l'âge des domaines** dans l'onglet Réputation. Les autres résultats n'attendent plus ces recherches. Pour revenir à la recherche automatique : Paramètres → Analyse → « Rechercher automatiquement l'âge des domaines ». Le service informatique peut toujours l'imposer (stratégie ou `config.ini`, `DomainAgeLookup`).
+- **v1.18.6** : correction de la v1.18.5 : le fichier `config.ini` installé réactivait la recherche automatique de l'âge des domaines. Elle se fait maintenant vraiment d'un clic par défaut. Décocher l'option arrête aussi les recherches déjà en attente. L'option est déplacée dans Paramètres → **Réputation**, avec les autres sources en ligne. Les âges trouvés restent enregistrés sur le poste : un domaine déjà vérifié n'est plus jamais redemandé (une date restée inconnue est retentée au bout de 7 jours).
+
+- **v1.18.5** : l'âge des domaines n'est plus recherché automatiquement : vous le lancez quand vous le décidez, avec **Récupérer l'âge des domaines** dans l'onglet Réputation. Les autres résultats n'attendent plus ces recherches. Pour revenir à la recherche automatique : Paramètres → Réputation → « Rechercher automatiquement l'âge des domaines ». Le service informatique peut toujours l'imposer (stratégie ou `config.ini`, `DomainAgeLookup`).
 
 - **v1.18.4** : **l'analyse approfondie est retirée** (onglet, bouton et stratégies `AllowLinkFollowing` / `AllowUrlLookup`) : elle apportait peu pour le temps qu'elle prenait. À la place, l'onglet **Réputation** affiche l'**âge de chaque domaine** du message (expéditeur, adresse de réponse, liens) et un lien **Récupérer l'âge des domaines** pour ceux qui ne sont pas encore connus. Le clic fonctionne même si la recherche automatique est désactivée ; un domaine récent est alors pris en compte dans le verdict. L'onglet affiché reste le même quand la page se met à jour.
 
