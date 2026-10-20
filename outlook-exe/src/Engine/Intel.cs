@@ -65,6 +65,37 @@ namespace PhishGuard
         public static IntelSettings Settings = new IntelSettings();
         public static volatile bool Changed;
         public static string LastError = "";
+        static readonly Dictionary<string, string> lastErrors = new Dictionary<string, string>();
+        static readonly Dictionary<string, bool> lastKeyRefused = new Dictionary<string, bool>();
+
+        /// <summary>Dernière erreur d'un service (crt, vt, abusech…), ou "".</summary>
+        public static string LastErrorFor(string service)
+        {
+            lock (Sync) { string e; return lastErrors.TryGetValue(service, out e) ? e : ""; }
+        }
+
+        /// <summary>Le service a refusé la clé d'API (réponse 401 ou 403).</summary>
+        public static bool KeyRefused(string service)
+        {
+            lock (Sync) { bool b; return lastKeyRefused.TryGetValue(service, out b) && b; }
+        }
+
+        static int HttpStatus(Exception ex)
+        {
+            var we = ex as WebException;
+            var resp = we == null ? null : we.Response as HttpWebResponse;
+            return resp == null ? 0 : (int)resp.StatusCode;
+        }
+
+        /// <summary>Erreur passagère (serveur surchargé, délai dépassé, coupure) : une nouvelle tentative a du sens.</summary>
+        static bool Transient(Exception ex)
+        {
+            int code = HttpStatus(ex);
+            if (code >= 500 || code == 429) return true;
+            var we = ex as WebException;
+            return we != null && code == 0 && (we.Status == WebExceptionStatus.Timeout || we.Status == WebExceptionStatus.ConnectFailure
+                || we.Status == WebExceptionStatus.ReceiveFailure || we.Status == WebExceptionStatus.ConnectionClosed || we.Status == WebExceptionStatus.KeepAliveFailure);
+        }
 
         // -----------------------------------------------------------------
         // Cache
@@ -128,10 +159,25 @@ namespace PhishGuard
                     queue.RemoveFirst();
                 }
                 IntelResult result;
-                try { result = Fetch(key); LastError = ""; }
+                string service = Service(key);
+                try
+                {
+                    try { result = Fetch(key); }
+                    catch (Exception first)
+                    {
+                        // crt.sh et les API gratuites sont souvent surchargés : une seconde tentative après quelques secondes
+                        if (!Transient(first)) throw;
+                        Thread.Sleep(4000);
+                        result = Fetch(key);
+                    }
+                    LastError = "";
+                    lock (Sync) { lastErrors.Remove(service); lastKeyRefused.Remove(service); }
+                }
                 catch (Exception ex)
                 {
-                    LastError = Service(key) + " : " + ex.Message;
+                    LastError = service + " : " + ex.Message;
+                    int code = HttpStatus(ex);
+                    lock (Sync) { lastErrors[service] = ex.Message; lastKeyRefused[service] = code == 401 || code == 403; }
                     result = new IntelResult { Ok = false };
                 }
                 lock (Sync)
@@ -169,7 +215,7 @@ namespace PhishGuard
             {
                 case "dns": return Dns(v);
                 case "own": return Owner(v);
-                case "crt": Throttle("crt", 2000); return ParseCrt(Http("GET", "https://crt.sh/?output=json&q=" + Uri.EscapeDataString(v), null, null, null, 4000000));
+                case "crt": Throttle("crt", 2000); return ParseCrt(Http("GET", "https://crt.sh/?output=json&q=" + Uri.EscapeDataString(v), null, null, null, 4000000, null, 30000));   // crt.sh répond souvent lentement
                 case "vtf": Throttle("vt", 15500); return ParseVirusTotal(VtGet("files/" + v));
                 case "uhh": Throttle("abusech", 1000); return ParseUrlhaus(Http("POST", "https://urlhaus-api.abuse.ch/v1/host/", "host=" + Uri.EscapeDataString(v), "application/x-www-form-urlencoded", AbuseChHeaders(), 1000000));
                 case "uhp": Throttle("abusech", 1000); return ParseUrlhaus(Http("POST", "https://urlhaus-api.abuse.ch/v1/payload/", "sha256_hash=" + v, "application/x-www-form-urlencoded", AbuseChHeaders(), 1000000));

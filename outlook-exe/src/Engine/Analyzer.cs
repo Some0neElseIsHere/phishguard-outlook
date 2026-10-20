@@ -1305,7 +1305,16 @@ namespace PhishGuard
                 if (!enabled) { st.State = "off"; st.Detail = offDetail; }
                 else if (c == null) { st.State = "ok"; st.Detail = L.T("Rien à vérifier pour ce message"); }
                 else if (c.Pending > 0) { st.State = "pending"; st.Detail = L.F("{0} vérification(s) en cours", c.Pending); }
-                else if (c.Errors > 0) { st.State = "error"; st.Detail = L.T("Service injoignable ou clé refusée") + (Intel.LastError.Length > 0 ? " (" + Intel.LastError + ")" : ""); }
+                else if (c.Errors > 0)
+                {
+                    st.State = "error";
+                    string err = Intel.LastErrorFor(service);
+                    bool keyless = service == "dns" || service == "crt";
+                    st.Detail = !keyless && Intel.KeyRefused(service) ? L.T("Clé refusée : vérifiez-la dans Paramètres → Réputation")
+                        : L.T("Service momentanément indisponible, nouvel essai automatique dans 10 minutes")
+                          + (service == "crt" ? " " + L.T("(crt.sh, service gratuit, est souvent surchargé)") : "");
+                    if (err.Length > 0) st.Detail += " — " + err;
+                }
                 else { st.State = "ok"; st.Detail = L.F("{0} élément(s) vérifié(s)", c.Checked); }
                 sources.Add(st);
             };

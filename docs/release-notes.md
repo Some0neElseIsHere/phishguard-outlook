@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.17.3** : sources de réputation. crt.sh, souvent surchargé, et les autres services sont retentés automatiquement après quelques secondes en cas d'erreur passagère. L'onglet Réputation de l'analyse détaillée distingue maintenant un service momentanément indisponible (nouvel essai dans 10 minutes) d'une clé d'API refusée, au lieu d'afficher « Service injoignable ou clé refusée » pour tout, y compris pour crt.sh qui n'utilise aucune clé.
+
 - **v1.17.2** : paramètres réorganisés. Nouvel onglet **Affichage** : langue, fenêtre d'analyse (simple ou expert), thème, alerte à l'écran, explications pédagogiques et couleur des messages suspects. L'onglet **Analyse** ne garde que ce qui règle l'analyse elle-même.
 
 - **v1.17.1** : niveaux de protection SPF, DKIM et DMARC (avec les vérifications DNS activées). Un expéditeur inconnu dont le SPF se termine par « +all » (n'importe quel serveur peut envoyer en son nom) est signalé. Une politique DMARC appliquée à une partie des messages seulement (pct inférieur à 100) n'est plus comptée comme preuve de protection. « Analyser mon domaine » indique la taille de vos clés DKIM et signale une clé de 1024 bits ou moins, ainsi qu'une clé révoquée.
