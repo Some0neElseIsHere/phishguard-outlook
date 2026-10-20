@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.16.5** : sécurité. Un message piégé pouvait **figer Outlook** plusieurs minutes dès sa sélection : un HTML de quelques centaines de Ko construit pour faire travailler la lecture des liens en temps quadratique (200 Ko : environ 15 s ; 1 Mo : plusieurs minutes). La lecture des liens et des formulaires est maintenant linéaire (2 Mo piégés : 0,1 s), les autres motifs appliqués au contenu du message sont bornés, et une image qui annonce plus de 40 millions de pixels n'est plus décodée pour y chercher un QR code. Aucun effet sur la détection (banc d'essai identique).
+
 - **v1.16.4** : thème sombre. Le bandeau du bas de la fenêtre d'analyse (boutons et ligne d'état) pouvait rester blanc quand le thème de Windows changeait pendant qu'Outlook était ouvert. Le thème est maintenant revérifié à chaque affichage de la fenêtre.
 
 - **v1.16.3** : travail sur les mails d'entreprise français. 32 nouveaux cas réalistes (paie, banque pro, comptabilité, Chorus Pro, Urssaf, Infogreffe, OVHcloud, Teams, SNCF…), reçus par Microsoft 365, FortiMail, Google Workspace ou un filtre français : tous corrects. Un avis de virement reçu ou de remboursement versé n'est plus pris pour une « demande sensible ». Nouvelles marques reconnues : Mon Compte Formation (CPF), VINCI Autoroutes, Qonto, OVHcloud, SNCF, Chorus Pro, Urssaf, Crit'Air. Sur 421 vrais phishings en français : 99,8 % signalés, 84 % en rouge.
