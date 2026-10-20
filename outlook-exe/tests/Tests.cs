@@ -319,6 +319,7 @@ namespace PhishGuard.Tests
             Check("domaine ancien non signalé", !Ids(Analyzer.Analyze(eb, cfg)).Contains("sender-new-domain"));
             var cfgNoAge = new PhishGuardConfig(); cfgNoAge.DomainAgeLookup = false;
             Check("âge récupéré d'un clic : pris en compte même sans recherche automatique", Ids(Analyzer.Analyze(ea, cfgNoAge)).Contains("sender-new-domain"));
+            Check("âge des domaines : recherche automatique désactivée par défaut", !new PhishGuardConfig().DomainAgeLookup);
             var ed2 = Base(); ed2.FromAddress = "a@mail.tout-neuf-livraison.fr"; ed2.ReplyTo.Add("b@autre-exemple.fr");
             ed2.Links.Add(new LinkInfo("https://www.ancien-domaine.fr/x", "x")); ed2.Links.Add(new LinkInfo("https://192.0.2.4/x", "ip")); ed2.Links.Add(new LinkInfo("mailto:c@d.fr", "m"));
             var doms = DomainAge.DomainsOf(ed2);
