@@ -1193,7 +1193,7 @@ namespace PhishGuard
                     dnsR = ask("dns:" + dnsDomain + "|" + fromOrg, "dns");
                     if (dnsR != null && dnsR.Exists)
                     {
-                        if (dnsR.DmarcPolicy == "reject" || dnsR.DmarcPolicy == "quarantine")
+                        if ((dnsR.DmarcPolicy == "reject" || dnsR.DmarcPolicy == "quarantine") && dnsR.DmarcPct >= 100)
                             ctx.Trust.Add(L.F("Le domaine demande d’écarter les messages usurpés (politique DMARC publiée : p={0})", dnsR.DmarcPolicy));
                         if (dnsR.Bimi == "vmc" && ctx.AuthProof)
                         {
@@ -1223,6 +1223,12 @@ namespace PhishGuard
                             else if (r.DmarcPolicy == "none")
                                 add("sender-intel-dmarc-none", cat, Severity.Info, L.T("Politique DMARC non appliquée (p=none)"),
                                     L.T("Le domaine surveille les usurpations mais ne demande pas de les bloquer."), fromDomain);
+                            else if ((r.DmarcPolicy == "reject" || r.DmarcPolicy == "quarantine") && r.DmarcPct < 100)
+                                add("sender-intel-dmarc-partial", cat, Severity.Info, L.F("Politique DMARC appliquée à {0} % des messages seulement", r.DmarcPct),
+                                    L.T("Les autres messages usurpant ce domaine sont livrés normalement."), fromDomain);
+                            if (r.SpfAll == "+")
+                                add("sender-intel-spf-open", cat, Severity.Medium, L.T("Le domaine de l’expéditeur autorise n’importe quel serveur à envoyer en son nom (SPF +all)"),
+                                    L.T("Avec « +all », le contrôle SPF réussit pour tout le monde : il ne prouve rien. Configuration jamais utilisée par une organisation sérieuse."), fromDomain);
                         }
                     }
                 }

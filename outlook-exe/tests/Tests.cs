@@ -463,6 +463,16 @@ namespace PhishGuard.Tests
 
             // DMARC (politique) et BIMI par DNS (bêta)
             Check("DMARC p=reject", Intel.ParseDmarcPolicy("v=DMARC1; p=reject; rua=mailto:x@y", false) == "reject");
+            Check("DMARC pct=", Intel.ParseDmarcPct("v=DMARC1; p=reject; pct=25") == 25 && Intel.ParseDmarcPct("v=DMARC1; p=reject") == 100 && Intel.ParseDmarcPct("v=DMARC1; pct=abc") == 100);
+            Check("SPF : qualificatif de « all »", Intel.SpfAllQualifier("v=spf1 mx -all") == "-" && Intel.SpfAllQualifier("v=spf1 include:x ~all") == "~" && Intel.SpfAllQualifier("v=spf1 +all") == "+"
+                && Intel.SpfAllQualifier("v=spf1 all") == "+" && Intel.SpfAllQualifier("v=spf1 ?all") == "?" && Intel.SpfAllQualifier("v=spf1 mx") == "" && Intel.SpfAllQualifier("") == "");
+            Check("DKIM : taille des clés", Intel.DkimKeyBits("v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAonZ1hwxNxVXU71uHoNqovNO2MbLxMkCK9+3jZ0f2s/KOBJF6B1i0VyUfw1A3EJVAzKLU3x4QJkoRx+DPnLIexqCjkCPttgl6ZxWohomB0GyiC4Kw+iYua+clxc5LrfuLaUDbJq4wXSgLzP5h0rkBkfM1fbUS5m2lAPAhNzkS97N2eaRyKYpwa5bmGQMozdzrKV1k+qFU5stwP/nO+pE7tYwxSicNYpFnyWb4yfGWhZfYaYSfjcJmDuAG/DcUA4fLC4rWBiYX07T+PA9yDAvSEWl6uw5CqkHD/MkGnjYciWtuko2huLyh4/AA7BMxdxZqZvwisECcsZrbqxywyz9AeQIDAQAB") == 2048 && Intel.DkimKeyBits("v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC53UZ5tpzgVkDvHtVwYQ5L2ZDiV7IY2nsSUl15hkVIFIWkkZ5bI8dEVz4c6yfqgaBl6BxqgeOxIHPEON8l/a8LxhkFJPRcHomViUcuEqVJy9QIefHcd2MZAJC75LXbnsO95wjgG6aEJe2C++Q/+xay1NAzXZ55QwLcw4t4CxjEuQIDAQAB") == 1024
+                && Intel.DkimKeyBits("v=DKIM1; p=MIGJAoGBAJyc8WaUWHtzz33YVPk0xQ9fWvUy9BNftpTmUyYqR9+gjSCTq8oEzceJ9+fBB/g03HsSSa9Ft4O0lH+qe7JDeC37ylbLGW0Vwh37eSMBj6np4ImV8gRVHv76LPFnSKrBVnvlckynq3XWnwromElozwbmyZYzLqI+EhZjE5q1ty0ZAgMBAAE=") == 1024 && Intel.DkimKeyBits("v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=") == 256
+                && Intel.DkimKeyBits("v=DKIM1; p=") == 0 && Intel.DkimKeyBits("v=DKIM1; p=%%%") == -1 && Intel.DkimKeyBits("v=DKIM1; p=AAAA") == -1,
+                Intel.DkimKeyBits("v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAonZ1hwxNxVXU71uHoNqovNO2MbLxMkCK9+3jZ0f2s/KOBJF6B1i0VyUfw1A3EJVAzKLU3x4QJkoRx+DPnLIexqCjkCPttgl6ZxWohomB0GyiC4Kw+iYua+clxc5LrfuLaUDbJq4wXSgLzP5h0rkBkfM1fbUS5m2lAPAhNzkS97N2eaRyKYpwa5bmGQMozdzrKV1k+qFU5stwP/nO+pE7tYwxSicNYpFnyWb4yfGWhZfYaYSfjcJmDuAG/DcUA4fLC4rWBiYX07T+PA9yDAvSEWl6uw5CqkHD/MkGnjYciWtuko2huLyh4/AA7BMxdxZqZvwisECcsZrbqxywyz9AeQIDAQAB") + " / " + Intel.DkimKeyBits("v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC53UZ5tpzgVkDvHtVwYQ5L2ZDiV7IY2nsSUl15hkVIFIWkkZ5bI8dEVz4c6yfqgaBl6BxqgeOxIHPEON8l/a8LxhkFJPRcHomViUcuEqVJy9QIefHcd2MZAJC75LXbnsO95wjgG6aEJe2C++Q/+xay1NAzXZ55QwLcw4t4CxjEuQIDAQAB") + " / " + Intel.DkimKeyBits("v=DKIM1; p=MIGJAoGBAJyc8WaUWHtzz33YVPk0xQ9fWvUy9BNftpTmUyYqR9+gjSCTq8oEzceJ9+fBB/g03HsSSa9Ft4O0lH+qe7JDeC37ylbLGW0Vwh37eSMBj6np4ImV8gRVHv76LPFnSKrBVnvlckynq3XWnwromElozwbmyZYzLqI+EhZjE5q1ty0ZAgMBAAE="));
+            var auk = DomainAudit.AuditRecords("x.fr", new List<string> { "mx.x.fr" }, new List<string> { "v=spf1 mx -all" }, new List<string> { "v=DMARC1; p=reject" },
+                new List<string>(), new List<string>(), new List<string>(), new List<string> { "s1", "s2" }, new List<string>(), new Dictionary<string, int> { { "s1", 2048 }, { "s2", 1024 } });
+            Check("bilan email : clé DKIM de 1024 bits signalée", auk.Any(x => x.Status == "warn" && x.Title.Contains("1024")) && auk.Any(x => x.Detail.Contains("s1 (2048 bits)")));
             Check("DMARC sp= pour un sous-domaine", Intel.ParseDmarcPolicy("v=DMARC1; p=reject; sp=none", true) == "none" && Intel.ParseDmarcPolicy("v=DMARC1; p=quarantine", true) == "quarantine");
             Check("BIMI avec certificat", Intel.ParseBimi("v=BIMI1; l=https://x/logo.svg; a=https://x/vmc.pem") == "vmc");
             Check("BIMI sans certificat", Intel.ParseBimi("v=BIMI1; l=https://x/logo.svg; a=;") == "logo" && Intel.ParseBimi("") == "");
@@ -478,30 +488,30 @@ namespace PhishGuard.Tests
 
             // ---------- Annuaire des Entreprises ----------
             const string ANNUAIRE = "{\"results\":[{\"siren\":\"111\",\"nom_complet\":\"ACME (FERMEE)\",\"etat_administratif\":\"C\",\"siege\":{\"libelle_commune\":\"LYON\"},\"dirigeants\":[]},"
-                + "{\"siren\":\"123456782\",\"nom_complet\":\"LOREMA\",\"etat_administratif\":\"A\",\"siege\":{\"libelle_commune\":\"FREJUS\"},\"dirigeants\":["
-                + "{\"nom\":\"DUFOURCQ\",\"prenoms\":\"CHARLES AUGUSTIN MARIE\",\"qualite\":\"Gérant\",\"type_dirigeant\":\"personne physique\"},"
+                + "{\"siren\":\"123456782\",\"nom_complet\":\"LOREMA\",\"etat_administratif\":\"A\",\"siege\":{\"libelle_commune\":\"TOULON\"},\"dirigeants\":["
+                + "{\"nom\":\"MARTIN\",\"prenoms\":\"CLAIRE ANNE MARIE\",\"qualite\":\"Gérant\",\"type_dirigeant\":\"personne physique\"},"
                 + "{\"siren\":\"999\",\"denomination\":\"HOLDING X\",\"qualite\":\"Président\",\"type_dirigeant\":\"personne morale\"},"
-                + "{\"nom\":\"GORIN-TRIANA\",\"prenoms\":\"JEAN-PIERRE\",\"type_dirigeant\":\"personne physique\"}]}],\"total_results\":2}";
+                + "{\"nom\":\"DURAND-PETIT\",\"prenoms\":\"JEAN-PAUL\",\"type_dirigeant\":\"personne physique\"}]}],\"total_results\":2}";
             var co = CompanyLookup.Parse(ANNUAIRE);
             Check("annuaire : entreprises lues", co.Count == 2, co.Count.ToString());
-            Check("annuaire : active en premier", co.Count == 2 && co[0].Name == "LOREMA" && co[0].City == "Frejus" && !co[1].Active);
+            Check("annuaire : active en premier", co.Count == 2 && co[0].Name == "LOREMA" && co[0].City == "Toulon" && !co[1].Active);
             Check("annuaire : dirigeants personnes physiques", co.Count == 2 && co[0].Directors.Count == 2 && co[0].Directors[0] == "Claire Martin"
-                && co[0].Directors[1] == "Jean-Paul Durand-Triana" && co[0].Roles[0] == "Claire Martin (Gérant)", co.Count > 0 ? string.Join(" | ", co[0].Directors.ToArray()) : "");
+                && co[0].Directors[1] == "Jean-Paul Durand-Petit" && co[0].Roles[0] == "Claire Martin (Gérant)", co.Count > 0 ? string.Join(" | ", co[0].Directors.ToArray()) : "");
             Check("annuaire : réponse vide", CompanyLookup.Parse("{}").Count == 0 && CompanyLookup.Parse("{\"results\":[]}").Count == 0);
 
             // ---------- Analyse de votre domaine ----------
             var va = DomainAudit.Variants("lorema.com");
             Func<string, bool> hasV = d => va.Any(x => x.Key == d);
-            Check("variantes : extension, caractère, faute, mot", hasV("lorema.fr") && hasV("s0nema.com") && hasV("sonerna.com") && hasV("sonnema.com")
-                && hasV("snoema.com") && hasV("lorema-paiement.com") && hasV("lorema-fr.com") && hasV("lorema-com.fr"), va.Count.ToString());
+            Check("variantes : extension, caractère, faute, mot", hasV("lorema.fr") && hasV("l0rema.com") && hasV("lorerna.com") && hasV("lorrema.com")
+                && hasV("lroema.com") && hasV("lorema-paiement.com") && hasV("lorema-fr.com") && hasV("lorema-com.fr"), va.Count.ToString());
             Check("variantes : sans le domaine lui-même ni doublon", !hasV("lorema.com") && va.Select(x => x.Key).Distinct().Count() == va.Count);
             Check("variantes : nombre raisonnable", va.Count > 80 && va.Count < 400, va.Count.ToString());
-            Check("variantes : pas de touche voisine", !hasV("sinema.com"));
-            Check("SIREN : clé de Luhn", DomainAudit.IsValidSiren("123456782") && !DomainAudit.IsValidSiren("449397174") && !DomainAudit.IsValidSiren("12345"));
-            Check("SIREN : RCS", DomainAudit.FindSiren("<footer>LOREMA SAS au capital de 10&nbsp;000 € – RCS Fréjus 449 397 173</footer>") == "123456782");
-            Check("SIREN : SIRET", DomainAudit.FindSiren("<p>SIRET : <b>449 397 173 00047</b></p>") == "123456782");
+            Check("variantes : pas de touche voisine", !hasV("lirema.com"));
+            Check("SIREN : clé de Luhn", DomainAudit.IsValidSiren("123456782") && !DomainAudit.IsValidSiren("123456783") && !DomainAudit.IsValidSiren("12345"));
+            Check("SIREN : RCS", DomainAudit.FindSiren("<footer>LOREMA SAS au capital de 10&nbsp;000 € – RCS Toulon 123 456 782</footer>") == "123456782");
+            Check("SIREN : SIRET", DomainAudit.FindSiren("<p>SIRET : <b>123 456 782 00047</b></p>") == "123456782");
             Check("SIREN : TVA", DomainAudit.FindSiren("N° TVA intracommunautaire : FR 12 123456782") == "123456782");
-            Check("SIREN : numéro invalide ignoré", DomainAudit.FindSiren("Téléphone 04 94 12 34 56 – SIREN 449 397 174") == "");
+            Check("SIREN : numéro invalide ignoré", DomainAudit.FindSiren("Téléphone 04 94 12 34 56 – SIREN 123 456 783") == "");
             var ll = DomainAudit.LegalLinks("<a href='/fr/contact'>Contact</a><a href=\"/mentions-legales/\">Mentions légales</a><a href='https://autre.fr/legal'>x</a><a href='cgv.html'>CGV</a>", "https://www.lorema.com/");
             Check("mentions légales : liens", ll.Count == 2 && ll[0] == "https://www.lorema.com/mentions-legales/" && ll[1] == "https://www.lorema.com/cgv.html", string.Join(" ", ll.ToArray()));
             var snd = new List<string>();
