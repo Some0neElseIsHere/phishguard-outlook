@@ -12,6 +12,12 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.17.0** :
+  - **Nouvelles arnaques détectées** : l'annonce d'un appel d'un faux conseiller bancaire (« validez l'opération avec le code reçu par SMS »), la demande de numéro de carte ou de cryptogramme, et le lien caché dans un PDF joint. Nouvelles marques : leboncoin, Vinted.
+  - **31 faux phishings français fictifs** ajoutés au banc d'essai : tous signalés, 27 en rouge. Les mails légitimes difficiles restent tous verts (78 sur 78).
+  - **Sécurité** : un message contenant un caractère Unicode invalide pouvait faire échouer l'analyse et rester sans verdict ni alerte. Corrigé ; une analyse qui échoue classe désormais le message « suspect ». Pour un expéditeur inconnu, les vérifications DNS n'interrogent plus que le domaine principal, ce qui empêche un sous-domaine unique par destinataire de servir d'accusé de lecture.
+  - **Qualité** : banc d'essai complet chaque mois avec ticket automatique en cas de baisse ; tests de robustesse sur des milliers de messages malformés ; signature Authenticode du complément possible lors de la construction (certificat à fournir).
+
 - **v1.16.5** : sécurité. Un message piégé pouvait **figer Outlook** plusieurs minutes dès sa sélection : un HTML de quelques centaines de Ko construit pour faire travailler la lecture des liens en temps quadratique (200 Ko : environ 15 s ; 1 Mo : plusieurs minutes). La lecture des liens et des formulaires est maintenant linéaire (2 Mo piégés : 0,1 s), les autres motifs appliqués au contenu du message sont bornés, et une image qui annonce plus de 40 millions de pixels n'est plus décodée pour y chercher un QR code. Aucun effet sur la détection (banc d'essai identique).
 
 - **v1.16.4** : thème sombre. Le bandeau du bas de la fenêtre d'analyse (boutons et ligne d'état) pouvait rester blanc quand le thème de Windows changeait pendant qu'Outlook était ouvert. Le thème est maintenant revérifié à chaque affichage de la fenêtre.

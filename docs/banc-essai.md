@@ -144,6 +144,29 @@ ont donc servi :
 Résultat : **77 cas difficiles sur 77 corrects**, 27 avec « Expéditeur vérifié » ; détection des phishings 78,6 %
 (78,4 % avant), fausses alertes inchangées sur les listes Apache (3,0 %).
 
+## Faux phishings français et contrôle mensuel (v1.17.0)
+
+- **31 faux phishings français fictifs** (`outlook-exe/tests/phishings-fr`, générés par `outlook-exe/tools/gen-phishings.py`),
+  inspirés des campagnes décrites publiquement par Cybermalveillance.gouv.fr, l'ANSSI et le CERT-FR : faux Ameli, CPF,
+  ANTAI, Crit'Air, impots.gouv, Urssaf, Chorus Pro, France Travail, colis, Microsoft 365, Orange, banques, leboncoin,
+  fraude au président, faux changement de RIB, conversation détournée, usurpation de votre propre domaine, pièces jointes
+  piégées (page de connexion HTML, programme déguisé dans un zip, image disque, PDF avec lien). La plupart viennent d'un
+  domaine sosie **correctement authentifié**, le cas le plus difficile hors ligne. Chacun indique le verdict attendu
+  (rouge, ou au moins orange). **31 sur 31 signalés, 27 en rouge.** Trois techniques passaient inaperçues et sont
+  maintenant détectées : l'**annonce d'un appel d'un faux conseiller** (« validez l'opération avec le code reçu par
+  SMS »), la **demande de numéro de carte ou de cryptogramme** (faux acheteur, faux remboursement) et le **lien caché
+  dans le PDF joint** (« cliquez sur le lien du document »). Un mail de prévention de la banque qui décrit l'arnaque
+  (« votre conseiller ne vous demandera jamais… ») n'est pas signalé.
+- **Contrôle mensuel automatique** : le banc complet tourne le 1er de chaque mois, avec les phishings et le spam les plus
+  récents. Un résumé compare chaque corpus au mois précédent ; une baisse sur un corpus qui n'a pas changé (donc due au
+  moteur) ouvre automatiquement un ticket sur le dépôt.
+- **Tests de robustesse** : à chaque construction, 400 messages malformés générés au hasard (en-têtes cassés, encodages
+  invalides, HTML piégé, pièces jointes corrompues) traversent toute l'analyse ; le banc mensuel en lance 5 000 avec une
+  graine différente chaque mois. Aucune exception, aucun message de plus de 2 secondes. Ces tests ont trouvé un défaut :
+  un texte contenant un caractère Unicode invalide faisait échouer l'analyse, et le message restait **sans verdict ni
+  alerte**. Ce texte est maintenant accepté, et une analyse qui échoue malgré tout classe le message « suspect » avec la
+  raison, au lieu de ne rien afficher.
+
 ## Ce qui reste manqué
 
 Les 20 % de phishings non détectés hors ligne sont presque tous des messages courts, envoyés d'un domaine inconnu

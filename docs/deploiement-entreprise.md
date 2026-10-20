@@ -11,7 +11,10 @@ ne peut pas les modifier.
 - Une version déjà installée est mise à jour, et les réglages de l'utilisateur sont conservés.
 - Si l'antivirus, AppLocker ou la stratégie « compléments signés uniquement » bloque le complément, signez
   `PhishGuard.dll` avec le certificat de signature de code de l'entreprise, ou autorisez le dossier
-  `%LOCALAPPDATA%\PhishGuard`.
+  `%LOCALAPPDATA%\PhishGuard`. Pour construire une version signée : définissez `PG_SIGN_PFX` (chemin du certificat
+  `.pfx`) et `PG_SIGN_PASSWORD` avant de lancer `construire.bat` ; le complément et l'installeur sont signés et
+  horodatés (signtool du Windows SDK requis). Sur GitHub, les secrets `SIGN_PFX_BASE64` et `SIGN_PASSWORD` font la
+  même chose lors de la publication.
 
 ## 2. Imposer les réglages par stratégie
 
