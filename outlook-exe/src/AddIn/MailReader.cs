@@ -91,6 +91,31 @@ namespace PhishGuard.AddIn
             }
         }
 
+        /// <summary>Contenu de chaque pièce jointe (analyse approfondie), dans l'ordre de e.Attachments. Jamais enregistré ni exécuté.</summary>
+        public static List<KeyValuePair<AttachmentInfo, byte[]>> AttachmentFiles(object mailObj, EmailData e, long maxBytes)
+        {
+            var list = new List<KeyValuePair<AttachmentInfo, byte[]>>();
+            try
+            {
+                dynamic mail = mailObj;
+                dynamic atts = mail.Attachments;
+                int n = atts.Count;
+                for (int i = 1; i <= n && i <= e.Attachments.Count; i++)
+                {
+                    var info = e.Attachments[i - 1];
+                    if (info.IsEmbeddedMessage) continue;
+                    try
+                    {
+                        var bytes = ReadAttachmentBytes((object)atts.Item(i), info.Name, maxBytes);
+                        if (bytes != null && bytes.Length > 0) list.Add(new KeyValuePair<AttachmentInfo, byte[]>(info, bytes));
+                    }
+                    catch (Exception) { }
+                }
+            }
+            catch (Exception) { }
+            return list;
+        }
+
         public static EmailData Read(object mailObj)
         {
             return Read(mailObj, FullHashSize);

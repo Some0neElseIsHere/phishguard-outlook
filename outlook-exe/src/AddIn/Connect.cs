@@ -39,6 +39,8 @@ namespace PhishGuard.AddIn
         readonly Dictionary<string, Cached> cache = new Dictionary<string, Cached>();
         readonly Queue<string> cacheOrder = new Queue<string>();
         readonly HashSet<string> alerted = new HashSet<string>();
+        // Analyses approfondies de la session : réappliquées quand le message est réanalysé (cache vidé, nouveaux résultats en ligne)
+        readonly Dictionary<string, DeepReport> deepReports = new Dictionary<string, DeepReport>();
 
         /// <summary>Réglages de l'utilisateur (bouton Paramètres).</summary>
         public static string UserConfigPath { get { return Path.Combine(Blocklists.DataDir, "config.user.ini"); } }
@@ -196,6 +198,12 @@ namespace PhishGuard.AddIn
             long maxHash = full ? MailReader.FullHashSize : (long)config.AutoHashMaxMB * 1024 * 1024;
             var data = MailReader.Read(mail, maxHash);
             var result = Analyzer.Analyze(data, config);
+            DeepReport deep;
+            if (deepReports.TryGetValue(key, out deep))
+            {
+                // Les liens découverts (destinations réelles, liens cachés dans les pièces jointes) et les indices de l'analyse approfondie sont conservés
+                result = DeepAnalysis.Complete(data, deep, config);
+            }
             c = new Cached { Data = data, Result = result, Full = full };
             if (!cache.ContainsKey(key)) cacheOrder.Enqueue(key);
             cache[key] = c;
@@ -490,6 +498,11 @@ namespace PhishGuard.AddIn
                     }
                     catch (Exception ex) { Log("Mode d'affichage : " + ex.Message); }
                 };
+                form.DeepRequested += (s, e) =>
+                {
+                    try { RunDeep(); }
+                    catch (Exception ex) { Log("Analyse approfondie : " + ex); form.SetDeepRunning(false, L.T("Analyse approfondie impossible : ") + ex.Message); }
+                };
                 form.SettingsRequested += (s, e) =>
                 {
                     try
@@ -505,6 +518,62 @@ namespace PhishGuard.AddIn
             form.Expert = config.ExpertMode && !config.ForceSimpleMode;
             form.ShowResult(c.Result, c.Data, ListStatus(), config.ShowExplanations);
             InvalidateRibbons();
+        }
+
+        /// <summary>Analyse approfondie du message affiché : accord de l'utilisateur, puis vérifications hors du fil d'Outlook.</summary>
+        void RunDeep()
+        {
+            if (lastMail == null || form == null || form.IsDisposed) return;
+            object mail = lastMail;
+            string key = KeyOf(mail);
+            var c = AnalyzeCached(mail, true);
+            DeepOptions opt;
+            using (var dlg = new DeepForm(config, Intel.Settings, form.Icon))
+            {
+                if (dlg.ShowDialog(form) != DialogResult.OK) return;
+                opt = dlg.Options;
+            }
+            var f = form;
+            f.SetDeepRunning(true, L.T("Analyse approfondie : votre boîte et les pièces jointes…"));
+            Application.DoEvents();
+            // Sur le fil d'Outlook : historique de la boîte et contenu des pièces jointes
+            var rep = new DeepReport();
+            try { MailHistory.Explore(application, mail, c.Data, rep); }
+            catch (Exception ex) { rep.Unchecked.Add(L.T("Historique : ") + ex.Message); }
+            List<KeyValuePair<AttachmentInfo, byte[]>> files;
+            try { files = MailReader.AttachmentFiles(mail, c.Data, 25L * 1024 * 1024); }
+            catch (Exception) { files = new List<KeyValuePair<AttachmentInfo, byte[]>>(); }
+            var data = c.Data; var baseResult = c.Result; var cfg = config; var keys = Intel.Settings;
+            Log("Analyse approfondie lancée (" + files.Count + " pièce(s) jointe(s), suivi des liens : " + opt.FollowLinks + ", liens vers VirusTotal : " + opt.SendUrls + ")");
+            var t = new System.Threading.Thread(() =>
+            {
+                string err = null;
+                try { DeepAnalysis.Run(data, baseResult, files, opt, cfg, keys, msg => OnUi(f, () => f.SetDeepRunning(true, L.T("Analyse approfondie : ") + msg)), rep); }
+                catch (Exception ex) { err = ex.Message; }
+                OnUi(f, () =>
+                {
+                    try
+                    {
+                        if (err != null) { f.SetDeepRunning(false, L.T("Analyse approfondie interrompue : ") + err); return; }
+                        deepReports[key] = rep;
+                        var final = DeepAnalysis.Complete(data, rep, config);   // sur le fil d'Outlook, comme toute analyse
+                        Cached cc;
+                        if (cache.TryGetValue(key, out cc)) cc.Result = final;
+                        Log("Analyse approfondie : " + final.Level + " (" + final.Score + "), " + rep.Findings.Count + " indice(s), " + rep.Facts.Count + " élément(s), " + (int)rep.Duration.TotalSeconds + " s");
+                        f.OpenDeepTab = true;
+                        if (lastMail == mail) f.ShowResult(final, data, ListStatus(), config.ShowExplanations);
+                        f.SetDeepRunning(false, L.F("Analyse approfondie terminée en {0} s", Math.Max(1, (int)Math.Round(rep.Duration.TotalSeconds))));
+                        InvalidateRibbons();
+                    }
+                    catch (Exception ex) { Log("Analyse approfondie : " + ex); f.SetDeepRunning(false, L.T("Analyse approfondie interrompue : ") + ex.Message); }
+                });
+            }) { IsBackground = true, Name = "PhishGuard analyse approfondie" };
+            t.Start();
+        }
+
+        static void OnUi(Control c, MethodInvoker a)
+        {
+            try { if (!c.IsDisposed && c.IsHandleCreated) c.BeginInvoke(a); } catch (Exception) { }
         }
 
         bool setupChecked;
