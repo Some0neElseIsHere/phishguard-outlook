@@ -42,8 +42,6 @@ namespace PhishGuard
         // Stratégies d'entreprise (registre Software\Policies\PhishGuard, poussé par GPO ou Intune) : l'utilisateur ne peut pas les modifier
         public bool ForceSimpleMode;             // mode simple imposé (pas d'analyse détaillée ni de réglages avancés)
         public bool AllowApiKeys = true;         // false : aucune clé d'API (VirusTotal, abuse.ch, AbuseIPDB) sur ce poste
-        public bool AllowLinkFollowing = true;   // analyse approfondie : l'utilisateur peut faire suivre les liens jusqu'à leur destination
-        public bool AllowUrlLookup = true;       // analyse approfondie : l'utilisateur peut envoyer l'adresse complète des liens à VirusTotal
         public HashSet<string> Locked = new HashSet<string>();   // clés imposées par une stratégie (en minuscules ; « company# » pour les entreprises)
 
         /// <summary>Lecture des stratégies, fournie par le complément (registre) ; null dans les tests et outils.</summary>
@@ -234,8 +232,6 @@ namespace PhishGuard
                     case "internalrelays": c.InternalRelays = SplitList(val, false); break;
                     case "forcesimplemode": c.ForceSimpleMode = IsTrue(val); break;
                     case "allowapikeys": c.AllowApiKeys = !IsFalse(val); break;
-                    case "allowlinkfollowing": c.AllowLinkFollowing = !IsFalse(val); break;
-                    case "allowurllookup": c.AllowUrlLookup = !IsFalse(val); break;
                     case "expertmode": c.ExpertMode = IsTrue(val); break;
                     case "setupdone": if (!isAdminFile) { c.SetupDone = SplitList(val, true); c.SetupKeyPresent = true; } break;
                     case "publicsectorlist": c.PublicSectorList = !IsFalse(val); break;

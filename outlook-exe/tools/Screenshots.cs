@@ -77,6 +77,10 @@ namespace PhishGuard.Tools
             Write(outDir, "simple-verifie.html", SimpleView.Build(rv, v, true));
             Write(outDir, "expert-dangereux.html", ResultForm.BuildHtml(rp, p, true));
             Write(outDir, "signalement.html", ReportHtml.Build(rp, p, "Claire Martin"));
+            // Onglet Réputation : âge connu pour le premier domaine, à récupérer pour les autres
+            var doms = DomainAge.DomainsOf(p);
+            if (doms.Count > 0) DomainAge.SetForTests(doms[0].Key, DateTime.UtcNow.AddDays(-3));
+            Write(outDir, "expert-reputation.html", ResultForm.BuildHtml(Analyzer.Analyze(p, cfg), p, true, "s-beta"));
             Console.WriteLine("Verdicts : " + rp.Level + " " + rp.Score + " / " + rs.Level + " " + rs.Score + " / " + rv.Level + " verified=" + rv.Verified);
 
             Func<AnalysisResult, string> label = r => r.Level == "dangerous" ? "Dangereux (" + r.Score + ")" : r.Level == "suspicious" ? "Suspect (" + r.Score + ")"
@@ -94,23 +98,6 @@ namespace PhishGuard.Tools
                 new KeyValuePair<string, string>("Company1", "Exemple SAS | France | 552100554 | Claire Martin; Hugo Bernard"),
                 new KeyValuePair<string, string>("CompanyDomains", "exemple-pme.fr"), new KeyValuePair<string, string>("ForceSimpleMode", "1") });
             Capture(new SettingsForm(cfgPol, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres-strategies.png"));
-
-            // Analyse approfondie (résultats fictifs, pour la mise en page)
-            var dr = new DeepReport { Duration = TimeSpan.FromSeconds(23) };
-            dr.Findings.Add(new Finding("deep-link-login", "links", Severity.High, L.T("Un lien mène à une page qui demande un mot de passe"),
-                L.T("La page de destination contient un champ « mot de passe ». Ne vous connectez jamais depuis un lien reçu par email : passez par l’adresse habituelle du site."), new[] { "hxxps://micros0ft-support[.]com/owa/login" }));
-            dr.Findings.Add(new Finding("deep-domain-new", "links", Severity.High, "Domaine créé il y a 3 jour(s) (destination réelle d’un lien)", "", new[] { "micros0ft-support.com" }));
-            dr.Facts.Add(new DeepFact("links", "warn", "bit[.]ly → t[.]exemple-tracker[.]com → micros0ft-support[.]com"));
-            dr.Facts.Add(new DeepFact("domains", "bad", "micros0ft-support.com (destination réelle d’un lien) : créé le 17/10/2026 (il y a 3 jours) ; premier certificat HTTPS le 17/10/2026"));
-            dr.Facts.Add(new DeepFact("domains", "ok", "exemple-tracker.com (lien) : créé le 02/03/2019 (il y a 2 789 jours) ; premier certificat HTTPS le 04/03/2019"));
-            dr.Facts.Add(new DeepFact("history", "warn", "Premier message reçu de no-reply@micros0ft-support.com dans votre boîte de réception"));
-            dr.Facts.Add(new DeepFact("history", "bad", "Le nom « Microsoft 365 » vous a déjà écrit depuis : no-reply@microsoft.com"));
-            dr.Sent.Add("Visite de bit[.]ly (sans cookie, sans exécuter de code)"); dr.Sent.Add("Nom de domaine micros0ft-support.com → rdap.org"); dr.Sent.Add("Nom de domaine micros0ft-support.com → crt.sh");
-            dr.Unchecked.Add("Serveurs traversés : pas de clé AbuseIPDB");
-            var rd = Analyzer.WithFindings(Analyzer.Analyze(p, cfg), dr.Findings, dr);
-            dr.FollowedLinks = true;
-            Write(outDir, "expert-approfondie.html", ResultForm.BuildHtml(rd, p, true, "s-deep", new DeepUi { CanFollow = true, CanUrls = true }));
-            Write(outDir, "expert-approfondie-avant.html", ResultForm.BuildHtml(Analyzer.Analyze(p, cfg), p, true, "s-deep", new DeepUi()));
 
             // Thème sombre (Windows en mode sombre)
             Theme.Dark = true;

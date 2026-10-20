@@ -202,36 +202,9 @@ namespace PhishGuard
                 Verified = verified,
                 SenderDomain = PhishGuard.Domains.DomainOfAddress(e.FromAddress)
             };
-            ApplyLabels(r);
-            return r;
-        }
-
-        static void ApplyLabels(AnalysisResult r)
-        {
-            if (r.Level == "dangerous") { r.LevelLabel = L.T("Dangereux"); r.Advice = L.T("Ne cliquez sur aucun lien, n’ouvrez aucune pièce jointe et signalez ce message."); }
-            else if (r.Level == "suspicious") { r.LevelLabel = L.T("Suspect"); r.Advice = L.T("Ne cliquez pas et n’ouvrez rien avant d’avoir vérifié l’expéditeur par un autre moyen."); }
+            if (level == "dangerous") { r.LevelLabel = L.T("Dangereux"); r.Advice = L.T("Ne cliquez sur aucun lien, n’ouvrez aucune pièce jointe et signalez ce message."); }
+            else if (level == "suspicious") { r.LevelLabel = L.T("Suspect"); r.Advice = L.T("Ne cliquez pas et n’ouvrez rien avant d’avoir vérifié l’expéditeur par un autre moyen."); }
             else { r.LevelLabel = L.T("Aucun indice important"); r.Advice = L.T("Restez vigilant : aucun outil ne détecte 100 % des attaques."); }
-        }
-
-        /// <summary>Ajoute des indices (analyse approfondie) et recalcule le score et le verdict avec le même barème.</summary>
-        public static AnalysisResult WithFindings(AnalysisResult r, IEnumerable<Finding> extra, DeepReport deep)
-        {
-            foreach (var f in extra ?? new Finding[0])
-                if (!r.Findings.Any(x => x.Id == f.Id && x.Evidence.SequenceEqual(f.Evidence))) r.Findings.Add(f);
-            r.Findings = r.Findings.OrderByDescending(f => (int)f.Severity).ToList();
-            int score = 0, contentScore = 0;
-            foreach (var f in r.Findings)
-            {
-                if (f.Category == "content" && !IsDecisiveContent(f.Id)) contentScore += Points(f.Severity);
-                else score += Points(f.Severity);
-            }
-            score = Math.Min(100, score + Math.Min(30, contentScore));
-            bool hasCritical = r.Findings.Any(f => f.Severity == Severity.Critical);
-            r.Score = score;
-            r.Level = hasCritical || score >= 50 ? "dangerous" : score >= 20 ? "suspicious" : "safe";
-            if (r.Level != "safe" || r.Findings.Any(f => f.Severity >= Severity.Low && f.Id.StartsWith("deep-"))) r.Verified = false;
-            r.Deep = deep;
-            ApplyLabels(r);
             return r;
         }
 
@@ -778,10 +751,11 @@ namespace PhishGuard
 
         static void CheckDomainAge(string registrable, string where, string id, Ctx ctx, List<Finding> findings)
         {
-            if (!ctx.Config.DomainAgeLookup || string.IsNullOrEmpty(registrable)) return;
+            if (string.IsNullOrEmpty(registrable)) return;
             if (ctx.Domains.Legit.Contains(registrable) || ctx.Domains.CompanyDomains.Contains(registrable) || Lists.FreemailDomains.Contains(registrable)) return;
             DateTime? created;
-            if (!DomainAge.TryGetCreated(registrable, out created)) { DomainAge.Request(registrable); return; }
+            // Recherche automatique si l'option est active ; sinon seulement l'âge déjà récupéré d'un clic (onglet Réputation)
+            if (!DomainAge.TryGetCreated(registrable, out created)) { if (ctx.Config.DomainAgeLookup) DomainAge.Request(registrable); return; }
             if (!created.HasValue) return;
             int days = (int)(DateTime.UtcNow - created.Value).TotalDays;
             if (days < 0) days = 0;

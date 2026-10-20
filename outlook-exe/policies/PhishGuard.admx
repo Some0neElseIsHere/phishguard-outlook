@@ -148,18 +148,6 @@
       <enabledValue><decimal value="1" /></enabledValue>
       <disabledValue><decimal value="0" /></disabledValue>
     </policy>
-    <policy name="AllowLinkFollowing" class="Both" displayName="$(string.AllowLinkFollowing)" explainText="$(string.AllowLinkFollowing_Help)" key="Software\Policies\PhishGuard" valueName="AllowLinkFollowing">
-      <parentCategory ref="Cat_Sources" />
-      <supportedOn ref="SUPPORTED_PhishGuard" />
-      <enabledValue><decimal value="1" /></enabledValue>
-      <disabledValue><decimal value="0" /></disabledValue>
-    </policy>
-    <policy name="AllowUrlLookup" class="Both" displayName="$(string.AllowUrlLookup)" explainText="$(string.AllowUrlLookup_Help)" key="Software\Policies\PhishGuard" valueName="AllowUrlLookup">
-      <parentCategory ref="Cat_Sources" />
-      <supportedOn ref="SUPPORTED_PhishGuard" />
-      <enabledValue><decimal value="1" /></enabledValue>
-      <disabledValue><decimal value="0" /></disabledValue>
-    </policy>
     <policy name="RedFlagEnabled" class="Both" displayName="$(string.RedFlagEnabled)" explainText="$(string.RedFlagEnabled_Help)" key="Software\Policies\PhishGuard" valueName="RedFlagEnabled">
       <parentCategory ref="Cat_Sources" />
       <supportedOn ref="SUPPORTED_PhishGuard" />

@@ -86,14 +86,6 @@ Registry value: Software\Policies\PhishGuard\ScoreLog</string>
       <string id="AllowApiKeys_Help">Disabled: no VirusTotal, abuse.ch or AbuseIPDB key is used on the computer and entering one is blocked. A key cannot be distributed by policy: any key readable by the computer is readable by the user. The free tiers of some services forbid business use: check their terms.
 
 Registry value: Software\Policies\PhishGuard\AllowApiKeys</string>
-      <string id="AllowLinkFollowing">Deep analysis: allow following links</string>
-      <string id="AllowLinkFollowing_Help">Disabled: deep analysis cannot follow links to their destination. Enabled or not configured: the user can request it by ticking the box for each analysis. Following a link contacts the site: the sender can tell that the message was opened.
-
-Registry value: Software\Policies\PhishGuard\AllowLinkFollowing</string>
-      <string id="AllowUrlLookup">Deep analysis: allow sending links to VirusTotal</string>
-      <string id="AllowUrlLookup_Help">Disabled: the full address of links is never sent to VirusTotal. Enabled or not configured: the user can request it for each deep analysis. A link address can contain a personal token (sign-in or reset link).
-
-Registry value: Software\Policies\PhishGuard\AllowUrlLookup</string>
       <string id="RedFlagEnabled">Red Flag Domains list</string>
       <string id="RedFlagEnabled_Help">New suspicious .fr domains, downloaded daily. CC BY-NC-SA 4.0 license: check that your use is covered.
 

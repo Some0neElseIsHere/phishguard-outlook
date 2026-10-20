@@ -62,7 +62,6 @@ fichiers ADMX*, puis créez un profil « Modèles importés » et affectez-le au
 | | Langue, thème des fenêtres, alertes à l'écran | `Language`, `Theme`, `AlertLevel` |
 | | Analyse automatique, déplacer les messages signalés, correspondants connus, journal des scores | `AutoAnalyze`, `MoveAfterReport`, `KnownCorrespondents`, `ScoreLog` |
 | Sources et listes | Autoriser les clés d'API | `AllowApiKeys` |
-| | Analyse approfondie : suivi des liens, envoi des liens à VirusTotal | `AllowLinkFollowing`, `AllowUrlLookup` |
 | | Red Flag Domains, secteur public, âge des domaines, DNS, crt.sh, OpenPhish, Tranco | `RedFlagEnabled`, `PublicSectorList`, `DomainAgeLookup`, `BetaDnsChecks`, `BetaCertAge`, `BetaOpenPhish`, `BetaTranco` |
 
 ## 3. Déclarer les copieurs et applications qui envoient des mails

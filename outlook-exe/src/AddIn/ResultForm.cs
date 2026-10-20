@@ -36,10 +36,6 @@ namespace PhishGuard.AddIn
         public bool AllowExpert = true;
         /// <summary>L'utilisateur a changé de mode (Expert contient le nouveau mode).</summary>
         public event EventHandler ModeChanged;
-        /// <summary>Action demandée depuis l'onglet « Approfondie » : "follow" (suivre les liens) ou "urls" (liens vers VirusTotal).</summary>
-        public event Action<string> DeepAction;
-        /// <summary>État de l'onglet « Approfondie » (mode expert).</summary>
-        public DeepUi Deep = new DeepUi();
 
         /// <summary>true : analyse détaillée (onglets) ; false : mode simple.</summary>
         public bool Expert;
@@ -150,19 +146,41 @@ namespace PhishGuard.AddIn
         }
 
         /// <summary>Seuls les liens vers les services de vérification s'ouvrent (dans le navigateur par défaut).</summary>
+        /// <summary>Lien interne de la page : récupérer l'âge des domaines (adresse réservée, jamais visitée).</summary>
+        internal const string AgeAction = "https://action.phishguard.invalid/age-des-domaines";
+
+        string CurrentTab()
+        {
+            try
+            {
+                var doc = browser.Document;
+                if (doc == null) return "";
+                foreach (HtmlElement a in doc.GetElementsByTagName("a"))
+                    if ((a.GetAttribute("className") ?? "") == "tab on") return a.GetAttribute("data-t") ?? "";
+            }
+            catch (Exception) { }
+            return "";
+        }
+
+        void FetchDomainAges()
+        {
+            int n = 0;
+            foreach (var d in DomainAge.DomainsOf(email)) { DateTime? c; if (!DomainAge.TryGetCreated(d.Key, out c) || !c.HasValue) { DomainAge.Fetch(d.Key); n++; } }
+            if (result != null) ShowResult(result, email, lastListStatus, lastShowExplanations, false);   // « recherche en cours » dans le tableau
+            status.Text = n == 0 ? L.T("L’âge des domaines est déjà connu.") : L.F("Recherche de l’âge de {0} domaine(s) auprès de rdap.org…", n);
+        }
+
         void OnNavigating(object sender, WebBrowserNavigatingEventArgs e)
         {
             string url = e.Url.ToString();
             if (url.StartsWith("about:")) return;
             e.Cancel = true;
-            if (url.StartsWith("pgaction://", StringComparison.OrdinalIgnoreCase))
+            Uri u = e.Url;
+            if (url.StartsWith(AgeAction, StringComparison.OrdinalIgnoreCase))
             {
-                string act = url.Substring(11).Trim('/').ToLowerInvariant();
-                var h = DeepAction;
-                if (h != null && (act == "follow" || act == "urls")) h(act);
+                try { FetchDomainAges(); } catch (Exception ex) { status.Text = ex.Message; }
                 return;
             }
-            Uri u = e.Url;
             if ((u.Scheme == "https") && Forensics.LookupHosts.Contains(PhishGuard.Domains.HostOf(u)))
             {
                 try { Process.Start(new ProcessStartInfo(u.AbsoluteUri) { UseShellExecute = true }); status.Text = L.T("Ouvert dans le navigateur : ") + PhishGuard.Domains.HostOf(u); }
@@ -196,7 +214,7 @@ namespace PhishGuard.AddIn
         /// <summary>Empreinte du résultat affiché : évite de recharger la page si rien n'a changé.</summary>
         static string Signature(AnalysisResult r)
         {
-            return r.Score + "|" + string.Join(",", r.Findings.Select(f => f.Id + ":" + f.Severity + ":" + f.Evidence.Count).ToArray()) + "|" + r.Positives.Count + "|" + r.Trust.Count + "|" + r.Verified;
+            return r.Score + "|" + string.Join(",", r.Findings.Select(f => f.Id + ":" + f.Severity + ":" + f.Evidence.Count).ToArray()) + "|" + r.Positives.Count + "|" + r.Trust.Count + "|" + r.Verified + "|" + DomainAge.Version;
         }
 
         /// <summary>Mise à jour silencieuse (résultats externes arrivés) : sans prendre le focus.</summary>
@@ -220,9 +238,9 @@ namespace PhishGuard.AddIn
             ApplyTexts();
             btnTrust.Visible = r.Level != "safe";
             status.Text = Expert ? listStatus : "";
-            // L'onglet affiché est conservé quand la page est reconstruite (fin de l'analyse approfondie, résultats en ligne)
-            string tab = CurrentTab();
-            browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations, tab, Deep) : SimpleView.Build(r, e, showExplanations);
+            // L'onglet affiché est conservé quand la page est reconstruite (résultats en ligne arrivés)
+            string tab = activate ? "" : CurrentTab();
+            browser.DocumentText = Expert ? BuildHtml(r, e, showExplanations, tab) : SimpleView.Build(r, e, showExplanations);
             if (!activate) return;
             if (!Visible) Show();
             if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
@@ -230,39 +248,6 @@ namespace PhishGuard.AddIn
         }
 
         public void SetStatus(string text) { status.Text = text; }
-
-        /// <summary>Nouveau résultat (fin de l'analyse approfondie) : page reconstruite sur le même onglet, sans prendre le focus.</summary>
-        public void UpdateResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations)
-        {
-            if (Visible) ShowResult(r, e, listStatus, showExplanations, false);
-            else { result = r; email = e; }
-        }
-
-        /// <summary>Onglet actuellement affiché dans la page (mode expert), ou "".</summary>
-        string CurrentTab()
-        {
-            try
-            {
-                var doc = browser.Document;
-                if (doc == null) return "";
-                foreach (HtmlElement a in doc.GetElementsByTagName("a"))
-                    if ((a.GetAttribute("className") ?? "") == "tab on") return a.GetAttribute("data-t") ?? "";
-            }
-            catch (Exception) { }
-            return "";
-        }
-
-        /// <summary>Avancement de l'analyse approfondie, dans la ligne d'état.</summary>
-        public void SetDeepStatus(string text)
-        {
-            if (text != null) status.Text = text;
-        }
-
-        /// <summary>Reconstruit la page (début ou fin de l'analyse approfondie) en restant sur le même onglet.</summary>
-        public void Redraw()
-        {
-            if (result != null && Visible) ShowResult(result, email, lastListStatus, lastShowExplanations, false);
-        }
 
         // =================================================================
         // HTML
@@ -357,9 +342,8 @@ namespace PhishGuard.AddIn
             ".lesson b{font-weight:600}" +
             ".list{margin:0;padding:0;list-style:none}.list li{padding:5px 0 5px 24px;position:relative;border-top:1px solid #f0f2f5}.list li:first-child{border-top:0}" +
             ".list li .ic{position:absolute;left:0;top:5px;width:16px;height:16px;border-radius:50%;font-size:10px;font-weight:700;text-align:center;line-height:16px}" +
-            ".ic.okc{background:#e7f5ee;color:#13804a}.ic.inf{background:#eef1f5;color:#5f6b7a}.ic.bad{background:#fdeced;color:#c4262e}.ic.mid{background:#fff3e0;color:#a85b00}" +
+            ".ic.okc{background:#e7f5ee;color:#13804a}.ic.inf{background:#eef1f5;color:#5f6b7a}" +
             ".empty{background:#fff;border:1px dashed #d3d9e1;border-radius:12px;padding:22px;text-align:center;color:#5f6b7a;margin-top:12px}" +
-            "a.run{display:inline-block;margin-top:14px;padding:8px 18px;border:1px solid #0f6cbd;border-radius:8px;background:#fff;color:#0f6cbd;font-weight:600;text-decoration:none}" +
             ".muted{color:#5f6b7a}.mono{font-family:Consolas,'Courier New',monospace;font-size:12px;word-wrap:break-word;word-break:break-all}" +
             ".tw{background:#fff;border:1px solid #e3e7ed;border-radius:12px;overflow:hidden;margin-top:4px}" +
             "table{border-collapse:collapse;width:100%}" +
@@ -407,11 +391,13 @@ namespace PhishGuard.AddIn
                 + "</svg><div class='num'>" + score + "</div><div class='of'>/ 100</div></div>";
         }
 
-        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations) { return BuildHtml(r, e, showExplanations, "", new DeepUi()); }
-
-        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations, string openTab, DeepUi deepUi)
+        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations)
         {
-            deepUi = deepUi ?? new DeepUi();
+            return BuildHtml(r, e, showExplanations, "");
+        }
+
+        internal static string BuildHtml(AnalysisResult r, EmailData e, bool showExplanations, string openTab)
+        {
             var d = r.Details ?? new HeaderDetails();
             var sb = new StringBuilder();
             sb.Append("<!DOCTYPE html><html><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'>");
@@ -429,7 +415,6 @@ namespace PhishGuard.AddIn
             Tab(sb, "s-att", L.T("Pièces jointes"), nAtt);
             Tab(sb, "s-raw", L.T("Source"), -1);
             Tab(sb, "s-beta", L.T("Réputation"), beta.Count);
-            Tab(sb, "s-deep", L.T("Approfondie") + (deepUi.Running ? " …" : ""), r.Deep == null ? 0 : r.Deep.Findings.Count(f => f.Severity != Severity.Info));
             sb.Append("</div><div class='page'>");
 
             // ---------------- Résumé ----------------
@@ -673,6 +658,7 @@ namespace PhishGuard.AddIn
             // ---------------- Bêta (sources externes) ----------------
             sb.Append("<div class='sec' id='s-beta'>");
             sb.Append("<p class='note'>" + H(L.T("Résultats des sources externes activées dans Paramètres → Réputation. Elles reçoivent seulement des domaines, des empreintes de fichiers ou une IP, jamais le contenu du message.")) + "</p>");
+            DomainAgeTable(sb, e);
             if (r.Sources.Count > 0)
             {
                 sb.Append("<h2>" + H(L.T("Sources")) + "</h2><div class='tw'><table><thead><tr><th>" + H(L.T("Source")) + "</th><th>" + H(L.T("État")) + "</th><th>" + H(L.T("Détail")) + "</th></tr></thead><tbody>");
@@ -693,8 +679,6 @@ namespace PhishGuard.AddIn
             InfoList(sb, r.Findings.Where(f => f.Severity == Severity.Info && Analyzer.IsBetaFinding(f)).ToList(), showExplanations);
             sb.Append("</div>");
 
-            DeepSection(sb, r.Deep, showExplanations, deepUi);
-
             sb.Append("<p class='foot'>" + H(L.T("Analyse locale : le contenu du message ne quitte pas votre poste.")) + "</p>");
             sb.Append("</div>");
             if (!string.IsNullOrEmpty(openTab) && System.Text.RegularExpressions.Regex.IsMatch(openTab, "^s-[a-z]+$"))
@@ -703,84 +687,33 @@ namespace PhishGuard.AddIn
             return sb.ToString();
         }
 
-        static readonly string[] DeepSections = { "att", "links", "domains", "hops", "history" };
-
-        static string DeepSectionTitle(string id)
+        /// <summary>Âge de chaque domaine du message, et un lien pour le récupérer (rdap.org) quand il n'est pas connu.</summary>
+        static void DomainAgeTable(StringBuilder sb, EmailData e)
         {
-            switch (id)
+            var doms = DomainAge.DomainsOf(e);
+            if (doms.Count == 0) return;
+            bool missing = false;
+            sb.Append("<h2>" + H(L.T("Âge des domaines")) + "</h2><div class='tw'><table><thead><tr><th>" + H(L.T("Domaine")) + "</th><th>" + H(L.T("Rôle")) + "</th><th>" + H(L.T("Création")) + "</th></tr></thead><tbody>");
+            foreach (var d in doms)
             {
-                case "att": return L.T("Contenu des pièces jointes");
-                case "links": return L.T("Destination réelle des liens");
-                case "domains": return L.T("Âge et certificats de tous les domaines");
-                case "hops": return L.T("Serveurs traversés");
-                default: return L.T("Dans votre boîte");
-            }
-        }
-
-        /// <summary>Vérifications qui demandent l'accord de l'utilisateur : un clic sur le lien vaut accord, après confirmation.</summary>
-        static void DeepActions(StringBuilder sb, DeepReport d, DeepUi ui)
-        {
-            if (ui.Running) return;
-            var items = new List<string>();
-            if (ui.CanFollow && (d == null || !d.FollowedLinks))
-                items.Add("<li><span class='ic inf'>›</span><a href='pgaction://follow'>" + H(L.T("Suivre les liens jusqu’à leur vraie destination")) + "</a><div class='muted'>"
-                    + H(L.T("Les sites sont contactés, sans cookie et sans exécuter de code : l’expéditeur peut savoir que le message a été ouvert.")) + "</div></li>");
-            if (ui.CanUrls && (d == null || !d.SentUrls))
-                items.Add("<li><span class='ic inf'>›</span><a href='pgaction://urls'>" + H(L.T("Consulter VirusTotal avec l’adresse complète des liens")) + "</a><div class='muted'>"
-                    + H(L.T("Une adresse de lien peut contenir un jeton personnel (lien de connexion, de réinitialisation).")) + "</div></li>");
-            if (items.Count == 0) return;
-            sb.Append("<h2>" + H(L.T("Aller plus loin (avec votre accord)")) + "</h2><div class='card'><ul class='list'>" + string.Join("", items.ToArray()) + "</ul></div>");
-        }
-
-        /// <summary>Onglet « Approfondie » : uniquement ce que l'analyse approfondie a découvert en plus.</summary>
-        static void DeepSection(StringBuilder sb, DeepReport d, bool showExplanations, DeepUi ui)
-        {
-            sb.Append("<div class='sec' id='s-deep'>");
-            if (ui.Running)
-            {
-                sb.Append(Empty(L.T("Analyse approfondie en cours : contenu des pièces jointes, historique de votre boîte, âge et certificats de tous les domaines… Cet onglet se met à jour tout seul à la fin.")));
-                sb.Append("</div>");
-                return;
-            }
-            if (d == null)
-            {
-                sb.Append("<div class='empty'>" + H(L.T("Pour un message douteux : contenu des pièces jointes (macros, PDF, archives), historique de votre boîte, âge et certificats de tous les domaines. Seul ce que les autres onglets ne montrent pas est affiché."))
-                    + "<br><a class='run' href='pgaction://run'>" + H(L.T("Lancer l’analyse approfondie")) + "</a></div>");
-                sb.Append("</div>");
-                return;
-            }
-            sb.Append("<p class='note'>" + H(L.F("Analyse approfondie du {0}, en {1} s. Seuls les éléments nouveaux par rapport aux autres onglets sont affichés.",
-                d.When.ToString("dd/MM/yyyy HH:mm"), Math.Max(1, (int)Math.Round(d.Duration.TotalSeconds)))) + "</p>");
-            DeepActions(sb, d, ui);
-            var found = d.Findings.Where(f => f.Severity != Severity.Info).OrderByDescending(f => (int)f.Severity).ToList();
-            if (found.Count > 0)
-            {
-                sb.Append("<h2>" + H(L.T("Nouveaux indices")) + "<span class='c'>" + found.Count + "</span></h2>");
-                foreach (var f in found) FindingCard(sb, f, showExplanations);
-            }
-            foreach (var s in DeepSections)
-            {
-                var facts = d.Facts.Where(x => x.Section == s).ToList();
-                if (facts.Count == 0) continue;
-                sb.Append("<h2>" + H(DeepSectionTitle(s)) + "</h2><div class='card'><ul class='list'>");
-                foreach (var x in facts.OrderBy(x => x.Status == "bad" ? 0 : x.Status == "warn" ? 1 : x.Status == "info" ? 2 : 3))
+                DateTime? c;
+                string cell;
+                if (DomainAge.IsPending(d.Key)) cell = "<span class='b mid'>" + H(L.T("Recherche en cours…")) + "</span>";
+                else if (!DomainAge.TryGetCreated(d.Key, out c)) { cell = "<span class='muted'>" + H(L.T("non récupérée")) + "</span>"; missing = true; }
+                else if (!c.HasValue) { cell = "<span class='muted'>" + H(L.T("date non publiée par le registre (ou service injoignable)")) + "</span>"; missing = true; }
+                else
                 {
-                    string ic = x.Status == "ok" ? "<span class='ic okc'>&#10003;</span>" : x.Status == "bad" ? "<span class='ic bad'>!</span>" : x.Status == "warn" ? "<span class='ic mid'>!</span>" : "<span class='ic inf'>i</span>";
-                    sb.Append("<li>" + ic + H(x.Text) + "</li>");
+                    int days = Math.Max(0, (int)(DateTime.UtcNow - c.Value).TotalDays);
+                    string cls = days < 30 ? "bad" : days < 90 ? "mid" : "na";
+                    string age = days < 60 ? L.F("{0} jour(s)", days) : days < 730 ? L.F("{0} mois", days / 30) : L.F("{0} ans", days / 365);
+                    cell = "<span class='b " + cls + "'>" + H(age) + "</span> <span class='muted'>" + H(L.F("le {0}", c.Value.ToLocalTime().ToString("dd/MM/yyyy"))) + "</span>";
                 }
-                sb.Append("</ul></div>");
+                sb.Append("<tr><td class='mono'>" + H(d.Key) + "</td><td>" + H(d.Value) + "</td><td>" + cell + "</td></tr>");
             }
-            if (found.Count == 0 && d.Facts.Count == 0) sb.Append(Empty(L.T("Rien de plus à signaler : l’analyse approfondie n’a rien trouvé que les autres onglets ne montrent déjà.")));
-            if (d.Unchecked.Count > 0)
-            {
-                sb.Append("<h2>" + H(L.T("Non vérifié")) + "</h2><div class='card'><ul class='list'>");
-                foreach (var u in d.Unchecked.Distinct()) sb.Append("<li><span class='ic inf'>–</span>" + H(u) + "</li>");
-                sb.Append("</ul></div>");
-            }
-            sb.Append("<h2>" + H(L.T("Ce qui est sorti du poste")) + "<span class='c'>" + d.Sent.Distinct().Count() + "</span></h2><div class='card'>");
-            if (d.Sent.Count == 0) sb.Append("<p class='muted'>" + H(L.T("Rien : toutes les vérifications ont été faites sur votre poste.")) + "</p>");
-            else { sb.Append("<ul class='list'>"); foreach (var u in d.Sent.Distinct()) sb.Append("<li><span class='ic inf'>›</span><span class='mono'>" + H(u) + "</span></li>"); sb.Append("</ul>"); }
-            sb.Append("</div></div>");
+            sb.Append("</tbody></table></div>");
+            if (missing)
+                sb.Append("<p class='fd'><a href='" + AgeAction + "'>" + H(L.T("Récupérer l’âge des domaines")) + "</a> <span class='muted'>"
+                    + H(L.T("(seuls les noms de domaine sont envoyés à rdap.org, puis au registre du domaine)")) + "</span></p>");
         }
 
         static void FindingCard(StringBuilder sb, Finding f, bool showExplanations)
