@@ -495,7 +495,6 @@ namespace PhishGuard.AddIn
                         var cfg = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
                         cfg.ExpertMode = form.Expert;
                         cfg.SaveUser(UserConfigPath);
-                        if (form.Expert && lastMail != null) MaybeAutoDeep(lastMail);
                     }
                     catch (Exception ex) { Log("Mode d'affichage : " + ex.Message); }
                 };
@@ -503,6 +502,7 @@ namespace PhishGuard.AddIn
                 {
                     try
                     {
+                        if (act == "run") { RunDeep(DefaultDeepOptions()); return; }
                         bool follow = act == "follow";
                         string question = follow
                             ? L.T("PhishGuard va visiter les liens du message pour voir où ils mènent vraiment (sans cookie, sans exécuter de code).") + "\n\n"
@@ -536,7 +536,6 @@ namespace PhishGuard.AddIn
             form.Deep = DeepUiFor(KeyOf(mail));
             form.ShowResult(c.Result, c.Data, ListStatus(), config.ShowExplanations);
             InvalidateRibbons();
-            if (form.Expert) MaybeAutoDeep(mail);
         }
 
         string deepRunningKey;
@@ -558,14 +557,6 @@ namespace PhishGuard.AddIn
                 Hashes = k.VirusTotalKey.Length > 0 || k.AbuseChKey.Length > 0,
                 HopIps = k.AbuseIpdbKey.Length > 0
             };
-        }
-
-        /// <summary>Mode expert : l'analyse approfondie se lance d'elle-même à l'ouverture de l'analyse détaillée, une fois par message.</summary>
-        void MaybeAutoDeep(object mail)
-        {
-            string key = KeyOf(mail);
-            if (deepReports.ContainsKey(key) || deepRunningKey != null) return;
-            RunDeep(DefaultDeepOptions());
         }
 
         /// <summary>Analyse approfondie du message affiché : historique et pièces jointes sur le fil d'Outlook, le reste en arrière-plan.</summary>

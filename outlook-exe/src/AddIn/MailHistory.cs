@@ -36,16 +36,21 @@ namespace PhishGuard.AddIn
             {
                 try
                 {
+                    // Pas de parcours des messages (lent dans une grosse boîte) : le nombre, et le plus ancien après tri
                     dynamic items = inbox.Items.Restrict("[SenderEmailAddress] = '" + Quote(addr) + "'");
                     items.Sort("[ReceivedTime]", false);
-                    int count = 0; DateTime? first = null;
                     int total = items.Count;
-                    for (int i = 1; i <= total && i <= 2000; i++)
+                    int count = total; DateTime? first = null;
+                    for (int i = 1; i <= total && i <= 3; i++)
                     {
                         dynamic it = items.Item(i);
-                        if (Str(() => it.EntryID) == entryId) continue;
-                        count++;
+                        if (Str(() => it.EntryID) == entryId) { count--; continue; }
                         if (first == null) { try { first = (DateTime)it.ReceivedTime; } catch (Exception) { } }
+                    }
+                    if (total > 3)
+                    {
+                        // Le message affiché peut être n'importe où : il est retiré du compte s'il est dans la boîte de réception
+                        try { if (Str(() => ((dynamic)mailObj).Parent.EntryID) == Str(() => inbox.EntryID)) count--; } catch (Exception) { }
                     }
                     if (count == 0)
                         rep.Facts.Add(new DeepFact("history", "warn", L.F("Premier message reçu de {0} dans votre boîte de réception", addr)));
@@ -65,7 +70,7 @@ namespace PhishGuard.AddIn
                     dynamic items = inbox.Items.Restrict("[SenderName] = '" + Quote(name) + "'");
                     var others = new List<string>();
                     int total = items.Count;
-                    for (int i = 1; i <= total && i <= 300; i++)
+                    for (int i = 1; i <= total && i <= 40; i++)
                     {
                         dynamic it = items.Item(i);
                         string a = Str(() => it.SenderEmailAddress);

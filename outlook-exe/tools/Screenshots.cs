@@ -110,7 +110,7 @@ namespace PhishGuard.Tools
             var rd = Analyzer.WithFindings(Analyzer.Analyze(p, cfg), dr.Findings, dr);
             dr.FollowedLinks = true;
             Write(outDir, "expert-approfondie.html", ResultForm.BuildHtml(rd, p, true, "s-deep", new DeepUi { CanFollow = true, CanUrls = true }));
-            Write(outDir, "expert-approfondie-encours.html", ResultForm.BuildHtml(Analyzer.Analyze(p, cfg), p, true, "s-deep", new DeepUi { Running = true }));
+            Write(outDir, "expert-approfondie-avant.html", ResultForm.BuildHtml(Analyzer.Analyze(p, cfg), p, true, "s-deep", new DeepUi()));
 
             // Thème sombre (Windows en mode sombre)
             Theme.Dark = true;

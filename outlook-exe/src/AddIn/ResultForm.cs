@@ -359,6 +359,7 @@ namespace PhishGuard.AddIn
             ".list li .ic{position:absolute;left:0;top:5px;width:16px;height:16px;border-radius:50%;font-size:10px;font-weight:700;text-align:center;line-height:16px}" +
             ".ic.okc{background:#e7f5ee;color:#13804a}.ic.inf{background:#eef1f5;color:#5f6b7a}.ic.bad{background:#fdeced;color:#c4262e}.ic.mid{background:#fff3e0;color:#a85b00}" +
             ".empty{background:#fff;border:1px dashed #d3d9e1;border-radius:12px;padding:22px;text-align:center;color:#5f6b7a;margin-top:12px}" +
+            "a.run{display:inline-block;margin-top:14px;padding:8px 18px;border:1px solid #0f6cbd;border-radius:8px;background:#fff;color:#0f6cbd;font-weight:600;text-decoration:none}" +
             ".muted{color:#5f6b7a}.mono{font-family:Consolas,'Courier New',monospace;font-size:12px;word-wrap:break-word;word-break:break-all}" +
             ".tw{background:#fff;border:1px solid #e3e7ed;border-radius:12px;overflow:hidden;margin-top:4px}" +
             "table{border-collapse:collapse;width:100%}" +
@@ -735,11 +736,16 @@ namespace PhishGuard.AddIn
         static void DeepSection(StringBuilder sb, DeepReport d, bool showExplanations, DeepUi ui)
         {
             sb.Append("<div class='sec' id='s-deep'>");
-            if (d == null || ui.Running)
+            if (ui.Running)
             {
-                sb.Append(Empty(ui.Running ? L.T("Analyse approfondie en cours : contenu des pièces jointes, historique de votre boîte, âge et certificats de tous les domaines… Cet onglet se met à jour tout seul à la fin.")
-                    : L.T("L’analyse approfondie n’a pas encore été faite pour ce message.")));
-                DeepActions(sb, d, ui);
+                sb.Append(Empty(L.T("Analyse approfondie en cours : contenu des pièces jointes, historique de votre boîte, âge et certificats de tous les domaines… Cet onglet se met à jour tout seul à la fin.")));
+                sb.Append("</div>");
+                return;
+            }
+            if (d == null)
+            {
+                sb.Append("<div class='empty'>" + H(L.T("Pour un message douteux : contenu des pièces jointes (macros, PDF, archives), historique de votre boîte, âge et certificats de tous les domaines. Seul ce que les autres onglets ne montrent pas est affiché."))
+                    + "<br><a class='run' href='pgaction://run'>" + H(L.T("Lancer l’analyse approfondie")) + "</a></div>");
                 sb.Append("</div>");
                 return;
             }
