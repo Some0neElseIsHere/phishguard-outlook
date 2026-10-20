@@ -22,7 +22,7 @@ mkdir build\package
 if errorlevel 1 goto nowrite
 
 echo [1/4] Compilation des tests du moteur...
-"%CSC%" /nologo /codepage:65001 /target:exe /out:build\PhishGuard-Tests.exe /r:System.Drawing.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs /recurse:src\ThirdParty\*.cs /recurse:tests\ZXingEncoder\*.cs tests\Tests.cs
+"%CSC%" /nologo /codepage:65001 /target:exe /out:build\PhishGuard-Tests.exe /r:System.Drawing.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs /recurse:src\ThirdParty\*.cs /recurse:tests\ZXingEncoder\*.cs tests\Tests.cs tests\Fuzz.cs
 if errorlevel 1 goto compilefail
 
 echo       Lancement des tests...

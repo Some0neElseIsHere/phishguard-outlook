@@ -944,6 +944,11 @@ namespace PhishGuard.Tests
             Check("retour au français", Analyzer.Analyze(e2, cfg).LevelLabel == "Dangereux" && L.T("Paramètres") == "Paramètres");
             Check("traductions chargées", L.Count > 400, L.Count.ToString());
 
+            // ---------- Robustesse : messages malformés aléatoires ----------
+            int fuzzN;
+            if (!int.TryParse(Environment.GetEnvironmentVariable("PG_FUZZ") ?? "", out fuzzN) || fuzzN <= 0) fuzzN = 400;
+            Fuzz.Run(fuzzN, cfg, Check);
+
             Console.WriteLine();
             Console.WriteLine("Tests : " + passed + " réussis, " + failed + " en échec.");
             try { System.IO.File.WriteAllText(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tests-result.txt"), failed.ToString()); }
