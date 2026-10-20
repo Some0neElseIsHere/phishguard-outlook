@@ -95,6 +95,23 @@ namespace PhishGuard.Tools
                 new KeyValuePair<string, string>("CompanyDomains", "exemple-pme.fr"), new KeyValuePair<string, string>("ForceSimpleMode", "1") });
             Capture(new SettingsForm(cfgPol, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres-strategies.png"));
 
+            // Analyse approfondie (résultats fictifs, pour la mise en page)
+            var dr = new DeepReport { Duration = TimeSpan.FromSeconds(23) };
+            dr.Findings.Add(new Finding("deep-link-login", "links", Severity.High, L.T("Un lien mène à une page qui demande un mot de passe"),
+                L.T("La page de destination contient un champ « mot de passe ». Ne vous connectez jamais depuis un lien reçu par email : passez par l’adresse habituelle du site."), new[] { "hxxps://micros0ft-support[.]com/owa/login" }));
+            dr.Findings.Add(new Finding("deep-domain-new", "links", Severity.High, "Domaine créé il y a 3 jour(s) (destination réelle d’un lien)", "", new[] { "micros0ft-support.com" }));
+            dr.Facts.Add(new DeepFact("links", "warn", "bit[.]ly → t[.]exemple-tracker[.]com → micros0ft-support[.]com"));
+            dr.Facts.Add(new DeepFact("domains", "bad", "micros0ft-support.com (destination réelle d’un lien) : créé le 17/10/2026 (il y a 3 jours) ; premier certificat HTTPS le 17/10/2026"));
+            dr.Facts.Add(new DeepFact("domains", "ok", "exemple-tracker.com (lien) : créé le 02/03/2019 (il y a 2 789 jours) ; premier certificat HTTPS le 04/03/2019"));
+            dr.Facts.Add(new DeepFact("history", "warn", "Premier message reçu de no-reply@micros0ft-support.com dans votre boîte de réception"));
+            dr.Facts.Add(new DeepFact("history", "bad", "Le nom « Microsoft 365 » vous a déjà écrit depuis : no-reply@microsoft.com"));
+            dr.Sent.Add("Visite de bit[.]ly (sans cookie, sans exécuter de code)"); dr.Sent.Add("Nom de domaine micros0ft-support.com → rdap.org"); dr.Sent.Add("Nom de domaine micros0ft-support.com → crt.sh");
+            dr.Unchecked.Add("Serveurs traversés : pas de clé AbuseIPDB");
+            var rd = Analyzer.WithFindings(Analyzer.Analyze(p, cfg), dr.Findings, dr);
+            Write(outDir, "expert-approfondie.html", ResultForm.BuildHtml(rd, p, true, true));
+            Write(outDir, "simple-approfondie.html", SimpleView.Build(rd, p, true));
+            Capture(new DeepForm(cfg, new IntelSettings { VirusTotalKey = "x" }, null), Path.Combine(outDir, "approfondie-accord.png"));
+
             // Thème sombre (Windows en mode sombre)
             Theme.Dark = true;
             Write(outDir, "simple-dangereux-sombre.html", SimpleView.Build(rp, p, true));
