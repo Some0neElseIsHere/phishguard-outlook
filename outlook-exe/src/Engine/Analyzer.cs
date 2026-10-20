@@ -274,7 +274,7 @@ namespace PhishGuard
             return headers.Where(h => h.Key == n).Select(h => h.Value).ToList();
         }
 
-        static readonly Regex AddressRe = new Regex(@"[A-Za-z0-9._%+'-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}");
+        static readonly Regex AddressRe = new Regex(@"[A-Za-z0-9._%+'-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24}");   // longueurs bornées : temps linéaire sur un en-tête piégé
 
         static List<string> AddressesIn(string value)
         {

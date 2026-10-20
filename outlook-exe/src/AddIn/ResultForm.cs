@@ -465,7 +465,7 @@ namespace PhishGuard.AddIn
                 if (!string.IsNullOrEmpty(e.FromAddress)) senderAddrs.Add(e.FromAddress);
                 senderAddrs.AddRange(e.ReplyTo);
                 foreach (var kv in d.Fields.Where(f => f.Key == "Return-Path"))
-                    foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(kv.Value, @"[^\s<>]+@[^\s<>]+")) senderAddrs.Add(m.Value);
+                    foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(kv.Value, @"[^\s<>@]{1,64}@[^\s<>@]{1,253}")) senderAddrs.Add(m.Value);
                 foreach (var ad in senderAddrs)
                 {
                     string dd = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(ad.ToLowerInvariant()));

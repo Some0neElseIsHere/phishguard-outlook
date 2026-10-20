@@ -17,7 +17,8 @@ namespace PhishGuard
     public static class QrScan
     {
         const int MaxSide = 1600;      // au-delà, l'image est réduite (un QR code reste lisible)
-        const int MinSide = 40;        // en dessous, ce n'est pas un QR code lisible (puces, logos)
+        const int MinSide = 40;
+        const long MaxPixels = 40L * 1000 * 1000;   // 40 mégapixels : bien plus qu'une photo de QR code        // en dessous, ce n'est pas un QR code lisible (puces, logos)
 
         /// <summary>Texte des QR codes trouvés dans une image (PNG, JPEG, GIF, BMP), ou liste vide.</summary>
         public static List<string> Decode(byte[] image)
@@ -30,6 +31,8 @@ namespace PhishGuard
                 using (var src = Image.FromStream(ms, false, false))
                 {
                     if (src.Width < MinSide || src.Height < MinSide) return found;
+                    // Image piégée (« bombe de décompression ») : quelques Ko qui annoncent des milliards de pixels
+                    if ((long)src.Width * src.Height > MaxPixels) return found;
                     double scale = Math.Min(1.0, (double)MaxSide / Math.Max(src.Width, src.Height));
                     int w = Math.Max(1, (int)(src.Width * scale)), h = Math.Max(1, (int)(src.Height * scale));
                     using (var bmp = new Bitmap(w, h, PixelFormat.Format24bppRgb))
