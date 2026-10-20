@@ -495,13 +495,30 @@ namespace PhishGuard.AddIn
                         var cfg = PhishGuardConfig.LoadMerged(Path.Combine(InstallDir, "config.ini"), UserConfigPath);
                         cfg.ExpertMode = form.Expert;
                         cfg.SaveUser(UserConfigPath);
+                        if (form.Expert && lastMail != null) MaybeAutoDeep(lastMail);
                     }
                     catch (Exception ex) { Log("Mode d'affichage : " + ex.Message); }
                 };
-                form.DeepRequested += (s, e) =>
+                form.DeepAction += act =>
                 {
-                    try { RunDeep(); }
-                    catch (Exception ex) { Log("Analyse approfondie : " + ex); form.SetDeepRunning(false, L.T("Analyse approfondie impossible : ") + ex.Message); }
+                    try
+                    {
+                        bool follow = act == "follow";
+                        string question = follow
+                            ? L.T("PhishGuard va visiter les liens du message pour voir où ils mènent vraiment (sans cookie, sans exécuter de code).") + "\n\n"
+                              + L.T("Les sites contactés, dont celui de l’expéditeur, pourront savoir que le message a été ouvert.") + "\n\n" + L.T("Continuer ?")
+                            : L.T("PhishGuard va envoyer l’adresse complète des liens à VirusTotal pour connaître leur réputation.") + "\n\n"
+                              + L.T("Une adresse peut contenir un jeton personnel (lien de connexion, de réinitialisation) : VirusTotal le verra.") + "\n\n" + L.T("Continuer ?");
+                        if (MessageBox.Show(form, question, L.T("PhishGuard - Analyse approfondie"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                        DeepReport prev;
+                        bool hadFollow = lastMail != null && deepReports.TryGetValue(KeyOf(lastMail), out prev) && prev.FollowedLinks;
+                        bool hadUrls = lastMail != null && deepReports.TryGetValue(KeyOf(lastMail), out prev) && prev.SentUrls;
+                        var opt = DefaultDeepOptions();
+                        opt.FollowLinks = follow || hadFollow;
+                        opt.SendUrls = !follow || hadUrls;
+                        RunDeep(opt);
+                    }
+                    catch (Exception ex) { Log("Analyse approfondie : " + ex); form.SetDeepStatus(L.T("Analyse approfondie impossible : ") + ex.Message); }
                 };
                 form.SettingsRequested += (s, e) =>
                 {
@@ -516,56 +533,88 @@ namespace PhishGuard.AddIn
             }
             form.AllowExpert = !config.ForceSimpleMode;
             form.Expert = config.ExpertMode && !config.ForceSimpleMode;
+            form.Deep = DeepUiFor(KeyOf(mail));
             form.ShowResult(c.Result, c.Data, ListStatus(), config.ShowExplanations);
             InvalidateRibbons();
+            if (form.Expert) MaybeAutoDeep(mail);
         }
 
-        /// <summary>Analyse approfondie du message affiché : accord de l'utilisateur, puis vérifications hors du fil d'Outlook.</summary>
-        void RunDeep()
+        string deepRunningKey;
+
+        DeepUi DeepUiFor(string key)
         {
-            if (lastMail == null || form == null || form.IsDisposed) return;
+            var k = Intel.Settings;
+            return new DeepUi { Running = deepRunningKey == key, CanFollow = config.AllowLinkFollowing, CanUrls = config.AllowUrlLookup && k.VirusTotalKey.Length > 0 };
+        }
+
+        /// <summary>Vérifications de l'analyse approfondie faites sans demander : celles des sources activées dans les paramètres.</summary>
+        DeepOptions DefaultDeepOptions()
+        {
+            var k = Intel.Settings;
+            return new DeepOptions
+            {
+                DomainAge = config.DomainAgeLookup,
+                Certificates = config.BetaCertAge,
+                Hashes = k.VirusTotalKey.Length > 0 || k.AbuseChKey.Length > 0,
+                HopIps = k.AbuseIpdbKey.Length > 0
+            };
+        }
+
+        /// <summary>Mode expert : l'analyse approfondie se lance d'elle-même à l'ouverture de l'analyse détaillée, une fois par message.</summary>
+        void MaybeAutoDeep(object mail)
+        {
+            string key = KeyOf(mail);
+            if (deepReports.ContainsKey(key) || deepRunningKey != null) return;
+            RunDeep(DefaultDeepOptions());
+        }
+
+        /// <summary>Analyse approfondie du message affiché : historique et pièces jointes sur le fil d'Outlook, le reste en arrière-plan.</summary>
+        void RunDeep(DeepOptions opt)
+        {
+            if (lastMail == null || form == null || form.IsDisposed || deepRunningKey != null) return;
             object mail = lastMail;
             string key = KeyOf(mail);
             var c = AnalyzeCached(mail, true);
-            DeepOptions opt;
-            using (var dlg = new DeepForm(config, Intel.Settings, form.Icon))
-            {
-                if (dlg.ShowDialog(form) != DialogResult.OK) return;
-                opt = dlg.Options;
-            }
             var f = form;
-            f.SetDeepRunning(true, L.T("Analyse approfondie : votre boîte et les pièces jointes…"));
-            Application.DoEvents();
-            // Sur le fil d'Outlook : historique de la boîte et contenu des pièces jointes
+            deepRunningKey = key;
+            f.Deep = DeepUiFor(key);
+            f.Redraw();
+            f.SetDeepStatus(L.T("Analyse approfondie : votre boîte et les pièces jointes…"));
             var rep = new DeepReport();
             try { MailHistory.Explore(application, mail, c.Data, rep); }
             catch (Exception ex) { rep.Unchecked.Add(L.T("Historique : ") + ex.Message); }
             List<KeyValuePair<AttachmentInfo, byte[]>> files;
             try { files = MailReader.AttachmentFiles(mail, c.Data, 25L * 1024 * 1024); }
             catch (Exception) { files = new List<KeyValuePair<AttachmentInfo, byte[]>>(); }
+            if (!opt.DomainAge) rep.Unchecked.Add(L.T("Âge des domaines : désactivé dans Paramètres → Analyse"));
+            if (!opt.Certificates) rep.Unchecked.Add(L.T("Certificats des domaines : crt.sh désactivé dans Paramètres → Réputation"));
             var data = c.Data; var baseResult = c.Result; var cfg = config; var keys = Intel.Settings;
             Log("Analyse approfondie lancée (" + files.Count + " pièce(s) jointe(s), suivi des liens : " + opt.FollowLinks + ", liens vers VirusTotal : " + opt.SendUrls + ")");
             var t = new System.Threading.Thread(() =>
             {
                 string err = null;
-                try { DeepAnalysis.Run(data, baseResult, files, opt, cfg, keys, msg => OnUi(f, () => f.SetDeepRunning(true, L.T("Analyse approfondie : ") + msg)), rep); }
+                try { DeepAnalysis.Run(data, baseResult, files, opt, cfg, keys, msg => OnUi(f, () => { if (lastMail == mail) f.SetDeepStatus(L.T("Analyse approfondie : ") + msg); }), rep); }
                 catch (Exception ex) { err = ex.Message; }
                 OnUi(f, () =>
                 {
+                    deepRunningKey = null;
                     try
                     {
-                        if (err != null) { f.SetDeepRunning(false, L.T("Analyse approfondie interrompue : ") + err); return; }
+                        if (err != null) { Log("Analyse approfondie : " + err); f.Deep = DeepUiFor(key); f.Redraw(); f.SetDeepStatus(L.T("Analyse approfondie interrompue : ") + err); return; }
                         deepReports[key] = rep;
                         var final = DeepAnalysis.Complete(data, rep, config);   // sur le fil d'Outlook, comme toute analyse
                         Cached cc;
                         if (cache.TryGetValue(key, out cc)) cc.Result = final;
                         Log("Analyse approfondie : " + final.Level + " (" + final.Score + "), " + rep.Findings.Count + " indice(s), " + rep.Facts.Count + " élément(s), " + (int)rep.Duration.TotalSeconds + " s");
-                        f.OpenDeepTab = true;
-                        if (lastMail == mail) f.ShowResult(final, data, ListStatus(), config.ShowExplanations);
-                        f.SetDeepRunning(false, L.F("Analyse approfondie terminée en {0} s", Math.Max(1, (int)Math.Round(rep.Duration.TotalSeconds))));
+                        if (lastMail == mail)
+                        {
+                            f.Deep = DeepUiFor(key);
+                            f.UpdateResult(final, data, ListStatus(), config.ShowExplanations);   // reste sur l'onglet affiché, sans voler le focus
+                            f.SetDeepStatus(L.F("Analyse approfondie terminée en {0} s", Math.Max(1, (int)Math.Round(rep.Duration.TotalSeconds))));
+                        }
                         InvalidateRibbons();
                     }
-                    catch (Exception ex) { Log("Analyse approfondie : " + ex); f.SetDeepRunning(false, L.T("Analyse approfondie interrompue : ") + ex.Message); }
+                    catch (Exception ex) { Log("Analyse approfondie : " + ex); f.SetDeepStatus(L.T("Analyse approfondie interrompue : ") + ex.Message); }
                 });
             }) { IsBackground = true, Name = "PhishGuard analyse approfondie" };
             t.Start();
