@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.12) smtp.mailfrom=bounce.impots-gouv-fr.com; dkim=pass (signature was verified) header.d=impots-gouv-fr.com;dmarc=pass action=none header.from=impots-gouv-fr.com;compauth=pass reason=100
+Received: from mail.bounce.impots-gouv-fr.com (198.51.100.154) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: impots.gouv.fr <remboursement@impots-gouv-fr.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Remboursement_de_245=2C80_=E2=82=AC_en_attente?=
+Date: Sat, 26 Sep 2026 18:40:00 +0200
+Message-ID: <c7c0fae2ddcacdff12f2c001204b186c@bounce.impots-gouv-fr.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: impots-remboursement
+Content-Type: multipart/mixed; boundary="=_pg_c7c0fae2dd"
+
+--=_pg_c7c0fae2dd
+Content-Type: multipart/alternative; boundary="alt=_pg_c7c0fae2dd"
+
+--alt=_pg_c7c0fae2dd
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+TWFkYW1lLCBNb25zaWV1ciwKCkFwcsOocyBsZSBkZXJuaWVyIGNhbGN1bCBkZSB2b3RyZSBpbXDD
+tHQsIHZvdXMgw6p0ZXMgw6lsaWdpYmxlIMOgIHVuCnJlbWJvdXJzZW1lbnQgZGUgMjQ1LDgwIOKC
+rC4KClBvdXIgbGUgcmVjZXZvaXIsIGNvbmZpcm1leiB2b3MgY29vcmRvbm7DqWVzIGJhbmNhaXJl
+cyBzb3VzIDcyIGhldXJlcywgZmF1dGUKZGUgcXVvaSBsYSBzb21tZSBzZXJhIHBlcmR1ZS4KClJl
+Y2V2b2lyIG1vbiByZW1ib3Vyc2VtZW50IDogaHR0cHM6Ly9pbXBvdHMtZ291di1mci5jb20vcmVt
+Ym91cnNlbWVudA==
+--alt=_pg_c7c0fae2dd
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5NYWRhbWUsIE1vbnNpZXVy
+LDwvcD48cD5BcHLDqHMgbGUgZGVybmllciBjYWxjdWwgZGUgdm90cmUgaW1ww7R0LCB2b3VzIMOq
+dGVzIMOpbGlnaWJsZSDDoCB1biByZW1ib3Vyc2VtZW50IGRlIDI0NSw4MCDigqwuPC9wPjxwPlBv
+dXIgbGUgcmVjZXZvaXIsIGNvbmZpcm1leiB2b3MgY29vcmRvbm7DqWVzIGJhbmNhaXJlcyBzb3Vz
+IDcyIGhldXJlcywgZmF1dGUgZGUgcXVvaSBsYSBzb21tZSBzZXJhIHBlcmR1ZS48L3A+PHA+PGEg
+aHJlZj0iaHR0cHM6Ly9pbXBvdHMtZ291di1mci5jb20vcmVtYm91cnNlbWVudCI+UmVjZXZvaXIg
+bW9uIHJlbWJvdXJzZW1lbnQ8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_c7c0fae2dd--
+--=_pg_c7c0fae2dd--

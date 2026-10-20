@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.114) smtp.mailfrom=bounce.laposte-livraison.net; dkim=pass (signature was verified) header.d=laposte-livraison.net;dmarc=pass action=none header.from=laposte-livraison.net;compauth=pass reason=100
+Received: from mail.bounce.laposte-livraison.net (198.51.100.153) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: La Poste <suivi@laposte-livraison.net>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Colis_en_attente_=3A_frais_de_r=C3=A9exp=C3=A9dition?=
+Date: Sun, 25 Jan 2026 14:20:00 +0200
+Message-ID: <d7a9beaab0bac23085f56467b93775f2@bounce.laposte-livraison.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: laposte-frais
+Content-Type: multipart/mixed; boundary="=_pg_d7a9beaab0"
+
+--=_pg_d7a9beaab0
+Content-Type: multipart/alternative; boundary="alt=_pg_d7a9beaab0"
+
+--alt=_pg_d7a9beaab0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGNvbGlzIG7CsCBMUDg4NDFGUiBuJ2EgcGFzIHB1IMOqdHJlIGxpdnLD
+qSA6IGwnYWRyZXNzZSBlc3QgaW5jb21wbMOodGUuCgpSw6lnbGV6IGxlcyBmcmFpcyBkZSByw6ll
+eHDDqWRpdGlvbiBkZSAxLDk5IOKCrCBwb3VyIHByb2dyYW1tZXIgdW5lIG5vdXZlbGxlCmxpdnJh
+aXNvbi4gTGUgY29saXMgc2VyYSByZXRvdXJuw6kgw6AgbCdleHDDqWRpdGV1ciBzb3VzIDQ4IGgu
+CgpQcm9ncmFtbWVyIGxhIGxpdnJhaXNvbiA6IGh0dHBzOi8vbGFwb3N0ZS1saXZyYWlzb24ubmV0
+L3N1aXZpL0xQODg0MUZS
+--alt=_pg_d7a9beaab0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBjb2xpcyBuwrAgTFA4ODQxRlIgbidhIHBhcyBwdSDDqnRyZSBsaXZyw6kgOiBsJ2FkcmVz
+c2UgZXN0IGluY29tcGzDqHRlLjwvcD48cD5Sw6lnbGV6IGxlcyBmcmFpcyBkZSByw6lleHDDqWRp
+dGlvbiBkZSAxLDk5IOKCrCBwb3VyIHByb2dyYW1tZXIgdW5lIG5vdXZlbGxlIGxpdnJhaXNvbi4g
+TGUgY29saXMgc2VyYSByZXRvdXJuw6kgw6AgbCdleHDDqWRpdGV1ciBzb3VzIDQ4IGguPC9wPjxw
+PjxhIGhyZWY9Imh0dHBzOi8vbGFwb3N0ZS1saXZyYWlzb24ubmV0L3N1aXZpL0xQODg0MUZSIj5Q
+cm9ncmFtbWVyIGxhIGxpdnJhaXNvbjwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_d7a9beaab0--
+--=_pg_d7a9beaab0--

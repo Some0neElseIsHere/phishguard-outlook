@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.102) smtp.mailfrom=bounce.bureautique-pro-fr.com; dkim=pass (signature was verified) header.d=bureautique-pro-fr.com;dmarc=pass action=none header.from=bureautique-pro-fr.com;compauth=pass reason=100
+Received: from mail.bounce.bureautique-pro-fr.com (198.51.100.220) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Comptabilité Bureautique Pro <compta@bureautique-pro-fr.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Changement_de_coordonn=C3=A9es_bancaires_-_urgent?=
+Date: Fri, 01 May 2026 10:11:00 +0200
+Message-ID: <6e949f9ad05344f0ad1fe8f9f52ba869@bounce.bureautique-pro-fr.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: alerte
+X-PhishGuard-Cas: rib-fournisseur-sosie
+Content-Type: multipart/mixed; boundary="=_pg_6e949f9ad0"
+
+--=_pg_6e949f9ad0
+Content-Type: multipart/alternative; boundary="alt=_pg_6e949f9ad0"
+
+--alt=_pg_6e949f9ad0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCk5vdHJlIGJhbnF1ZSBhIGNoYW5nw6kuIE1lcmNpIGRlIG1ldHRyZSDDoCBqb3Vy
+IG5vcyBjb29yZG9ubsOpZXMgZMOocwphdWpvdXJkJ2h1aSBwb3VyIGxlIHLDqGdsZW1lbnQgZGUg
+bGEgZmFjdHVyZSBGMjAyNi0wOTEyIDoKCklCQU4gOiBGUjc2IDEwMjcgODA2MCAzMTAwIDAyMDUg
+Mjg0MCAxNzIgLSBCSUMgOiBDTUNJRlIyQQoKTWVyY2kgZGUgdHJhaXRlciBjZSBjaGFuZ2VtZW50
+IGVuIHByaW9yaXTDqS4gU2VydmljZSBjb21wdGFiaWxpdMOpLg==
+--alt=_pg_6e949f9ad0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5O
+b3RyZSBiYW5xdWUgYSBjaGFuZ8OpLiBNZXJjaSBkZSBtZXR0cmUgw6Agam91ciBub3MgY29vcmRv
+bm7DqWVzIGTDqHMgYXVqb3VyZCdodWkgcG91ciBsZSByw6hnbGVtZW50IGRlIGxhIGZhY3R1cmUg
+RjIwMjYtMDkxMiA6PC9wPjxwPklCQU4gOiBGUjc2IDEwMjcgODA2MCAzMTAwIDAyMDUgMjg0MCAx
+NzIgLSBCSUMgOiBDTUNJRlIyQTwvcD48cD5NZXJjaSBkZSB0cmFpdGVyIGNlIGNoYW5nZW1lbnQg
+ZW4gcHJpb3JpdMOpLiBTZXJ2aWNlIGNvbXB0YWJpbGl0w6kuPC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_6e949f9ad0--
+--=_pg_6e949f9ad0--

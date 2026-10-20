@@ -1,0 +1,34 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.88) smtp.mailfrom=bounce.linkedin-notification.net; dkim=pass (signature was verified) header.d=linkedin-notification.net;dmarc=pass action=none header.from=linkedin-notification.net;compauth=pass reason=100
+Received: from mail.bounce.linkedin-notification.net (198.51.100.24) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: LinkedIn <messages@linkedin-notification.net>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Vous_avez_3_nouveaux_messages?=
+Date: Sat, 25 Apr 2026 17:17:00 +0200
+Message-ID: <f3bfe741e53d8b7b0779d5d626fd4001@bounce.linkedin-notification.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: alerte
+X-PhishGuard-Cas: linkedin-faux
+Content-Type: multipart/mixed; boundary="=_pg_f3bfe741e5"
+
+--=_pg_f3bfe741e5
+Content-Type: multipart/alternative; boundary="alt=_pg_f3bfe741e5"
+
+--alt=_pg_f3bfe741e5
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpEZXMgcmVjcnV0ZXVycyBvbnQgY29uc3VsdMOpIHZvdHJlIHByb2Zp
+bCBldCB2b3VzIG9udCBlbnZvecOpIDMgbWVzc2FnZXMuCgpDb25uZWN0ZXotdm91cyBwb3VyIGxl
+cyBsaXJlLgoKVm9pciBtZXMgbWVzc2FnZXMgOiBodHRwczovL2xpbmtlZGluLW5vdGlmaWNhdGlv
+bi5uZXQvbG9naW4=
+--alt=_pg_f3bfe741e5
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+RGVzIHJlY3J1dGV1cnMgb250IGNvbnN1bHTDqSB2b3RyZSBwcm9maWwgZXQgdm91cyBv
+bnQgZW52b3nDqSAzIG1lc3NhZ2VzLjwvcD48cD5Db25uZWN0ZXotdm91cyBwb3VyIGxlcyBsaXJl
+LjwvcD48cD48YSBocmVmPSJodHRwczovL2xpbmtlZGluLW5vdGlmaWNhdGlvbi5uZXQvbG9naW4i
+PlZvaXIgbWVzIG1lc3NhZ2VzPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_f3bfe741e5--
+--=_pg_f3bfe741e5--

@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.47) smtp.mailfrom=bounce.leboncoin-securise.fr; dkim=pass (signature was verified) header.d=leboncoin-securise.fr;dmarc=pass action=none header.from=leboncoin-securise.fr;compauth=pass reason=100
+Received: from mail.bounce.leboncoin-securise.fr (198.51.100.176) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: leboncoin <paiement@leboncoin-securise.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_acheteur_a_pay=C3=A9_=3A_recevez_l=27argent?=
+Date: Thu, 15 Jan 2026 19:31:00 +0200
+Message-ID: <eb3390bf5983cf9e584fd6393959ae63@bounce.leboncoin-securise.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: leboncoin-paiement
+Content-Type: multipart/mixed; boundary="=_pg_eb3390bf59"
+
+--=_pg_eb3390bf59
+Content-Type: multipart/alternative; boundary="alt=_pg_eb3390bf59"
+
+--alt=_pg_eb3390bf59
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkwnYWNoZXRldXIgZGUgdm90cmUgYW5ub25jZSBhIHLDqWdsw6kgMTgwLDAwIOKC
+rC4gVm91cyBhdmV6IHJlw6d1IHVuIHBhaWVtZW50CnPDqWN1cmlzw6kuCgpQb3VyIHJlY2V2b2ly
+IGwnYXJnZW50LCBzYWlzaXNzZXogdm90cmUgbnVtw6lybyBkZSBjYXJ0ZSBiYW5jYWlyZSBzdXIg
+bGEgcGFnZQpkZSByw6ljZXB0aW9uIGRlcyBmb25kcy4KClJlY2V2b2lyIGwnYXJnZW50IDogaHR0
+cHM6Ly9sZWJvbmNvaW4tc2VjdXJpc2UuZnIvcmVjZXB0aW9u
+--alt=_pg_eb3390bf59
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5M
+J2FjaGV0ZXVyIGRlIHZvdHJlIGFubm9uY2UgYSByw6lnbMOpIDE4MCwwMCDigqwuIFZvdXMgYXZl
+eiByZcOndSB1biBwYWllbWVudCBzw6ljdXJpc8OpLjwvcD48cD5Qb3VyIHJlY2V2b2lyIGwnYXJn
+ZW50LCBzYWlzaXNzZXogdm90cmUgbnVtw6lybyBkZSBjYXJ0ZSBiYW5jYWlyZSBzdXIgbGEgcGFn
+ZSBkZSByw6ljZXB0aW9uIGRlcyBmb25kcy48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9sZWJvbmNv
+aW4tc2VjdXJpc2UuZnIvcmVjZXB0aW9uIj5SZWNldm9pciBsJ2FyZ2VudDwvYT48L3A+PC9ib2R5
+PjwvaHRtbD4=
+--alt=_pg_eb3390bf59--
+--=_pg_eb3390bf59--

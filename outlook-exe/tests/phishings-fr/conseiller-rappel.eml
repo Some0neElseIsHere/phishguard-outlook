@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.31) smtp.mailfrom=bounce.securite-banque-service.fr; dkim=pass (signature was verified) header.d=securite-banque-service.fr;dmarc=pass action=none header.from=securite-banque-service.fr;compauth=pass reason=100
+Received: from mail.bounce.securite-banque-service.fr (198.51.100.103) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Service sécurité bancaire <alerte@securite-banque-service.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Fraude_d=C3=A9tect=C3=A9e_=3A_votre_conseiller_va_vous_rappeler?=
+Date: Sat, 14 Mar 2026 17:24:00 +0200
+Message-ID: <13e573ba8e9de91da905ba936060599e@bounce.securite-banque-service.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: alerte
+X-PhishGuard-Cas: conseiller-rappel
+Content-Type: multipart/mixed; boundary="=_pg_13e573ba8e"
+
+--=_pg_13e573ba8e
+Content-Type: multipart/alternative; boundary="alt=_pg_13e573ba8e"
+
+--alt=_pg_13e573ba8e
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClVuZSB0ZW50YXRpdmUgZGUgZnJhdWRlIGEgw6l0w6kgZMOpdGVjdMOpZSBzdXIg
+dm90cmUgY29tcHRlLiBWb3RyZSBjb25zZWlsbGVyIHZhCnZvdXMgYXBwZWxlciBkYW5zIGwnaGV1
+cmUuCgpQb3VyIHPDqWN1cmlzZXIgdm9zIGZvbmRzLCBpbCB2b3VzIGRlbWFuZGVyYSBkZSB2YWxp
+ZGVyIHVuZSBvcMOpcmF0aW9uIGF2ZWMKdm90cmUgY29kZSByZcOndSBwYXIgU01TLiBOZSByYWNj
+cm9jaGV6IHBhcy4=
+--alt=_pg_13e573ba8e
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5V
+bmUgdGVudGF0aXZlIGRlIGZyYXVkZSBhIMOpdMOpIGTDqXRlY3TDqWUgc3VyIHZvdHJlIGNvbXB0
+ZS4gVm90cmUgY29uc2VpbGxlciB2YSB2b3VzIGFwcGVsZXIgZGFucyBsJ2hldXJlLjwvcD48cD5Q
+b3VyIHPDqWN1cmlzZXIgdm9zIGZvbmRzLCBpbCB2b3VzIGRlbWFuZGVyYSBkZSB2YWxpZGVyIHVu
+ZSBvcMOpcmF0aW9uIGF2ZWMgdm90cmUgY29kZSByZcOndSBwYXIgU01TLiBOZSByYWNjcm9jaGV6
+IHBhcy48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_13e573ba8e--
+--=_pg_13e573ba8e--

@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.159) smtp.mailfrom=bounce.urssaf-recouvrement.fr; dkim=pass (signature was verified) header.d=urssaf-recouvrement.fr;dmarc=pass action=none header.from=urssaf-recouvrement.fr;compauth=pass reason=100
+Received: from mail.bounce.urssaf-recouvrement.fr (198.51.100.168) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Urssaf <contact@urssaf-recouvrement.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Dernier_rappel_avant_majoration?=
+Date: Wed, 15 Jul 2026 17:47:00 +0200
+Message-ID: <9b1f0d00ba762170e2344a4ce939b47c@bounce.urssaf-recouvrement.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: urssaf-majoration
+Content-Type: multipart/mixed; boundary="=_pg_9b1f0d00ba"
+
+--=_pg_9b1f0d00ba
+Content-Type: multipart/alternative; boundary="alt=_pg_9b1f0d00ba"
+
+--alt=_pg_9b1f0d00ba
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIMOpY2jDqWFuY2UgZGUgY290aXNhdGlvbnMgZHUgMTUvMTAgbidhIHBh
+cyDDqXTDqSByw6lnbMOpZS4gVW5lIG1ham9yYXRpb24gZGUKMTAgJSBzZXJhIGFwcGxpcXXDqWUg
+c291cyAyNCBoLgoKUsOpZ3VsYXJpc2V6IHZvdHJlIHNpdHVhdGlvbiBlbiBsaWduZSBpbW3DqWRp
+YXRlbWVudC4KClLDqWd1bGFyaXNlciA6IGh0dHBzOi8vdXJzc2FmLXJlY291dnJlbWVudC5mci9l
+c3BhY2UvcmVnbGVy
+--alt=_pg_9b1f0d00ba
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSDDqWNow6lhbmNlIGRlIGNvdGlzYXRpb25zIGR1IDE1LzEwIG4nYSBwYXMgw6l0w6kgcsOp
+Z2zDqWUuIFVuZSBtYWpvcmF0aW9uIGRlIDEwICUgc2VyYSBhcHBsaXF1w6llIHNvdXMgMjQgaC48
+L3A+PHA+UsOpZ3VsYXJpc2V6IHZvdHJlIHNpdHVhdGlvbiBlbiBsaWduZSBpbW3DqWRpYXRlbWVu
+dC48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly91cnNzYWYtcmVjb3V2cmVtZW50LmZyL2VzcGFjZS9y
+ZWdsZXIiPlLDqWd1bGFyaXNlcjwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_9b1f0d00ba--
+--=_pg_9b1f0d00ba--

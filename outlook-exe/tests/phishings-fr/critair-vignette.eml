@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.38) smtp.mailfrom=bounce.certificat-critair.info; dkim=pass (signature was verified) header.d=certificat-critair.info;dmarc=pass action=none header.from=certificat-critair.info;compauth=pass reason=100
+Received: from mail.bounce.certificat-critair.info (198.51.100.25) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Crit'Air <service@certificat-critair.info>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_vignette_Crit=27Air_n=27est_plus_valide?=
+Date: Wed, 04 Mar 2026 14:19:00 +0200
+Message-ID: <2f0196b472f52748be37a1adff3a4548@bounce.certificat-critair.info>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: critair-vignette
+Content-Type: multipart/mixed; boundary="=_pg_2f0196b472"
+
+--=_pg_2f0196b472
+Content-Type: multipart/alternative; boundary="alt=_pg_2f0196b472"
+
+--alt=_pg_2f0196b472
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdHJlIGNlcnRpZmljYXQgcXVhbGl0w6kgZGUgbCdhaXIgbidlc3QgcGx1cyB2
+YWxpZGUuIENpcmN1bGVyIHNhbnMgdmlnbmV0dGUKZXN0IHBhc3NpYmxlIGQndW5lIGFtZW5kZSBk
+ZSA2OCDigqwuCgpDb21tYW5kZXogdm90cmUgbm91dmVsbGUgdmlnbmV0dGUgKDMsNzcg4oKsKSBk
+w6hzIGF1am91cmQnaHVpLgoKQ29tbWFuZGVyIG1hIHZpZ25ldHRlIDogaHR0cHM6Ly9jZXJ0aWZp
+Y2F0LWNyaXRhaXIuaW5mby9jb21tYW5kZQ==
+--alt=_pg_2f0196b472
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3RyZSBjZXJ0aWZpY2F0IHF1YWxpdMOpIGRlIGwnYWlyIG4nZXN0IHBsdXMgdmFsaWRlLiBDaXJj
+dWxlciBzYW5zIHZpZ25ldHRlIGVzdCBwYXNzaWJsZSBkJ3VuZSBhbWVuZGUgZGUgNjgg4oKsLjwv
+cD48cD5Db21tYW5kZXogdm90cmUgbm91dmVsbGUgdmlnbmV0dGUgKDMsNzcg4oKsKSBkw6hzIGF1
+am91cmQnaHVpLjwvcD48cD48YSBocmVmPSJodHRwczovL2NlcnRpZmljYXQtY3JpdGFpci5pbmZv
+L2NvbW1hbmRlIj5Db21tYW5kZXIgbWEgdmlnbmV0dGU8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_2f0196b472--
+--=_pg_2f0196b472--

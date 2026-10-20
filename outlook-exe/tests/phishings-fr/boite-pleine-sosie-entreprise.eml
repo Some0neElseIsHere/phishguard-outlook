@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.75) smtp.mailfrom=bounce.exemple-pme-mail.fr; dkim=pass (signature was verified) header.d=exemple-pme-mail.fr;dmarc=pass action=none header.from=exemple-pme-mail.fr;compauth=pass reason=100
+Received: from mail.bounce.exemple-pme-mail.fr (198.51.100.9) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Administrateur de messagerie <admin@exemple-pme-mail.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_bo=C3=AEte_aux_lettres_est_pleine_=3A_14_messages_bloqu?=
+ =?utf-8?q?=C3=A9s?=
+Date: Thu, 25 Jun 2026 10:32:00 +0200
+Message-ID: <b6c3ee16fca8f6cf244c12a200ad8b06@bounce.exemple-pme-mail.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: boite-pleine-sosie-entreprise
+Content-Type: multipart/mixed; boundary="=_pg_b6c3ee16fc"
+
+--=_pg_b6c3ee16fc
+Content-Type: multipart/alternative; boundary="alt=_pg_b6c3ee16fc"
+
+--alt=_pg_b6c3ee16fc
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpWb3RyZSBib8OudGUgYXV4IGxldHRyZXMgYSBkw6lwYXNzw6kgc29u
+IHF1b3RhLiAxNCBtZXNzYWdlcyBlbnRyYW50cyBzb250CmJsb3F1w6lzLgoKVmFsaWRleiB2b3Ry
+ZSBjb21wdGUgcG91ciBhdWdtZW50ZXIgdm90cmUgZXNwYWNlIGV0IGxpYsOpcmVyIHZvcyBtZXNz
+YWdlcy4KCkxpYsOpcmVyIG1lcyBtZXNzYWdlcyA6IGh0dHBzOi8vZXhlbXBsZS1wbWUtbWFpbC5m
+ci9vd2EvcXVvdGE=
+--alt=_pg_b6c3ee16fc
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+Vm90cmUgYm/DrnRlIGF1eCBsZXR0cmVzIGEgZMOpcGFzc8OpIHNvbiBxdW90YS4gMTQg
+bWVzc2FnZXMgZW50cmFudHMgc29udCBibG9xdcOpcy48L3A+PHA+VmFsaWRleiB2b3RyZSBjb21w
+dGUgcG91ciBhdWdtZW50ZXIgdm90cmUgZXNwYWNlIGV0IGxpYsOpcmVyIHZvcyBtZXNzYWdlcy48
+L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9leGVtcGxlLXBtZS1tYWlsLmZyL293YS9xdW90YSI+TGli
+w6lyZXIgbWVzIG1lc3NhZ2VzPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_b6c3ee16fc--
+--=_pg_b6c3ee16fc--

@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.63) smtp.mailfrom=bounce.francetravail-actualisation.fr; dkim=pass (signature was verified) header.d=francetravail-actualisation.fr;dmarc=pass action=none header.from=francetravail-actualisation.fr;compauth=pass reason=100
+Received: from mail.bounce.francetravail-actualisation.fr (198.51.100.155) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: France Travail <dossier@francetravail-actualisation.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Mise_=C3=A0_jour_obligatoire_de_votre_dossier?=
+Date: Fri, 02 Jan 2026 10:56:00 +0200
+Message-ID: <7e06cce5588a7d55ca6c733c4d178239@bounce.francetravail-actualisation.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: alerte
+X-PhishGuard-Cas: france-travail-dossier
+Content-Type: multipart/mixed; boundary="=_pg_7e06cce558"
+
+--=_pg_7e06cce558
+Content-Type: multipart/alternative; boundary="alt=_pg_7e06cce558"
+
+--alt=_pg_7e06cce558
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClN1aXRlIMOgIHVuZSBtaXNlIMOgIGpvdXIgZGUgbm9zIHNlcnZpY2VzLCB2b3Vz
+IGRldmV6IHbDqXJpZmllciB2b3MKaW5mb3JtYXRpb25zIHBlcnNvbm5lbGxlcyBldCB2b3RyZSBS
+SUIuCgpTYW5zIG1pc2Ugw6Agam91ciBzb3VzIDUgam91cnMsIHZvcyB2ZXJzZW1lbnRzIHNlcm9u
+dCBpbnRlcnJvbXB1cy4KCk1ldHRyZSDDoCBqb3VyIG1vbiBkb3NzaWVyIDogaHR0cHM6Ly9mcmFu
+Y2V0cmF2YWlsLWFjdHVhbGlzYXRpb24uZnIvbWFq
+--alt=_pg_7e06cce558
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5T
+dWl0ZSDDoCB1bmUgbWlzZSDDoCBqb3VyIGRlIG5vcyBzZXJ2aWNlcywgdm91cyBkZXZleiB2w6ly
+aWZpZXIgdm9zIGluZm9ybWF0aW9ucyBwZXJzb25uZWxsZXMgZXQgdm90cmUgUklCLjwvcD48cD5T
+YW5zIG1pc2Ugw6Agam91ciBzb3VzIDUgam91cnMsIHZvcyB2ZXJzZW1lbnRzIHNlcm9udCBpbnRl
+cnJvbXB1cy48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9mcmFuY2V0cmF2YWlsLWFjdHVhbGlzYXRp
+b24uZnIvbWFqIj5NZXR0cmUgw6Agam91ciBtb24gZG9zc2llcjwvYT48L3A+PC9ib2R5PjwvaHRt
+bD4=
+--alt=_pg_7e06cce558--
+--=_pg_7e06cce558--

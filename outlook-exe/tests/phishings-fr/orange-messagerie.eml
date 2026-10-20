@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.235) smtp.mailfrom=bounce.orange-messagerie.fr; dkim=pass (signature was verified) header.d=orange-messagerie.fr;dmarc=pass action=none header.from=orange-messagerie.fr;compauth=pass reason=100
+Received: from mail.bounce.orange-messagerie.fr (198.51.100.15) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Orange <service.client@orange-messagerie.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_messagerie_sera_d=C3=A9sactiv=C3=A9e_sous_24_h?=
+Date: Wed, 07 Jan 2026 10:59:00 +0200
+Message-ID: <aa082e8437a43f0103df0591150849c4@bounce.orange-messagerie.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: orange-messagerie
+Content-Type: multipart/mixed; boundary="=_pg_aa082e8437"
+
+--=_pg_aa082e8437
+Content-Type: multipart/alternative; boundary="alt=_pg_aa082e8437"
+
+--alt=_pg_aa082e8437
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Q2hlciBjbGllbnQsCgpWb3RyZSBjb21wdGUgZGUgbWVzc2FnZXJpZSBuJ2EgcGFzIMOpdMOpIHbD
+qXJpZmnDqS4gSWwgc2VyYSBkw6lzYWN0aXbDqSBzb3VzIDI0CmhldXJlcy4KClbDqXJpZmlleiB2
+b3RyZSBjb21wdGUgbWFpbnRlbmFudCBwb3VyIGNvbnNlcnZlciB2b3MgZW1haWxzLgoKVsOpcmlm
+aWVyIG1vbiBjb21wdGUgOiBodHRwczovL29yYW5nZS1tZXNzYWdlcmllLmZyL3ZlcmlmaWNhdGlv
+bg==
+--alt=_pg_aa082e8437
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5DaGVyIGNsaWVudCw8L3A+
+PHA+Vm90cmUgY29tcHRlIGRlIG1lc3NhZ2VyaWUgbidhIHBhcyDDqXTDqSB2w6lyaWZpw6kuIEls
+IHNlcmEgZMOpc2FjdGl2w6kgc291cyAyNCBoZXVyZXMuPC9wPjxwPlbDqXJpZmlleiB2b3RyZSBj
+b21wdGUgbWFpbnRlbmFudCBwb3VyIGNvbnNlcnZlciB2b3MgZW1haWxzLjwvcD48cD48YSBocmVm
+PSJodHRwczovL29yYW5nZS1tZXNzYWdlcmllLmZyL3ZlcmlmaWNhdGlvbiI+VsOpcmlmaWVyIG1v
+biBjb21wdGU8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_aa082e8437--
+--=_pg_aa082e8437--

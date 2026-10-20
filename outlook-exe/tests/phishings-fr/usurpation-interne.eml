@@ -1,0 +1,32 @@
+Authentication-Results: spf=fail (sender IP is 203.0.113.4) smtp.mailfrom=compta-validation.com; dkim=none (message not signed) header.d=none;dmarc=fail action=quarantine header.from=exemple-pme.fr;compauth=fail reason=000
+Received: from mail.bounce.exemple-pme.fr (198.51.100.20) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Service comptabilité <compta@exemple-pme.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Virement_fournisseur_=C3=A0_valider_aujourd=27hui?=
+Date: Sat, 27 Jun 2026 11:24:00 +0200
+Message-ID: <a4d237e656585924eb16cda35cf94fca@bounce.exemple-pme.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: usurpation-interne
+Content-Type: multipart/mixed; boundary="=_pg_a4d237e656"
+
+--=_pg_a4d237e656
+Content-Type: multipart/alternative; boundary="alt=_pg_a4d237e656"
+
+--alt=_pg_a4d237e656
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCk1lcmNpIGRlIHZhbGlkZXIgbGUgdmlyZW1lbnQgZGUgMTIgOTAwIOKCrCBhdSBm
+b3Vybmlzc2V1ciBjaS1kZXNzb3VzIGF2YW50IDE2CmgsIGxhIGRpcmVjdGlvbiBsJ2EgYXBwcm91
+dsOpLgoKQ29yZGlhbGVtZW50
+--alt=_pg_a4d237e656
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5N
+ZXJjaSBkZSB2YWxpZGVyIGxlIHZpcmVtZW50IGRlIDEyIDkwMCDigqwgYXUgZm91cm5pc3NldXIg
+Y2ktZGVzc291cyBhdmFudCAxNiBoLCBsYSBkaXJlY3Rpb24gbCdhIGFwcHJvdXbDqS48L3A+PHA+
+Q29yZGlhbGVtZW50PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_a4d237e656--
+--=_pg_a4d237e656--

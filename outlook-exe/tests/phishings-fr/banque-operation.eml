@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.27) smtp.mailfrom=bounce.credit-agricole-alerte.com; dkim=pass (signature was verified) header.d=credit-agricole-alerte.com;dmarc=pass action=none header.from=credit-agricole-alerte.com;compauth=pass reason=100
+Received: from mail.bounce.credit-agricole-alerte.com (198.51.100.4) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Crédit Agricole <securite@credit-agricole-alerte.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Op=C3=A9ration_inhabituelle_=3A_validez_votre_identit=C3=A9?=
+Date: Thu, 05 Feb 2026 10:45:00 +0200
+Message-ID: <6a3f65a4bd73ddf2881f302493a24648@bounce.credit-agricole-alerte.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: banque-operation
+Content-Type: multipart/mixed; boundary="=_pg_6a3f65a4bd"
+
+--=_pg_6a3f65a4bd
+Content-Type: multipart/alternative; boundary="alt=_pg_6a3f65a4bd"
+
+--alt=_pg_6a3f65a4bd
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Q2hlciBjbGllbnQsCgpVbmUgb3DDqXJhdGlvbiBkZSAxIDI0OSwwMCDigqwgYSDDqXTDqSBkw6l0
+ZWN0w6llIHN1ciB2b3RyZSBjb21wdGUuCgpTaSB2b3VzIG4nw6p0ZXMgcGFzIMOgIGwnb3JpZ2lu
+ZSBkZSBjZSBwYWllbWVudCwgYW5udWxlei1sZSBpbW3DqWRpYXRlbWVudCBlbgp2b3VzIGNvbm5l
+Y3RhbnQuCgpBbm51bGVyIGwnb3DDqXJhdGlvbiA6IGh0dHBzOi8vY3JlZGl0LWFncmljb2xlLWFs
+ZXJ0ZS5jb20vYW5udWxhdGlvbg==
+--alt=_pg_6a3f65a4bd
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5DaGVyIGNsaWVudCw8L3A+
+PHA+VW5lIG9ww6lyYXRpb24gZGUgMSAyNDksMDAg4oKsIGEgw6l0w6kgZMOpdGVjdMOpZSBzdXIg
+dm90cmUgY29tcHRlLjwvcD48cD5TaSB2b3VzIG4nw6p0ZXMgcGFzIMOgIGwnb3JpZ2luZSBkZSBj
+ZSBwYWllbWVudCwgYW5udWxlei1sZSBpbW3DqWRpYXRlbWVudCBlbiB2b3VzIGNvbm5lY3RhbnQu
+PC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vY3JlZGl0LWFncmljb2xlLWFsZXJ0ZS5jb20vYW5udWxh
+dGlvbiI+QW5udWxlciBsJ29ww6lyYXRpb248L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_6a3f65a4bd--
+--=_pg_6a3f65a4bd--

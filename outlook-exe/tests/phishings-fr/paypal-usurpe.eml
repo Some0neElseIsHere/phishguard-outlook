@@ -1,0 +1,35 @@
+Authentication-Results: spf=fail (sender IP is 203.0.113.145) smtp.mailfrom=mailer.resolution-centre.com; dkim=none (message not signed) header.d=none;dmarc=fail action=quarantine header.from=paypal.fr;compauth=fail reason=000
+Received: from mail.bounce.paypal.fr (198.51.100.189) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: PayPal <service@paypal.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_compte_est_limit=C3=A9?=
+Date: Wed, 15 Apr 2026 15:12:00 +0200
+Message-ID: <1910d645c50633cf7786e0a31d902edc@bounce.paypal.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: paypal-usurpe
+Content-Type: multipart/mixed; boundary="=_pg_1910d645c5"
+
+--=_pg_1910d645c5
+Content-Type: multipart/alternative; boundary="alt=_pg_1910d645c5"
+
+--alt=_pg_1910d645c5
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCk5vdXMgYXZvbnMgbGltaXTDqSB2b3RyZSBjb21wdGUgc3VpdGUgw6AgdW5lIGFj
+dGl2aXTDqSBpbmhhYml0dWVsbGUuCgpDb25maXJtZXogdm9zIGluZm9ybWF0aW9ucyBwb3VyIGxl
+dmVyIGxhIGxpbWl0YXRpb24uCgpDb25maXJtZXIgbWVzIGluZm9ybWF0aW9ucyA6IGh0dHBzOi8v
+cGF5cGFsLXJlc29sdXRpb24tY2VudHJlLmNvbS9mcg==
+--alt=_pg_1910d645c5
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5O
+b3VzIGF2b25zIGxpbWl0w6kgdm90cmUgY29tcHRlIHN1aXRlIMOgIHVuZSBhY3Rpdml0w6kgaW5o
+YWJpdHVlbGxlLjwvcD48cD5Db25maXJtZXogdm9zIGluZm9ybWF0aW9ucyBwb3VyIGxldmVyIGxh
+IGxpbWl0YXRpb24uPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vcGF5cGFsLXJlc29sdXRpb24tY2Vu
+dHJlLmNvbS9mciI+Q29uZmlybWVyIG1lcyBpbmZvcm1hdGlvbnM8L2E+PC9wPjwvYm9keT48L2h0
+bWw+
+--alt=_pg_1910d645c5--
+--=_pg_1910d645c5--

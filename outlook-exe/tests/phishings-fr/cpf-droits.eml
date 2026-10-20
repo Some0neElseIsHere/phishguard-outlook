@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.152) smtp.mailfrom=bounce.moncompte-formation-cpf.com; dkim=pass (signature was verified) header.d=moncompte-formation-cpf.com;dmarc=pass action=none header.from=moncompte-formation-cpf.com;compauth=pass reason=100
+Received: from mail.bounce.moncompte-formation-cpf.com (198.51.100.50) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Mon Compte Formation <info@moncompte-formation-cpf.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Vos_droits_CPF_expirent_=3A_1_450_=E2=82=AC_=C3=A0_utiliser?=
+Date: Sat, 15 Aug 2026 15:54:00 +0200
+Message-ID: <a89c56603a40e953e5fa22ea37acf57c@bounce.moncompte-formation-cpf.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: cpf-droits
+Content-Type: multipart/mixed; boundary="=_pg_a89c56603a"
+
+--=_pg_a89c56603a
+Content-Type: multipart/alternative; boundary="alt=_pg_a89c56603a"
+
+--alt=_pg_a89c56603a
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCklsIHZvdXMgcmVzdGUgMSA0NTAg4oKsIHN1ciB2b3RyZSBDb21wdGUgUGVyc29u
+bmVsIGRlIEZvcm1hdGlvbi4gQ2VzIGRyb2l0cwpzZXJvbnQgcGVyZHVzIGxlIDMxIGTDqWNlbWJy
+ZS4KCkNvbm5lY3Rlei12b3VzIGF2ZWMgdm90cmUgbnVtw6lybyBkZSBzw6ljdXJpdMOpIHNvY2lh
+bGUgcG91ciBsZXMgY29uc2VydmVyLgpPZmZyZSBsaW1pdMOpZS4KCkNvbnNlcnZlciBtZXMgZHJv
+aXRzIDogaHR0cHM6Ly9tb25jb21wdGUtZm9ybWF0aW9uLWNwZi5jb20vY29ubmV4aW9u
+--alt=_pg_a89c56603a
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5J
+bCB2b3VzIHJlc3RlIDEgNDUwIOKCrCBzdXIgdm90cmUgQ29tcHRlIFBlcnNvbm5lbCBkZSBGb3Jt
+YXRpb24uIENlcyBkcm9pdHMgc2Vyb250IHBlcmR1cyBsZSAzMSBkw6ljZW1icmUuPC9wPjxwPkNv
+bm5lY3Rlei12b3VzIGF2ZWMgdm90cmUgbnVtw6lybyBkZSBzw6ljdXJpdMOpIHNvY2lhbGUgcG91
+ciBsZXMgY29uc2VydmVyLiBPZmZyZSBsaW1pdMOpZS48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9t
+b25jb21wdGUtZm9ybWF0aW9uLWNwZi5jb20vY29ubmV4aW9uIj5Db25zZXJ2ZXIgbWVzIGRyb2l0
+czwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_a89c56603a--
+--=_pg_a89c56603a--
