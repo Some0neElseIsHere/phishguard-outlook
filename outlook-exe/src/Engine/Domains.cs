@@ -64,6 +64,41 @@ namespace PhishGuard
 
         static readonly Regex Ipv4 = new Regex(@"^\d{1,3}(\.\d{1,3}){3}$");
 
+        /// <summary>Nom de domaine qui peut exister dans le DNS : étiquettes de 1 à 63 caractères (lettres, chiffres, tirets
+        /// hors début et fin, ou caractères internationaux), au moins deux étiquettes, extension non numérique.</summary>
+        public static bool IsSyntaxValid(string domain)
+        {
+            string d = (domain ?? "").Trim().TrimEnd('.').ToLowerInvariant();
+            if (d.Length == 0 || d.Length > 253) return false;
+            var labels = d.Split('.');
+            if (labels.Length < 2) return false;
+            foreach (var l in labels)
+            {
+                if (l.Length == 0 || l.Length > 63 || l[0] == '-' || l[l.Length - 1] == '-') return false;
+                foreach (char c in l)
+                    if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c > 127)) return false;
+            }
+            return !Regex.IsMatch(labels[labels.Length - 1], @"^\d+$");
+        }
+
+        /// <summary>Nom de domaine fabriqué au hasard (e8lo13459laedgvfv…) : long, sans tiret, chiffres et lettres mêlés, presque sans voyelles.</summary>
+        public static bool LooksRandom(string registrable)
+        {
+            var p = ParseHost(registrable ?? "");
+            string l = (p.Label ?? "").ToLowerInvariant();
+            if (l.Length < 12 || l.Contains("-") || l.StartsWith("xn")) return false;
+            int digits = 0, letters = 0, vowels = 0, switches = 0;
+            for (int i = 0; i < l.Length; i++)
+            {
+                char c = l[i];
+                if (c >= '0' && c <= '9') digits++;
+                else if (c >= 'a' && c <= 'z') { letters++; if ("aeiouy".IndexOf(c) >= 0) vowels++; }
+                else return false;
+                if (i > 0 && char.IsDigit(c) != char.IsDigit(l[i - 1])) switches++;
+            }
+            return digits >= 3 && letters >= 5 && switches >= 3 && vowels * 4 < letters;
+        }
+
         public static bool IsIpHost(string host)
         {
             string h = (host ?? "").Trim('[', ']');

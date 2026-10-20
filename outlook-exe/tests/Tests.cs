@@ -310,6 +310,29 @@ namespace PhishGuard.Tests
             Check("domaine légitime non signalé comme sosie", Domains.LookalikeOfKnown("fournisseur-alpha.fr", "fournisseur-alpha.fr") == null);
             Correspondents.Reset();
 
+            // ---------- Domaines impossibles ou aléatoires, aucune authentification, casino (cas fictif) ----------
+            Check("domaine invalide : tirets", !Domains.IsSyntaxValid("---q7zk22918xbr4.com") && !Domains.IsSyntaxValid("a-.fr") && !Domains.IsSyntaxValid("a..fr") && !Domains.IsSyntaxValid("x.123"));
+            Check("domaine valide", Domains.IsSyntaxValid("exemple-pme.fr") && Domains.IsSyntaxValid("xn--bcher-kva.de") && Domains.IsSyntaxValid("1and1.fr") && Domains.IsSyntaxValid("mail.3suisses.fr"));
+            Check("domaine aléatoire", Domains.LooksRandom("q7zk22918xbr4plmwnqrayucc0we.com") && Domains.LooksRandom("r8qzlmx4t7k2w.com"));
+            Check("domaine non aléatoire", !Domains.LooksRandom("sendinblue.com") && !Domains.LooksRandom("mailchimpapp.net") && !Domains.LooksRandom("e-leclerc.com")
+                && !Domains.LooksRandom("1and1.fr") && !Domains.LooksRandom("leboncoin.fr") && !Domains.LooksRandom("transavia2024.com") && !Domains.LooksRandom("mcdonalds.fr"));
+            var casino = new EmailData
+            {
+                FromName = "MagicLuck", FromAddress = "7HQWZTRA@---Q7ZK22918XBR4PLMWNQRAYUCC0WE.com",
+                Subject = "Bonus de 400 % jusqu’à 2 000 € + 145 tours gratuits",
+                BodyText = "Inscrivez-vous dès aujourd'hui avec un Bonus de 400% jusqu'à €2 000 + 145 Tours Gratuits sur Animal Magic 1000. Déposez simplement €20+ et faites compter votre premier dépôt !",
+                RawHeaders = "Authentication-Results: mx.microsoft.com 1; spf=none (sender IP is 192.0.2.86) smtp.mailfrom=k27wP.r8QzLmXaTe.com; dkim=none (message not signed) header.d=none;dmarc=temperror action=none header.from=---Q7ZK22918XBR4PLMWNQRAYUCC0WE.com;\r\n"
+                    + "From: MagicLuck <7HQWZTRA@---Q7ZK22918XBR4PLMWNQRAYUCC0WE.com>\r\nPrecedence: bulk\r\nReply-To: reply-7HQWZTRA@Q7ZK22918XBR4PLMWNQRAYUCC0WE.com\r\nReturn-Path: x@k27wP.r8QzLmXaTe.com\r\n"
+            };
+            casino.ReplyTo.Add("reply-7HQWZTRA@Q7ZK22918XBR4PLMWNQRAYUCC0WE.com");
+            casino.Links.Add(new LinkInfo("http://9q2k7RtXa4Ze.nuagerelais-exemple.cc/cl/48211_rd/4/0", "RÉCLAMER MON BONUS"));
+            var rc = Analyzer.Analyze(casino, cfg);
+            var rcIds = Ids(rc);
+            Check("casino : domaine impossible, aucune authentification, publicité de casino", rcIds.Contains("sender-invalid-domain") && rcIds.Contains("auth-none") && rcIds.Contains("content-gambling"), string.Join(",", rcIds.ToArray()));
+            Check("casino : dangereux même sans filtre anti-spam", rc.Level == "dangerous", rc.Level + " " + rc.Score);
+            var lotoOk = Base(); lotoOk.Subject = "Votre ticket de loto"; lotoOk.BodyText = "Le tirage a lieu ce soir. Jackpot de 12 millions.";
+            Check("casino : un seul terme ne suffit pas", !Ids(Analyzer.Analyze(lotoOk, cfg)).Contains("content-gambling"));
+
             // ---------- Âge du domaine ----------
             DomainAge.SetForTests("tout-neuf-livraison.fr", DateTime.UtcNow.AddDays(-4));
             DomainAge.SetForTests("ancien-domaine.fr", DateTime.UtcNow.AddYears(-8));

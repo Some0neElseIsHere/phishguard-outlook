@@ -437,6 +437,18 @@ namespace PhishGuard
                     L.T("L’expéditeur utilise un domaine de votre entreprise mais le message vient de l’extérieur et n’est pas authentifié.")
                     + (ctx.Config.InternalRelays.Count > 0 ? " " + L.T("Il ne vient d’aucun équipement interne déclaré.") : ""), new[] { fromDomain }));
 
+            // Ni SPF ni DKIM : rien ne relie le message au domaine affiché. Les envois en nombre légitimes sont tous authentifiés
+            // (exigence de Gmail, Yahoo et Microsoft depuis 2024)
+            bool noSpf = spf == null || spf == "none" || spf == "temperror" || spf == "permerror";
+            bool noDkim = dkim == null || dkim == "none";
+            if (!fromCompany && noSpf && noDkim && dmarc != "pass" && compauth != "pass")
+            {
+                bool bulk = HeaderValues(headers, "precedence").Any(v => v.Trim().ToLowerInvariant() == "bulk") || HeaderValues(headers, "list-unsubscribe").Any();
+                findings.Add(new Finding("auth-none", "auth", bulk ? Severity.Medium : Severity.Low, L.T("Aucune authentification de l’expéditeur"),
+                    bulk ? L.T("Ni SPF ni DKIM pour un envoi en nombre : les vraies lettres d’information et notifications sont toutes authentifiées. Rien ne prouve que le message vient du domaine affiché.")
+                         : L.T("Ni SPF ni DKIM : rien ne prouve que le message vient du domaine affiché."), new[] { "spf=" + (spf ?? "?") + " dkim=" + (dkim ?? "?") + " dmarc=" + (dmarc ?? "?") }));
+            }
+
             if (spf == "pass") positives.Add(L.T("SPF valide"));
             if (dkim == "pass") positives.Add(L.T("Signature DKIM valide"));
             if (dmarc == "pass") positives.Add(L.T("DMARC valide pour ") + (headerFrom ?? fromDomain));
@@ -581,6 +593,17 @@ namespace PhishGuard
 
             // Âge du domaine (RDAP)
             CheckDomainAge(fromOrg, L.T("Le domaine de l’expéditeur"), "sender-new-domain", ctx, findings);
+
+            // Domaine qui ne peut pas exister, ou nom tiré au hasard (envois jetables en masse)
+            if (fromDomain.Length > 0 && !isCompany && !ctx.Internal)
+            {
+                if (!PhishGuard.Domains.IsSyntaxValid(fromDomain))
+                    findings.Add(new Finding("sender-invalid-domain", "sender", Severity.High, L.T("Le domaine de l’expéditeur ne peut pas exister"),
+                        L.T("Ce nom de domaine est invalide (tiret au début ou à la fin, caractère interdit) : il n’existe dans aucun registre. L’adresse est fabriquée, aucune réponse ne peut y arriver."), new[] { fromDomain }));
+                else if (!isFreemail && !ctx.Domains.Legit.Contains(fromOrg) && PhishGuard.Domains.LooksRandom(fromOrg))
+                    findings.Add(new Finding("sender-random-domain", "sender", Severity.Medium, L.T("Nom de domaine de l’expéditeur tiré au hasard"),
+                        L.T("Une suite de lettres et de chiffres sans signification : typique des domaines jetables utilisés pour les envois en masse (spam, phishing)."), new[] { fromOrg }));
+            }
 
             var look = listMunged ? null : PhishGuard.Domains.DetectLookalike(fromDomain, ctx.Domains);
             // Sosie d'une marque ou de votre entreprise, mais message authentifié : le domaine est peut-être le sien
@@ -1422,6 +1445,14 @@ namespace PhishGuard
         static readonly Regex PaymentRequestRe = new Regex(@"\b(merci de (regler|payer|proceder|effectuer|confirmer|valider|renseigner)|veuillez (regler|payer|proceder|effectuer|confirmer|valider|renseigner|remplir)|reglez|payez|effectuer (le|un|votre) (paiement|virement|reglement)|frais (de|a)|a regler|coordonnees bancaires|carte bancaire|numero de carte|rib|iban|eligible|formulaire|pour (recevoir|percevoir|obtenir|debloquer)|confirm|verify|update your|fee)\b", RegexOptions.Compiled);
 
         static readonly Regex CardAskRe = new Regex(@"\b((saisi(r|ssez)|indiqu(er|ez)|renseign(er|ez)|entr(er|ez)|confirm(er|ez)|communiqu(er|ez)|verifi(er|ez)) (votre |le |les |vos )?(numero de (votre )?carte( bancaire)?|cryptogramme|code cvv|donnees de (votre )?carte|coordonnees de (votre )?carte)|cryptogramme visuel|enter your (credit |debit )?card (number|details)|card verification (code|value))\b", RegexOptions.Compiled);
+        static readonly Regex[] GamblingRes =
+        {
+            new Regex(@"\b(casinos?|machines? a sous|slots?|roulette|blackjack|jackpots?)\b", RegexOptions.Compiled),
+            new Regex(@"\b(\d+ )?(tours|spins) (gratuits|offerts|free)\b|\bfree ?spins\b|\bfreespins\b", RegexOptions.Compiled),
+            new Regex(@"\bbonus (de )?(bienvenue|\d+ ?%)|\b\d+ ?% (de bonus|bonus)\b", RegexOptions.Compiled),
+            new Regex(@"\b(premier|1er) depot\b|\bdeposez\b|\bdepot (minimum|de \d+)", RegexOptions.Compiled)
+        };
+
         static readonly Regex PhoneCallRe = new Regex(@"\b((votre |un )?conseiller (va|vous) (vous )?(appeler|rappeler|contacter|telephoner)|vous (allez|aller) (recevoir|etre) (un )?appel|vous serez (appele|contacte|rappele)|nous allons vous (appeler|rappeler))\b", RegexOptions.Compiled);
         static readonly Regex PhoneFraudRe = new Regex(@"\b(code (recu|envoye|que vous recevrez) par sms|code sms|valider une (operation|transaction)|valider l operation|securiser (vos fonds|votre compte|votre argent|votre epargne)|compte (de securite|securise|refuge)|ne raccrochez pas)\b", RegexOptions.Compiled);
         static readonly Regex NeverAskRe = new Regex(@"\b(ne vous (demander(a|ons|ont)|demande) jamais|ne (communiquez|donnez|transmettez|saisissez) jamais|n.?(est|a) jamais besoin|will never ask)\b", RegexOptions.Compiled);
@@ -1489,6 +1520,15 @@ namespace PhishGuard
             if (mailbox && (cred || urg) && !ctx.CodeMessage)
                 findings.Add(new Finding("content-combo-mailbox", "content", Severity.High, L.T("Fausse alerte de votre messagerie"),
                     L.T("Messages bloqués, boîte pleine, mot de passe qui expire : prétexte n° 1 pour voler les identifiants. Votre service informatique ne vous demande jamais de vous reconnecter par un lien."), null));
+
+            // Casino en ligne : interdit en France (seuls paris sportifs, hippiques et poker agréés ANJ)
+            if (!ctx.Internal)
+            {
+                int g = GamblingRes.Count(rx => rx.IsMatch(text));
+                if (g >= 2 && (GamblingRes[0].IsMatch(text) || GamblingRes[1].IsMatch(text)))
+                    findings.Add(new Finding("content-gambling", "content", ctx.AuthOk ? Severity.Low : Severity.Medium, L.T("Publicité pour un casino en ligne"),
+                        L.T("En France, les jeux de casino en ligne (machines à sous, roulette, blackjack) sont interdits : seuls les paris sportifs, hippiques et le poker sont autorisés, sur les sites agréés par l’ANJ. Ces offres de bonus viennent de sites illégaux : vos dépôts et vos données bancaires n’y sont pas protégés."), null));
+            }
 
             // Données de carte bancaire demandées par email (faux acheteur, faux remboursement, faux frais de livraison)
             if (CardAskRe.IsMatch(text) && ctx.FirstContact && !ctx.BrandSender && !ctx.CodeMessage && !ctx.Internal && !NeverAskRe.IsMatch(text))
