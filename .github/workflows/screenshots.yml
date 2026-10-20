@@ -38,9 +38,8 @@ jobs:
         run: |
           $chrome = "C:\Program Files\Google\Chrome\Application\chrome.exe"
           if (-not (Test-Path $chrome)) { $chrome = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" }
-          $sizes = @{ "simple-dangereux" = "860,1250"; "simple-suspect" = "860,980"; "simple-verifie" = "860,560"; "expert-dangereux" = "900,1150"; "signalement" = "760,1500";
-                     "simple-dangereux-sombre" = "860,1250"; "simple-suspect-sombre" = "860,980"; "simple-verifie-sombre" = "860,560"; "expert-dangereux-sombre" = "900,1150";
-                     "expert-approfondie" = "900,1000"; "expert-approfondie-avant" = "900,700" }
+          $sizes = @{ "simple-dangereux" = "860,1250"; "simple-suspect" = "860,980"; "simple-verifie" = "860,560"; "expert-dangereux" = "900,1150"; "expert-reputation" = "900,700"; "signalement" = "760,1500";
+                     "simple-dangereux-sombre" = "860,1250"; "simple-suspect-sombre" = "860,980"; "simple-verifie-sombre" = "860,560"; "expert-dangereux-sombre" = "900,1150" }
           foreach ($k in $sizes.Keys) {
             $html = (Resolve-Path "build\shots\$k.html").Path
             $png = Join-Path (Resolve-Path build\shots).Path "$k.png"

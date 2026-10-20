@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.18.4** : **l'analyse approfondie est retirée** (onglet, bouton et stratégies `AllowLinkFollowing` / `AllowUrlLookup`) : elle apportait peu pour le temps qu'elle prenait. À la place, l'onglet **Réputation** affiche l'**âge de chaque domaine** du message (expéditeur, adresse de réponse, liens) et un lien **Récupérer l'âge des domaines** pour ceux qui ne sont pas encore connus. Le clic fonctionne même si la recherche automatique est désactivée ; un domaine récent est alors pris en compte dans le verdict. L'onglet affiché reste le même quand la page se met à jour.
+
 - **v1.18.3** : analyse approfondie, historique de votre boîte. La recherche des messages déjà reçus de l'expéditeur portait seulement sur la boîte de réception du compte principal : un expéditeur habituel dont les messages sont classés dans un sous-dossier, archivés ou supprimés était annoncé comme « premier message ». Elle porte maintenant sur tous les dossiers de la boîte qui contient le message (sauf le courrier indésirable), indique où un message a été trouvé et précise ce qui n'a pas été consulté (autres comptes, archives .pst). Même correction pour le nom d'expéditeur et la conversation citée.
 
 - **v1.18.2** : l'analyse approfondie ne se lance plus d'elle-même : un bouton **Lancer l'analyse approfondie** dans l'onglet Approfondie la démarre, pour le message affiché uniquement. Ouvrir l'analyse détaillée redevient instantané. La recherche dans votre boîte (messages déjà reçus de l'expéditeur) ne parcourt plus les messages un par un, ce qui la rend beaucoup plus rapide dans une grosse boîte.

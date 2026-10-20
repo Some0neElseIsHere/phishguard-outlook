@@ -86,14 +86,6 @@ Valeur de registre : Software\Policies\PhishGuard\ScoreLog</string>
       <string id="AllowApiKeys_Help">Désactivé : aucune clé VirusTotal, abuse.ch ou AbuseIPDB n'est utilisée sur le poste et leur saisie est bloquée. Une clé ne peut pas être distribuée par stratégie : toute clé lisible par le poste l'est aussi par l'utilisateur. Les versions gratuites de certains services interdisent l'usage professionnel : vérifiez leurs conditions.
 
 Valeur de registre : Software\Policies\PhishGuard\AllowApiKeys</string>
-      <string id="AllowLinkFollowing">Analyse approfondie : autoriser le suivi des liens</string>
-      <string id="AllowLinkFollowing_Help">Désactivé : l'analyse approfondie ne peut pas suivre les liens jusqu'à leur destination. Activé ou non configuré : l'utilisateur peut le demander, en cochant la case à chaque analyse. Suivre un lien contacte le site : l'expéditeur peut savoir que le message a été ouvert.
-
-Valeur de registre : Software\Policies\PhishGuard\AllowLinkFollowing</string>
-      <string id="AllowUrlLookup">Analyse approfondie : autoriser l'envoi des liens à VirusTotal</string>
-      <string id="AllowUrlLookup_Help">Désactivé : l'adresse complète des liens n'est jamais envoyée à VirusTotal. Activé ou non configuré : l'utilisateur peut le demander à chaque analyse approfondie. Une adresse de lien peut contenir un jeton personnel (lien de connexion ou de réinitialisation).
-
-Valeur de registre : Software\Policies\PhishGuard\AllowUrlLookup</string>
       <string id="RedFlagEnabled">Liste Red Flag Domains</string>
       <string id="RedFlagEnabled_Help">Nouveaux domaines .fr suspects, téléchargés chaque jour. Licence CC BY-NC-SA 4.0 : vérifiez que votre usage est couvert.
 

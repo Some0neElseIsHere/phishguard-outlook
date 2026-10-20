@@ -93,6 +93,5 @@ namespace PhishGuard
         public List<SourceStatus> Sources = new List<SourceStatus>();
         public List<string> Trust = new List<string>();   // preuves de légitimité
         public bool Verified;                              // « Expéditeur vérifié »
-        public DeepReport Deep;                            // analyse approfondie (null si elle n'a pas été lancée)
     }
 }

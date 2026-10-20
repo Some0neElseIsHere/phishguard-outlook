@@ -26,6 +26,8 @@ namespace PhishGuard
 
         /// <summary>Passe à true quand une nouvelle date est connue (le complément relance alors l'analyse affichée).</summary>
         public static volatile bool Changed;
+        /// <summary>Augmente à chaque date reçue : la fenêtre d'analyse se redessine même si le verdict ne change pas.</summary>
+        public static volatile int Version;
         public static bool Enabled = true;
         public static string LastError = "";
 
@@ -70,30 +72,55 @@ namespace PhishGuard
             }
         }
 
-        /// <summary>Date de création, en attendant la réponse si besoin (analyse approfondie, hors du fil d'Outlook).</summary>
-        public static DateTime? LookupNow(string domain, out bool ok)
-        {
-            ok = true;
-            DateTime? created;
-            if (TryGetCreated(domain, out created)) return created;
-            string d = (domain ?? "").ToLowerInvariant();
-            try { created = Lookup(d); LastError = ""; }
-            catch (Exception ex) { LastError = ex.Message; ok = false; return null; }
-            lock (Sync) { EnsureLoaded(); known[d] = created; checkedOn[d] = DateTime.UtcNow; }
-            try
-            {
-                Directory.CreateDirectory(Blocklists.DataDir);
-                File.AppendAllText(CachePath, d + ";" + (created.HasValue ? created.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "?")
-                    + ";" + DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + Environment.NewLine, Encoding.UTF8);
-            }
-            catch (Exception) { }
-            Changed = true;
-            return created;
-        }
-
         public static void Request(string domain)
         {
             if (!Enabled) return;
+            Request(domain, false);
+        }
+
+        /// <summary>Recherche demandée d'un clic (onglet Réputation) : faite même si l'option automatique est désactivée,
+        /// et retentée si la date était restée inconnue.</summary>
+        public static void Fetch(string domain)
+        {
+            Request(domain, true);
+        }
+
+        public static bool IsPending(string domain)
+        {
+            lock (Sync) return pending.Contains((domain ?? "").ToLowerInvariant());
+        }
+
+        /// <summary>Domaines enregistrés du message, avec leur rôle : expéditeur, réponse, liens (8 au plus).</summary>
+        public static List<KeyValuePair<string, string>> DomainsOf(EmailData e)
+        {
+            var res = new List<KeyValuePair<string, string>>();
+            var seen = new HashSet<string>();
+            Action<string, string> add = (host, role) =>
+            {
+                string h = (host ?? "").Trim().ToLowerInvariant();
+                if (h.Length < 4 || !h.Contains(".") || Domains.IsIpHost(h)) return;
+                string reg = Domains.RegistrableDomain(h);
+                if (string.IsNullOrEmpty(reg) || !seen.Add(reg)) return;
+                res.Add(new KeyValuePair<string, string>(reg, role));
+            };
+            if (e == null) return res;
+            add(Domains.DomainOfAddress(e.FromAddress), L.T("Expéditeur"));
+            foreach (var rt in e.ReplyTo) add(Domains.DomainOfAddress(rt), L.T("Adresse de réponse"));
+            int links = 0;
+            foreach (var l in e.Links)
+            {
+                if (links >= 8) break;
+                Uri u;
+                if (!Uri.TryCreate(l.Href ?? "", UriKind.Absolute, out u) || (u.Scheme != "http" && u.Scheme != "https")) continue;
+                int before = res.Count;
+                add(Domains.HostOf(u), L.T("Lien"));
+                if (res.Count > before) links++;
+            }
+            return res;
+        }
+
+        static void Request(string domain, bool force)
+        {
             string d = (domain ?? "").ToLowerInvariant();
             if (d.Length < 4 || !d.Contains(".") || Domains.IsIpHost(d)) return;
             lock (Sync)
@@ -101,7 +128,7 @@ namespace PhishGuard
                 EnsureLoaded();
                 if (pending.Contains(d)) return;
                 DateTime? c;
-                if (known.TryGetValue(d, out c) && (c.HasValue || (checkedOn.ContainsKey(d) && checkedOn[d] > DateTime.UtcNow.AddDays(-7)))) return;
+                if (known.TryGetValue(d, out c) && (c.HasValue || (!force && checkedOn.ContainsKey(d) && checkedOn[d] > DateTime.UtcNow.AddDays(-7)))) return;
                 pending.Add(d);
                 queue.Enqueue(d);
                 if (worker) return;
@@ -137,6 +164,7 @@ namespace PhishGuard
                         + ";" + DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + Environment.NewLine, Encoding.UTF8);
                 }
                 catch (Exception) { }
+                Version++;
                 Changed = true;
                 Thread.Sleep(1500); // politesse envers le service
             }
