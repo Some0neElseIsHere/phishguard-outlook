@@ -21,6 +21,7 @@ namespace PhishGuard
         static readonly Dictionary<string, DateTime> checkedOn = new Dictionary<string, DateTime>();
         static readonly Queue<string> queue = new Queue<string>();
         static readonly HashSet<string> pending = new HashSet<string>();
+        static readonly HashSet<string> forced = new HashSet<string>();   // demandés d'un clic : faits même si la recherche automatique est coupée
         static bool worker;
         static bool loaded;
 
@@ -130,6 +131,7 @@ namespace PhishGuard
                 DateTime? c;
                 if (known.TryGetValue(d, out c) && (c.HasValue || (!force && checkedOn.ContainsKey(d) && checkedOn[d] > DateTime.UtcNow.AddDays(-7)))) return;
                 pending.Add(d);
+                if (force) forced.Add(d);
                 queue.Enqueue(d);
                 if (worker) return;
                 worker = true;
@@ -145,8 +147,15 @@ namespace PhishGuard
                 string d;
                 lock (Sync)
                 {
-                    if (queue.Count == 0) { worker = false; return; }
-                    d = queue.Dequeue();
+                    while (true)
+                    {
+                        if (queue.Count == 0) { worker = false; return; }
+                        d = queue.Dequeue();
+                        // Recherche automatique désactivée entre-temps : les demandes en attente sont abandonnées
+                        if (Enabled || forced.Contains(d)) break;
+                        pending.Remove(d);
+                    }
+                    forced.Remove(d);
                 }
                 DateTime? created = null;
                 try { created = Lookup(d); LastError = ""; }

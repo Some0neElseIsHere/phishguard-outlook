@@ -138,8 +138,6 @@ namespace PhishGuard.AddIn
             y += 8;
             chkCorr = AddCheck(pAnalyse, ref y, L.T("Repérer les premiers contacts et les sosies de mes correspondants"), cfg.KnownCorrespondents,
                 L.F("Utilise les adresses de vos éléments envoyés et de vos contacts ({0} connues), sans rien envoyer à l’extérieur.", Correspondents.Count));
-            chkAge = AddCheck(pAnalyse, ref y, L.T("Rechercher automatiquement l’âge des domaines (RDAP)"), cfg.DomainAgeLookup,
-                L.T("Sinon, d’un clic dans l’onglet Réputation de l’analyse détaillée. Seul le nom du domaine est envoyé à rdap.org et au registre concerné."));
             chkMove = AddCheck(pAnalyse, ref y, L.T("Déplacer le message dans « Courrier indésirable » après l’avoir signalé"), cfg.MoveAfterReport, null);
             chkLog = AddCheck(pAnalyse, ref y, L.T("Tenir un journal des scores (scores.csv) pour ajuster les réglages"), cfg.ScoreLog,
                 L.T("Date, verdict, score, domaine de l’expéditeur et indices ; ni l’objet ni le contenu des messages."));
@@ -229,6 +227,8 @@ namespace PhishGuard.AddIn
                 L.T("Utilise le serveur DNS de votre entreprise, comme une navigation normale. Vérifie aussi si un domaine qui ressemble à une marque lui appartient (géré par ses serveurs DNS)."));
             chkCert = AddCheck(pBeta, ref y, L.T("Âge du premier certificat HTTPS des domaines (crt.sh)"), cfg.BetaCertAge,
                 L.T("Envoie le nom du domaine à crt.sh (journaux publics des certificats)."));
+            chkAge = AddCheck(pBeta, ref y, L.T("Rechercher automatiquement l’âge des domaines (RDAP)"), cfg.DomainAgeLookup,
+                L.T("Sinon, d’un clic dans l’onglet Réputation de l’analyse détaillée. Seul le nom du domaine est envoyé à rdap.org et au registre concerné. Les âges trouvés sont gardés sur le poste."));
             y += 6;
             pBeta.Controls.Add(new Label { Text = L.T("Avec une clé gratuite (laisser vide pour désactiver)"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
             y += 22;
