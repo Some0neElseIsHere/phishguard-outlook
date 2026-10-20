@@ -702,7 +702,7 @@ namespace PhishGuard.AddIn
                 foreach (var x in facts.OrderBy(x => x.Status == "bad" ? 0 : x.Status == "warn" ? 1 : x.Status == "info" ? 2 : 3))
                 {
                     string ic = x.Status == "ok" ? "<span class='ic okc'>&#10003;</span>" : x.Status == "bad" ? "<span class='ic bad'>!</span>" : x.Status == "warn" ? "<span class='ic mid'>!</span>" : "<span class='ic inf'>i</span>";
-                    sb.Append("<li>" + ic + "<span class='mono'>" + H(x.Text) + "</span></li>");
+                    sb.Append("<li>" + ic + H(x.Text) + "</li>");
                 }
                 sb.Append("</ul></div>");
             }
