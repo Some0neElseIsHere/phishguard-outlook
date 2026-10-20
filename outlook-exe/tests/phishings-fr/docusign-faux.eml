@@ -1,0 +1,34 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.218) smtp.mailfrom=bounce.docusign-esign.net; dkim=pass (signature was verified) header.d=docusign-esign.net;dmarc=pass action=none header.from=docusign-esign.net;compauth=pass reason=100
+Received: from mail.bounce.docusign-esign.net (198.51.100.177) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: DocuSign <dse@docusign-esign.net>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Veuillez_signer_=3A_avenant_salarial_2027?=
+Date: Wed, 13 May 2026 08:01:00 +0200
+Message-ID: <666b1d3a4ed8a76bf92bc1d7bb7188fa@bounce.docusign-esign.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: docusign-faux
+Content-Type: multipart/mixed; boundary="=_pg_666b1d3a4e"
+
+--=_pg_666b1d3a4e
+Content-Type: multipart/alternative; boundary="alt=_pg_666b1d3a4e"
+
+--alt=_pg_666b1d3a4e
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+TGEgZGlyZWN0aW9uIGRlcyByZXNzb3VyY2VzIGh1bWFpbmVzIHZvdXMgYSBlbnZvecOpIHVuIGRv
+Y3VtZW50IMOgIHNpZ25lciA6CmF2ZW5hbnQgc2FsYXJpYWwgMjAyNy4KCk1lcmNpIGRlIHNpZ25l
+ciBhdmFudCBjZSBzb2lyLgoKQ09OU1VMVEVSIExFIERPQ1VNRU5UIDogaHR0cHM6Ly9kb2N1c2ln
+bi1lc2lnbi5uZXQvU2lnbmluZy9zdGFydD9pZD04ODQx
+--alt=_pg_666b1d3a4e
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5MYSBkaXJlY3Rpb24gZGVz
+IHJlc3NvdXJjZXMgaHVtYWluZXMgdm91cyBhIGVudm95w6kgdW4gZG9jdW1lbnQgw6Agc2lnbmVy
+IDogYXZlbmFudCBzYWxhcmlhbCAyMDI3LjwvcD48cD5NZXJjaSBkZSBzaWduZXIgYXZhbnQgY2Ug
+c29pci48L3A+PHA+PGEgaHJlZj0iaHR0cHM6Ly9kb2N1c2lnbi1lc2lnbi5uZXQvU2lnbmluZy9z
+dGFydD9pZD04ODQxIj5DT05TVUxURVIgTEUgRE9DVU1FTlQ8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_666b1d3a4e--
+--=_pg_666b1d3a4e--

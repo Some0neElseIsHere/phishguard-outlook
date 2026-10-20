@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.223) smtp.mailfrom=gmail.com; dkim=pass (signature was verified) header.d=gmail.com;dmarc=pass action=none header.from=gmail.com;compauth=pass reason=100
+Received: from mail.gmail.com (198.51.100.250) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Jean Martin <jean.martin.direction@gmail.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Demande_confidentielle?=
+Date: Tue, 07 Jul 2026 07:17:00 +0200
+Message-ID: <9f29f8dd1b4fd0a2edb80f23ce8b4434@gmail.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: president-virement
+Content-Type: multipart/mixed; boundary="=_pg_9f29f8dd1b"
+
+--=_pg_9f29f8dd1b
+Content-Type: multipart/alternative; boundary="alt=_pg_9f29f8dd1b"
+
+--alt=_pg_9f29f8dd1b
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpKZSBzdWlzIGVuIHLDqXVuaW9uIGV0IG5lIHBldXggcGFzIMOqdHJl
+IGpvaW50LiBKJ2FpIGJlc29pbiBxdWUgdm91cwplZmZlY3R1aWV6IHVuIHZpcmVtZW50IHVyZ2Vu
+dCBkZSA0OCA1MDAg4oKsIHBvdXIgdW5lIGFjcXVpc2l0aW9uCmNvbmZpZGVudGllbGxlLgoKTmUg
+cGFybGV6IGRlIGNlY2kgw6AgcGVyc29ubmUsIG3Dqm1lIGVuIGludGVybmUsIGF2YW50IGwnYW5u
+b25jZSBvZmZpY2llbGxlLgpKZSB2b3VzIGVudm9pZSBsZXMgY29vcmRvbm7DqWVzIGJhbmNhaXJl
+cy4=
+--alt=_pg_9f29f8dd1b
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+SmUgc3VpcyBlbiByw6l1bmlvbiBldCBuZSBwZXV4IHBhcyDDqnRyZSBqb2ludC4gSidh
+aSBiZXNvaW4gcXVlIHZvdXMgZWZmZWN0dWlleiB1biB2aXJlbWVudCB1cmdlbnQgZGUgNDggNTAw
+IOKCrCBwb3VyIHVuZSBhY3F1aXNpdGlvbiBjb25maWRlbnRpZWxsZS48L3A+PHA+TmUgcGFybGV6
+IGRlIGNlY2kgw6AgcGVyc29ubmUsIG3Dqm1lIGVuIGludGVybmUsIGF2YW50IGwnYW5ub25jZSBv
+ZmZpY2llbGxlLiBKZSB2b3VzIGVudm9pZSBsZXMgY29vcmRvbm7DqWVzIGJhbmNhaXJlcy48L3A+
+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_9f29f8dd1b--
+--=_pg_9f29f8dd1b--

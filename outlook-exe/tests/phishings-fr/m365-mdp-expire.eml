@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.183) smtp.mailfrom=bounce.micros0ft-securite.com; dkim=pass (signature was verified) header.d=micros0ft-securite.com;dmarc=pass action=none header.from=micros0ft-securite.com;compauth=pass reason=100
+Received: from mail.bounce.micros0ft-securite.com (198.51.100.67) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Microsoft 365 <no-reply@micros0ft-securite.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_mot_de_passe_expire_aujourd=27hui_pour_claire=2Emartin=40exe?=
+ =?utf-8?q?mple-pme=2Efr?=
+Date: Sat, 18 Jul 2026 20:05:00 +0200
+Message-ID: <8a1dddaeabf0a588e6a937dd024b3898@bounce.micros0ft-securite.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: m365-mdp-expire
+Content-Type: multipart/mixed; boundary="=_pg_8a1dddaeab"
+
+--=_pg_8a1dddaeab
+Content-Type: multipart/alternative; boundary="alt=_pg_8a1dddaeab"
+
+--alt=_pg_8a1dddaeab
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Vm90cmUgbW90IGRlIHBhc3NlIE1pY3Jvc29mdCAzNjUgZXhwaXJlIGF1am91cmQnaHVpLgoKUG91
+ciBjb25zZXJ2ZXIgbGUgbcOqbWUgbW90IGRlIHBhc3NlLCBjb25maXJtZXotbGUgaW1tw6lkaWF0
+ZW1lbnQuIFNpbm9uLApsJ2FjY8OocyDDoCB2b3RyZSBtZXNzYWdlcmllIHNlcmEgYmxvcXXDqS4K
+CkNvbnNlcnZlciBtb24gbW90IGRlIHBhc3NlIDogaHR0cHM6Ly9taWNyb3MwZnQtc2VjdXJpdGUu
+Y29tL29mZmljZS9rZWVwLXBhc3N3b3Jk
+--alt=_pg_8a1dddaeab
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Wb3RyZSBtb3QgZGUgcGFz
+c2UgTWljcm9zb2Z0IDM2NSBleHBpcmUgYXVqb3VyZCdodWkuPC9wPjxwPlBvdXIgY29uc2VydmVy
+IGxlIG3Dqm1lIG1vdCBkZSBwYXNzZSwgY29uZmlybWV6LWxlIGltbcOpZGlhdGVtZW50LiBTaW5v
+biwgbCdhY2PDqHMgw6Agdm90cmUgbWVzc2FnZXJpZSBzZXJhIGJsb3F1w6kuPC9wPjxwPjxhIGhy
+ZWY9Imh0dHBzOi8vbWljcm9zMGZ0LXNlY3VyaXRlLmNvbS9vZmZpY2Uva2VlcC1wYXNzd29yZCI+
+Q29uc2VydmVyIG1vbiBtb3QgZGUgcGFzc2U8L2E+PC9wPjwvYm9keT48L2h0bWw+
+--alt=_pg_8a1dddaeab--
+--=_pg_8a1dddaeab--

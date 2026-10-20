@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.137) smtp.mailfrom=bounce.chorus-pro-portail.fr; dkim=pass (signature was verified) header.d=chorus-pro-portail.fr;dmarc=pass action=none header.from=chorus-pro-portail.fr;compauth=pass reason=100
+Received: from mail.bounce.chorus-pro-portail.fr (198.51.100.18) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Chorus Pro <facturation@chorus-pro-portail.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Facture_en_retard_FR-2026-8841_=3A_r=C3=A9gularisez_sous_24_h?=
+Date: Fri, 20 Mar 2026 07:53:00 +0200
+Message-ID: <b130dee6717b85c36570e5c67975365e@bounce.chorus-pro-portail.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: chorus-pro-facture
+Content-Type: multipart/mixed; boundary="=_pg_b130dee671"
+
+--=_pg_b130dee671
+Content-Type: multipart/alternative; boundary="alt=_pg_b130dee671"
+
+--alt=_pg_b130dee671
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkxhIGZhY3R1cmUgRlItMjAyNi04ODQxIGQndW4gbW9udGFudCBkZSAzIDQ4MCww
+MCDigqwgVFRDIGVzdCBlbiByZXRhcmQgZGUKcGFpZW1lbnQuCgpDb25uZWN0ZXotdm91cyDDoCB2
+b3RyZSBlc3BhY2UgQ2hvcnVzIFBybyBwb3VyIGNvbnN1bHRlciBsYSBmYWN0dXJlIGV0CnByb2PD
+qWRlciBhdSByw6hnbGVtZW50IGF2YW50IHN1c3BlbnNpb24gZGUgdm90cmUgY29tcHRlLgoKQWNj
+w6lkZXIgw6AgbW9uIGVzcGFjZSA6IGh0dHBzOi8vY2hvcnVzLXByby1wb3J0YWlsLmZyL2xvZ2lu
+--alt=_pg_b130dee671
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5M
+YSBmYWN0dXJlIEZSLTIwMjYtODg0MSBkJ3VuIG1vbnRhbnQgZGUgMyA0ODAsMDAg4oKsIFRUQyBl
+c3QgZW4gcmV0YXJkIGRlIHBhaWVtZW50LjwvcD48cD5Db25uZWN0ZXotdm91cyDDoCB2b3RyZSBl
+c3BhY2UgQ2hvcnVzIFBybyBwb3VyIGNvbnN1bHRlciBsYSBmYWN0dXJlIGV0IHByb2PDqWRlciBh
+dSByw6hnbGVtZW50IGF2YW50IHN1c3BlbnNpb24gZGUgdm90cmUgY29tcHRlLjwvcD48cD48YSBo
+cmVmPSJodHRwczovL2Nob3J1cy1wcm8tcG9ydGFpbC5mci9sb2dpbiI+QWNjw6lkZXIgw6AgbW9u
+IGVzcGFjZTwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_b130dee671--
+--=_pg_b130dee671--

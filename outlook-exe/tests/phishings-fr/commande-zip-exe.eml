@@ -1,0 +1,38 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.161) smtp.mailfrom=bounce.achats-fournitures-pro.fr; dkim=pass (signature was verified) header.d=achats-fournitures-pro.fr;dmarc=pass action=none header.from=achats-fournitures-pro.fr;compauth=pass reason=100
+Received: from mail.bounce.achats-fournitures-pro.fr (198.51.100.118) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Service commandes <commandes@achats-fournitures-pro.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Bon_de_commande_n=C2=B0_8841?=
+Date: Tue, 20 Jan 2026 12:23:00 +0200
+Message-ID: <7010ce513ce7bfabdfe58bf37126b866@bounce.achats-fournitures-pro.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: commande-zip-exe
+Content-Type: multipart/mixed; boundary="=_pg_7010ce513c"
+
+--=_pg_7010ce513c
+Content-Type: multipart/alternative; boundary="alt=_pg_7010ce513c"
+
+--alt=_pg_7010ce513c
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClZvdXMgdHJvdXZlcmV6IGNpLWpvaW50IG5vdHJlIGJvbiBkZSBjb21tYW5kZS4g
+TWVyY2kgZGUgY29uZmlybWVyIGxhCmRpc3BvbmliaWxpdMOpLg==
+--alt=_pg_7010ce513c
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5W
+b3VzIHRyb3V2ZXJleiBjaS1qb2ludCBub3RyZSBib24gZGUgY29tbWFuZGUuIE1lcmNpIGRlIGNv
+bmZpcm1lciBsYSBkaXNwb25pYmlsaXTDqS48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_7010ce513c--
+--=_pg_7010ce513c
+Content-Type: application/zip; name="Commande_8841.zip"
+Content-Disposition: attachment; filename="Commande_8841.zip"
+Content-Transfer-Encoding: base64
+
+UEsDBBQAAAAAAOWQVF2AflBYBAAAAAQAAAAVAAAAQ29tbWFuZGVfODg0MS5wZGYuZXhlTVqQAFBL
+AQIUAxQAAAAAAOWQVF2AflBYBAAAAAQAAAAVAAAAAAAAAAAAAACAAQAAAABDb21tYW5kZV84ODQx
+LnBkZi5leGVQSwUGAAAAAAEAAQBDAAAANwAAAAAA
+--=_pg_7010ce513c--

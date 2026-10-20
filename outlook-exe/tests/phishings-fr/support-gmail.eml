@@ -1,0 +1,36 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.196) smtp.mailfrom=gmail.com; dkim=pass (signature was verified) header.d=gmail.com;dmarc=pass action=none header.from=gmail.com;compauth=pass reason=100
+Received: from mail.gmail.com (198.51.100.238) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Assistance Microsoft <microsoft.support.france@gmail.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Activit=C3=A9_suspecte_d=C3=A9tect=C3=A9e_sur_votre_compte?=
+Date: Mon, 11 May 2026 07:26:00 +0200
+Message-ID: <3ca8957bbc2d59431e823f632d9d00b9@gmail.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: support-gmail
+Content-Type: multipart/mixed; boundary="=_pg_3ca8957bbc"
+
+--=_pg_3ca8957bbc
+Content-Type: multipart/alternative; boundary="alt=_pg_3ca8957bbc"
+
+--alt=_pg_3ca8957bbc
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKClVuZSBjb25uZXhpb24gc3VzcGVjdGUgYSDDqXTDqSBkw6l0ZWN0w6llIHN1ciB2
+b3RyZSBjb21wdGUgTWljcm9zb2Z0LgoKVsOpcmlmaWV6IHZvdHJlIGlkZW50aXTDqSBpbW3DqWRp
+YXRlbWVudCBlbiBzYWlzaXNzYW50IHZvcyBpZGVudGlmaWFudHMsIHNpbm9uCnZvdHJlIGNvbXB0
+ZSBzZXJhIHN1c3BlbmR1LgoKVsOpcmlmaWVyIG1vbiBpZGVudGl0w6kgOiBodHRwczovL2Zvcm1z
+LmdsZS9hMUIyYzNENGU1
+--alt=_pg_3ca8957bbc
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5V
+bmUgY29ubmV4aW9uIHN1c3BlY3RlIGEgw6l0w6kgZMOpdGVjdMOpZSBzdXIgdm90cmUgY29tcHRl
+IE1pY3Jvc29mdC48L3A+PHA+VsOpcmlmaWV6IHZvdHJlIGlkZW50aXTDqSBpbW3DqWRpYXRlbWVu
+dCBlbiBzYWlzaXNzYW50IHZvcyBpZGVudGlmaWFudHMsIHNpbm9uIHZvdHJlIGNvbXB0ZSBzZXJh
+IHN1c3BlbmR1LjwvcD48cD48YSBocmVmPSJodHRwczovL2Zvcm1zLmdsZS9hMUIyYzNENGU1Ij5W
+w6lyaWZpZXIgbW9uIGlkZW50aXTDqTwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_3ca8957bbc--
+--=_pg_3ca8957bbc--

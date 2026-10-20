@@ -1,0 +1,42 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.81) smtp.mailfrom=bounce.ferrand-expertise-comptable.com; dkim=pass (signature was verified) header.d=ferrand-expertise-comptable.com;dmarc=pass action=none header.from=ferrand-expertise-comptable.com;compauth=pass reason=100
+Received: from mail.bounce.ferrand-expertise-comptable.com (198.51.100.234) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Cabinet Ferrand Expertise <contact@ferrand-expertise-comptable.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Documents_de_cl=C3=B4ture_=C3=A0_consulter?=
+Date: Mon, 06 Jul 2026 17:09:00 +0200
+Message-ID: <9217a2e46d28172124774601224d3d0b@bounce.ferrand-expertise-comptable.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: alerte
+X-PhishGuard-Cas: pdf-lien-partage
+Content-Type: multipart/mixed; boundary="=_pg_9217a2e46d"
+
+--=_pg_9217a2e46d
+Content-Type: multipart/alternative; boundary="alt=_pg_9217a2e46d"
+
+--alt=_pg_9217a2e46d
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciwKCkxlcyBkb2N1bWVudHMgZGUgY2zDtHR1cmUgc29udCBkYW5zIGxlIFBERiBqb2lu
+dC4gQ2xpcXVleiBzdXIgbGUgbGllbiBkdQpkb2N1bWVudCBwb3VyIHkgYWNjw6lkZXIu
+--alt=_pg_9217a2e46d
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyLDwvcD48cD5M
+ZXMgZG9jdW1lbnRzIGRlIGNsw7R0dXJlIHNvbnQgZGFucyBsZSBQREYgam9pbnQuIENsaXF1ZXog
+c3VyIGxlIGxpZW4gZHUgZG9jdW1lbnQgcG91ciB5IGFjY8OpZGVyLjwvcD48L2JvZHk+PC9odG1s
+Pg==
+--alt=_pg_9217a2e46d--
+--=_pg_9217a2e46d
+Content-Type: application/pdf; name="Documents_cloture.pdf"
+Content-Disposition: attachment; filename="Documents_cloture.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBv
+Ymo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlw
+ZS9QYWdlL1BhcmVudCAyIDAgUi9Bbm5vdHNbNCAwIFJdPj5lbmRvYmoKNCAwIG9iajw8L1R5cGUv
+QW5ub3QvU3VidHlwZS9MaW5rL0E8PC9TL1VSSS9VUkkoaHR0cHM6Ly9kb2NzLXBhcnRhZ2Utc2Vj
+dXJpc2UuY29tL2YvODg0MT91PWNsYWlyZSk+Pj4+ZW5kb2JqCnRyYWlsZXI8PC9Sb290IDEgMCBS
+Pj4KJSVFT0YK
+--=_pg_9217a2e46d--

@@ -1,0 +1,33 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.77) smtp.mailfrom=bounce.boulangerie-dupont.fr; dkim=pass (signature was verified) header.d=boulangerie-dupont.fr;dmarc=pass action=none header.from=boulangerie-dupont.fr;compauth=pass reason=100
+Received: from mail.bounce.boulangerie-dupont.fr (198.51.100.129) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Chronopost <contact@boulangerie-dupont.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Livraison_en_attente_=3A_action_requise?=
+Date: Fri, 17 Apr 2026 10:40:00 +0200
+Message-ID: <8cbd76e2b4356842075b92ff42ca1a04@bounce.boulangerie-dupont.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: alerte
+X-PhishGuard-Cas: chronopost-boite-piratee
+Content-Type: multipart/mixed; boundary="=_pg_8cbd76e2b4"
+
+--=_pg_8cbd76e2b4
+Content-Type: multipart/alternative; boundary="alt=_pg_8cbd76e2b4"
+
+--alt=_pg_8cbd76e2b4
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Vm90cmUgY29saXMgZXN0IGVuIGF0dGVudGUgYXUgZMOpcMO0dC4KCkNvbmZpcm1leiB2b3RyZSBh
+ZHJlc3NlIGV0IHLDqWdsZXogMiw5OSDigqwgZGUgZnJhaXMgZGUgZG91YW5lIHBvdXIgbGUKcmVj
+ZXZvaXIuCgpTdWl2cmUgbW9uIGNvbGlzIDogaHR0cHM6Ly9iaXQubHkvM0Nock9ubzg=
+--alt=_pg_8cbd76e2b4
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Wb3RyZSBjb2xpcyBlc3Qg
+ZW4gYXR0ZW50ZSBhdSBkw6lww7R0LjwvcD48cD5Db25maXJtZXogdm90cmUgYWRyZXNzZSBldCBy
+w6lnbGV6IDIsOTkg4oKsIGRlIGZyYWlzIGRlIGRvdWFuZSBwb3VyIGxlIHJlY2V2b2lyLjwvcD48
+cD48YSBocmVmPSJodHRwczovL2JpdC5seS8zQ2hyT25vOCI+U3VpdnJlIG1vbiBjb2xpczwvYT48
+L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_8cbd76e2b4--
+--=_pg_8cbd76e2b4--

@@ -1,0 +1,37 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.163) smtp.mailfrom=bounce.antai-paiement.com; dkim=pass (signature was verified) header.d=antai-paiement.com;dmarc=pass action=none header.from=antai-paiement.com;compauth=pass reason=100
+Received: from mail.bounce.antai-paiement.com (198.51.100.159) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: ANTAI - Service des amendes <noreply@antai-paiement.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Avis_de_contravention_impay=C3=A9_=3A_majoration_sous_48_h?=
+Date: Thu, 26 Mar 2026 15:30:00 +0200
+Message-ID: <12a47becfa60149d4cd2c9e76d54e2d0@bounce.antai-paiement.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: antai-amende
+Content-Type: multipart/mixed; boundary="=_pg_12a47becfa"
+
+--=_pg_12a47becfa
+Content-Type: multipart/alternative; boundary="alt=_pg_12a47becfa"
+
+--alt=_pg_12a47becfa
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+TWFkYW1lLCBNb25zaWV1ciwKClNhdWYgZXJyZXVyIGRlIG5vdHJlIHBhcnQsIGwnYXZpcyBkZSBj
+b250cmF2ZW50aW9uIG7CsCA0NTIxLTg4NDEgcmVzdGUKaW1wYXnDqS4KClLDqWdsZXogaW1tw6lk
+aWF0ZW1lbnQgMzUsMDAg4oKsIHBvdXIgw6l2aXRlciBsYSBtYWpvcmF0aW9uIMOgIDc1LDAwIOKC
+rC4gUGFpZW1lbnQKcGFyIGNhcnRlIGJhbmNhaXJlLgoKUGF5ZXIgbW9uIGFtZW5kZSA6IGh0dHBz
+Oi8vYW50YWktcGFpZW1lbnQuY29tL3BheWVyP3JlZj00NTIxLTg4NDE=
+--alt=_pg_12a47becfa
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5NYWRhbWUsIE1vbnNpZXVy
+LDwvcD48cD5TYXVmIGVycmV1ciBkZSBub3RyZSBwYXJ0LCBsJ2F2aXMgZGUgY29udHJhdmVudGlv
+biBuwrAgNDUyMS04ODQxIHJlc3RlIGltcGF5w6kuPC9wPjxwPlLDqWdsZXogaW1tw6lkaWF0ZW1l
+bnQgMzUsMDAg4oKsIHBvdXIgw6l2aXRlciBsYSBtYWpvcmF0aW9uIMOgIDc1LDAwIOKCrC4gUGFp
+ZW1lbnQgcGFyIGNhcnRlIGJhbmNhaXJlLjwvcD48cD48YSBocmVmPSJodHRwczovL2FudGFpLXBh
+aWVtZW50LmNvbS9wYXllcj9yZWY9NDUyMS04ODQxIj5QYXllciBtb24gYW1lbmRlPC9hPjwvcD48
+L2JvZHk+PC9odG1sPg==
+--alt=_pg_12a47becfa--
+--=_pg_12a47becfa--

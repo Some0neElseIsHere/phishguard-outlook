@@ -75,6 +75,7 @@ jobs:
           if (Test-Path corpus\spam-2026) { $a += "spam-2026=corpus\spam-2026|untroubled.org|3000" }
           }
           $a += "ham-cas-difficiles=outlook-exe\tests\legitimes|exemple-pme.fr"
+          $a += "phish-fr-cas=outlook-exe\tests\phishings-fr|exemple-pme.fr"
           New-Item -ItemType Directory -Force out | Out-Null
           if (-not (Test-Path corpus\secteur-public.csv)) { New-Item -ItemType Directory -Force corpus | Out-Null; curl.exe -sSfL -o corpus\secteur-public.csv "https://raw.githubusercontent.com/etalab/noms-de-domaine-organismes-secteur-public/master/domains.csv" }
           if (Test-Path corpus\secteur-public.csv) { $env:PG_PUBLIC_SECTOR = (Resolve-Path corpus\secteur-public.csv).Path }

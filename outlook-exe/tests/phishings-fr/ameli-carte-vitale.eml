@@ -1,0 +1,39 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.238) smtp.mailfrom=bounce.ameli-renouvellement.fr; dkim=pass (signature was verified) header.d=ameli-renouvellement.fr;dmarc=pass action=none header.from=ameli-renouvellement.fr;compauth=pass reason=100
+Received: from mail.bounce.ameli-renouvellement.fr (198.51.100.201) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Assurance Maladie <contact@ameli-renouvellement.fr>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Votre_carte_Vitale_expire_=3A_renouvelez-la_avant_le_31/10?=
+Date: Fri, 28 Aug 2026 15:54:00 +0200
+Message-ID: <4ecefe2452c8cf340d92644eaf92a7bb@bounce.ameli-renouvellement.fr>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: ameli-carte-vitale
+Content-Type: multipart/mixed; boundary="=_pg_4ecefe2452"
+
+--=_pg_4ecefe2452
+Content-Type: multipart/alternative; boundary="alt=_pg_4ecefe2452"
+
+--alt=_pg_4ecefe2452
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Q2hlcihlKSBhc3N1csOpKGUpLAoKVm90cmUgY2FydGUgVml0YWxlIGFycml2ZSDDoCBleHBpcmF0
+aW9uLiBQb3VyIGNvbnRpbnVlciDDoCDDqnRyZSByZW1ib3Vyc8OpLAp2b3VzIGRldmV6IGxhIHJl
+bm91dmVsZXIgYXZhbnQgbGUgMzEvMTAvMjAyNi4KCkRlcyBmcmFpcyBkJ2Vudm9pIGRlIDQsOTkg
+4oKsIHZvdXMgc2Vyb250IGRlbWFuZMOpcy4gU2FucyBhY3Rpb24gZGUgdm90cmUgcGFydCwKdm9z
+IHJlbWJvdXJzZW1lbnRzIHNlcm9udCBzdXNwZW5kdXMuCgpSZW5vdXZlbGVyIG1hIGNhcnRlIFZp
+dGFsZSA6IGh0dHBzOi8vYW1lbGktcmVub3V2ZWxsZW1lbnQuZnIvdml0YWxlL2NvbW1hbmRl
+--alt=_pg_4ecefe2452
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5DaGVyKGUpIGFzc3Vyw6ko
+ZSksPC9wPjxwPlZvdHJlIGNhcnRlIFZpdGFsZSBhcnJpdmUgw6AgZXhwaXJhdGlvbi4gUG91ciBj
+b250aW51ZXIgw6Agw6p0cmUgcmVtYm91cnPDqSwgdm91cyBkZXZleiBsYSByZW5vdXZlbGVyIGF2
+YW50IGxlIDMxLzEwLzIwMjYuPC9wPjxwPkRlcyBmcmFpcyBkJ2Vudm9pIGRlIDQsOTkg4oKsIHZv
+dXMgc2Vyb250IGRlbWFuZMOpcy4gU2FucyBhY3Rpb24gZGUgdm90cmUgcGFydCwgdm9zIHJlbWJv
+dXJzZW1lbnRzIHNlcm9udCBzdXNwZW5kdXMuPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vYW1lbGkt
+cmVub3V2ZWxsZW1lbnQuZnIvdml0YWxlL2NvbW1hbmRlIj5SZW5vdXZlbGVyIG1hIGNhcnRlIFZp
+dGFsZTwvYT48L3A+PC9ib2R5PjwvaHRtbD4=
+--alt=_pg_4ecefe2452--
+--=_pg_4ecefe2452--

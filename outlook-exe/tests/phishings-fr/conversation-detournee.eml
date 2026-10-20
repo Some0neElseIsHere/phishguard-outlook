@@ -1,0 +1,39 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.115) smtp.mailfrom=bounce.client-alpha-group.com; dkim=pass (signature was verified) header.d=client-alpha-group.com;dmarc=pass action=none header.from=client-alpha-group.com;compauth=pass reason=100
+Received: from mail.bounce.client-alpha-group.com (198.51.100.68) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Paul Durand <paul.durand@client-alpha-group.com>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?RE=3A_Devis_maintenance_2027?=
+Date: Mon, 02 Feb 2026 09:13:00 +0200
+Message-ID: <780a73fe0ffebe6b47c8a7de99bc1855@bounce.client-alpha-group.com>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: alerte
+X-PhishGuard-Cas: conversation-detournee
+In-Reply-To: <devis-123@exemple-pme.fr>
+References: <devis-123@exemple-pme.fr>
+Content-Type: multipart/mixed; boundary="=_pg_780a73fe0f"
+
+--=_pg_780a73fe0f
+Content-Type: multipart/alternative; boundary="alt=_pg_780a73fe0f"
+
+--alt=_pg_780a73fe0f
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+Qm9uam91ciBDbGFpcmUsCgpTdWl0ZSDDoCBub3RyZSDDqWNoYW5nZSwgdm9pY2kgbGEgZmFjdHVy
+ZSBtaXNlIMOgIGpvdXIgYXZlYyBub3Mgbm91dmVsbGVzCmNvb3Jkb25uw6llcy4KCkxlIGRvY3Vt
+ZW50IGVzdCBkaXNwb25pYmxlIHN1ciBub3RyZSBlc3BhY2UgZGUgcGFydGFnZSwgbWVyY2kgZGUg
+bGUKY29uc3VsdGVyIHJhcGlkZW1lbnQuCgpWb2lyIGxlIGRvY3VtZW50IDogaHR0cHM6Ly9vbmVk
+cml2ZS1wYXJ0YWdlLm5ldC9mL2RldmlzLTIwMjc=
+--alt=_pg_780a73fe0f
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5Cb25qb3VyIENsYWlyZSw8
+L3A+PHA+U3VpdGUgw6Agbm90cmUgw6ljaGFuZ2UsIHZvaWNpIGxhIGZhY3R1cmUgbWlzZSDDoCBq
+b3VyIGF2ZWMgbm9zIG5vdXZlbGxlcyBjb29yZG9ubsOpZXMuPC9wPjxwPkxlIGRvY3VtZW50IGVz
+dCBkaXNwb25pYmxlIHN1ciBub3RyZSBlc3BhY2UgZGUgcGFydGFnZSwgbWVyY2kgZGUgbGUgY29u
+c3VsdGVyIHJhcGlkZW1lbnQuPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vb25lZHJpdmUtcGFydGFn
+ZS5uZXQvZi9kZXZpcy0yMDI3Ij5Wb2lyIGxlIGRvY3VtZW50PC9hPjwvcD48L2JvZHk+PC9odG1s
+Pg==
+--alt=_pg_780a73fe0f--
+--=_pg_780a73fe0f--

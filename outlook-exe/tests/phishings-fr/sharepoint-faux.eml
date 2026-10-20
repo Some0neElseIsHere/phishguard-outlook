@@ -1,0 +1,35 @@
+Authentication-Results: spf=pass (sender IP is 198.51.100.104) smtp.mailfrom=bounce.sharepoint-docs.net; dkim=pass (signature was verified) header.d=sharepoint-docs.net;dmarc=pass action=none header.from=sharepoint-docs.net;compauth=pass reason=100
+Received: from mail.bounce.sharepoint-docs.net (198.51.100.29) by PR3P192MB0001.EURP192.PROD.OUTLOOK.COM
+From: Paul Durand (via SharePoint) <partage@sharepoint-docs.net>
+To: claire.martin@exemple-pme.fr
+Subject: =?utf-8?q?Paul_Durand_a_partag=C3=A9_=C2=AB_Facture_impay=C3=A9e=2Epdf_?=
+ =?utf-8?q?=C2=BB_avec_vous?=
+Date: Thu, 19 Feb 2026 19:06:00 +0200
+Message-ID: <9c9c54e6748664483a35e6e8d4585c06@bounce.sharepoint-docs.net>
+MIME-Version: 1.0
+X-PhishGuard-Attendu: rouge
+X-PhishGuard-Cas: sharepoint-faux
+Content-Type: multipart/mixed; boundary="=_pg_9c9c54e674"
+
+--=_pg_9c9c54e674
+Content-Type: multipart/alternative; boundary="alt=_pg_9c9c54e674"
+
+--alt=_pg_9c9c54e674
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+UGF1bCBEdXJhbmQgYSBwYXJ0YWfDqSB1biBmaWNoaWVyIGF2ZWMgdm91cy4KCkZhY3R1cmUgaW1w
+YXnDqWUucGRmCgpDb25uZWN0ZXotdm91cyBhdmVjIHZvdHJlIGNvbXB0ZSBwcm9mZXNzaW9ubmVs
+IHBvdXIgbCdvdXZyaXIuCgpPdXZyaXIgOiBodHRwczovL3NoYXJlcG9pbnQtZG9jcy5uZXQvcy9m
+YWN0dXJlLWltcGF5ZWU=
+--alt=_pg_9c9c54e674
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGh0bWw+PGJvZHkgc3R5bGU9ImZvbnQtZmFtaWx5OkFyaWFsIj48cD5QYXVsIER1cmFuZCBhIHBh
+cnRhZ8OpIHVuIGZpY2hpZXIgYXZlYyB2b3VzLjwvcD48cD5GYWN0dXJlIGltcGF5w6llLnBkZjwv
+cD48cD5Db25uZWN0ZXotdm91cyBhdmVjIHZvdHJlIGNvbXB0ZSBwcm9mZXNzaW9ubmVsIHBvdXIg
+bCdvdXZyaXIuPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vc2hhcmVwb2ludC1kb2NzLm5ldC9zL2Zh
+Y3R1cmUtaW1wYXllZSI+T3V2cmlyPC9hPjwvcD48L2JvZHk+PC9odG1sPg==
+--alt=_pg_9c9c54e674--
+--=_pg_9c9c54e674--
