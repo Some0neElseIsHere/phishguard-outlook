@@ -72,8 +72,14 @@ namespace PhishGuard.AddIn
         /// <summary>Applique le thème courant à toutes les fenêtres ouvertes de PhishGuard.</summary>
         public static void ApplyAll()
         {
+            // Fenêtres suivies par Attach (Application.OpenForms oublie parfois une fenêtre masquée ou recréée)
             var forms = new List<Form>();
-            foreach (Form f in Application.OpenForms) forms.Add(f);
+            lock (attached)
+            {
+                attached.RemoveAll(w => { var x = w.Target as Form; return x == null || x.IsDisposed; });
+                foreach (var w in attached) { var x = w.Target as Form; if (x != null) forms.Add(x); }
+            }
+            foreach (Form f in Application.OpenForms) if (!forms.Contains(f)) forms.Add(f);
             foreach (var f in forms)
             {
                 var form = f;
@@ -127,10 +133,27 @@ namespace PhishGuard.AddIn
         static readonly ConditionalWeakTable<Control, Original> Originals = new ConditionalWeakTable<Control, Original>();
 
         /// <summary>Applique le thème à une fenêtre et suit les contrôles ajoutés plus tard.</summary>
+        static readonly List<WeakReference> attached = new List<WeakReference>();
+
         public static void Attach(Form f)
         {
+            lock (attached) attached.Add(new WeakReference(f));
             Apply(f);
             f.HandleCreated += (s, e) => { TitleBar(f); NativeThemes(f); };
+        }
+
+        /// <summary>
+        /// À chaque affichage d'une fenêtre qui reste ouverte (fenêtre d'analyse) : relit le thème de Windows et
+        /// remet la fenêtre à jour si elle n'a pas les bonnes couleurs. Filet de sécurité si l'avis de changement de
+        /// thème de Windows n'est pas arrivé (fenêtre masquée, Outlook occupé) : la page HTML, elle, est toujours
+        /// reconstruite avec le thème courant.
+        /// </summary>
+        public static void EnsureCurrent(Form f)
+        {
+            Refresh(setting);
+            Original o;
+            bool applied = Originals.TryGetValue(f, out o) && o.Themed;
+            if (applied != Theme.Dark || (Theme.Dark && !everDark)) Apply(f);
         }
 
         public static void Apply(Control root)

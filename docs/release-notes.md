@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.16.4** : thème sombre. Le bandeau du bas de la fenêtre d'analyse (boutons et ligne d'état) pouvait rester blanc quand le thème de Windows changeait pendant qu'Outlook était ouvert. Le thème est maintenant revérifié à chaque affichage de la fenêtre.
+
 - **v1.16.3** : travail sur les mails d'entreprise français. 32 nouveaux cas réalistes (paie, banque pro, comptabilité, Chorus Pro, Urssaf, Infogreffe, OVHcloud, Teams, SNCF…), reçus par Microsoft 365, FortiMail, Google Workspace ou un filtre français : tous corrects. Un avis de virement reçu ou de remboursement versé n'est plus pris pour une « demande sensible ». Nouvelles marques reconnues : Mon Compte Formation (CPF), VINCI Autoroutes, Qonto, OVHcloud, SNCF, Chorus Pro, Urssaf, Crit'Air. Sur 421 vrais phishings en français : 99,8 % signalés, 84 % en rouge.
 
 - **v1.16.2** : messages internes. Au lieu de « SPF absent, DKIM absent, DMARC absent », la fenêtre d'analyse et le rapport de signalement expliquent pourquoi : le message n'est pas passé par Internet, et c'est le serveur Exchange (ou un équipement interne déclaré) qui garantit l'expéditeur.
