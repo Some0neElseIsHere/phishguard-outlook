@@ -6,6 +6,9 @@
 name: Banc d'essai
 
 on:
+  # Chaque 1er du mois à 4 h 17 (UTC) : nouveaux phishings et spam du mois, et contrôle de non-régression
+  schedule:
+    - cron: "17 4 1 * *"
   workflow_dispatch:
     inputs:
       rapide:
@@ -15,6 +18,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   bench:
@@ -85,6 +89,28 @@ jobs:
           Compress-Archive -Force out\bench.csv, out\progress.txt out\bench.zip
           if ($code -ne 0) { exit 1 }
 
+      - name: Résumé et comparaison avec le passage précédent
+        if: always()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Résumé du passage précédent (déposé dans le brouillon « bench » qui va être remplacé)
+          $prev = gh api "repos/${{ github.repository }}/releases" --jq '[.[] | select(.draft and (.tag_name | startswith("bench")))][0].assets[] | select(.name == "summary.json") | .id'
+          if ($prev) { gh api -H "Accept: application/octet-stream" "repos/${{ github.repository }}/releases/assets/$prev" > out\previous.json }
+          if (Test-Path out\bench.csv) {
+            python outlook-exe\tools\bench-summary.py out\bench.csv out\summary.json out\previous.json
+            if (Test-Path out\summary.json) { Compress-Archive -Force out\bench.csv, out\progress.txt, out\summary.json out\bench.zip }
+          }
+
+      - name: Ouvrir un ticket en cas de régression
+        if: ${{ always() && github.event_name == 'schedule' && hashFiles('out/regressions.md') != '' }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --repo "${{ github.repository }}" --title "Banc d'essai mensuel : baisse détectée ($(Get-Date -Format 'yyyy-MM'))" --body-file out\regressions.md
+
       - name: Supprimer les brouillons précédents
         if: always()
         shell: pwsh
@@ -101,4 +127,6 @@ jobs:
           tag_name: bench-${{ github.run_number }}
           name: Banc d'essai (brouillon)
           draft: true
-          files: out/bench.zip
+          files: |
+            out/bench.zip
+            out/summary.json
