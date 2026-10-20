@@ -81,7 +81,32 @@ namespace PhishGuard
         // Point d'entrée
         // =====================================================================
 
+        /// <summary>
+        /// Analyse d'un message. Ne lève jamais d'exception : un message construit pour faire échouer l'analyse
+        /// (données invalides) ne doit pas échapper à l'alerte. Il est alors classé « suspect », avec la raison.
+        /// </summary>
         public static AnalysisResult Analyze(EmailData e, PhishGuardConfig config)
+        {
+            try { return AnalyzeCore(e, config); }
+            catch (Exception ex)
+            {
+                var f = new Finding("engine-error", "content", Severity.Medium, L.T("Analyse incomplète : le message contient des données anormales"),
+                    L.T("PhishGuard n’a pas pu analyser entièrement ce message. Un message construit pour tromper les outils de sécurité peut produire cet effet : soyez prudent."),
+                    new[] { ex.GetType().Name });
+                f.Severity = Severity.High;
+                return new AnalysisResult
+                {
+                    Score = 40, Level = "suspicious", LevelLabel = L.T("Suspect"),
+                    Advice = L.T("Ne cliquez pas et n’ouvrez rien avant d’avoir vérifié l’expéditeur par un autre moyen."),
+                    Findings = new List<Finding> { f },
+                    SenderAddress = ((e == null ? null : e.FromAddress) ?? "").ToLowerInvariant(),
+                    Attachments = e == null ? new List<AttachmentInfo>() : e.Attachments,
+                    Error = ex.GetType().Name + " : " + ex.Message
+                };
+            }
+        }
+
+        static AnalysisResult AnalyzeCore(EmailData e, PhishGuardConfig config)
         {
             var ctx = new Ctx { Config = config, Domains = PhishGuard.Domains.BuildContext(config) };
             var headers = ParseHeaders(e.RawHeaders);
