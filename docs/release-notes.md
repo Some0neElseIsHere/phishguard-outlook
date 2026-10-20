@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.18.3** : analyse approfondie, historique de votre boîte. La recherche des messages déjà reçus de l'expéditeur portait seulement sur la boîte de réception du compte principal : un expéditeur habituel dont les messages sont classés dans un sous-dossier, archivés ou supprimés était annoncé comme « premier message ». Elle porte maintenant sur tous les dossiers de la boîte qui contient le message (sauf le courrier indésirable), indique où un message a été trouvé et précise ce qui n'a pas été consulté (autres comptes, archives .pst). Même correction pour le nom d'expéditeur et la conversation citée.
+
 - **v1.18.2** : l'analyse approfondie ne se lance plus d'elle-même : un bouton **Lancer l'analyse approfondie** dans l'onglet Approfondie la démarre, pour le message affiché uniquement. Ouvrir l'analyse détaillée redevient instantané. La recherche dans votre boîte (messages déjà reçus de l'expéditeur) ne parcourt plus les messages un par un, ce qui la rend beaucoup plus rapide dans une grosse boîte.
 
 - **v1.18.1** : l'analyse approfondie devient un onglet **Approfondie**, toujours présent en mode expert. Elle se lance d'elle-même à l'ouverture de l'analyse détaillée (une fois par message, avec les sources activées dans les paramètres) et l'onglet se met à jour à la fin, sans changer l'onglet affiché ni voler le focus. Suivre les liens et consulter VirusTotal avec l'adresse complète restent soumis à votre accord, par un lien dans l'onglet. Plus d'analyse approfondie en mode simple.
