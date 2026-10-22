@@ -56,6 +56,8 @@ fichiers ADMX*, puis créez un profil « Modèles importés » et affectez-le au
 | | Domaines de l'entreprise | `CompanyDomains` |
 | | Entreprises 1 à 3 et leurs dirigeants (`Nom \| Pays \| Identifiant \| Dirigeant; Dirigeant`) | `Company1` à `Company3` |
 | | Équipements internes qui envoient des mails | `InternalRelays` |
+| | Serveurs de messagerie internes | `MailServers` |
+| | Réseaux des postes de travail | `WorkstationNets` |
 | | Domaines de confiance | `TrustedDomains` |
 | | Liste de blocage partagée | `SharedBlocklistPath` |
 | Affichage et utilisation | Imposer le mode simple | `ForceSimpleMode` |
@@ -64,7 +66,36 @@ fichiers ADMX*, puis créez un profil « Modèles importés » et affectez-le au
 | Sources et listes | Autoriser les clés d'API | `AllowApiKeys` |
 | | Red Flag Domains, secteur public, âge des domaines, DNS, crt.sh, OpenPhish, Tranco | `RedFlagEnabled`, `PublicSectorList`, `DomainAgeLookup`, `BetaDnsChecks`, `BetaCertAge`, `BetaOpenPhish`, `BetaTranco` |
 
-## 3. Déclarer les copieurs et applications qui envoient des mails
+## 3. Repérer les messages « internes » fabriqués depuis un poste
+
+Quelqu'un sur le réseau peut déposer un message directement à votre serveur de messagerie (SMTP, port 25), au nom de
+la direction ou du service informatique, sans s'authentifier. Pour le repérer, déclarez dans Paramètres → Entreprise
+(mode expert) ou par stratégie :
+
+- **Serveurs de messagerie internes** (`MailServers`) : Exchange, passerelle de filtrage, relais SMTP ;
+- **Équipements qui envoient des mails** (`InternalRelays`, ci-dessous) : supervision, pare-feu, copieurs, applications ;
+- **Réseaux des postes de travail** (`WorkstationNets`) : les plages des VLAN des postes, par exemple `10.20.30.0/24`.
+
+Adresses IP, plages CIDR ou noms (traduits par votre DNS). PhishGuard regarde la machine d'où le message est parti
+(le plus ancien en-tête `Received` écrit par vos serveurs) :
+
+| Message au nom de l'entreprise parti de… | Résultat |
+|---|---|
+| un serveur ou un équipement déclaré | normal |
+| un poste, sans authentification | **critique**, avec l'adresse du poste |
+| un poste, accepté comme authentifié par Exchange (SMTP authentifié, relais « Externally Secured ») | moyen : vérifier auprès de l'expéditeur |
+| une autre machine interne non déclarée | élevé |
+| une machine interne, rien n'étant déclaré, sans authentification | moyen |
+
+Un équipement placé dans le réseau des postes (copieur) doit être déclaré par son adresse exacte : une plage large
+d'équipements ne masque pas le réseau des postes. Pour tester, envoyez un message en SMTP depuis votre poste
+(`Send-MailMessage` en PowerShell, par exemple) au nom d'une adresse de l'entreprise.
+
+Limite : la détection suppose que le message passe par un serveur interne qui note l'adresse du poste. Un message
+envoyé directement à Microsoft 365 ou Google depuis Internet n'en porte pas trace : ce sont alors SPF, DKIM et DMARC
+qui le trahissent.
+
+## 4. Déclarer les copieurs et applications qui envoient des mails
 
 Les copieurs (numérisation vers mail), ERP et outils de supervision envoient souvent au nom de l'entreprise sans
 s'authentifier (SPF, DKIM). PhishGuard les prend alors pour une usurpation de votre domaine, classée critique.
@@ -86,7 +117,7 @@ authentifié et venant d'ailleurs, reste une usurpation critique.
 Les messages internes authentifiés par Exchange ou Microsoft 365 (envoyés depuis une boîte de l'entreprise) sont déjà
 reconnus sans rien déclarer.
 
-## 4. Clés d'API (VirusTotal, abuse.ch, AbuseIPDB)
+## 5. Clés d'API (VirusTotal, abuse.ch, AbuseIPDB)
 
 - **Toute clé utilisable par le poste peut être lue par l'utilisateur**, même chiffrée. PhishGuard ne permet donc pas
   de distribuer une clé par stratégie ou par `config.ini`.
@@ -97,7 +128,7 @@ reconnus sans rien déclarer.
   Windows.
 - Les fonctions sans clé (listes, DNS, âge des domaines) restent disponibles pour tous.
 
-## 5. Limites
+## 6. Limites
 
 - Un utilisateur peut désactiver le complément dans Outlook, sauf si une stratégie Office l'en empêche
   (*Liste des compléments gérés*).

@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.0** : **phishing fabriqué en interne**. Nouvelle section **Réseau interne** dans Paramètres → Entreprise (mode expert) : serveurs de messagerie, équipements qui envoient des alertes, réseaux des postes de travail (adresses IP, plages ou noms). Un message au nom de l'entreprise déposé directement au serveur depuis un poste, sans authentification, est classé **critique** avec l'adresse du poste ; venu d'une machine interne non déclarée, il est signalé aussi. Également par stratégie (`MailServers`, `WorkstationNets`). Détails dans le guide de déploiement (`docs/deploiement-entreprise.md`, section 3).
+
 - **v1.18.8** :
   - **fausses factures à rappeler** (« callback phishing ») : un faux débit (renouvellement Norton ou McAfee, achat PayPal…) et un numéro de téléphone pour l'annuler, souvent sans aucun lien. Au téléphone, l'escroc fait installer un logiciel de prise en main à distance ou dicter des codes bancaires. Nouvel indice, élevé quand l'expéditeur n'est pas authentifié, utilise une messagerie gratuite ou cite une marque qui n'est pas la sienne. Banc d'essai : 24 des 481 phishings de 2025 en contiennent, sans nouvelle fausse alerte ;
   - **avertissement de nouvelle version** : une fois par jour, PhishGuard demande à GitHub le numéro de la dernière version publiée. Si elle est plus récente, l'onglet **À propos** l'indique avec un lien de téléchargement, et la barre d'état de l'analyse détaillée le rappelle. Rien n'est envoyé ni installé. Désactivable dans À propos, ou par stratégie (`CheckUpdates`).
