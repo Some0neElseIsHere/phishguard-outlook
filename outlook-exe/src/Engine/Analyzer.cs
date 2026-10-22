@@ -1447,6 +1447,13 @@ namespace PhishGuard
         static readonly Regex PaymentRequestRe = new Regex(@"\b(merci de (regler|payer|proceder|effectuer|confirmer|valider|renseigner)|veuillez (regler|payer|proceder|effectuer|confirmer|valider|renseigner|remplir)|reglez|payez|effectuer (le|un|votre) (paiement|virement|reglement)|frais (de|a)|a regler|coordonnees bancaires|carte bancaire|numero de carte|rib|iban|eligible|formulaire|pour (recevoir|percevoir|obtenir|debloquer)|confirm|verify|update your|fee)\b", RegexOptions.Compiled);
 
         static readonly Regex CardAskRe = new Regex(@"\b((saisi(r|ssez)|indiqu(er|ez)|renseign(er|ez)|entr(er|ez)|confirm(er|ez)|communiqu(er|ez)|verifi(er|ez)) (votre |le |les |vos )?(numero de (votre )?carte( bancaire)?|cryptogramme|code cvv|donnees de (votre )?carte|coordonnees de (votre )?carte)|cryptogramme visuel|enter your (credit |debit )?card (number|details)|card verification (code|value))\b", RegexOptions.Compiled);
+        // Numéros français (01 23 45 67 89, +33 1 23 45 67 89) et nord-américains (+1 (808) 555-0147, 1-888-555-0147)
+        static readonly Regex PhoneNumberRe = new Regex(@"(?:\+33\s?(?:\(0\)\s?)?|\b0)[1-9](?:[\s.\-]?\d{2}){4}\b|(?:\+?\b1[\s.\-]?)?\(?\b[2-9]\d{2}\)?[\s.\-]\d{3}[\s.\-]\d{4}\b", RegexOptions.Compiled);
+        static readonly Regex CallbackDisputeRe = new Regex(@"\b(si (vous n (etes|avez) pas|ce n est pas vous qui (avez|etes))\s?(a l origine|autorise|effectue|passe|commande|fait|demande|reconnaissez)?|vous n etes pas a l origine|vous ne reconnaissez pas|pour (annuler|contester|stopper|arreter|bloquer|resilier) (cette|la|ce|votre|le) (commande|transaction|paiement|prelevement|renouvellement|abonnement|achat|operation|debit)|(obtenir|demander) (un|le|votre) remboursement|did not (authorize|make|place|request|recognize)|didn t (authorize|make|place|request|recognize)|not authorized by you|(if|in case) (you|this) (wasn t|was not|weren t)|to cancel (this|the|your) (order|transaction|subscription|renewal|payment|charge)|(for|request|claim) (a|any|your) refund|dispute (this|the) (charge|transaction))\b", RegexOptions.Compiled);
+        static readonly Regex CallbackChargeRe = new Regex(@"\b(factur\w*|commande|abonnement|renouvel\w*|prelev\w*|debit\w*|paiement|transaction|achat|invoice|order|subscription|renewal|renewed|charged?|payment|purchase)\b", RegexOptions.Compiled);
+        static readonly Regex AmountRe = new Regex(@"\d[\d\s.,]{0,12}\s?(€|eur\b|euros?\b|\$|usd\b)|(\$|€|usd)\s?\d", RegexOptions.Compiled);
+        static readonly Regex CallbackBrandRe = new Regex(@"\b(norton|mcafee|geek ?squad|best ?buy|paypal|avast|kaspersky|bitdefender|windows defender|lifelock|microsoft|apple|amazon|coinbase|binance|ebay)\b", RegexOptions.Compiled);
+
         static readonly Regex[] GamblingRes =
         {
             new Regex(@"\b(casinos?|machines? a sous|slots?|roulette|blackjack|jackpots?)\b", RegexOptions.Compiled),
@@ -1540,6 +1547,23 @@ namespace PhishGuard
             if (PhoneCallRe.IsMatch(text) && PhoneFraudRe.IsMatch(text) && !ctx.Internal && !NeverAskRe.IsMatch(text))
                 findings.Add(new Finding("content-combo-phone", "content", Severity.High, L.T("Annonce d’un appel d’un faux conseiller"),
                     L.T("Arnaque au faux conseiller bancaire : un appel suit le message et vous fait valider une opération ou dicter un code reçu par SMS. Votre banque ne vous le demande jamais : raccrochez et appelez le numéro de votre carte."), null));
+            // Fausse facture à rappeler (« callback phishing ») : un débit inventé, un numéro de téléphone pour l'annuler, souvent aucun lien.
+            // Au téléphone, le faux support fait installer un logiciel de prise en main à distance ou dicter des codes bancaires.
+            if (!ctx.Internal && !(ctx.AuthOk && ctx.RelationProof) && !ctx.CodeMessage)
+            {
+                var phone = PhoneNumberRe.Match(text);
+                if (phone.Success && CallbackDisputeRe.IsMatch(text) && CallbackChargeRe.IsMatch(text) && AmountRe.IsMatch(text))
+                {
+                    string fromDom = PhishGuard.Domains.DomainOfAddress(e.FromAddress);
+                    bool freemail = Lists.FreemailDomains.Contains(fromDom);
+                    bool brandMention = CallbackBrandRe.IsMatch(text) && !ctx.BrandSender;
+                    var sev = !ctx.AuthOk || freemail || brandMention ? Severity.High : Severity.Low;
+                    findings.Add(new Finding("content-callback", "content", sev, L.T("Fausse facture : on vous demande d’appeler un numéro pour annuler un paiement"),
+                        L.T("Arnaque au faux support : le débit est inventé pour vous faire appeler. Au téléphone, l’escroc vous fait installer un logiciel de prise en main à distance ou donner vos codes bancaires. N’appelez jamais le numéro du message : vérifiez vos comptes vous-même, sur le site ou l’application officiels."),
+                        new[] { L.T("Numéro : ") + phone.Value.Trim() }));
+                }
+            }
+
             // Lien caché dans la pièce jointe : technique pour échapper aux filtres qui analysent les liens du message
             if (!ctx.Internal && e.Attachments.Any(a => a.EmbeddedUrls.Count > 0) && AttachmentLinkLureRe.IsMatch(text))
                 findings.Add(new Finding("content-attachment-link", "content", Severity.Medium, L.T("Le message vous envoie vers un lien caché dans la pièce jointe"),

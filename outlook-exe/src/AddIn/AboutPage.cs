@@ -22,13 +22,25 @@ namespace PhishGuard.AddIn
         static readonly Font UiFont = new Font("Segoe UI", 9f);
         const int Width = 500;
 
-        public static void Fill(Control page, PhishGuardConfig cfg)
+        /// <summary>Remplit l'onglet ; renvoie la case « vérifier les nouvelles versions » (enregistrée par la fenêtre des paramètres).</summary>
+        public static CheckBox Fill(Control page, PhishGuardConfig cfg)
         {
             int y = 12;
             page.Controls.Add(new Label { Text = "PhishGuard pour Outlook", Location = new Point(12, y), AutoSize = true, Font = new Font("Segoe UI", 13f, FontStyle.Bold) });
             y += 32;
             page.Controls.Add(new Label { Text = L.T("Version : ") + BuildInfo.Version, Location = new Point(12, y), AutoSize = true });
             y += 26;
+            if (cfg.CheckUpdates && Updates.UpdateAvailable(BuildInfo.Version))
+            {
+                y = Text(page, y, L.F("Nouvelle version disponible : {0}", Updates.LatestTag), Color.FromArgb(19, 128, 74), true);
+                y = Link(page, y - 4, L.T("Télécharger la nouvelle version"), Updates.LatestUrl.Length > 0 ? Updates.LatestUrl : BuildInfo.Releases);
+            }
+            else if (cfg.CheckUpdates && Updates.CheckedOn > DateTime.MinValue && Updates.LatestTag.Length > 0 && Updates.Parse(BuildInfo.Version) != null)
+                y = Text(page, y, L.F("Vous avez la dernière version (vérifié le {0}).", Updates.CheckedOn.ToLocalTime().ToString("dd/MM/yyyy HH:mm")), SystemColors.GrayText, false);
+            var chkUpdates = new CheckBox { Text = L.T("Vérifier chaque jour s’il existe une nouvelle version"), Checked = cfg.CheckUpdates, Location = new Point(12, y), AutoSize = true };
+            page.Controls.Add(chkUpdates);
+            y += 24;
+            y = Text(page, y, L.T("Demande seulement à GitHub le numéro de la dernière version publiée. Rien n’est envoyé, rien n’est installé : vous êtes simplement prévenu."), SystemColors.GrayText, false);
             y += 4;
             y = Link(page, y, L.T("Code source, documentation et questions fréquentes"), BuildInfo.Repository);
             y = Link(page, y, L.T("Nouveautés et dernière version"), BuildInfo.Releases);
@@ -60,6 +72,7 @@ namespace PhishGuard.AddIn
             };
             page.Controls.Add(btn);
             page.Controls.Add(done);
+            return chkUpdates;
         }
 
         /// <summary>Résumé technique pour le support : versions, réglages et état des listes, sans donnée personnelle.</summary>

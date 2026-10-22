@@ -148,6 +148,12 @@
       <enabledValue><decimal value="1" /></enabledValue>
       <disabledValue><decimal value="0" /></disabledValue>
     </policy>
+    <policy name="CheckUpdates" class="Both" displayName="$(string.CheckUpdates)" explainText="$(string.CheckUpdates_Help)" key="Software\Policies\PhishGuard" valueName="CheckUpdates">
+      <parentCategory ref="Cat_Usage" />
+      <supportedOn ref="SUPPORTED_PhishGuard" />
+      <enabledValue><decimal value="1" /></enabledValue>
+      <disabledValue><decimal value="0" /></disabledValue>
+    </policy>
     <policy name="RedFlagEnabled" class="Both" displayName="$(string.RedFlagEnabled)" explainText="$(string.RedFlagEnabled_Help)" key="Software\Policies\PhishGuard" valueName="RedFlagEnabled">
       <parentCategory ref="Cat_Sources" />
       <supportedOn ref="SUPPORTED_PhishGuard" />
