@@ -24,6 +24,7 @@ namespace PhishGuard
         public string AlertLevel = "dangerous";  // dangerous, suspicious ou none
         public int AutoHashMaxMB = 5;            // empreintes des pièces jointes en analyse automatique
         public bool ShowExplanations = true;     // explications pédagogiques sous chaque indice
+        public bool CheckUpdates = true;         // une fois par jour, demande à GitHub le numéro de la dernière version
         public bool KnownCorrespondents = true;  // premier contact et sosies de vos correspondants
         public bool DomainAgeLookup = false;     // âge des domaines recherché automatiquement (RDAP) ; sinon d'un clic, onglet Réputation
         public bool TagCategory = false;         // catégorie de couleur sur les messages suspects/dangereux
@@ -219,6 +220,7 @@ namespace PhishGuard
                     case "autohashmaxmb": int mb; if (int.TryParse(val, out mb) && mb >= 0) c.AutoHashMaxMB = mb; break;
                     case "redflagmaxagehours": int h; if (int.TryParse(val, out h) && h > 0) c.RedFlagMaxAgeHours = h; break;
                     case "showexplanations": c.ShowExplanations = !IsFalse(val); break;
+                    case "checkupdates": c.CheckUpdates = !IsFalse(val); break;
                     case "knowncorrespondents": c.KnownCorrespondents = !IsFalse(val); break;
                     case "domainageauto": c.DomainAgeLookup = !IsFalse(val); break;
                     // Ancienne clé : respectée telle quelle dans config.ini et les stratégies ; dans les réglages de l'utilisateur,
@@ -286,6 +288,7 @@ namespace PhishGuard
             sb.AppendLine("AutoHashMaxMB = " + AutoHashMaxMB);
             sb.AppendLine("RedFlagEnabled = " + (RedFlagEnabled ? "true" : "false"));
             sb.AppendLine("ShowExplanations = " + (ShowExplanations ? "true" : "false"));
+            sb.AppendLine("CheckUpdates = " + (CheckUpdates ? "true" : "false"));
             sb.AppendLine("KnownCorrespondents = " + (KnownCorrespondents ? "true" : "false"));
             sb.AppendLine("DomainAgeAuto = " + (DomainAgeLookup ? "true" : "false"));
             sb.AppendLine("TagCategory = " + (TagCategory ? "true" : "false"));

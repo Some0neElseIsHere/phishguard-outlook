@@ -77,7 +77,11 @@ namespace PhishGuard.AddIn
             };
             Feeds.Init(config.BetaOpenPhish, config.BetaTranco, config.PublicSectorList);
             Blocklists.SharedPath = config.SharedBlocklistPath ?? "";
+            UpdateNotice = config.CheckUpdates;
+            if (config.CheckUpdates) Updates.CheckAsync(BuildInfo.Repository, false);
         }
+
+        static bool UpdateNotice;
 
         void BackgroundTick()
         {
@@ -98,7 +102,8 @@ namespace PhishGuard.AddIn
                 if (sessionReady && !setupChecked && tickCount >= 12) RunSetupIfNeeded();   // ~10 s après le démarrage d'Outlook
                 if (config.KnownCorrespondents) CorrespondentsStep();
                 if (config.TagCategory && tickCount % 30 == 5) InboxStep();
-                if (tickCount % 5000 == 400) WatchStep();  // quelques minutes après le démarrage, puis toutes les heures
+                if (tickCount % 5000 == 400) WatchStep();
+                if (tickCount % 5000 == 600 && config.CheckUpdates) Updates.CheckAsync(BuildInfo.Repository, false);   // quelques minutes après le démarrage, au plus une fois par jour  // quelques minutes après le démarrage, puis toutes les heures
                 if (watchDone) { watchDone = false; Blocklists.ReloadCustom(); cache.Clear(); cacheOrder.Clear(); lastSelectionKey = "\u0001"; }
                 if (tickCount % 5000 == 0)                // environ toutes les heures
                 {

@@ -333,6 +333,21 @@ namespace PhishGuard.Tests
             var lotoOk = Base(); lotoOk.Subject = "Votre ticket de loto"; lotoOk.BodyText = "Le tirage a lieu ce soir. Jackpot de 12 millions.";
             Check("casino : un seul terme ne suffit pas", !Ids(Analyzer.Analyze(lotoOk, cfg)).Contains("content-gambling"));
 
+            // ---------- Fausse facture à rappeler (cas fictifs) ----------
+            var cb1 = Base(); cb1.FromAddress = "billing.renewal.team@gmail.com"; cb1.FromName = "Norton Billing"; cb1.Subject = "Your Norton 360 subscription has been renewed";
+            cb1.BodyText = "Order #NT-4821. Amount charged: $399.99. If you did not authorize this charge, call our billing team at +1 (808) 555-0147 to cancel and get a refund.";
+            Check("rappel : faux renouvellement Norton", Analyzer.Analyze(cb1, cfg).Findings.Any(f => f.Id == "content-callback" && f.Severity == Severity.High), string.Join(",", Ids(Analyzer.Analyze(cb1, cfg)).ToArray()));
+            var cb2 = Base(); cb2.FromAddress = "service@renouvellement-protection.fr"; cb2.Subject = "Confirmation de renouvellement";
+            cb2.BodyText = "Votre abonnement McAfee Total Protection a été renouvelé pour 349,99 €. Si vous n'êtes pas à l'origine de ce paiement, appelez notre service au 01 84 88 12 34 pour l'annuler et obtenir votre remboursement.";
+            Check("rappel : faux renouvellement McAfee en français", Ids(Analyzer.Analyze(cb2, cfg)).Contains("content-callback"));
+            var cb3 = Base(); cb3.Subject = "Facture 2026-114"; cb3.BodyText = "Veuillez trouver ci-joint la facture 2026-114 d'un montant de 1 250,00 €. Pour toute question, contactez-nous au 01 23 45 67 89.";
+            Check("rappel : vraie facture avec un numéro non signalée", !Ids(Analyzer.Analyze(cb3, cfg)).Contains("content-callback"));
+            Check("numéros de téléphone", Analyzer.Analyze(cb2, cfg).Findings.First(f => f.Id == "content-callback").Evidence[0].Contains("01 84 88 12 34"));
+            Check("versions : comparaison", Updates.IsNewer("v1.18.8", "v1.18.7") && Updates.IsNewer("v1.19.0", "1.18.12") && !Updates.IsNewer("v1.18.7", "v1.18.7") && !Updates.IsNewer("v1.18.8", "version de développement"));
+            string relTag, relUrl;
+            Check("versions : réponse GitHub", Updates.ParseRelease("{\"url\":\"https://api.github.com/x\",\"html_url\":\"https://github.com/o/r/releases/tag/v1.18.8\",\"tag_name\":\"v1.18.8\",\"author\":{\"html_url\":\"https://github.com/o\"}}", out relTag, out relUrl)
+                && relTag == "v1.18.8" && relUrl == "https://github.com/o/r/releases/tag/v1.18.8");
+
             // ---------- Âge du domaine ----------
             DomainAge.SetForTests("tout-neuf-livraison.fr", DateTime.UtcNow.AddDays(-4));
             DomainAge.SetForTests("ancien-domaine.fr", DateTime.UtcNow.AddYears(-8));

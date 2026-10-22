@@ -628,6 +628,7 @@ namespace PhishGuard.AddIn
                 : L.T("Liste Red Flag Domains non chargée") + (string.IsNullOrEmpty(Blocklists.LastError) ? "" : " : " + Blocklists.LastError);
             int c = Blocklists.CustomCount;
             if (c > 0) s += L.F(" ; liste interne : {0} domaines", c);
+            if (UpdateNotice && Updates.UpdateAvailable(BuildInfo.Version)) s += " ; " + L.F("nouvelle version {0} disponible (Paramètres → À propos)", Updates.LatestTag);
             return s;
         }
 
