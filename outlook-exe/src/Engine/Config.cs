@@ -38,6 +38,8 @@ namespace PhishGuard
         public bool SetupKeyPresent;                         // SetupDone trouvé dans config.user.ini
         public bool ExpertMode = false;          // fenêtre d'analyse : false = mode simple (débutants), true = analyse détaillée
         public bool WatchDomains = true;         // surveillance hebdomadaire des nouveaux sosies de vos domaines (DNS)
+        public List<string> MailServers = new List<string>();      // IP, plages ou noms des serveurs de messagerie internes
+        public List<string> WorkstationNets = new List<string>();  // plages (CIDR) des réseaux des postes de travail
         public List<string> InternalRelays = new List<string>();   // IP ou plages (CIDR) des équipements internes qui envoient des mails (copieurs, applications)
 
         // Stratégies d'entreprise (registre Software\Policies\PhishGuard, poussé par GPO ou Intune) : l'utilisateur ne peut pas les modifier
@@ -235,6 +237,8 @@ namespace PhishGuard
                     case "theme": c.Theme = val.Trim().ToLowerInvariant(); break;
                     case "watchdomains": c.WatchDomains = !IsFalse(val); break;
                     case "internalrelays": c.InternalRelays = SplitList(val, false); break;
+                    case "mailservers": c.MailServers = SplitList(val, false); break;
+                    case "workstationnets": c.WorkstationNets = SplitList(val, false); break;
                     case "forcesimplemode": c.ForceSimpleMode = IsTrue(val); break;
                     case "allowapikeys": c.AllowApiKeys = !IsFalse(val); break;
                     case "expertmode": c.ExpertMode = IsTrue(val); break;
@@ -300,6 +304,8 @@ namespace PhishGuard
             sb.AppendLine("Theme = " + Clean(Theme));
             sb.AppendLine("WatchDomains = " + (WatchDomains ? "true" : "false"));
             if (!IsLocked("internalrelays")) sb.AppendLine("InternalRelays = " + string.Join(", ", InternalRelays.Select(x => Clean(x)).ToArray()));
+            if (!IsLocked("mailservers")) sb.AppendLine("MailServers = " + string.Join(", ", MailServers.Select(x => Clean(x)).ToArray()));
+            if (!IsLocked("workstationnets")) sb.AppendLine("WorkstationNets = " + string.Join(", ", WorkstationNets.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("ExpertMode = " + (ExpertMode ? "true" : "false"));
             sb.AppendLine("SetupDone = " + string.Join(", ", SetupDone.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("# Réputation : sources externes");

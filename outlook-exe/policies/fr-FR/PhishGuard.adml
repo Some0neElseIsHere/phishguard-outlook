@@ -30,9 +30,17 @@ Valeur de registre : Software\Policies\PhishGuard\Company2</string>
 
 Valeur de registre : Software\Policies\PhishGuard\Company3</string>
       <string id="InternalRelays">Équipements internes qui envoient des mails</string>
-      <string id="InternalRelays_Help">Adresses IP ou plages CIDR (séparées par des virgules) des copieurs, applications et serveurs qui envoient au nom de l'entreprise sans s'authentifier, telles que les voit votre serveur de messagerie (ex. : 203.0.113.10, 203.0.113.0/28, 10.0.0.0/8). Un message à votre nom venant de là est reconnu comme interne ; venant d'ailleurs, il reste une usurpation critique. N'indiquez jamais l'adresse d'un service partagé (Microsoft 365, Google, plateforme d'envoi) : tous ses clients en profiteraient.
+      <string id="InternalRelays_Help">Adresses IP ou plages CIDR (séparées par des virgules) des copieurs, applications et serveurs qui envoient au nom de l'entreprise sans s'authentifier, telles que les voit votre serveur de messagerie (ex. : 203.0.113.10, 203.0.113.0/28, 10.0.50.12, ou un nom : alertes.entreprise.local). Un message à votre nom venant de là est reconnu comme interne ; venant d'ailleurs, il reste une usurpation critique. N'indiquez jamais l'adresse d'un service partagé (Microsoft 365, Google, plateforme d'envoi) : tous ses clients en profiteraient.
 
 Valeur de registre : Software\Policies\PhishGuard\InternalRelays</string>
+      <string id="MailServers">Serveurs de messagerie internes</string>
+      <string id="MailServers_Help">Adresses IP, plages CIDR ou noms (séparés par des virgules) des serveurs de messagerie internes : Exchange, passerelle de filtrage, relais SMTP. Un message au nom de l'entreprise parti d'une autre machine du réseau interne, sans authentification, est signalé.
+
+Valeur de registre : Software\Policies\PhishGuard\MailServers</string>
+      <string id="WorkstationNets">Réseaux des postes de travail</string>
+      <string id="WorkstationNets_Help">Plages CIDR (séparées par des virgules) des réseaux des postes de travail (VLAN). Un message au nom de l'entreprise parti directement d'un de ces réseaux, sans l'authentification de la messagerie, est signalé comme critique avec l'adresse du poste : quelqu'un l'a fabriqué depuis le réseau interne.
+
+Valeur de registre : Software\Policies\PhishGuard\WorkstationNets</string>
       <string id="TrustedDomains">Domaines de confiance</string>
       <string id="TrustedDomains_Help">Domaines partenaires, séparés par des virgules. Les indices liés à l'expéditeur et au contenu sont abaissés ; un échec d'authentification reste toujours signalé.
 
@@ -126,6 +134,8 @@ Valeur de registre : Software\Policies\PhishGuard\BetaTranco</string>
       <presentation id="Company2"><textBox refId="Company2_Value"><label>Entreprise 2 et ses dirigeants</label></textBox></presentation>
       <presentation id="Company3"><textBox refId="Company3_Value"><label>Entreprise 3 et ses dirigeants</label></textBox></presentation>
       <presentation id="InternalRelays"><textBox refId="InternalRelays_Value"><label>Équipements internes qui envoient des mails</label></textBox></presentation>
+      <presentation id="MailServers"><textBox refId="MailServers_Value"><label>Serveurs de messagerie internes</label></textBox></presentation>
+      <presentation id="WorkstationNets"><textBox refId="WorkstationNets_Value"><label>Réseaux des postes de travail</label></textBox></presentation>
       <presentation id="TrustedDomains"><textBox refId="TrustedDomains_Value"><label>Domaines de confiance</label></textBox></presentation>
       <presentation id="SharedBlocklistPath"><textBox refId="SharedBlocklistPath_Value"><label>Liste de blocage partagée</label></textBox></presentation>
       <presentation id="Language"><dropdownList refId="Language_Value" noSort="true">Langue de l'interface</dropdownList></presentation>

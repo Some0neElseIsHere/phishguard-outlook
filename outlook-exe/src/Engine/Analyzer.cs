@@ -61,6 +61,7 @@ namespace PhishGuard
             public bool FirstContact;
             public bool SenderTrusted;
             public bool AuthOk;          // DMARC valide, ou SPF et DKIM valides
+            public bool InternalForged;  // message à votre nom parti d'une machine du réseau interne sans authentification
             // Preuves de légitimité (affichées dans la fenêtre d'analyse ; ne masquent jamais un indice Élevé ou Critique)
             public List<string> Trust = new List<string>();
             public string DmarcDerived;   // DMARC absent des en-têtes, mais SPF ou DKIM aligné : « dkim » ou « spf »
@@ -345,6 +346,45 @@ namespace PhishGuard
         // Authentification (SPF, DKIM, DMARC, compauth)
         // =====================================================================
 
+        /// <summary>Origine d'un message au nom de l'entreprise : poste de travail, machine non déclarée, ou serveur de messagerie.</summary>
+        static void CheckInternalOrigin(EmailData e, List<KeyValuePair<string, string>> headers, string authAs, Ctx ctx, List<Finding> findings)
+        {
+            var origin = InternalNet.Origin(headers);
+            string ip = origin != null ? origin.FromIp : "";
+            if (ip.Length == 0) return;
+            var cfg = ctx.Config;
+            bool workstation = InternalNet.Matches(ip, cfg.WorkstationNets);
+            // Serveur ou équipement déclaré ; dans un réseau de postes, seule une adresse déclarée une par une compte (pas une grande plage)
+            if (workstation ? InternalNet.MatchesExact(ip, cfg.MailServers.Concat(cfg.InternalRelays))
+                            : InternalNet.Matches(ip, cfg.MailServers) || InternalNet.Matches(ip, cfg.InternalRelays)) return;
+            if (Forensics.IsPublicIp(ip) && !workstation) return;                                                   // venu de l'extérieur : contrôles habituels
+            bool exchangeAuth = e.IsExchangeInternal || authAs == "internal";
+            bool declared = cfg.MailServers.Count > 0 || cfg.WorkstationNets.Count > 0;
+            string where = ip + (origin.FromHost.Length > 0 && origin.FromHost != ip ? " (" + L.T("annoncé comme ") + origin.FromHost + ")" : "");
+            var ev = new[] { L.T("Parti de : ") + where, L.T("Au nom de : ") + e.FromAddress };
+            if (workstation && !exchangeAuth)
+            {
+                findings.Add(new Finding("auth-internal-workstation", "auth", Severity.Critical, L.T("Message « interne » fabriqué depuis un poste de travail"),
+                    L.T("Ce message à votre nom est parti directement d’un poste du réseau interne, sans passer par l’authentification de votre messagerie : quelqu’un sur le réseau l’a fabriqué. Ne cliquez sur rien et prévenez le service informatique en lui indiquant l’adresse du poste."), ev));
+                ctx.InternalForged = true;
+            }
+            else if (workstation)
+                // Authentifié, mais envoyé en SMTP depuis un poste et non depuis Outlook : logiciel de messagerie autre qu'Outlook,
+                // script, ou relais interne qui fait passer n'importe quel message pour un message authentifié
+                findings.Add(new Finding("auth-internal-smtp", "auth", Severity.Medium, L.T("Message interne envoyé directement depuis un poste, sans passer par Outlook"),
+                    L.T("Votre serveur l’a accepté comme interne, mais il a été déposé en SMTP par un poste de travail. Normal pour un logiciel de messagerie autre qu’Outlook ou un script connu ; sinon, quelqu’un a pu le fabriquer au nom de cet expéditeur. En cas de doute, vérifiez auprès de lui par un autre moyen."), ev));
+            else if (exchangeAuth) return;   // message Exchange : ses serveurs ne sont pas forcément tous déclarés
+            else if (declared)
+            {
+                findings.Add(new Finding("auth-internal-undeclared", "auth", Severity.High, L.T("Message « interne » venu d’une machine non déclarée"),
+                    L.T("Ce message à votre nom vient du réseau interne, mais ni d’un serveur de messagerie ni d’un équipement déclaré, et sans authentification. Possible message fabriqué depuis le réseau, ou équipement oublié dans Paramètres → Entreprise."), ev));
+                ctx.InternalForged = true;
+            }
+            else if (authAs == "anonymous")
+                findings.Add(new Finding("auth-internal-anonymous", "auth", Severity.Medium, L.T("Message à votre nom, non authentifié, venu du réseau interne"),
+                    L.T("Le serveur de messagerie l’a reçu sans authentification d’une machine interne. Normal pour un copieur ou une application ; sinon, il a pu être fabriqué depuis un poste. Déclarez vos serveurs, équipements et réseaux des postes dans Paramètres → Entreprise pour un diagnostic sûr."), ev));
+        }
+
         static void AnalyzeAuth(EmailData e, List<KeyValuePair<string, string>> headers, Ctx ctx, List<Finding> findings, List<string> positives)
         {
             string fromDomain = PhishGuard.Domains.DomainOfAddress(e.FromAddress);
@@ -352,6 +392,10 @@ namespace PhishGuard
             bool fromCompany = ctx.Domains.CompanyDomains.Contains(fromOrg);
 
             string authAs = (HeaderValues(headers, "x-ms-exchange-organization-authas").FirstOrDefault() ?? "").ToLowerInvariant();
+            // Message à votre nom parti d'une machine du réseau interne : quelqu'un l'a fabriqué depuis un poste (envoi SMTP direct).
+            // Vérifié avant tout le reste : un connecteur de relais interne peut faire passer un tel message pour un message Exchange.
+            if (fromCompany) CheckInternalOrigin(e, headers, authAs, ctx, findings);
+
             if (e.IsExchangeInternal || authAs == "internal")
             {
                 positives.Add(L.T("Message interne, authentifié par votre serveur Exchange"));
@@ -360,9 +404,9 @@ namespace PhishGuard
                 return;
             }
             // Copieur, application ou serveur interne déclaré, qui envoie au nom de l'entreprise sans s'authentifier
-            if (fromCompany && ctx.Config.InternalRelays.Count > 0)
+            if (fromCompany && ctx.Config.InternalRelays.Count > 0 && !ctx.InternalForged)
             {
-                string relayIp = Forensics.InternalRelayIp(headers, ctx.Config.InternalRelays);
+                string relayIp = Forensics.InternalRelayIp(headers, InternalNet.Expand(ctx.Config.InternalRelays));
                 if (relayIp != null)
                 {
                     string why = L.F("Envoyé par un équipement interne déclaré ({0})", relayIp);
@@ -454,7 +498,7 @@ namespace PhishGuard
             if (spf == "pass") positives.Add(L.T("SPF valide"));
             if (dkim == "pass") positives.Add(L.T("Signature DKIM valide"));
             if (dmarc == "pass") positives.Add(L.T("DMARC valide pour ") + (headerFrom ?? fromDomain));
-            ctx.AuthOk = dmarc == "pass" || (spf == "pass" && dkim == "pass" && dmarc != "fail");
+            ctx.AuthOk = !ctx.InternalForged && (dmarc == "pass" || (spf == "pass" && dkim == "pass" && dmarc != "fail"));
 
             // Alignement : la signature DKIM / l'enveloppe SPF appartiennent-elles au domaine affiché ?
             var dkimPass = Forensics.DkimPassDomains(ar);
