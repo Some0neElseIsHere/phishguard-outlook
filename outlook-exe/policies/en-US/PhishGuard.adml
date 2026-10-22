@@ -30,9 +30,17 @@ Registry value: Software\Policies\PhishGuard\Company2</string>
 
 Registry value: Software\Policies\PhishGuard\Company3</string>
       <string id="InternalRelays">Internal devices that send email</string>
-      <string id="InternalRelays_Help">IP addresses or CIDR ranges (comma-separated) of copiers, applications and servers that send on behalf of the company without authenticating, as seen by your mail server (e.g. 203.0.113.10, 203.0.113.0/28, 10.0.0.0/8). A message in your name coming from there is recognized as internal; from anywhere else it remains critical spoofing. Never list the address of a shared service (Microsoft 365, Google, sending platform): all its customers would benefit.
+      <string id="InternalRelays_Help">IP addresses or CIDR ranges (comma-separated) of copiers, applications and servers that send on behalf of the company without authenticating, as seen by your mail server (e.g. 203.0.113.10, 203.0.113.0/28, 10.0.50.12, or a name: alerts.company.local). A message in your name coming from there is recognized as internal; from anywhere else it remains critical spoofing. Never list the address of a shared service (Microsoft 365, Google, sending platform): all its customers would benefit.
 
 Registry value: Software\Policies\PhishGuard\InternalRelays</string>
+      <string id="MailServers">Internal mail servers</string>
+      <string id="MailServers_Help">IP addresses, CIDR ranges or names (comma-separated) of internal mail servers: Exchange, filtering gateway, SMTP relay. A message in the company's name sent from any other machine on the internal network, without authentication, is flagged.
+
+Registry value: Software\Policies\PhishGuard\MailServers</string>
+      <string id="WorkstationNets">Workstation networks</string>
+      <string id="WorkstationNets_Help">CIDR ranges (comma-separated) of workstation networks (VLANs). A message in the company's name sent directly from one of these networks, without mail authentication, is flagged as critical with the workstation address: someone forged it from the internal network.
+
+Registry value: Software\Policies\PhishGuard\WorkstationNets</string>
       <string id="TrustedDomains">Trusted domains</string>
       <string id="TrustedDomains_Help">Partner domains, comma-separated. Sender and content findings are lowered; an authentication failure is always reported.
 
@@ -126,6 +134,8 @@ Registry value: Software\Policies\PhishGuard\BetaTranco</string>
       <presentation id="Company2"><textBox refId="Company2_Value"><label>Company 2 and its executives</label></textBox></presentation>
       <presentation id="Company3"><textBox refId="Company3_Value"><label>Company 3 and its executives</label></textBox></presentation>
       <presentation id="InternalRelays"><textBox refId="InternalRelays_Value"><label>Internal devices that send email</label></textBox></presentation>
+      <presentation id="MailServers"><textBox refId="MailServers_Value"><label>Internal mail servers</label></textBox></presentation>
+      <presentation id="WorkstationNets"><textBox refId="WorkstationNets_Value"><label>Workstation networks</label></textBox></presentation>
       <presentation id="TrustedDomains"><textBox refId="TrustedDomains_Value"><label>Trusted domains</label></textBox></presentation>
       <presentation id="SharedBlocklistPath"><textBox refId="SharedBlocklistPath_Value"><label>Shared blocklist</label></textBox></presentation>
       <presentation id="Language"><dropdownList refId="Language_Value" noSort="true">Interface language</dropdownList></presentation>

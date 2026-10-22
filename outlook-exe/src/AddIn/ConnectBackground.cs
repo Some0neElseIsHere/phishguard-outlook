@@ -78,6 +78,7 @@ namespace PhishGuard.AddIn
             Feeds.Init(config.BetaOpenPhish, config.BetaTranco, config.PublicSectorList);
             Blocklists.SharedPath = config.SharedBlocklistPath ?? "";
             UpdateNotice = config.CheckUpdates;
+            InternalNet.ResolveAsync(config.MailServers.Concat(config.InternalRelays).Concat(config.WorkstationNets));
             if (config.CheckUpdates) Updates.CheckAsync(BuildInfo.Repository, false);
         }
 

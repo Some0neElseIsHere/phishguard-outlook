@@ -333,6 +333,39 @@ namespace PhishGuard.Tests
             var lotoOk = Base(); lotoOk.Subject = "Votre ticket de loto"; lotoOk.BodyText = "Le tirage a lieu ce soir. Jackpot de 12 millions.";
             Check("casino : un seul terme ne suffit pas", !Ids(Analyzer.Analyze(lotoOk, cfg)).Contains("content-gambling"));
 
+            // ---------- Réseau interne : message fabriqué depuis un poste (cas fictifs) ----------
+            var cfgNet = new PhishGuardConfig
+            {
+                CompanyName = "Acmetech", CompanyDomains = new List<string> { "acmetech.fr" },
+                MailServers = new List<string> { "10.0.0.5", "mail02.acmetech.local" },
+                WorkstationNets = new List<string> { "10.20.30.0/24" },
+                InternalRelays = new List<string> { "10.0.50.12" }
+            };
+            InternalNet.SetForTests("mail02.acmetech.local", "10.0.0.6");
+            Func<string, string, EmailData> internalMail = (ip, authAs) => new EmailData
+            {
+                FromName = "Direction générale", FromAddress = "direction@acmetech.fr", Subject = "Mise à jour obligatoire",
+                BodyText = "Merci de vous reconnecter sur le lien ci-dessous avant ce soir.",
+                RawHeaders = "Received: from mail01.acmetech.local (10.0.0.5) by mail02.acmetech.local (10.0.0.6) with Microsoft SMTP Server id 15.2.1544.4; Thu, 22 Oct 2026 10:00:02 +0200\r\n"
+                    + "Received: from PC-COMPTA-12.acmetech.local (" + ip + ") by mail01.acmetech.local (10.0.0.5) with Microsoft SMTP Server id 15.2.1544.4; Thu, 22 Oct 2026 10:00:01 +0200\r\n"
+                    + (authAs.Length > 0 ? "X-MS-Exchange-Organization-AuthAs: " + authAs + "\r\n" : "") + "From: Direction générale <direction@acmetech.fr>\r\n"
+            };
+            var rWs = Analyzer.Analyze(internalMail("10.20.30.45", "Anonymous"), cfgNet);
+            Check("interne : message fabriqué depuis un poste", rWs.Findings.Any(f => f.Id == "auth-internal-workstation" && f.Severity == Severity.Critical) && rWs.Level == "dangerous", string.Join(",", Ids(rWs).ToArray()));
+            Check("interne : l'adresse du poste est donnée", rWs.Findings.First(f => f.Id == "auth-internal-workstation").Evidence.Any(x => x.Contains("10.20.30.45")));
+            var rWsEx = Analyzer.Analyze(internalMail("10.20.30.45", "Internal"), cfgNet);
+            Check("interne : authentifié mais déposé en SMTP par un poste", Ids(rWsEx).Contains("auth-internal-smtp"));
+            var rUnd = Analyzer.Analyze(internalMail("10.9.9.9", "Anonymous"), cfgNet);
+            Check("interne : machine non déclarée", Ids(rUnd).Contains("auth-internal-undeclared"));
+            var rSrv = Analyzer.Analyze(internalMail("10.0.0.6", "Anonymous"), cfgNet);
+            Check("interne : serveur de messagerie déclaré (par son nom)", !Ids(rSrv).Any(x => x.StartsWith("auth-internal-w") || x == "auth-internal-undeclared"));
+            var rDev = Analyzer.Analyze(internalMail("10.0.50.12", "Anonymous"), cfgNet);
+            Check("interne : équipement d'alerte déclaré", Ids(rDev).Contains("auth-internal-relay") && !Ids(rDev).Contains("auth-internal-undeclared"));
+            var rAnon = Analyzer.Analyze(internalMail("10.20.30.45", "Anonymous"), cfg);
+            Check("interne : rien de déclaré, envoi anonyme signalé", Ids(rAnon).Contains("auth-internal-anonymous"));
+            var rOutlook = Analyzer.Analyze(internalMail("10.0.0.5", "Internal"), cfgNet);
+            Check("interne : message Exchange normal non signalé", !Ids(rOutlook).Any(x => x.StartsWith("auth-internal-")), string.Join(",", Ids(rOutlook).ToArray()));
+
             // ---------- Fausse facture à rappeler (cas fictifs) ----------
             var cb1 = Base(); cb1.FromAddress = "billing.renewal.team@gmail.com"; cb1.FromName = "Norton Billing"; cb1.Subject = "Your Norton 360 subscription has been renewed";
             cb1.BodyText = "Order #NT-4821. Amount charged: $399.99. If you did not authorize this charge, call our billing team at +1 (808) 555-0147 to cancel and get a refund.";

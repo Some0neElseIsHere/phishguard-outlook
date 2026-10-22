@@ -65,6 +65,20 @@
         <text id="InternalRelays_Value" valueName="InternalRelays" required="true" maxLength="2048" />
       </elements>
     </policy>
+    <policy name="MailServers" class="Both" displayName="$(string.MailServers)" explainText="$(string.MailServers_Help)" key="Software\Policies\PhishGuard" presentation="$(presentation.MailServers)">
+      <parentCategory ref="Cat_Company" />
+      <supportedOn ref="SUPPORTED_PhishGuard" />
+      <elements>
+        <text id="MailServers_Value" valueName="MailServers" required="true" maxLength="2048" />
+      </elements>
+    </policy>
+    <policy name="WorkstationNets" class="Both" displayName="$(string.WorkstationNets)" explainText="$(string.WorkstationNets_Help)" key="Software\Policies\PhishGuard" presentation="$(presentation.WorkstationNets)">
+      <parentCategory ref="Cat_Company" />
+      <supportedOn ref="SUPPORTED_PhishGuard" />
+      <elements>
+        <text id="WorkstationNets_Value" valueName="WorkstationNets" required="true" maxLength="2048" />
+      </elements>
+    </policy>
     <policy name="TrustedDomains" class="Both" displayName="$(string.TrustedDomains)" explainText="$(string.TrustedDomains_Help)" key="Software\Policies\PhishGuard" presentation="$(presentation.TrustedDomains)">
       <parentCategory ref="Cat_Company" />
       <supportedOn ref="SUPPORTED_PhishGuard" />
