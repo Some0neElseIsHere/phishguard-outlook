@@ -12,6 +12,10 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.18.8** :
+  - **fausses factures à rappeler** (« callback phishing ») : un faux débit (renouvellement Norton ou McAfee, achat PayPal…) et un numéro de téléphone pour l'annuler, souvent sans aucun lien. Au téléphone, l'escroc fait installer un logiciel de prise en main à distance ou dicter des codes bancaires. Nouvel indice, élevé quand l'expéditeur n'est pas authentifié, utilise une messagerie gratuite ou cite une marque qui n'est pas la sienne. Banc d'essai : 24 des 481 phishings de 2025 en contiennent, sans nouvelle fausse alerte ;
+  - **avertissement de nouvelle version** : une fois par jour, PhishGuard demande à GitHub le numéro de la dernière version publiée. Si elle est plus récente, l'onglet **À propos** l'indique avec un lien de téléchargement, et la barre d'état de l'analyse détaillée le rappelle. Rien n'est envoyé ni installé. Désactivable dans À propos, ou par stratégie (`CheckUpdates`).
+
 - **v1.18.7** : nouveaux indices, issus d'un spam de casino :
   - **domaine d'expéditeur impossible** (tiret au début ou à la fin, caractère interdit) : il n'existe dans aucun registre, l'adresse est fabriquée ;
   - **nom de domaine tiré au hasard** (suite de lettres et de chiffres sans voyelles) ;

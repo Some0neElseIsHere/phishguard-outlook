@@ -164,6 +164,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `AlertLevel` | `dangerous`, `suspicious` ou `none` | `dangerous` |
 | `AutoHashMaxMB` | Taille max. des pièces jointes analysées automatiquement | `5` |
 | `ShowExplanations` | Explications pédagogiques | `true` |
+| `CheckUpdates` | Une fois par jour, demande à GitHub le numéro de la dernière version et prévient (À propos, barre d'état). Rien n'est téléchargé ni installé | `true` |
 | `KnownCorrespondents` | Premier contact et sosies de correspondants | `true` |
 | `DomainAgeAuto` | Âge des domaines recherché automatiquement (RDAP) ; sinon d'un clic dans l'onglet Réputation. `DomainAgeLookup` reste accepté dans `config.ini` et les stratégies | `false` |
 | `TagCategory` | Catégorie de couleur dans la boîte de réception | `false` |
