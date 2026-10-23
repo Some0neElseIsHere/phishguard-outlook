@@ -104,6 +104,8 @@ namespace PhishGuard.AddIn
             bool isExchange;
             e.FromAddress = SmtpOfSender(mailObj, out isExchange);
             e.IsExchangeInternal = isExchange;
+            // olNotExchange = 3 : compte IMAP/POP ou .pst. Les en-têtes « Exchange » d'un tel message ont pu être écrits par l'expéditeur.
+            try { e.NonExchangeStore = (int)mail.Parent.Store.ExchangeStoreType == 3; } catch (Exception) { }
             e.FromName = Str(() => mail.SenderName);
             e.Subject = Str(() => mail.Subject);
             e.BodyText = Str(() => mail.Body);

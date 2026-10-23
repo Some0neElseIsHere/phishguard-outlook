@@ -53,6 +53,7 @@ namespace PhishGuard
         public string FromAddress = "";
         public string SenderAddress = "";
         public bool IsExchangeInternal;          // expéditeur interne authentifié par Exchange (type "EX")
+        public bool NonExchangeStore;            // message d'un compte IMAP/POP ou d'un fichier .pst : les en-têtes X-MS-Exchange-Organization ne viennent pas de votre Exchange
         public string Subject = "";
         public string BodyText = "";
         public bool HasForm;
