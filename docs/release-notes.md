@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.3** : l'origine réseau est contrôlée **quel que soit l'expéditeur affiché**, et plus seulement pour les adresses de l'entreprise. Une machine interne non déclarée qui passe par un relais Exchange au nom d'une adresse externe (fausse alerte Microsoft) ou d'un nom de machine (`supervision@serveur`) est critique. Un équipement déclaré peut être limité à ce type d'adresse (`10.0.50.30 supervision@serveur`). Pour un message venu d'Internet, la recherche de l'origine s'arrête au premier serveur public : les adresses privées du réseau de l'expéditeur ne sont pas prises pour les vôtres. Banc d'essai : aucune fausse alerte.
+
 - **v1.19.2** : correction. Un message déposé sur un connecteur de relais Exchange qui fait confiance à l'adresse IP de la machine (`AuthAs: Internal`, `AuthMechanism: 10`, sans identifiants) était pris pour un message interne authentifié, et la machine d'origine n'était pas contrôlée. Il est maintenant traité comme non authentifié : venant d'une machine non déclarée, il est **critique** (au lieu d'élevé), avec son adresse IP ; venant d'un équipement déclaré, l'adresse d'expéditeur est vérifiée.
 
 - **v1.19.1** : **équipements limités à leurs propres adresses**. Dans « Équipements qui envoient des mails », chaque ligne peut indiquer, après l'adresse IP, les seules adresses d'expéditeur autorisées (`10.0.50.12 alertes@entreprise.fr`). Un message venant de cet équipement au nom d'une autre adresse, un collègue ou la direction par exemple, est classé **critique** : équipement piraté ou détourné. Les entrées sans adresse gardent l'ancien comportement.
