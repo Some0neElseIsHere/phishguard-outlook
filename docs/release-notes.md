@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.1** : **équipements limités à leurs propres adresses**. Dans « Équipements qui envoient des mails », chaque ligne peut indiquer, après l'adresse IP, les seules adresses d'expéditeur autorisées (`10.0.50.12 alertes@entreprise.fr`). Un message venant de cet équipement au nom d'une autre adresse, un collègue ou la direction par exemple, est classé **critique** : équipement piraté ou détourné. Les entrées sans adresse gardent l'ancien comportement.
+
 - **v1.19.0** : **phishing fabriqué en interne**. Nouvelle section **Réseau interne** dans Paramètres → Entreprise (mode expert) : serveurs de messagerie, équipements qui envoient des alertes, réseaux des postes de travail (adresses IP, plages ou noms). Un message au nom de l'entreprise déposé directement au serveur depuis un poste, sans authentification, est classé **critique** avec l'adresse du poste ; venu d'une machine interne non déclarée, il est signalé aussi. Également par stratégie (`MailServers`, `WorkstationNets`). Détails dans le guide de déploiement (`docs/deploiement-entreprise.md`, section 3).
 
 - **v1.18.8** :

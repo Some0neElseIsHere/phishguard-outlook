@@ -114,8 +114,8 @@ namespace PhishGuard.AddIn
                 AddHint(pGeneral, ref y, L.T("Pour repérer un message « interne » fabriqué depuis un poste du réseau (envoi direct au serveur, sans authentification). Adresses IP, plages (10.20.30.0/24) ou noms (mail01.entreprise.local), un par ligne. Les noms sont traduits en adresses par votre DNS."));
                 txtMailServers = AddText(pGeneral, ref y, L.T("Serveurs de messagerie internes"), string.Join(Environment.NewLine, cfg.MailServers.ToArray()), true, 46,
                     L.T("Exchange, passerelle de filtrage (FortiMail…), relais SMTP : tous ceux par lesquels passent vos messages."));
-                txtRelays = AddText(pGeneral, ref y, L.T("Équipements qui envoient des mails (alertes, copieurs, applications)"), string.Join(Environment.NewLine, cfg.InternalRelays.ToArray()), true, 46,
-                    L.T("Supervision, pare-feu, onduleurs, copieurs, applications métier : ils envoient au nom de l’entreprise sans s’authentifier, c’est normal. N’indiquez jamais l’adresse d’un service partagé (Microsoft 365, Google…) : tous ses clients en profiteraient."));
+                txtRelays = AddText(pGeneral, ref y, L.T("Équipements qui envoient des mails (alertes, copieurs, applications)"), string.Join(Environment.NewLine, cfg.InternalRelays.ToArray()), true, 70,
+                    L.T("Une ligne par équipement : son adresse IP (ou son nom), puis les seules adresses d’expéditeur qu’il a le droit d’utiliser, séparées par des espaces. Exemple : 10.0.50.12 alertes@entreprise.fr. Un message au nom d’une autre adresse venant de lui est critique (équipement piraté). Sans adresse d’expéditeur, il peut écrire au nom de n’importe qui dans l’entreprise. N’indiquez jamais l’adresse d’un service partagé (Microsoft 365, Google…)."));
                 txtWorkstations = AddText(pGeneral, ref y, L.T("Réseaux des postes de travail (VLAN)"), string.Join(Environment.NewLine, cfg.WorkstationNets.ToArray()), true, 46,
                     L.T("Un message à votre nom parti directement d’un de ces réseaux, sans l’authentification de la messagerie, est signalé comme critique, avec l’adresse du poste. Pour tester : envoyez un message en SMTP depuis votre poste."));
             }
@@ -497,6 +497,18 @@ namespace PhishGuard.AddIn
             y += Math.Max(20, TextHeight(text, 500) + 4);
         }
 
+        /// <summary>Équipements : une ligne par équipement, « adresse expéditeur1 expéditeur2 » (virgules tolérées entre les expéditeurs).</summary>
+        static List<string> RelayLines(TextBox t)
+        {
+            var list = new List<string>();
+            foreach (var raw in t.Text.Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                string v = string.Join(" ", raw.Replace(',', ' ').Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries));
+                if (v.Length > 0 && !list.Contains(v)) list.Add(v);
+            }
+            return list;
+        }
+
         static List<string> Lines(TextBox t, bool lower)
         {
             var list = new List<string>();
@@ -539,7 +551,7 @@ namespace PhishGuard.AddIn
             cfg.TrustedSenders = Lines(txtTrustedSenders, true).Where(x => x.Contains("@")).ToList();
             cfg.SharedBlocklistPath = txtShared.Text.Trim();
             cfg.WatchDomains = chkWatch.Checked;
-            if (txtRelays != null) cfg.InternalRelays = Lines(txtRelays, false);
+            if (txtRelays != null) cfg.InternalRelays = RelayLines(txtRelays);
             if (txtMailServers != null) cfg.MailServers = Lines(txtMailServers, false);
             if (txtWorkstations != null) cfg.WorkstationNets = Lines(txtWorkstations, false);
             cfg.ExpertMode = cboMode.SelectedIndex == 1;

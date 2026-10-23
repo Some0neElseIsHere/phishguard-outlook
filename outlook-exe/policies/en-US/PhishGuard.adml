@@ -30,7 +30,7 @@ Registry value: Software\Policies\PhishGuard\Company2</string>
 
 Registry value: Software\Policies\PhishGuard\Company3</string>
       <string id="InternalRelays">Internal devices that send email</string>
-      <string id="InternalRelays_Help">IP addresses or CIDR ranges (comma-separated) of copiers, applications and servers that send on behalf of the company without authenticating, as seen by your mail server (e.g. 203.0.113.10, 203.0.113.0/28, 10.0.50.12, or a name: alerts.company.local). A message in your name coming from there is recognized as internal; from anywhere else it remains critical spoofing. Never list the address of a shared service (Microsoft 365, Google, sending platform): all its customers would benefit.
+      <string id="InternalRelays_Help">IP addresses or CIDR ranges (comma-separated) of copiers, applications and servers that send on behalf of the company without authenticating, as seen by your mail server (e.g. 203.0.113.10, 203.0.113.0/28, 10.0.50.12, or a name: alerts.company.local). Each entry can be followed, after a space, by the only sender addresses allowed for that device (e.g. 10.0.50.12 alerts@company.com): a message in the name of any other address coming from it is critical (compromised device). A message in your name coming from there is recognized as internal; from anywhere else it remains critical spoofing. Never list the address of a shared service (Microsoft 365, Google, sending platform): all its customers would benefit.
 
 Registry value: Software\Policies\PhishGuard\InternalRelays</string>
       <string id="MailServers">Internal mail servers</string>

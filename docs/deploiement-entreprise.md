@@ -81,7 +81,8 @@ Adresses IP, plages CIDR ou noms (traduits par votre DNS). PhishGuard regarde la
 
 | Message au nom de l'entreprise parti de… | Résultat |
 |---|---|
-| un serveur ou un équipement déclaré | normal |
+| un serveur ou un équipement déclaré (avec une adresse d'expéditeur autorisée) | normal |
+| un équipement déclaré, au nom d'une adresse qui n'est pas la sienne | **critique** (équipement piraté) |
 | un poste, sans authentification | **critique**, avec l'adresse du poste |
 | un poste, accepté comme authentifié par Exchange (SMTP authentifié, relais « Externally Secured ») | moyen : vérifier auprès de l'expéditeur |
 | une autre machine interne non déclarée | élevé |
@@ -100,8 +101,18 @@ qui le trahissent.
 Les copieurs (numérisation vers mail), ERP et outils de supervision envoient souvent au nom de l'entreprise sans
 s'authentifier (SPF, DKIM). PhishGuard les prend alors pour une usurpation de votre domaine, classée critique.
 
-Indiquez leurs adresses IP dans **Équipements internes qui envoient des mails** (`InternalRelays`) : adresses ou
-plages CIDR séparées par des virgules, par exemple `203.0.113.10, 10.0.0.0/24`.
+Indiquez-les dans **Équipements qui envoient des mails** (`InternalRelays`) : une ligne par équipement dans les
+paramètres (des virgules entre les équipements dans `config.ini` et les stratégies), avec son adresse IP, sa plage ou
+son nom, puis **les seules adresses d'expéditeur qu'il a le droit d'utiliser**, séparées par des espaces :
+
+```
+10.0.50.12 alertes@entreprise.fr
+10.0.50.20 supervision@entreprise.fr onduleur@entreprise.fr
+```
+
+Un message venant de cet équipement au nom d'une autre adresse (un collègue, la direction) est classé critique :
+l'équipement a probablement été piraté ou détourné. Sans adresse d'expéditeur, l'équipement peut écrire au nom de
+n'importe qui dans l'entreprise (comportement des versions précédentes, déconseillé).
 
 - **Microsoft 365** : indiquez l'IP publique avec laquelle l'équipement (ou votre relais) se connecte à Exchange
   Online. PhishGuard la lit dans le rapport anti-spam écrit par Microsoft (`CIP`), que l'expéditeur ne peut pas

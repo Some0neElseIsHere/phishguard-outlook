@@ -16,10 +16,26 @@ namespace PhishGuard
         static readonly object Sync = new object();
         static readonly Dictionary<string, string[]> resolved = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
 
+        static readonly char[] Blanks = { ' ', '\t' };
+
+        /// <summary>Partie réseau d'une entrée « 10.0.50.12 alertes@entreprise.fr » : l'adresse, la plage ou le nom.</summary>
+        public static string NetPart(string entry)
+        {
+            var parts = (entry ?? "").Trim().Split(Blanks, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length == 0 ? "" : parts[0].TrimEnd('.');
+        }
+
+        /// <summary>Adresses d'expéditeur autorisées pour un équipement (après l'adresse IP, séparées par des espaces).</summary>
+        public static List<string> SendersOf(string entry)
+        {
+            return (entry ?? "").Trim().Split(Blanks, StringSplitOptions.RemoveEmptyEntries).Skip(1)
+                .Select(x => x.Trim('<', '>', '"').ToLowerInvariant()).Where(x => x.Contains("@")).Distinct().ToList();
+        }
+
         /// <summary>Entrée qui est une adresse IP ou une plage CIDR (sinon : un nom à résoudre).</summary>
         public static bool IsAddress(string entry)
         {
-            string e = (entry ?? "").Trim();
+            string e = NetPart(entry);
             int slash = e.IndexOf('/');
             if (slash > 0) e = e.Substring(0, slash);
             IPAddress a;
@@ -29,7 +45,7 @@ namespace PhishGuard
         /// <summary>Traduit en arrière-plan les noms de la liste (DNS de l'entreprise, une fois par session).</summary>
         public static void ResolveAsync(IEnumerable<string> entries)
         {
-            var names = (entries ?? Enumerable.Empty<string>()).Select(x => (x ?? "").Trim().TrimEnd('.')).Where(x => x.Length > 0 && !IsAddress(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            var names = (entries ?? Enumerable.Empty<string>()).Select(x => NetPart(x)).Where(x => x.Length > 0 && !IsAddress(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             lock (Sync) names = names.Where(n => !resolved.ContainsKey(n)).ToList();
             if (names.Count == 0) return;
             new Thread(() =>
@@ -50,7 +66,7 @@ namespace PhishGuard
             var res = new List<string>();
             foreach (var raw in entries ?? Enumerable.Empty<string>())
             {
-                string e = (raw ?? "").Trim().TrimEnd('.');
+                string e = NetPart(raw);
                 if (e.Length == 0) continue;
                 if (IsAddress(e)) { res.Add(e); continue; }
                 string[] ips;
@@ -67,8 +83,24 @@ namespace PhishGuard
         /// <summary>L'IP est déclarée une par une (adresse ou nom), et non par une plage.</summary>
         public static bool MatchesExact(string ip, IEnumerable<string> entries)
         {
-            var single = (entries ?? Enumerable.Empty<string>()).Where(x => { string s = (x ?? "").Trim(); return !s.Contains("/") || s.EndsWith("/32") || s.EndsWith("/128"); });
+            var single = (entries ?? Enumerable.Empty<string>()).Where(x => { string s = NetPart(x); return !s.Contains("/") || s.EndsWith("/32") || s.EndsWith("/128"); });
             return Matches(ip, single);
+        }
+
+        /// <summary>
+        /// L'expéditeur a-t-il le droit d'écrire depuis cet équipement ? Les entrées les plus précises (adresse seule) priment
+        /// sur les plages. Une entrée sans adresse d'expéditeur accepte tout expéditeur de l'entreprise (ancien format).
+        /// </summary>
+        public static bool SenderAllowed(string ip, string from, IEnumerable<string> relays, out List<string> allowed)
+        {
+            allowed = new List<string>();
+            var matching = (relays ?? Enumerable.Empty<string>()).Where(r => Matches(ip, new[] { r })).ToList();
+            if (matching.Count == 0) return false;
+            var exact = matching.Where(r => MatchesExact(ip, new[] { r })).ToList();
+            if (exact.Count > 0) matching = exact;
+            if (matching.Any(r => SendersOf(r).Count == 0)) return true;
+            allowed = matching.SelectMany(r => SendersOf(r)).Distinct().ToList();
+            return allowed.Contains((from ?? "").Trim().ToLowerInvariant());
         }
 
         /// <summary>Premier saut du message (le plus ancien en-tête Received qui porte une adresse IP) : la machine d'où il est parti.</summary>

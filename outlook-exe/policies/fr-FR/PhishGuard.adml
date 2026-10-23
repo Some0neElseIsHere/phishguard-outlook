@@ -30,7 +30,7 @@ Valeur de registre : Software\Policies\PhishGuard\Company2</string>
 
 Valeur de registre : Software\Policies\PhishGuard\Company3</string>
       <string id="InternalRelays">Équipements internes qui envoient des mails</string>
-      <string id="InternalRelays_Help">Adresses IP ou plages CIDR (séparées par des virgules) des copieurs, applications et serveurs qui envoient au nom de l'entreprise sans s'authentifier, telles que les voit votre serveur de messagerie (ex. : 203.0.113.10, 203.0.113.0/28, 10.0.50.12, ou un nom : alertes.entreprise.local). Un message à votre nom venant de là est reconnu comme interne ; venant d'ailleurs, il reste une usurpation critique. N'indiquez jamais l'adresse d'un service partagé (Microsoft 365, Google, plateforme d'envoi) : tous ses clients en profiteraient.
+      <string id="InternalRelays_Help">Adresses IP ou plages CIDR (séparées par des virgules) des copieurs, applications et serveurs qui envoient au nom de l'entreprise sans s'authentifier, telles que les voit votre serveur de messagerie (ex. : 203.0.113.10, 203.0.113.0/28, 10.0.50.12, ou un nom : alertes.entreprise.local). Chaque entrée peut être suivie, après un espace, des seules adresses d'expéditeur autorisées pour cet équipement (ex. : 10.0.50.12 alertes@entreprise.fr) : un message au nom d'une autre adresse venant de lui est critique (équipement piraté). Un message à votre nom venant de là est reconnu comme interne ; venant d'ailleurs, il reste une usurpation critique. N'indiquez jamais l'adresse d'un service partagé (Microsoft 365, Google, plateforme d'envoi) : tous ses clients en profiteraient.
 
 Valeur de registre : Software\Policies\PhishGuard\InternalRelays</string>
       <string id="MailServers">Serveurs de messagerie internes</string>

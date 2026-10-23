@@ -346,6 +346,18 @@ namespace PhishGuard
         // Authentification (SPF, DKIM, DMARC, compauth)
         // =====================================================================
 
+        /// <summary>Équipement déclaré qui écrit au nom d'une adresse qui n'est pas la sienne : équipement piraté ou détourné.</summary>
+        static void CheckRelaySender(EmailData e, string ip, Ctx ctx, List<Finding> findings)
+        {
+            List<string> allowed;
+            if (InternalNet.SenderAllowed(ip, e.FromAddress, ctx.Config.InternalRelays, out allowed)) return;
+            ctx.InternalForged = true;
+            if (findings.Any(f => f.Id == "auth-internal-relay-sender")) return;
+            findings.Add(new Finding("auth-internal-relay-sender", "auth", Severity.Critical, L.T("Un équipement déclaré écrit au nom d’une adresse qui n’est pas la sienne"),
+                L.T("Cet équipement (alertes, copieur, application) n’a le droit d’écrire qu’au nom des adresses déclarées dans Paramètres → Entreprise. Un message au nom d’une autre personne venant de lui signale un équipement piraté ou détourné. Ne cliquez sur rien et prévenez le service informatique."),
+                new[] { L.T("Équipement : ") + ip, L.T("Au nom de : ") + e.FromAddress, L.T("Adresses autorisées : ") + string.Join(", ", allowed.ToArray()) }));
+        }
+
         /// <summary>Origine d'un message au nom de l'entreprise : poste de travail, machine non déclarée, ou serveur de messagerie.</summary>
         static void CheckInternalOrigin(EmailData e, List<KeyValuePair<string, string>> headers, string authAs, Ctx ctx, List<Finding> findings)
         {
@@ -355,8 +367,12 @@ namespace PhishGuard
             var cfg = ctx.Config;
             bool workstation = InternalNet.Matches(ip, cfg.WorkstationNets);
             // Serveur ou équipement déclaré ; dans un réseau de postes, seule une adresse déclarée une par une compte (pas une grande plage)
-            if (workstation ? InternalNet.MatchesExact(ip, cfg.MailServers.Concat(cfg.InternalRelays))
-                            : InternalNet.Matches(ip, cfg.MailServers) || InternalNet.Matches(ip, cfg.InternalRelays)) return;
+            if (workstation ? InternalNet.MatchesExact(ip, cfg.MailServers) : InternalNet.Matches(ip, cfg.MailServers)) return;
+            if (workstation ? InternalNet.MatchesExact(ip, cfg.InternalRelays) : InternalNet.Matches(ip, cfg.InternalRelays))
+            {
+                CheckRelaySender(e, ip, ctx, findings);   // équipement déclaré : seulement au nom des adresses prévues
+                return;
+            }
             if (Forensics.IsPublicIp(ip) && !workstation) return;                                                   // venu de l'extérieur : contrôles habituels
             bool exchangeAuth = e.IsExchangeInternal || authAs == "internal";
             bool declared = cfg.MailServers.Count > 0 || cfg.WorkstationNets.Count > 0;
@@ -407,7 +423,8 @@ namespace PhishGuard
             if (fromCompany && ctx.Config.InternalRelays.Count > 0 && !ctx.InternalForged)
             {
                 string relayIp = Forensics.InternalRelayIp(headers, InternalNet.Expand(ctx.Config.InternalRelays));
-                if (relayIp != null)
+                if (relayIp != null) CheckRelaySender(e, relayIp, ctx, findings);
+                if (relayIp != null && !ctx.InternalForged)
                 {
                     string why = L.F("Envoyé par un équipement interne déclaré ({0})", relayIp);
                     findings.Add(new Finding("auth-internal-relay", "auth", Severity.Info, L.T("Équipement interne de l’entreprise"),
