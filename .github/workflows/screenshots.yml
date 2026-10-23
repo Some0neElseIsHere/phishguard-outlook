@@ -31,6 +31,7 @@ jobs:
           $p = Start-Process -FilePath build\Captures.exe -ArgumentList "build\shots" -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw "Captures.exe : code $($p.ExitCode)" }
           Get-ChildItem build\shots
+          if (Test-Path build\shots\verif-liens.txt) { Get-Content build\shots\verif-liens.txt | ForEach-Object { Write-Output "::notice::$_" } }
 
       - name: Photographier les pages HTML (Chrome sans affichage)
         shell: pwsh
