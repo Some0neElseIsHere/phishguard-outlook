@@ -100,7 +100,7 @@ namespace PhishGuard.Tools
             var fEnt = new SettingsForm(cfg, null, "exemple-pme.fr") { Height = 1900 };
             Capture(fEnt, Path.Combine(outDir, "parametres-entreprise.png"));
             var fEnt2 = new SettingsForm(cfg, null, "exemple-pme.fr");
-            fEnt2.Shown += (s, e) => { foreach (var tc in fEnt2.Controls.OfType<TabControl>()) tc.TabPages[0].AutoScrollPosition = new Point(0, 520); };
+            fEnt2.Shown += (snd, evt) => { foreach (var tc in fEnt2.Controls.OfType<TabControl>()) tc.TabPages[0].AutoScrollPosition = new Point(0, 520); };
             Capture(fEnt2, Path.Combine(outDir, "parametres-entreprise-bas.png"));
             var fRep = new SettingsForm(cfg, null, "exemple-pme.fr") { Height = 1200 };
             foreach (var tc in fRep.Controls.OfType<TabControl>()) tc.SelectedIndex = 4;   // onglet Réputation
