@@ -173,7 +173,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `SharedBlocklistPath` | Liste de blocage partagée (ex. `\\serveur\securite\phishguard.txt`) | — |
 | `RedFlagEnabled`, `RedFlagUrl`, `RedFlagMaxAgeHours` | Liste Red Flag Domains, son adresse, âge maximal avant mise à jour | `true`, liste officielle, `24` |
 | `WatchDomains` | Surveillance hebdomadaire des sosies de `CompanyDomains` | `true` |
-| `InternalRelays` | IP, plages CIDR ou noms des équipements qui envoient au nom de l'entreprise (alertes, copieurs, applications) | vide |
+| `InternalRelays` | Équipements qui envoient au nom de l'entreprise (alertes, copieurs, applications) : IP, plage ou nom, suivi des seules adresses d'expéditeur autorisées (`10.0.50.12 alertes@entreprise.fr`) | vide |
 | `MailServers` | IP, plages CIDR ou noms des serveurs de messagerie internes (Exchange, passerelle, relais) | vide |
 | `WorkstationNets` | Plages CIDR des réseaux des postes de travail : un message au nom de l'entreprise parti directement d'un poste est critique | vide |
 | `PublicSectorList` | Liste des domaines du secteur public (DINUM), téléchargée chaque mois | `true` |

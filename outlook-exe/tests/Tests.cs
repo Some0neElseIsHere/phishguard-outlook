@@ -339,7 +339,7 @@ namespace PhishGuard.Tests
                 CompanyName = "Acmetech", CompanyDomains = new List<string> { "acmetech.fr" },
                 MailServers = new List<string> { "10.0.0.5", "mail02.acmetech.local" },
                 WorkstationNets = new List<string> { "10.20.30.0/24" },
-                InternalRelays = new List<string> { "10.0.50.12" }
+                InternalRelays = new List<string> { "10.0.50.12", "10.0.50.20 alertes@acmetech.fr onduleur@acmetech.fr", "10.0.60.0/28" }
             };
             InternalNet.SetForTests("mail02.acmetech.local", "10.0.0.6");
             Func<string, string, EmailData> internalMail = (ip, authAs) => new EmailData
@@ -361,6 +361,16 @@ namespace PhishGuard.Tests
             Check("interne : serveur de messagerie déclaré (par son nom)", !Ids(rSrv).Any(x => x.StartsWith("auth-internal-w") || x == "auth-internal-undeclared"));
             var rDev = Analyzer.Analyze(internalMail("10.0.50.12", "Anonymous"), cfgNet);
             Check("interne : équipement d'alerte déclaré", Ids(rDev).Contains("auth-internal-relay") && !Ids(rDev).Contains("auth-internal-undeclared"));
+            Func<string, string, EmailData> deviceMail = (ip, from) => { var m = internalMail(ip, "Anonymous"); m.FromAddress = from; m.RawHeaders = m.RawHeaders.Replace("direction@acmetech.fr", from); return m; };
+            var rDevOk = Analyzer.Analyze(deviceMail("10.0.50.20", "Alertes@acmetech.fr"), cfgNet);
+            Check("équipement : adresse autorisée", Ids(rDevOk).Contains("auth-internal-relay") && !Ids(rDevOk).Contains("auth-internal-relay-sender"), string.Join(",", Ids(rDevOk).ToArray()));
+            var rDevBad = Analyzer.Analyze(deviceMail("10.0.50.20", "jean.exemple@acmetech.fr"), cfgNet);
+            Check("équipement piraté : autre adresse critique", rDevBad.Findings.Any(f => f.Id == "auth-internal-relay-sender" && f.Severity == Severity.Critical) && !Ids(rDevBad).Contains("auth-internal-relay") && rDevBad.Level == "dangerous",
+                string.Join(",", Ids(rDevBad).ToArray()));
+            Check("équipement sans adresse déclarée : ancien comportement", Ids(Analyzer.Analyze(deviceMail("10.0.60.3", "nimporte@acmetech.fr"), cfgNet)).Contains("auth-internal-relay"));
+            List<string> allowedSenders;
+            Check("équipement : entrée précise prioritaire sur une plage", !InternalNet.SenderAllowed("10.0.50.20", "x@acmetech.fr", new[] { "10.0.50.0/24", "10.0.50.20 alertes@acmetech.fr" }, out allowedSenders)
+                && InternalNet.NetPart("10.0.50.20 alertes@acmetech.fr") == "10.0.50.20" && InternalNet.SendersOf("10.0.50.20 Alertes@acmetech.fr b@acmetech.fr").Count == 2);
             var rAnon = Analyzer.Analyze(internalMail("10.20.30.45", "Anonymous"), cfg);
             Check("interne : rien de déclaré, envoi anonyme signalé", Ids(rAnon).Contains("auth-internal-anonymous"));
             var rOutlook = Analyzer.Analyze(internalMail("10.0.0.5", "Internal"), cfgNet);
