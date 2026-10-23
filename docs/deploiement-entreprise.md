@@ -85,7 +85,7 @@ Adresses IP, plages CIDR ou noms (traduits par votre DNS). PhishGuard regarde la
 | un équipement déclaré, au nom d'une adresse qui n'est pas la sienne | **critique** (équipement piraté) |
 | un poste, sans authentification | **critique**, avec l'adresse du poste |
 | un poste, accepté comme authentifié par Exchange (SMTP authentifié, relais « Externally Secured ») | moyen : vérifier auprès de l'expéditeur |
-| une autre machine interne non déclarée | élevé |
+| une autre machine interne non déclarée (y compris acceptée par un relais Exchange qui fait confiance à son IP, `AuthMechanism: 10`) | **critique** |
 | une machine interne, rien n'étant déclaré, sans authentification | moyen |
 
 Un équipement placé dans le réseau des postes (copieur) doit être déclaré par son adresse exacte : une plage large
