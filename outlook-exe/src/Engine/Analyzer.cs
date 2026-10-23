@@ -384,7 +384,7 @@ namespace PhishGuard
             if (workstation && !exchangeAuth)
             {
                 findings.Add(new Finding("auth-internal-workstation", "auth", Severity.Critical, L.T("Message « interne » fabriqué depuis un poste de travail"),
-                    L.T("Ce message à votre nom est parti directement d’un poste du réseau interne, sans passer par l’authentification de votre messagerie : quelqu’un sur le réseau l’a fabriqué. Ne cliquez sur rien et prévenez le service informatique en lui indiquant l’adresse du poste."), ev));
+                    L.T("Ce message est parti directement d’un poste du réseau interne, sans passer par l’authentification de votre messagerie : quelqu’un sur le réseau l’a fabriqué. Ne cliquez sur rien et prévenez le service informatique en lui indiquant l’adresse du poste."), ev));
                 ctx.InternalForged = true;
             }
             else if (workstation)
@@ -397,13 +397,13 @@ namespace PhishGuard
             {
                 findings.Add(new Finding("auth-internal-undeclared", "auth", Severity.Critical, L.T("Message « interne » venu d’une machine non déclarée"),
                     (relayTrust ? L.T("Votre serveur l’a accepté comme interne sur la seule foi de l’adresse IP de la machine (relais sans identifiants) : n’importe quel expéditeur a pu être écrit.") + " " : "")
-                    + L.T("Ce message à votre nom ne vient ni d’un serveur de messagerie ni d’un équipement déclaré : possible message fabriqué depuis le réseau. Si c’est un équipement légitime (alertes, application), déclarez-le dans Paramètres → Entreprise avec son adresse d’expéditeur."), ev));
+                    + L.T("Ce message ne vient ni d’un serveur de messagerie ni d’un équipement déclaré : possible message fabriqué depuis le réseau. Si c’est un équipement légitime (alertes, application), déclarez-le dans Paramètres → Entreprise avec son adresse d’expéditeur."), ev));
                 ctx.InternalForged = true;
             }
             else if (authAs == "anonymous" || relayTrust)
             {
                 ctx.InternalForged = relayTrust;   // pas une authentification : le message n'est pas traité comme interne
-                findings.Add(new Finding("auth-internal-anonymous", "auth", Severity.Medium, L.T("Message à votre nom, non authentifié, venu du réseau interne"),
+                findings.Add(new Finding("auth-internal-anonymous", "auth", Severity.Medium, L.T("Message non authentifié venu du réseau interne"),
                     L.T("Le serveur de messagerie l’a reçu sans authentification d’une machine interne. Normal pour un copieur ou une application ; sinon, il a pu être fabriqué depuis un poste. Déclarez vos serveurs, équipements et réseaux des postes dans Paramètres → Entreprise pour un diagnostic sûr."), ev));
             }
         }
@@ -418,7 +418,9 @@ namespace PhishGuard
             // Message à votre nom parti d'une machine du réseau interne : quelqu'un l'a fabriqué depuis un poste (envoi SMTP direct).
             // Vérifié avant tout le reste : un connecteur de relais interne peut faire passer un tel message pour un message Exchange.
             string authMech = (HeaderValues(headers, "x-ms-exchange-organization-authmechanism").FirstOrDefault() ?? "").Trim();
-            if (fromCompany) CheckInternalOrigin(e, headers, authAs, authMech, ctx, findings);
+            // Quel que soit l'expéditeur affiché : une machine du réseau peut aussi écrire au nom d'une adresse externe
+            // (fausse alerte Microsoft) ou d'un nom de machine (supervision@serveur)
+            CheckInternalOrigin(e, headers, authAs, authMech, ctx, findings);
 
             if ((e.IsExchangeInternal || authAs == "internal") && !ctx.InternalForged)
             {

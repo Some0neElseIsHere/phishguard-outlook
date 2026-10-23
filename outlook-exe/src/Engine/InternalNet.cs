@@ -103,7 +103,11 @@ namespace PhishGuard
             return allowed.Contains((from ?? "").Trim().ToLowerInvariant());
         }
 
-        /// <summary>Premier saut du message (le plus ancien en-tête Received qui porte une adresse IP) : la machine d'où il est parti.</summary>
+        /// <summary>
+        /// Machine d'où le message est parti, vue par vos serveurs : on descend les en-têtes Received (du plus récent au plus
+        /// ancien) tant que les adresses sont internes. Dès qu'une adresse publique apparaît, le message vient d'Internet :
+        /// c'est elle qui est renvoyée (les adresses privées du réseau de l'expéditeur, plus bas, ne sont pas les vôtres).
+        /// </summary>
         public static ReceivedHop Origin(List<KeyValuePair<string, string>> headers)
         {
             ReceivedHop origin = null;
@@ -113,8 +117,10 @@ namespace PhishGuard
                 if (kv.Key != "received") continue;
                 var hop = Forensics.ParseReceived(kv.Value);
                 IPAddress a;
-                // les en-têtes vont du plus récent au plus ancien ; une boucle locale (::1, 127.0.0.1) ne dit rien de l'origine
-                if (!string.IsNullOrEmpty(hop.FromIp) && IPAddress.TryParse(hop.FromIp.Trim('[', ']'), out a) && !IPAddress.IsLoopback(a)) origin = hop;
+                // une boucle locale (::1, 127.0.0.1) ne dit rien de l'origine
+                if (string.IsNullOrEmpty(hop.FromIp) || !IPAddress.TryParse(hop.FromIp.Trim('[', ']'), out a) || IPAddress.IsLoopback(a)) continue;
+                origin = hop;
+                if (Forensics.IsPublicIp(hop.FromIp)) break;
             }
             return origin;
         }
