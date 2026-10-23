@@ -382,6 +382,19 @@ namespace PhishGuard.Tests
             Check("relais IP de confiance, équipement déclaré avec son adresse : normal", !rRelayDev.Findings.Any(f => f.Id.StartsWith("auth-internal-") && f.Severity >= Severity.Medium), string.Join(",", Ids(rRelayDev).ToArray()));
             var rRelayDevBad = Analyzer.Analyze(relayMail("10.0.50.20", "direction@acmetech.fr"), cfgNet);
             Check("relais IP de confiance, équipement déclaré, autre adresse : critique", Ids(rRelayDevBad).Contains("auth-internal-relay-sender") && rRelayDevBad.Level == "dangerous");
+            // Même chose au nom d'une adresse qui n'est pas celle de l'entreprise (nom de machine sans domaine, comme un outil de supervision)
+            var rRelayHost = Analyzer.Analyze(relayMail("10.0.80.9", "supervision@superviseur"), cfgNet);
+            Check("relais IP de confiance, adresse hors entreprise, machine non déclarée : critique", Ids(rRelayHost).Contains("auth-internal-undeclared") && rRelayHost.Level == "dangerous" && !rRelayHost.Internal,
+                rRelayHost.Level + " " + string.Join(",", Ids(rRelayHost).ToArray()));
+            var cfgNet2 = new PhishGuardConfig { CompanyName = "Acmetech", CompanyDomains = new List<string> { "acmetech.fr" }, MailServers = cfgNet.MailServers, WorkstationNets = cfgNet.WorkstationNets,
+                InternalRelays = new List<string> { "10.0.80.9 supervision@superviseur" } };
+            var rRelayHostOk = Analyzer.Analyze(relayMail("10.0.80.9", "supervision@superviseur"), cfgNet2);
+            Check("relais IP de confiance, outil de supervision déclaré : normal", !rRelayHostOk.Findings.Any(f => f.Severity >= Severity.Medium && f.Category == "auth"), string.Join(",", Ids(rRelayHostOk).ToArray()));
+            var extPriv = Base(); extPriv.FromAddress = "contact@fournisseur-exemple.fr";
+            extPriv.RawHeaders = "Received: from mail01.acmetech.local (10.0.0.5) by mail02.acmetech.local (10.0.0.6) with Microsoft SMTP Server; Thu, 22 Oct 2026 10:00:02 +0200\r\n"
+                + "Received: from smtp.fournisseur-exemple.fr (198.51.100.20) by mail01.acmetech.local (10.0.0.5) with Microsoft SMTP Server; Thu, 22 Oct 2026 10:00:01 +0200\r\n"
+                + "Received: from [192.168.1.25] (192.168.1.25) by smtp.fournisseur-exemple.fr; Thu, 22 Oct 2026 10:00:00 +0200\r\nX-MS-Exchange-Organization-AuthAs: Anonymous\r\n";
+            Check("message d'Internet dont l'expéditeur a un réseau privé : pas une origine interne", !Ids(Analyzer.Analyze(extPriv, cfgNet)).Any(x => x.StartsWith("auth-internal-")) && !Ids(Analyzer.Analyze(extPriv, cfg)).Any(x => x.StartsWith("auth-internal-")));
             var rAnon = Analyzer.Analyze(internalMail("10.20.30.45", "Anonymous"), cfg);
             Check("interne : rien de déclaré, envoi anonyme signalé", Ids(rAnon).Contains("auth-internal-anonymous"));
             var rOutlook = Analyzer.Analyze(internalMail("10.0.0.5", "Internal"), cfgNet);
