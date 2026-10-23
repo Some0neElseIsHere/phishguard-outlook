@@ -12,6 +12,12 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.10** : bilan complet de l'application.
+  - **Sécurité** : pour un message reçu sur un compte IMAP/POP (Gmail, Orange…) ou lu dans un fichier .pst, les en-têtes « Exchange » qui marquent un message comme interne sont ignorés : un expéditeur pouvait les ajouter lui-même pour faire passer un faux message pour interne et adoucir son analyse.
+  - **Nouvel indice** : un message au nom de votre entreprise, arrivé d'Internet sans aucun résultat d'authentification, est signalé (élevé).
+  - **Lien « Récupérer l'âge des domaines »** : il passe désormais par un canal direct entre la page et le complément, et non plus par une navigation que le composant web d'Outlook ne transmet pas sur certains postes. Un contrôle automatique vérifie à chaque construction que le clic arrive bien.
+  - **Banc d'essai** : 83,8 % des phishings signalés (58 % en rouge), fausses alertes inchangées (Apache 3,0 %, SpamAssassin 10,6 %), 78 cas légitimes difficiles corrects, 5 000 messages malformés sans plantage.
+
 - **v1.19.9** : paramètres lisibles quel que soit le réglage d'affichage de Windows : la hauteur des textes d'aide est mesurée sur les contrôles eux-mêmes, avec une marge, au lieu d'être estimée. Les titres « Réseaux des postes de travail (VLAN) » (Entreprise) et « Avec une clé gratuite » (Réputation) ne sont plus recouverts. Le bouton « Âge des domaines » ajouté en v1.19.8 est retiré : la recherche se lance depuis l'onglet Réputation.
 
 - **v1.19.8** : bouton **Âge des domaines** en bas de la fenêtre d'analyse détaillée. Il lance la recherche et ouvre l'onglet Réputation, même quand le composant web d'Outlook ne transmet pas le clic sur le lien de la page (cas constaté sur certains postes).
