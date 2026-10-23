@@ -235,7 +235,7 @@ namespace PhishGuard.AddIn
             chkCert = AddCheck(pBeta, ref y, L.T("Âge du premier certificat HTTPS des domaines (crt.sh)"), cfg.BetaCertAge,
                 L.T("Envoie le nom du domaine à crt.sh (journaux publics des certificats)."));
             chkAge = AddCheck(pBeta, ref y, L.T("Rechercher automatiquement l’âge des domaines (RDAP)"), cfg.DomainAgeLookup,
-                L.T("Sinon, d’un clic dans l’onglet Réputation de l’analyse détaillée. Seul le nom du domaine est envoyé à rdap.org et au registre concerné. Les âges trouvés sont gardés sur le poste."));
+                L.T("Sinon, d’un clic dans l’onglet Réputation de l’analyse détaillée. Seul le nom du domaine est envoyé, au registre de son extension. Les âges trouvés sont gardés sur le poste."));
             y += 6;
             pBeta.Controls.Add(new Label { Text = L.T("Avec une clé gratuite (laisser vide pour désactiver)"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
             y += 22;
@@ -415,7 +415,7 @@ namespace PhishGuard.AddIn
             {
                 var h = new Label { Text = hint, Location = new Point(30, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(480, 0) };
                 page.Controls.Add(h);
-                y += Math.Max(20, Math.Max(TextHeight(hint, 480), h.GetPreferredSize(new Size(480, 0)).Height) + 10);
+                y += Math.Max(20, Math.Max(TextHeight(hint, 480), h.GetPreferredSize(new Size(480, 0)).Height) + 14);
             }
             else y += 6;
             return c;
@@ -498,7 +498,7 @@ namespace PhishGuard.AddIn
         {
             var h = new Label { Text = text, Location = new Point(12, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(500, 0) };
             page.Controls.Add(h);
-            y += Math.Max(20, Math.Max(TextHeight(text, 500), h.GetPreferredSize(new Size(500, 0)).Height) + 6);
+            y += Math.Max(20, Math.Max(TextHeight(text, 500), h.GetPreferredSize(new Size(500, 0)).Height) + 12);
         }
 
         /// <summary>Équipements : une ligne par équipement, « adresse expéditeur1 expéditeur2 » (virgules tolérées entre les expéditeurs).</summary>
