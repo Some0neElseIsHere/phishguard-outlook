@@ -11,6 +11,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Web.Script.Serialization;
 
 namespace PhishGuard
 {
@@ -31,6 +32,14 @@ namespace PhishGuard
         public static volatile int Version;
         public static bool Enabled = true;
         public static string LastError = "";
+        static readonly Dictionary<string, string> errors = new Dictionary<string, string>();   // dernière erreur par domaine (mémoire seulement)
+
+        /// <summary>Erreur de la dernière recherche de ce domaine (service injoignable, refus…), ou "".</summary>
+        public static string ErrorFor(string domain)
+        {
+            string e;
+            lock (Sync) return errors.TryGetValue((domain ?? "").ToLowerInvariant(), out e) ? e : "";
+        }
 
         static string CachePath { get { return Path.Combine(Blocklists.DataDir, "domaines-age.txt"); } }
 
@@ -158,15 +167,18 @@ namespace PhishGuard
                     forced.Remove(d);
                 }
                 DateTime? created = null;
+                string error = "";
                 try { created = Lookup(d); LastError = ""; }
-                catch (Exception ex) { LastError = ex.Message; }
+                catch (Exception ex) { error = ex.Message; LastError = d + " : " + ex.Message; }
                 lock (Sync)
                 {
                     known[d] = created;
                     checkedOn[d] = DateTime.UtcNow;
                     pending.Remove(d);
+                    if (error.Length > 0) errors[d] = error; else errors.Remove(d);
                 }
-                try
+                // Une erreur (réseau, refus) n'est pas mémorisée sur le disque : elle sera retentée à la prochaine session ou d'un clic
+                if (error.Length == 0) try
                 {
                     Directory.CreateDirectory(Blocklists.DataDir);
                     File.AppendAllText(CachePath, d + ";" + (created.HasValue ? created.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "?")
@@ -192,10 +204,106 @@ namespace PhishGuard
             return null;
         }
 
-        static DateTime? Lookup(string domain)
+        // ---- Annuaire officiel des serveurs RDAP (IANA) : chaque registre est interrogé directement ----
+        // rdap.org, simple aiguillage, sert de secours : il est derrière Cloudflare (10 requêtes / 10 s, blocages possibles).
+        static Dictionary<string, string> bootstrap;
+        static DateTime bootstrapTried = DateTime.MinValue;
+        static string BootstrapPath { get { return Path.Combine(Blocklists.DataDir, "rdap-dns.json"); } }
+
+        /// <summary>Lit l'annuaire IANA (dns.json) : extension → adresse du serveur RDAP du registre.</summary>
+        public static Dictionary<string, string> ParseBootstrap(string json)
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var root = new JavaScriptSerializer { MaxJsonLength = int.MaxValue }.DeserializeObject(json ?? "") as Dictionary<string, object>;
+            object services;
+            if (root == null || !root.TryGetValue("services", out services) || !(services is object[])) return map;
+            foreach (var s in (object[])services)
+            {
+                var pair = s as object[];
+                if (pair == null || pair.Length < 2) continue;
+                var tlds = pair[0] as object[]; var urls = pair[1] as object[];
+                if (tlds == null || urls == null) continue;
+                string url = null;
+                foreach (var u in urls) { string su = u as string; if (su != null && su.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) { url = su; break; } }
+                if (url == null) continue;
+                foreach (var t in tlds) { string st = t as string; if (!string.IsNullOrEmpty(st) && !map.ContainsKey(st)) map[st] = url; }
+            }
+            return map;
+        }
+
+        static string RegistryUrl(string domain)
+        {
+            int dot = domain.LastIndexOf('.');
+            if (dot < 0) return null;
+            string tld = domain.Substring(dot + 1);
+            // Appelé seulement par le fil de recherche : le téléchargement se fait hors du verrou (l'interface n'attend jamais)
+            var map = bootstrap;
+            if (map == null)
+            {
+                try
+                {
+                    if (File.Exists(BootstrapPath) && File.GetLastWriteTimeUtc(BootstrapPath) > DateTime.UtcNow.AddDays(-30))
+                        map = ParseBootstrap(File.ReadAllText(BootstrapPath, Encoding.UTF8));
+                }
+                catch (Exception) { }
+            }
+            if ((map == null || map.Count == 0) && bootstrapTried < DateTime.UtcNow.AddHours(-1))
+            {
+                bootstrapTried = DateTime.UtcNow;
+                try
+                {
+                    string json = Get("https://data.iana.org/rdap/dns.json", "application/json");
+                    var fresh = ParseBootstrap(json);
+                    if (fresh.Count > 0)
+                    {
+                        map = fresh;
+                        try { Directory.CreateDirectory(Blocklists.DataDir); File.WriteAllText(BootstrapPath, json, Encoding.UTF8); } catch (Exception) { }
+                    }
+                }
+                catch (Exception) { }
+            }
+            if (map != null && map.Count > 0) bootstrap = map;
+            string url;
+            return map != null && map.TryGetValue(tld, out url) ? url : null;
+        }
+
+        static string Get(string url, string accept)
         {
             ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072; // TLS 1.2
-            var req = (HttpWebRequest)WebRequest.Create("https://rdap.org/domain/" + Uri.EscapeDataString(domain));
+            var req = (HttpWebRequest)WebRequest.Create(url);
+            req.Proxy = WebRequest.GetSystemWebProxy();
+            req.Proxy.Credentials = CredentialCache.DefaultCredentials;
+            req.Accept = accept;
+            req.UserAgent = "PhishGuard-Outlook/1.0";
+            req.Timeout = 15000;
+            req.ReadWriteTimeout = 15000;
+            req.AllowAutoRedirect = true;
+            using (var resp = (HttpWebResponse)req.GetResponse())
+            using (var reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
+                return reader.ReadToEnd();
+        }
+
+        /// <summary>Registre du domaine d'abord (annuaire IANA), rdap.org en secours.</summary>
+        static DateTime? Lookup(string domain)
+        {
+            string registry = RegistryUrl(domain);
+            if (registry != null)
+            {
+                try { return LookupAt(registry.TrimEnd('/') + "/domain/" + Uri.EscapeDataString(domain)); }
+                catch (WebException ex)
+                {
+                    var r = ex.Response as HttpWebResponse;
+                    if (r != null && (int)r.StatusCode == 404) return null;   // domaine inconnu du registre
+                    // registre injoignable : essai par rdap.org
+                }
+            }
+            return LookupAt("https://rdap.org/domain/" + Uri.EscapeDataString(domain));
+        }
+
+        static DateTime? LookupAt(string url)
+        {
+            ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072; // TLS 1.2
+            var req = (HttpWebRequest)WebRequest.Create(url);
             req.Proxy = WebRequest.GetSystemWebProxy();
             req.Proxy.Credentials = CredentialCache.DefaultCredentials;
             req.Accept = "application/rdap+json, application/json";
