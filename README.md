@@ -233,9 +233,9 @@ Cliquez sur la pastille PhishGuard, puis sur **Signaler à la sécurité** : apr
 rapport détaillé partent à l'adresse de votre équipe sécurité, et le message est déplacé dans Courrier indésirable.
 
 **PhishGuard détecte-t-il vraiment les phishings ?**
-Le moteur est testé sur de vrais emails publics : hors ligne, il signale **78 à 80 % des phishings** de deux corpus
+Le moteur est testé sur de vrais emails publics : hors ligne, il signale **81 à 84 % des phishings** de deux corpus
 totalisant plus de 14 000 attaques réelles (2020-2026), avec **3 % de fausses alertes** sur 4 400 messages légitimes récents et
-aucune sur 40 vrais-faux pièges (factures, colis, codes de vérification, partages DocuSign ou OneDrive…). Sur un vrai
+aucune erreur sur 78 vrais-faux pièges (factures, colis, codes de vérification, partages DocuSign ou OneDrive…). Sur un vrai
 poste, l'âge des domaines et les listes de sites malveillants en détectent davantage. Méthode et chiffres :
 [docs/banc-essai.md](docs/banc-essai.md).
 
