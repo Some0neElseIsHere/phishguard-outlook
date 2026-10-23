@@ -409,11 +409,13 @@ namespace PhishGuard.AddIn
         {
             var c = new CheckBox { Text = text, Checked = value, Location = new Point(12, y), AutoSize = true };
             page.Controls.Add(c);
-            y += 24;
+            // Hauteurs mesurées sur les contrôles eux-mêmes (police et mise à l'échelle réelles du poste) : rien ne se chevauche
+            y += Math.Max(24, c.GetPreferredSize(Size.Empty).Height + 4);
             if (!string.IsNullOrEmpty(hint))
             {
-                page.Controls.Add(new Label { Text = hint, Location = new Point(30, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(480, 0) });
-                y += Math.Max(20, TextHeight(hint, 480) + 10);
+                var h = new Label { Text = hint, Location = new Point(30, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(480, 0) };
+                page.Controls.Add(h);
+                y += Math.Max(20, Math.Max(TextHeight(hint, 480), h.GetPreferredSize(new Size(480, 0)).Height) + 10);
             }
             else y += 6;
             return c;
@@ -463,8 +465,9 @@ namespace PhishGuard.AddIn
 
         TextBox AddText(TabPage page, ref int y, string label, string value, bool multiline, int height, string hint)
         {
-            page.Controls.Add(new Label { Text = label, Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
-            y += 22;
+            var lbl = new Label { Text = label, Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) };
+            page.Controls.Add(lbl);
+            y += Math.Max(22, lbl.GetPreferredSize(Size.Empty).Height + 6);
             var t = new TextBox
             {
                 Text = value ?? "",
@@ -477,7 +480,7 @@ namespace PhishGuard.AddIn
             };
             if (multiline) t.Height = height;
             page.Controls.Add(t);
-            y += (multiline ? height : t.Height) + 4;
+            y += Math.Max(multiline ? height : 0, t.Height) + 6;
             if (!string.IsNullOrEmpty(hint)) AddHint(page, ref y, hint);
             y += 10;
             return t;
@@ -493,8 +496,9 @@ namespace PhishGuard.AddIn
 
         static void AddHint(Control page, ref int y, string text)
         {
-            page.Controls.Add(new Label { Text = text, Location = new Point(12, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(500, 0) });
-            y += Math.Max(20, TextHeight(text, 500) + 4);
+            var h = new Label { Text = text, Location = new Point(12, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(500, 0) };
+            page.Controls.Add(h);
+            y += Math.Max(20, Math.Max(TextHeight(text, 500), h.GetPreferredSize(new Size(500, 0)).Height) + 6);
         }
 
         /// <summary>Équipements : une ligne par équipement, « adresse expéditeur1 expéditeur2 » (virgules tolérées entre les expéditeurs).</summary>
