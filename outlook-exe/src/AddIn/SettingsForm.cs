@@ -415,7 +415,8 @@ namespace PhishGuard.AddIn
             {
                 var h = new Label { Text = hint, Location = new Point(30, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(480, 0) };
                 page.Controls.Add(h);
-                y += Math.Max(20, Math.Max(TextHeight(hint, 480), h.GetPreferredSize(new Size(480, 0)).Height) + 14);
+                // mesure sur une largeur un peu plus étroite : le libellé coupe parfois ses lignes plus tôt que la mesure
+                y += Math.Max(20, Math.Max(TextHeight(hint, 450), h.GetPreferredSize(new Size(450, 0)).Height) + 14);
             }
             else y += 6;
             return c;
@@ -498,7 +499,7 @@ namespace PhishGuard.AddIn
         {
             var h = new Label { Text = text, Location = new Point(12, y), AutoSize = true, ForeColor = SystemColors.GrayText, MaximumSize = new Size(500, 0) };
             page.Controls.Add(h);
-            y += Math.Max(20, Math.Max(TextHeight(text, 500), h.GetPreferredSize(new Size(500, 0)).Height) + 12);
+            y += Math.Max(20, Math.Max(TextHeight(text, 470), h.GetPreferredSize(new Size(470, 0)).Height) + 12);
         }
 
         /// <summary>Équipements : une ligne par équipement, « adresse expéditeur1 expéditeur2 » (virgules tolérées entre les expéditeurs).</summary>
