@@ -397,6 +397,21 @@ namespace PhishGuard.Tests
                 + "Received: from smtp.fournisseur-exemple.fr (198.51.100.20) by mail01.acmetech.local (10.0.0.5) with Microsoft SMTP Server; Thu, 22 Oct 2026 10:00:01 +0200\r\n"
                 + "Received: from [192.168.1.25] (192.168.1.25) by smtp.fournisseur-exemple.fr; Thu, 22 Oct 2026 10:00:00 +0200\r\nX-MS-Exchange-Organization-AuthAs: Anonymous\r\n";
             Check("message d'Internet dont l'expéditeur a un réseau privé : pas une origine interne", !Ids(Analyzer.Analyze(extPriv, cfgNet)).Any(x => x.StartsWith("auth-internal-")) && !Ids(Analyzer.Analyze(extPriv, cfg)).Any(x => x.StartsWith("auth-internal-")));
+            // Serveur de messagerie déclaré aussi comme équipement (rapports Exchange) : il ne juge pas les messages qui le traversent
+            var cfgNet3 = new PhishGuardConfig { CompanyName = "Acmetech", CompanyDomains = new List<string> { "acmetech.fr" }, MailServers = new List<string> { "10.0.0.6" },
+                InternalRelays = new List<string> { "10.0.0.5 rapports@acmetech.fr", "10.0.90.10 sauvegarde@acmetech.fr" } };
+            var rTransitOk = Analyzer.Analyze(relayMail("10.0.90.10", "sauvegarde@acmetech.fr"), cfgNet3);
+            Check("équipement d'origine autorisé, serveur traversé limité : normal", !Ids(rTransitOk).Contains("auth-internal-relay-sender") && Ids(rTransitOk).Contains("auth-internal-relay"),
+                rTransitOk.Level + " " + string.Join(",", Ids(rTransitOk).ToArray()));
+            var rTransitUnd = Analyzer.Analyze(deviceMail("10.0.95.5", "sauvegarde@acmetech.fr"), cfgNet3);
+            Check("origine non déclarée, serveur traversé limité : la machine d'origine est signalée, pas le serveur", !Ids(rTransitUnd).Contains("auth-internal-relay-sender") && Ids(rTransitUnd).Contains("auth-internal-undeclared"),
+                string.Join(",", Ids(rTransitUnd).ToArray()));
+            var rTransitNoRelay = Analyzer.Analyze(deviceMail("10.0.90.10", "sauvegarde@acmetech.fr"), cfgNet3);
+            Check("serveur traversé limité : pas d'alerte « équipement piraté » à sa place", !Ids(rTransitNoRelay).Contains("auth-internal-relay-sender") && Ids(rTransitNoRelay).Contains("auth-internal-relay"),
+                string.Join(",", Ids(rTransitNoRelay).ToArray()));
+            var rTransitBad = Analyzer.Analyze(deviceMail("10.0.90.10", "direction@acmetech.fr"), cfgNet3);
+            Check("équipement d'origine, autre adresse : critique sur l'équipement d'origine", rTransitBad.Findings.Any(f => f.Id == "auth-internal-relay-sender" && f.Evidence.Any(x => x.Contains("10.0.90.10"))),
+                string.Join(",", Ids(rTransitBad).ToArray()));
             var rAnon = Analyzer.Analyze(internalMail("10.20.30.45", "Anonymous"), cfg);
             Check("interne : rien de déclaré, envoi anonyme signalé", Ids(rAnon).Contains("auth-internal-anonymous"));
             var rOutlook = Analyzer.Analyze(internalMail("10.0.0.5", "Internal"), cfgNet);

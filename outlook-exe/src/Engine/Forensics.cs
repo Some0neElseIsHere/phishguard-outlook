@@ -259,6 +259,12 @@ namespace PhishGuard
         /// puis les sauts « Received » lus depuis le haut, tant qu'ils restent sur le réseau interne. Le premier saut venu
         /// d'une IP publique est l'entrée dans votre messagerie : tout ce qui est en dessous a pu être écrit par l'expéditeur.
         /// </summary>
+        /// <summary>IP du client qui a remis le message à Microsoft 365 (CIP du rapport anti-spam), ou "".</summary>
+        public static string ClientIp(List<KeyValuePair<string, string>> h)
+        {
+            return Pick(@"\bCIP:([0-9a-fA-F:.]+)", First(h, "x-forefront-antispam-report") ?? "") ?? "";
+        }
+
         public static string InternalRelayIp(List<KeyValuePair<string, string>> h, ICollection<string> relays)
         {
             if (relays == null || relays.Count == 0 || h == null) return null;

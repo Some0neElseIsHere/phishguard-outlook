@@ -451,7 +451,21 @@ namespace PhishGuard
             // Copieur, application ou serveur interne déclaré, qui envoie au nom de l'entreprise sans s'authentifier
             if (fromCompany && ctx.Config.InternalRelays.Count > 0 && !ctx.InternalForged)
             {
-                string relayIp = Forensics.InternalRelayIp(headers, InternalNet.Expand(ctx.Config.InternalRelays));
+                // L'équipement est la machine d'où le message est parti (ou le client vu par Microsoft 365), pas un serveur
+                // traversé : un serveur de messagerie déclaré comme équipement (rapports Exchange) ne doit pas juger les
+                // messages qui ne font que passer par lui.
+                var relays = InternalNet.Expand(ctx.Config.InternalRelays);
+                var originHop = InternalNet.Origin(headers);
+                string cip = Forensics.ClientIp(headers);
+                string relayIp = cip.Length > 0 && Forensics.IpInList(cip, relays) ? cip
+                    : originHop != null && Forensics.IpInList(originHop.FromIp, relays) ? originHop.FromIp : null;
+                if (relayIp == null)
+                {
+                    // Relais intermédiaire (serveur qui collecte les envois des copieurs) : accepté seulement s'il n'est pas limité à ses propres adresses
+                    string transit = Forensics.InternalRelayIp(headers, relays);
+                    List<string> none;
+                    if (transit != null && InternalNet.SenderAllowed(transit, "", ctx.Config.InternalRelays, out none)) relayIp = transit;
+                }
                 if (relayIp != null && CheckRelaySender(e, relayIp, ctx, findings))
                 {
                     positives.Add(L.F("Envoyé par un équipement interne déclaré ({0})", relayIp));
