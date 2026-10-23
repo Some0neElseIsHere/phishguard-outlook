@@ -437,6 +437,9 @@ namespace PhishGuard
             // Message à votre nom parti d'une machine du réseau interne : quelqu'un l'a fabriqué depuis un poste (envoi SMTP direct).
             // Vérifié avant tout le reste : un connecteur de relais interne peut faire passer un tel message pour un message Exchange.
             string authMech = (HeaderValues(headers, "x-ms-exchange-organization-authmechanism").FirstOrDefault() ?? "").Trim();
+            // Compte IMAP/POP (Gmail, Orange…) : ces en-têtes ne sont pas écrits par votre Exchange, l'expéditeur a pu les ajouter
+            // pour faire passer son message pour interne. Ils sont ignorés.
+            if (e.NonExchangeStore) { authAs = ""; authMech = ""; }
             // Quel que soit l'expéditeur affiché : une machine du réseau peut aussi écrire au nom d'une adresse externe
             // (fausse alerte Microsoft) ou d'un nom de machine (supervision@serveur)
             if (CheckInternalOrigin(e, headers, authAs, authMech, ctx, findings))
@@ -500,6 +503,11 @@ namespace PhishGuard
             {
                 findings.Add(new Finding("auth-missing", "auth", Severity.Low, L.T("Aucun résultat d’authentification"),
                     L.T("Le message ne contient pas d’en-tête Authentication-Results : impossible de vérifier l’expéditeur."), null));
+                // Au nom de votre entreprise, venu d'Internet, et rien ne prouve qu'il est authentique
+                var o = InternalNet.Origin(headers);
+                if (fromCompany && o != null && Forensics.IsPublicIp(o.FromIp))
+                    findings.Add(new Finding("auth-company-noauth", "auth", Severity.High, L.T("Message au nom de votre entreprise venu d’Internet, sans authentification"),
+                        L.T("Il se présente comme venant de votre entreprise, mais il est arrivé de l’extérieur et aucun contrôle (SPF, DKIM, DMARC) ne le confirme. Vérifiez auprès de l’expéditeur par un autre moyen."), new[] { L.T("Parti de : ") + o.FromIp }));
                 return;
             }
 

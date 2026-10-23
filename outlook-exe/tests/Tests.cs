@@ -414,6 +414,10 @@ namespace PhishGuard.Tests
             var rTransitBad = Analyzer.Analyze(deviceMail("10.0.90.10", "direction@acmetech.fr"), cfgNet3);
             Check("équipement d'origine, autre adresse : critique sur l'équipement d'origine", rTransitBad.Findings.Any(f => f.Id == "auth-internal-relay-sender" && f.Evidence.Any(x => x.Contains("10.0.90.10"))),
                 string.Join(",", Ids(rTransitBad).ToArray()));
+            var forged = Base(); forged.FromAddress = "direction@acmetech.fr"; forged.NonExchangeStore = true;
+            forged.RawHeaders = "Received: from mx.fournisseur-imap.example (198.51.100.7) by imap.fournisseur-imap.example; Thu, 22 Oct 2026 10:00:00 +0200\r\nX-MS-Exchange-Organization-AuthAs: Internal\r\nFrom: direction@acmetech.fr\r\n";
+            var rForged = Analyzer.Analyze(forged, cfg);
+            Check("compte IMAP/POP : en-tête « interne » ajouté par l'expéditeur ignoré", !rForged.Internal && rForged.Level != "safe", rForged.Level + " " + string.Join(",", Ids(rForged).ToArray()));
             var rAnon = Analyzer.Analyze(internalMail("10.20.30.45", "Anonymous"), cfg);
             Check("interne : rien de déclaré, envoi anonyme signalé", Ids(rAnon).Contains("auth-internal-anonymous"));
             var rOutlook = Analyzer.Analyze(internalMail("10.0.0.5", "Internal"), cfgNet);

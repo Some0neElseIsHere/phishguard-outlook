@@ -473,6 +473,8 @@ namespace PhishGuard
             { "Les contrôles SPF/DKIM/DMARC n’ont pas pu être vérifiés.", "SPF/DKIM/DMARC checks could not be verified." },
             { "Aucun résultat d’authentification", "No authentication result" },
             { "Le message ne contient pas d’en-tête Authentication-Results : impossible de vérifier l’expéditeur.", "The message has no Authentication-Results header: the sender cannot be verified." },
+            { "Message au nom de votre entreprise venu d’Internet, sans authentification", "Message in your company's name from the Internet, without authentication" },
+            { "Il se présente comme venant de votre entreprise, mais il est arrivé de l’extérieur et aucun contrôle (SPF, DKIM, DMARC) ne le confirme. Vérifiez auprès de l’expéditeur par un autre moyen.", "It claims to come from your company, but it arrived from outside and no check (SPF, DKIM, DMARC) confirms it. Check with the sender by another channel." },
             { "Usurpation de votre propre domaine (DMARC en échec)", "Spoofing of your own domain (DMARC failed)" },
             { "Échec DMARC : l’expéditeur affiché n’est pas authentifié", "DMARC failed: the displayed sender is not authenticated" },
             { "Le domaine affiché dans « De » n’a pas autorisé ce message. C’est le signe classique d’une usurpation.", "The domain shown in “From” did not authorize this message. This is the classic sign of spoofing." },
