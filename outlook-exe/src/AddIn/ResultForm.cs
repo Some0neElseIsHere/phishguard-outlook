@@ -24,7 +24,7 @@ namespace PhishGuard.AddIn
     internal class ResultForm : Form, IThemed
     {
         readonly WebBrowser browser;
-        readonly Button btnReport, btnClose, btnTrust, btnSettings, btnMode, btnAge;
+        readonly Button btnReport, btnClose, btnTrust, btnSettings, btnMode;
         string forceTab = "";
         readonly Label status;
         AnalysisResult result;
@@ -85,8 +85,7 @@ namespace PhishGuard.AddIn
             btnSettings = MakeButton(false);
             btnMode = MakeButton(false);
             btnClose = MakeButton(false);
-            btnAge = MakeButton(false);
-            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnMode, btnAge, btnSettings, btnClose });
+            bar.Controls.AddRange(new Control[] { btnReport, btnTrust, btnMode, btnSettings, btnClose });
 
             status = new Label
             {
@@ -107,8 +106,6 @@ namespace PhishGuard.AddIn
             btnClose.Click += (s, e) => Hide();
             btnReport.Click += (s, e) => Raise(ReportRequested);
             btnTrust.Click += (s, e) => Raise(NotPhishingRequested);
-            // Bouton hors de la page : il fonctionne même si le composant web d'Outlook bloque les liens internes
-            btnAge.Click += (s, e) => { try { forceTab = "s-beta"; FetchDomainAges(); } catch (Exception ex) { status.Text = ex.Message; } };
             btnSettings.Click += (s, e) => Raise(SettingsRequested);
             btnMode.Click += (s, e) =>
             {
@@ -140,8 +137,6 @@ namespace PhishGuard.AddIn
             btnClose.Text = L.T("Fermer");
             btnMode.Text = Expert ? L.T("Mode simple") : L.T("Analyse détaillée");
             btnMode.Visible = AllowExpert;
-            btnAge.Text = L.T("Âge des domaines");
-            btnAge.Visible = Expert;
         }
 
         void CopyText(string text, string ok)
@@ -726,7 +721,7 @@ namespace PhishGuard.AddIn
             sb.Append("</tbody></table></div>");
             if (missing)
                 sb.Append("<p class='fd'><a href='" + AgeAction + "'>" + H(L.T("Récupérer l’âge des domaines")) + "</a> <span class='muted'>"
-                    + H(L.T("(ou bouton « Âge des domaines » en bas de la fenêtre ; seuls les noms de domaine sont envoyés au registre de chaque domaine)")) + "</span></p>");
+                    + H(L.T("(seuls les noms de domaine sont envoyés au registre de chaque domaine)")) + "</span></p>");
         }
 
         static void FindingCard(StringBuilder sb, Finding f, bool showExplanations)

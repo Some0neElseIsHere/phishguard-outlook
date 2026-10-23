@@ -93,6 +93,15 @@ namespace PhishGuard.Tools
             var fAff = new SettingsForm(cfg, null, "exemple-pme.fr");
             foreach (var tc in fAff.Controls.OfType<TabControl>()) tc.SelectedIndex = 2;   // onglet Affichage
             Capture(fAff, Path.Combine(outDir, "parametres-affichage.png"));
+            // Onglet Entreprise en entier (réseau interne) et onglet Réputation : contrôle de la mise en page
+            cfg.MailServers = new List<string> { "10.0.0.5", "mail02.exemple-pme.local" };
+            cfg.InternalRelays = new List<string> { "10.0.50.12 alertes@exemple-pme.fr" };
+            cfg.WorkstationNets = new List<string> { "10.20.30.0/24" };
+            var fEnt = new SettingsForm(cfg, null, "exemple-pme.fr") { Height = 1900 };
+            Capture(fEnt, Path.Combine(outDir, "parametres-entreprise.png"));
+            var fRep = new SettingsForm(cfg, null, "exemple-pme.fr") { Height = 1200 };
+            foreach (var tc in fRep.Controls.OfType<TabControl>()) tc.SelectedIndex = 4;   // onglet Réputation
+            Capture(fRep, Path.Combine(outDir, "parametres-reputation.png"));
             var cfgPol = new PhishGuardConfig { CompanyDomains = new List<string> { "exemple-pme.fr" }, ExpertMode = true };
             cfgPol.ApplyPolicies(new[] { new KeyValuePair<string, string>("ReportAddress", "securite@exemple-pme.fr"),
                 new KeyValuePair<string, string>("Company1", "Exemple SAS | France | 552100554 | Claire Martin; Hugo Bernard"),
