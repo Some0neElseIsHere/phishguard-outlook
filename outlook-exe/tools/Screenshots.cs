@@ -182,7 +182,7 @@ namespace PhishGuard.Tools
                     sw.Restart();
                     while (sw.ElapsedMilliseconds < 5000 && !DomainAge.IsPending("domaine-de-test-inconnu.fr")) { Application.DoEvents(); System.Threading.Thread.Sleep(50); }
                     DateTime? c;
-                    log.Add("clic reçu par le complément : " + (DomainAge.IsPending("domaine-de-test-inconnu.fr") || DomainAge.TryGetCreated("domaine-de-test-inconnu.fr", out c)));
+                    log.Add("clic reçu par le complément : " + (DomainAge.IsPending("domaine-de-test-inconnu.fr") || DomainAge.TryGetCreated("domaine-de-test-inconnu.fr", out c)) + " (par " + ResultForm.LastActionVia + ")");
                 }
                 rf.Close();
             }
