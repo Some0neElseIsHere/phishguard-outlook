@@ -92,7 +92,7 @@ namespace PhishGuard.AddIn
             sb.AppendLine("DNS : " + yn(cfg.BetaDnsChecks) + " ; crt.sh : " + yn(cfg.BetaCertAge) + " ; " + L.T("clés VirusTotal / abuse.ch / AbuseIPDB renseignées : ")
                 + yn(!string.IsNullOrEmpty(cfg.VirusTotalKey)) + " / " + yn(!string.IsNullOrEmpty(cfg.AbuseChKey)) + " / " + yn(!string.IsNullOrEmpty(cfg.AbuseIpdbKey)));
             sb.AppendLine(L.T("Analyse automatique : ") + yn(cfg.AutoAnalyze) + " ; " + L.T("correspondants connus : ") + yn(cfg.KnownCorrespondents) + " ; " + L.T("âge des domaines : ") + yn(cfg.DomainAgeLookup));
-            foreach (var err in new[] { Blocklists.LastError, Feeds.LastError, Intel.LastError })
+            foreach (var err in new[] { Blocklists.LastError, Feeds.LastError, Intel.LastError, DomainAge.LastError.Length > 0 ? L.T("âge des domaines : ") + DomainAge.LastError : "" })
                 if (!string.IsNullOrEmpty(err)) sb.AppendLine(L.T("Dernière erreur : ") + err);
             return sb.ToString();
         }

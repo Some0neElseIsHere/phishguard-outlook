@@ -700,7 +700,13 @@ namespace PhishGuard.AddIn
                 string cell;
                 if (DomainAge.IsPending(d.Key)) cell = "<span class='b mid'>" + H(L.T("Recherche en cours…")) + "</span>";
                 else if (!DomainAge.TryGetCreated(d.Key, out c)) { cell = "<span class='muted'>" + H(L.T("non récupérée")) + "</span>"; missing = true; }
-                else if (!c.HasValue) { cell = "<span class='muted'>" + H(L.T("date non publiée par le registre (ou service injoignable)")) + "</span>"; missing = true; }
+                else if (!c.HasValue)
+                {
+                    string err = DomainAge.ErrorFor(d.Key);
+                    cell = err.Length > 0 ? "<span class='b bad'>" + H(L.T("recherche impossible")) + "</span> <span class='muted'>" + H(err) + "</span>"
+                                          : "<span class='muted'>" + H(L.T("date non publiée par le registre")) + "</span>";
+                    missing = true;
+                }
                 else
                 {
                     int days = Math.Max(0, (int)(DateTime.UtcNow - c.Value).TotalDays);

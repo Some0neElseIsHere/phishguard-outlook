@@ -449,6 +449,8 @@ namespace PhishGuard.Tests
             var doms = DomainAge.DomainsOf(ed2);
             Check("domaines du message pour l'âge", doms.Count == 3 && doms[0].Key == "tout-neuf-livraison.fr" && doms[1].Key == "autre-exemple.fr" && doms[2].Key == "ancien-domaine.fr",
                 string.Join(",", doms.Select(x => x.Key).ToArray()));
+            var boot = DomainAge.ParseBootstrap("{\"version\":\"1.0\",\"services\":[[[\"com\",\"net\"],[\"https://rdap.verisign.com/com/v1/\"]],[[\"fr\"],[\"http://x\",\"https://rdap.nic.fr/\"]]]}");
+            Check("RDAP : annuaire IANA des registres", boot.Count == 3 && boot["net"] == "https://rdap.verisign.com/com/v1/" && boot["fr"] == "https://rdap.nic.fr/");
             Check("RDAP : date d'enregistrement", DomainAge.ParseRdap("{\"events\":[{\"eventAction\":\"last changed\",\"eventDate\":\"2026-01-01T00:00:00Z\"},{\"eventDate\":\"2026-10-10T08:00:00Z\",\"eventAction\":\"registration\"}]}") == new DateTime(2026, 10, 10, 8, 0, 0));
             DomainAge.ClearForTests();
 
