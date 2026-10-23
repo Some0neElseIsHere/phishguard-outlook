@@ -67,6 +67,9 @@ namespace PhishGuard.AddIn
                 AllowNavigation = true
             };
             browser.Navigating += OnNavigating;
+            // Les actions de la page passent par un objet du complément (window.external) : sur certains postes, la navigation
+            // vers une adresse interne n'est jamais signalée au complément ; le lien reste en secours.
+            browser.ObjectForScripting = new PageBridge(this);
             browser.NewWindow += (s, e) => e.Cancel = true;
 
             var bar = new FlowLayoutPanel
@@ -171,6 +174,15 @@ namespace PhishGuard.AddIn
             status.Text = n == 0 ? L.T("L’âge des domaines est déjà connu.") : L.F("Recherche de l’âge de {0} domaine(s) auprès des registres…", n);
         }
 
+        /// <summary>Dernier chemin par lequel une action de la page est arrivée (vérification automatique).</summary>
+        internal static string LastActionVia = "";
+
+        internal void PageAction(string action, string via)
+        {
+            LastActionVia = via;
+            if (action == "age") { try { FetchDomainAges(); } catch (Exception ex) { status.Text = ex.Message; } }
+        }
+
         void OnNavigating(object sender, WebBrowserNavigatingEventArgs e)
         {
             string url = e.Url.ToString();
@@ -179,7 +191,7 @@ namespace PhishGuard.AddIn
             Uri u = e.Url;
             if (url.StartsWith(AgeAction, StringComparison.OrdinalIgnoreCase))
             {
-                try { FetchDomainAges(); } catch (Exception ex) { status.Text = ex.Message; }
+                PageAction("age", "navigation");
                 return;
             }
             if ((u.Scheme == "https") && Forensics.LookupHosts.Contains(PhishGuard.Domains.HostOf(u)))
@@ -720,7 +732,7 @@ namespace PhishGuard.AddIn
             }
             sb.Append("</tbody></table></div>");
             if (missing)
-                sb.Append("<p class='fd'><a href='" + AgeAction + "'>" + H(L.T("Récupérer l’âge des domaines")) + "</a> <span class='muted'>"
+                sb.Append("<p class='fd'><a href='" + AgeAction + "' onclick=\"try{window.external.Action('age');return false;}catch(x){return true;}\">" + H(L.T("Récupérer l’âge des domaines")) + "</a> <span class='muted'>"
                     + H(L.T("(seuls les noms de domaine sont envoyés au registre de chaque domaine)")) + "</span></p>");
         }
 
