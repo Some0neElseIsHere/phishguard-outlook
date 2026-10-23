@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.8** : bouton **Âge des domaines** en bas de la fenêtre d'analyse détaillée. Il lance la recherche et ouvre l'onglet Réputation, même quand le composant web d'Outlook ne transmet pas le clic sur le lien de la page (cas constaté sur certains postes).
+
 - **v1.19.7** : âge des domaines plus fiable. PhishGuard interroge maintenant directement le registre de chaque extension (annuaire officiel de l'IANA, téléchargé une fois par mois) ; rdap.org, protégé par Cloudflare et limité à 10 requêtes par 10 secondes, ne sert plus qu'en secours. En cas d'échec, l'onglet Réputation affiche « recherche impossible » avec la raison (au lieu de « date non publiée »), l'erreur n'est plus mémorisée 7 jours et figure dans les informations pour le support.
 
 - **v1.19.6** : les preuves de légitimité d'un message d'équipement indiquent son adresse IP et les adresses d'expéditeur autorisées (« Équipement interne déclaré (10.0.50.12), autorisé à écrire au nom de : alertes@entreprise.fr »), ou « sans restriction d'expéditeur ».
