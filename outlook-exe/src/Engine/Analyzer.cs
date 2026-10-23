@@ -365,7 +365,7 @@ namespace PhishGuard
                 return true;
             }
             ctx.InternalForged = true;
-            if (findings.Any(f => f.Id == "auth-internal-relay-sender")) return;
+            if (findings.Any(f => f.Id == "auth-internal-relay-sender")) return false;
             findings.Add(new Finding("auth-internal-relay-sender", "auth", Severity.Critical, L.T("Un équipement déclaré écrit au nom d’une adresse qui n’est pas la sienne"),
                 L.T("Cet équipement (alertes, copieur, application) n’a le droit d’écrire qu’au nom des adresses déclarées dans Paramètres → Entreprise. Un message au nom d’une autre personne venant de lui signale un équipement piraté ou détourné. Ne cliquez sur rien et prévenez le service informatique."),
                 new[] { L.T("Équipement : ") + ip, L.T("Au nom de : ") + e.FromAddress, L.T("Adresses autorisées : ") + string.Join(", ", allowed.ToArray()) }));
