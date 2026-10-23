@@ -371,6 +371,17 @@ namespace PhishGuard.Tests
             List<string> allowedSenders;
             Check("équipement : entrée précise prioritaire sur une plage", !InternalNet.SenderAllowed("10.0.50.20", "x@acmetech.fr", new[] { "10.0.50.0/24", "10.0.50.20 alertes@acmetech.fr" }, out allowedSenders)
                 && InternalNet.NetPart("10.0.50.20 alertes@acmetech.fr") == "10.0.50.20" && InternalNet.SendersOf("10.0.50.20 Alertes@acmetech.fr b@acmetech.fr").Count == 2);
+            // Relais Exchange qui fait confiance à l'IP (AuthAs: Internal, AuthMechanism: 10) depuis une machine non déclarée
+            Func<string, string, EmailData> relayMail = (ip, from) => { var m = deviceMail(ip, from); m.RawHeaders = m.RawHeaders.Replace("X-MS-Exchange-Organization-AuthAs: Anonymous", "X-MS-Exchange-Organization-AuthAs: Internal\r\nX-MS-Exchange-Organization-AuthMechanism: 10"); m.IsExchangeInternal = true; return m; };
+            var rRelay = Analyzer.Analyze(relayMail("10.0.70.5", "outil@acmetech.fr"), cfgNet);
+            Check("relais IP de confiance, machine non déclarée : critique", rRelay.Findings.Any(f => f.Id == "auth-internal-undeclared" && f.Severity == Severity.Critical) && rRelay.Level == "dangerous" && !rRelay.Internal,
+                rRelay.Level + " " + string.Join(",", Ids(rRelay).ToArray()));
+            var rRelayNoCfg = Analyzer.Analyze(relayMail("10.0.70.5", "outil@acmetech.fr"), cfg);
+            Check("relais IP de confiance, rien de déclaré : signalé, pas interne", Ids(rRelayNoCfg).Contains("auth-internal-anonymous") && !rRelayNoCfg.Internal);
+            var rRelayDev = Analyzer.Analyze(relayMail("10.0.50.20", "alertes@acmetech.fr"), cfgNet);
+            Check("relais IP de confiance, équipement déclaré avec son adresse : normal", !rRelayDev.Findings.Any(f => f.Id.StartsWith("auth-internal-") && f.Severity >= Severity.Medium), string.Join(",", Ids(rRelayDev).ToArray()));
+            var rRelayDevBad = Analyzer.Analyze(relayMail("10.0.50.20", "direction@acmetech.fr"), cfgNet);
+            Check("relais IP de confiance, équipement déclaré, autre adresse : critique", Ids(rRelayDevBad).Contains("auth-internal-relay-sender") && rRelayDevBad.Level == "dangerous");
             var rAnon = Analyzer.Analyze(internalMail("10.20.30.45", "Anonymous"), cfg);
             Check("interne : rien de déclaré, envoi anonyme signalé", Ids(rAnon).Contains("auth-internal-anonymous"));
             var rOutlook = Analyzer.Analyze(internalMail("10.0.0.5", "Internal"), cfgNet);
