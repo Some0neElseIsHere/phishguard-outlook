@@ -359,7 +359,7 @@ namespace PhishGuard
         }
 
         /// <summary>Origine d'un message au nom de l'entreprise : poste de travail, machine non déclarée, ou serveur de messagerie.</summary>
-        static void CheckInternalOrigin(EmailData e, List<KeyValuePair<string, string>> headers, string authAs, Ctx ctx, List<Finding> findings)
+        static void CheckInternalOrigin(EmailData e, List<KeyValuePair<string, string>> headers, string authAs, string authMech, Ctx ctx, List<Finding> findings)
         {
             var origin = InternalNet.Origin(headers);
             string ip = origin != null ? origin.FromIp : "";
@@ -374,7 +374,10 @@ namespace PhishGuard
                 return;
             }
             if (Forensics.IsPublicIp(ip) && !workstation) return;                                                   // venu de l'extérieur : contrôles habituels
-            bool exchangeAuth = e.IsExchangeInternal || authAs == "internal";
+            // AuthMechanism 10 : Exchange a fait confiance à l'adresse IP de la machine (connecteur de relais « Externally Secured »),
+            // sans identifiants. Le message passe pour interne mais n'importe quel expéditeur a pu être écrit : pas une authentification.
+            bool relayTrust = authMech == "10";
+            bool exchangeAuth = (e.IsExchangeInternal || authAs == "internal") && !relayTrust;
             bool declared = cfg.MailServers.Count > 0 || cfg.WorkstationNets.Count > 0;
             string where = ip + (origin.FromHost.Length > 0 && origin.FromHost != ip ? " (" + L.T("annoncé comme ") + origin.FromHost + ")" : "");
             var ev = new[] { L.T("Parti de : ") + where, L.T("Au nom de : ") + e.FromAddress };
@@ -392,13 +395,17 @@ namespace PhishGuard
             else if (exchangeAuth) return;   // message Exchange : ses serveurs ne sont pas forcément tous déclarés
             else if (declared)
             {
-                findings.Add(new Finding("auth-internal-undeclared", "auth", Severity.High, L.T("Message « interne » venu d’une machine non déclarée"),
-                    L.T("Ce message à votre nom vient du réseau interne, mais ni d’un serveur de messagerie ni d’un équipement déclaré, et sans authentification. Possible message fabriqué depuis le réseau, ou équipement oublié dans Paramètres → Entreprise."), ev));
+                findings.Add(new Finding("auth-internal-undeclared", "auth", Severity.Critical, L.T("Message « interne » venu d’une machine non déclarée"),
+                    (relayTrust ? L.T("Votre serveur l’a accepté comme interne sur la seule foi de l’adresse IP de la machine (relais sans identifiants) : n’importe quel expéditeur a pu être écrit.") + " " : "")
+                    + L.T("Ce message à votre nom ne vient ni d’un serveur de messagerie ni d’un équipement déclaré : possible message fabriqué depuis le réseau. Si c’est un équipement légitime (alertes, application), déclarez-le dans Paramètres → Entreprise avec son adresse d’expéditeur."), ev));
                 ctx.InternalForged = true;
             }
-            else if (authAs == "anonymous")
+            else if (authAs == "anonymous" || relayTrust)
+            {
+                ctx.InternalForged = relayTrust;   // pas une authentification : le message n'est pas traité comme interne
                 findings.Add(new Finding("auth-internal-anonymous", "auth", Severity.Medium, L.T("Message à votre nom, non authentifié, venu du réseau interne"),
                     L.T("Le serveur de messagerie l’a reçu sans authentification d’une machine interne. Normal pour un copieur ou une application ; sinon, il a pu être fabriqué depuis un poste. Déclarez vos serveurs, équipements et réseaux des postes dans Paramètres → Entreprise pour un diagnostic sûr."), ev));
+            }
         }
 
         static void AnalyzeAuth(EmailData e, List<KeyValuePair<string, string>> headers, Ctx ctx, List<Finding> findings, List<string> positives)
@@ -410,9 +417,10 @@ namespace PhishGuard
             string authAs = (HeaderValues(headers, "x-ms-exchange-organization-authas").FirstOrDefault() ?? "").ToLowerInvariant();
             // Message à votre nom parti d'une machine du réseau interne : quelqu'un l'a fabriqué depuis un poste (envoi SMTP direct).
             // Vérifié avant tout le reste : un connecteur de relais interne peut faire passer un tel message pour un message Exchange.
-            if (fromCompany) CheckInternalOrigin(e, headers, authAs, ctx, findings);
+            string authMech = (HeaderValues(headers, "x-ms-exchange-organization-authmechanism").FirstOrDefault() ?? "").Trim();
+            if (fromCompany) CheckInternalOrigin(e, headers, authAs, authMech, ctx, findings);
 
-            if (e.IsExchangeInternal || authAs == "internal")
+            if ((e.IsExchangeInternal || authAs == "internal") && !ctx.InternalForged)
             {
                 positives.Add(L.T("Message interne, authentifié par votre serveur Exchange"));
                 ctx.Internal = true;
