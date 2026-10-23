@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.6** : les preuves de légitimité d'un message d'équipement indiquent son adresse IP et les adresses d'expéditeur autorisées (« Équipement interne déclaré (10.0.50.12), autorisé à écrire au nom de : alertes@entreprise.fr »), ou « sans restriction d'expéditeur ».
+
 - **v1.19.5** : correction. Un serveur de messagerie déclaré aussi comme équipement (pour ses propres rapports, limité à ses adresses) jugeait à tort tous les messages qui ne faisaient que le traverser : ils étaient signalés comme « équipement piraté ». L'équipement est maintenant celui d'où le message est parti (ou le client vu par Microsoft 365) ; un serveur traversé n'est retenu que s'il n'est limité à aucune adresse.
 
 - **v1.19.4** : l'analyse détaillée montre quelle déclaration a reconnu un équipement (adresse IP, expéditeur, adresses autorisées, ou « toutes » quand aucune n'est déclarée). Les paramètres refusent une ligne d'équipement dont la suite n'est pas une adresse d'expéditeur (par exemple `10.0.50.12 serveur.entreprise.local`), qui laissait l'équipement écrire au nom de n'importe qui.
