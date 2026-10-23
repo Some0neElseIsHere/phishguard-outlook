@@ -529,6 +529,17 @@ namespace PhishGuard.AddIn
                 MessageBox.Show(this, L.T("L’adresse de l’équipe sécurité n’est pas valide."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
+            if (txtRelays != null)
+            {
+                // « 10.0.50.12 serveur.entreprise.local » : le second mot n'est pas une adresse d'expéditeur, l'équipement resterait sans restriction
+                var bad = RelayLines(txtRelays).Where(l => l.Split(' ').Skip(1).Any(x => !x.Contains("@"))).ToList();
+                if (bad.Count > 0)
+                {
+                    MessageBox.Show(this, L.T("Équipements : après l’adresse IP ou le nom, indiquez seulement des adresses d’expéditeur (alertes@entreprise.fr). Lignes à corriger :") + "\n\n" + string.Join("\n", bad.ToArray()),
+                        "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+            }
             cfg.Companies = companies;
             cfg.CompanyName = "";
             cfg.CompanyDomains = Lines(txtDomains, true).Select(d => d.TrimStart('@')).ToList();

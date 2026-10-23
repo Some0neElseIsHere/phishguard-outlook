@@ -347,33 +347,47 @@ namespace PhishGuard
         // =====================================================================
 
         /// <summary>Équipement déclaré qui écrit au nom d'une adresse qui n'est pas la sienne : équipement piraté ou détourné.</summary>
-        static void CheckRelaySender(EmailData e, string ip, Ctx ctx, List<Finding> findings)
+        /// <returns>true si l'expéditeur est autorisé pour cet équipement.</returns>
+        static bool CheckRelaySender(EmailData e, string ip, Ctx ctx, List<Finding> findings)
         {
             List<string> allowed;
-            if (InternalNet.SenderAllowed(ip, e.FromAddress, ctx.Config.InternalRelays, out allowed)) return;
+            if (InternalNet.SenderAllowed(ip, e.FromAddress, ctx.Config.InternalRelays, out allowed))
+            {
+                // Montré dans l'analyse détaillée : on voit quelle déclaration a reconnu le message
+                if (!findings.Any(f => f.Id == "auth-internal-relay"))
+                    findings.Add(new Finding("auth-internal-relay", "auth", Severity.Info, L.T("Équipement interne de l’entreprise"),
+                        allowed.Count > 0 ? L.T("Équipement déclaré dans Paramètres → Entreprise, qui écrit au nom d’une adresse autorisée.")
+                                          : L.T("Équipement déclaré dans Paramètres → Entreprise sans adresse d’expéditeur : il peut écrire au nom de n’importe qui. Ajoutez son adresse après l’IP pour repérer un équipement piraté."),
+                        new[] { L.T("Équipement : ") + ip, L.T("Au nom de : ") + e.FromAddress, L.T("Adresses autorisées : ") + (allowed.Count > 0 ? string.Join(", ", allowed.ToArray()) : L.T("toutes")) }));
+                ctx.Trust.Add(L.F("Envoyé par un équipement interne déclaré ({0})", ip));
+                ctx.Internal = true;
+                ctx.InternalHow = "relay";
+                return true;
+            }
             ctx.InternalForged = true;
             if (findings.Any(f => f.Id == "auth-internal-relay-sender")) return;
             findings.Add(new Finding("auth-internal-relay-sender", "auth", Severity.Critical, L.T("Un équipement déclaré écrit au nom d’une adresse qui n’est pas la sienne"),
                 L.T("Cet équipement (alertes, copieur, application) n’a le droit d’écrire qu’au nom des adresses déclarées dans Paramètres → Entreprise. Un message au nom d’une autre personne venant de lui signale un équipement piraté ou détourné. Ne cliquez sur rien et prévenez le service informatique."),
                 new[] { L.T("Équipement : ") + ip, L.T("Au nom de : ") + e.FromAddress, L.T("Adresses autorisées : ") + string.Join(", ", allowed.ToArray()) }));
+            return false;
         }
 
         /// <summary>Origine d'un message au nom de l'entreprise : poste de travail, machine non déclarée, ou serveur de messagerie.</summary>
-        static void CheckInternalOrigin(EmailData e, List<KeyValuePair<string, string>> headers, string authAs, string authMech, Ctx ctx, List<Finding> findings)
+        /// <returns>true si le message vient d'un équipement déclaré, autorisé : l'authentification n'a pas à être examinée.</returns>
+        static bool CheckInternalOrigin(EmailData e, List<KeyValuePair<string, string>> headers, string authAs, string authMech, Ctx ctx, List<Finding> findings)
         {
             var origin = InternalNet.Origin(headers);
             string ip = origin != null ? origin.FromIp : "";
-            if (ip.Length == 0) return;
+            if (ip.Length == 0) return false;
             var cfg = ctx.Config;
             bool workstation = InternalNet.Matches(ip, cfg.WorkstationNets);
             // Serveur ou équipement déclaré ; dans un réseau de postes, seule une adresse déclarée une par une compte (pas une grande plage)
-            if (workstation ? InternalNet.MatchesExact(ip, cfg.MailServers) : InternalNet.Matches(ip, cfg.MailServers)) return;
+            if (workstation ? InternalNet.MatchesExact(ip, cfg.MailServers) : InternalNet.Matches(ip, cfg.MailServers)) return false;
             if (workstation ? InternalNet.MatchesExact(ip, cfg.InternalRelays) : InternalNet.Matches(ip, cfg.InternalRelays))
             {
-                CheckRelaySender(e, ip, ctx, findings);   // équipement déclaré : seulement au nom des adresses prévues
-                return;
+                return CheckRelaySender(e, ip, ctx, findings);   // équipement déclaré : seulement au nom des adresses prévues
             }
-            if (Forensics.IsPublicIp(ip) && !workstation) return;                                                   // venu de l'extérieur : contrôles habituels
+            if (Forensics.IsPublicIp(ip) && !workstation) return false;                                                   // venu de l'extérieur : contrôles habituels
             // AuthMechanism 10 : Exchange a fait confiance à l'adresse IP de la machine (connecteur de relais « Externally Secured »),
             // sans identifiants. Le message passe pour interne mais n'importe quel expéditeur a pu être écrit : pas une authentification.
             bool relayTrust = authMech == "10";
@@ -392,7 +406,7 @@ namespace PhishGuard
                 // script, ou relais interne qui fait passer n'importe quel message pour un message authentifié
                 findings.Add(new Finding("auth-internal-smtp", "auth", Severity.Medium, L.T("Message interne envoyé directement depuis un poste, sans passer par Outlook"),
                     L.T("Votre serveur l’a accepté comme interne, mais il a été déposé en SMTP par un poste de travail. Normal pour un logiciel de messagerie autre qu’Outlook ou un script connu ; sinon, quelqu’un a pu le fabriquer au nom de cet expéditeur. En cas de doute, vérifiez auprès de lui par un autre moyen."), ev));
-            else if (exchangeAuth) return;   // message Exchange : ses serveurs ne sont pas forcément tous déclarés
+            else if (exchangeAuth) return false;   // message Exchange : ses serveurs ne sont pas forcément tous déclarés
             else if (declared)
             {
                 findings.Add(new Finding("auth-internal-undeclared", "auth", Severity.Critical, L.T("Message « interne » venu d’une machine non déclarée"),
@@ -406,6 +420,7 @@ namespace PhishGuard
                 findings.Add(new Finding("auth-internal-anonymous", "auth", Severity.Medium, L.T("Message non authentifié venu du réseau interne"),
                     L.T("Le serveur de messagerie l’a reçu sans authentification d’une machine interne. Normal pour un copieur ou une application ; sinon, il a pu être fabriqué depuis un poste. Déclarez vos serveurs, équipements et réseaux des postes dans Paramètres → Entreprise pour un diagnostic sûr."), ev));
             }
+            return false;
         }
 
         static void AnalyzeAuth(EmailData e, List<KeyValuePair<string, string>> headers, Ctx ctx, List<Finding> findings, List<string> positives)
@@ -420,7 +435,11 @@ namespace PhishGuard
             string authMech = (HeaderValues(headers, "x-ms-exchange-organization-authmechanism").FirstOrDefault() ?? "").Trim();
             // Quel que soit l'expéditeur affiché : une machine du réseau peut aussi écrire au nom d'une adresse externe
             // (fausse alerte Microsoft) ou d'un nom de machine (supervision@serveur)
-            CheckInternalOrigin(e, headers, authAs, authMech, ctx, findings);
+            if (CheckInternalOrigin(e, headers, authAs, authMech, ctx, findings))
+            {
+                positives.Add(L.F("Envoyé par un équipement interne déclaré ({0})", InternalNet.Origin(headers).FromIp));
+                return;
+            }
 
             if ((e.IsExchangeInternal || authAs == "internal") && !ctx.InternalForged)
             {
@@ -433,16 +452,9 @@ namespace PhishGuard
             if (fromCompany && ctx.Config.InternalRelays.Count > 0 && !ctx.InternalForged)
             {
                 string relayIp = Forensics.InternalRelayIp(headers, InternalNet.Expand(ctx.Config.InternalRelays));
-                if (relayIp != null) CheckRelaySender(e, relayIp, ctx, findings);
-                if (relayIp != null && !ctx.InternalForged)
+                if (relayIp != null && CheckRelaySender(e, relayIp, ctx, findings))
                 {
-                    string why = L.F("Envoyé par un équipement interne déclaré ({0})", relayIp);
-                    findings.Add(new Finding("auth-internal-relay", "auth", Severity.Info, L.T("Équipement interne de l’entreprise"),
-                        L.T("Copieur, application ou serveur déclaré par votre service informatique : il envoie au nom de l’entreprise sans authentification, c’est normal."), new[] { relayIp }));
-                    positives.Add(why);
-                    ctx.Trust.Add(why);
-                    ctx.Internal = true;
-                    ctx.InternalHow = "relay";
+                    positives.Add(L.F("Envoyé par un équipement interne déclaré ({0})", relayIp));
                     return;
                 }
             }

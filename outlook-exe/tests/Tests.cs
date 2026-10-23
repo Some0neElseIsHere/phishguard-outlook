@@ -380,6 +380,8 @@ namespace PhishGuard.Tests
             Check("relais IP de confiance, rien de déclaré : signalé, pas interne", Ids(rRelayNoCfg).Contains("auth-internal-anonymous") && !rRelayNoCfg.Internal);
             var rRelayDev = Analyzer.Analyze(relayMail("10.0.50.20", "alertes@acmetech.fr"), cfgNet);
             Check("relais IP de confiance, équipement déclaré avec son adresse : normal", !rRelayDev.Findings.Any(f => f.Id.StartsWith("auth-internal-") && f.Severity >= Severity.Medium), string.Join(",", Ids(rRelayDev).ToArray()));
+            Check("relais IP de confiance, équipement déclaré : la déclaration qui l'a reconnu est montrée", Ids(rRelayDev).Contains("auth-internal-relay") && rRelayDev.Internal && rRelayDev.InternalHow == "relay"
+                && rRelayDev.Findings.First(f => f.Id == "auth-internal-relay").Evidence.Any(x => x.Contains("alertes@acmetech.fr")));
             var rRelayDevBad = Analyzer.Analyze(relayMail("10.0.50.20", "direction@acmetech.fr"), cfgNet);
             Check("relais IP de confiance, équipement déclaré, autre adresse : critique", Ids(rRelayDevBad).Contains("auth-internal-relay-sender") && rRelayDevBad.Level == "dangerous");
             // Même chose au nom d'une adresse qui n'est pas celle de l'entreprise (nom de machine sans domaine, comme un outil de supervision)
