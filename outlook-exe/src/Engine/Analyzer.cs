@@ -61,6 +61,7 @@ namespace PhishGuard
             public bool FirstContact;
             public bool SenderTrusted;
             public bool AuthOk;          // DMARC valide, ou SPF et DKIM valides
+            public string RelayProof = "";   // équipement déclaré qui a reconnu le message : IP et adresses autorisées
             public bool InternalForged;  // message à votre nom parti d'une machine du réseau interne sans authentification
             // Preuves de légitimité (affichées dans la fenêtre d'analyse ; ne masquent jamais un indice Élevé ou Critique)
             public List<string> Trust = new List<string>();
@@ -359,7 +360,10 @@ namespace PhishGuard
                         allowed.Count > 0 ? L.T("Équipement déclaré dans Paramètres → Entreprise, qui écrit au nom d’une adresse autorisée.")
                                           : L.T("Équipement déclaré dans Paramètres → Entreprise sans adresse d’expéditeur : il peut écrire au nom de n’importe qui. Ajoutez son adresse après l’IP pour repérer un équipement piraté."),
                         new[] { L.T("Équipement : ") + ip, L.T("Au nom de : ") + e.FromAddress, L.T("Adresses autorisées : ") + (allowed.Count > 0 ? string.Join(", ", allowed.ToArray()) : L.T("toutes")) }));
-                ctx.Trust.Add(L.F("Envoyé par un équipement interne déclaré ({0})", ip));
+                ctx.RelayProof = allowed.Count > 0
+                    ? L.F("Équipement interne déclaré ({0}), autorisé à écrire au nom de : {1}", ip, string.Join(", ", allowed.ToArray()))
+                    : L.F("Équipement interne déclaré ({0}), sans restriction d’expéditeur", ip);
+                ctx.Trust.Add(ctx.RelayProof);
                 ctx.Internal = true;
                 ctx.InternalHow = "relay";
                 return true;
@@ -437,7 +441,7 @@ namespace PhishGuard
             // (fausse alerte Microsoft) ou d'un nom de machine (supervision@serveur)
             if (CheckInternalOrigin(e, headers, authAs, authMech, ctx, findings))
             {
-                positives.Add(L.F("Envoyé par un équipement interne déclaré ({0})", InternalNet.Origin(headers).FromIp));
+                positives.Add(ctx.RelayProof);
                 return;
             }
 
@@ -468,7 +472,7 @@ namespace PhishGuard
                 }
                 if (relayIp != null && CheckRelaySender(e, relayIp, ctx, findings))
                 {
-                    positives.Add(L.F("Envoyé par un équipement interne déclaré ({0})", relayIp));
+                    positives.Add(ctx.RelayProof);
                     return;
                 }
             }
