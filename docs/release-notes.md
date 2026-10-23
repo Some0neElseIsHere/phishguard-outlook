@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.5** : correction. Un serveur de messagerie déclaré aussi comme équipement (pour ses propres rapports, limité à ses adresses) jugeait à tort tous les messages qui ne faisaient que le traverser : ils étaient signalés comme « équipement piraté ». L'équipement est maintenant celui d'où le message est parti (ou le client vu par Microsoft 365) ; un serveur traversé n'est retenu que s'il n'est limité à aucune adresse.
+
 - **v1.19.4** : l'analyse détaillée montre quelle déclaration a reconnu un équipement (adresse IP, expéditeur, adresses autorisées, ou « toutes » quand aucune n'est déclarée). Les paramètres refusent une ligne d'équipement dont la suite n'est pas une adresse d'expéditeur (par exemple `10.0.50.12 serveur.entreprise.local`), qui laissait l'équipement écrire au nom de n'importe qui.
 
 - **v1.19.3** : l'origine réseau est contrôlée **quel que soit l'expéditeur affiché**, et plus seulement pour les adresses de l'entreprise. Une machine interne non déclarée qui passe par un relais Exchange au nom d'une adresse externe (fausse alerte Microsoft) ou d'un nom de machine (`supervision@serveur`) est critique. Un équipement déclaré peut être limité à ce type d'adresse (`10.0.50.30 supervision@serveur`). Pour un message venu d'Internet, la recherche de l'origine s'arrête au premier serveur public : les adresses privées du réseau de l'expéditeur ne sont pas prises pour les vôtres. Banc d'essai : aucune fausse alerte.
