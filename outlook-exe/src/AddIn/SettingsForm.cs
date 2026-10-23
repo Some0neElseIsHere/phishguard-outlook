@@ -536,7 +536,7 @@ namespace PhishGuard.AddIn
             }
             if (txtRelays != null)
             {
-                // « 10.0.50.12 VBRDD-A1.entreprise.local » : le second mot n'est pas une adresse d'expéditeur, l'équipement resterait sans restriction
+                // « 10.0.50.12 serveur.entreprise.local » : le second mot n'est pas une adresse d'expéditeur, l'équipement resterait sans restriction
                 var bad = RelayLines(txtRelays).Where(l => l.Split(' ').Skip(1).Any(x => !x.Contains("@"))).ToList();
                 if (bad.Count > 0)
                 {

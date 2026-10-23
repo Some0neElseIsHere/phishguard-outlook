@@ -102,6 +102,7 @@ namespace PhishGuard.Tools
             var fEnt2 = new SettingsForm(cfg, null, "exemple-pme.fr");
             fEnt2.Shown += (snd, evt) => { foreach (var tc in fEnt2.Controls.OfType<TabControl>()) tc.TabPages[0].AutoScrollPosition = new Point(0, 520); };
             Capture(fEnt2, Path.Combine(outDir, "parametres-entreprise-bas.png"));
+            File.WriteAllLines(Path.Combine(outDir, "verif-liens.txt"), CheckAgeLink(cfg));
             var fRep = new SettingsForm(cfg, null, "exemple-pme.fr") { Height = 1200 };
             foreach (var tc in fRep.Controls.OfType<TabControl>()) tc.SelectedIndex = 4;   // onglet Réputation
             Capture(fRep, Path.Combine(outDir, "parametres-reputation.png"));
@@ -156,6 +157,42 @@ namespace PhishGuard.Tools
                 }
                 bmp.Save(Path.Combine(dir, "ruban.png"), ImageFormat.Png);
             }
+        }
+
+        /// <summary>Vérification : un clic sur le lien « Récupérer l'âge des domaines » de la page arrive-t-il au complément ?</summary>
+        static string[] CheckAgeLink(PhishGuardConfig cfg)
+        {
+            var log = new List<string>();
+            try
+            {
+                var em = new EmailData { FromName = "Test", FromAddress = "contact@domaine-de-test-inconnu.fr", Subject = "Test", BodyText = "Bonjour", RawHeaders = "From: contact@domaine-de-test-inconnu.fr\r\n" };
+                var rf = new ResultForm(null) { Expert = true, AllowExpert = true, StartPosition = FormStartPosition.Manual, Location = new Point(0, 0) };
+                rf.ShowResult(Analyzer.Analyze(em, cfg), em, "", true);
+                var wb = rf.Controls.OfType<WebBrowser>().FirstOrDefault() ?? AllControls(rf).OfType<WebBrowser>().FirstOrDefault();
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                while (sw.ElapsedMilliseconds < 15000 && (wb == null || wb.ReadyState != WebBrowserReadyState.Complete)) { Application.DoEvents(); System.Threading.Thread.Sleep(50); }
+                log.Add("page chargée : " + (wb != null && wb.ReadyState == WebBrowserReadyState.Complete));
+                HtmlElement link = null;
+                foreach (HtmlElement a in wb.Document.GetElementsByTagName("a"))
+                    if ((a.GetAttribute("href") ?? "").StartsWith(ResultForm.AgeAction, StringComparison.OrdinalIgnoreCase)) link = a;
+                log.Add("lien trouvé : " + (link != null));
+                if (link != null)
+                {
+                    link.InvokeMember("click");
+                    sw.Restart();
+                    while (sw.ElapsedMilliseconds < 5000 && !DomainAge.IsPending("domaine-de-test-inconnu.fr")) { Application.DoEvents(); System.Threading.Thread.Sleep(50); }
+                    DateTime? c;
+                    log.Add("clic reçu par le complément : " + (DomainAge.IsPending("domaine-de-test-inconnu.fr") || DomainAge.TryGetCreated("domaine-de-test-inconnu.fr", out c)));
+                }
+                rf.Close();
+            }
+            catch (Exception ex) { log.Add("erreur : " + ex.GetType().Name + " " + ex.Message); }
+            return log.ToArray();
+        }
+
+        static IEnumerable<Control> AllControls(Control c)
+        {
+            foreach (Control x in c.Controls) { yield return x; foreach (var y in AllControls(x)) yield return y; }
         }
 
         static void Capture(Form f, string path)
