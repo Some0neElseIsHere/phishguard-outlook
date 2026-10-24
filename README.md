@@ -329,6 +329,11 @@ Journal technique : `%LOCALAPPDATA%\PhishGuard\phishguard.log`.
 
 ---
 
+## Signaler une faille de sécurité
+
+Pas d'issue publique : utilisez le signalement privé de GitHub (onglet **Security** → **Report a vulnerability**).
+Détails dans [SECURITY.md](SECURITY.md). Le code est analysé automatiquement par CodeQL à chaque modification.
+
 ## Licence et crédits
 
 Code publié sous licence **GNU GPL v3** (voir [LICENSE](LICENSE)) : vous pouvez l'utiliser, le modifier et le redistribuer, à condition que les versions modifiées restent sous la même licence et que leur code source soit fourni.

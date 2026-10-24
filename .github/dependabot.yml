@@ -1,0 +1,10 @@
+# Mises à jour des actions GitHub utilisées par les workflows (compilation, captures, banc d'essai, CodeQL).
+# PhishGuard n'a pas d'autre dépendance gérée par un gestionnaire de paquets.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "Actions GitHub"
