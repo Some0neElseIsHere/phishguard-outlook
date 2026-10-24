@@ -138,7 +138,7 @@ jobs:
 
       - name: Déposer dans une release brouillon
         if: always()
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: bench-${{ github.run_number }}
           name: Banc d'essai (brouillon)
