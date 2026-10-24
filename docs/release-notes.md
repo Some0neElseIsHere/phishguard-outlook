@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.13** : plus de vérification quotidienne automatique des nouvelles versions. Un bouton **Rechercher une nouvelle version** dans Paramètres → À propos interroge GitHub d'un clic et propose le téléchargement si une version plus récente existe. La stratégie `CheckUpdates = false` masque le bouton.
+
 - **v1.19.12** : paramètres → Entreprise : les aides des champs « Serveurs de messagerie internes » et « Réseaux des postes de travail » indiquent ce qu'on peut saisir, avec des exemples (adresse IP, nom complet, plage).
 
 - **v1.19.11** : chaque fichier publié est accompagné d'une **attestation de provenance** signée par GitHub, qui prouve qu'il a été construit par le workflow du dépôt à partir du code publié (vérification : `gh attestation verify <fichier> --repo Some0neElseIsHere/phishguard-outlook`). Nouvelle politique de sécurité (`SECURITY.md`) et analyse automatique du code par CodeQL.

@@ -94,8 +94,8 @@ Registry value: Software\Policies\PhishGuard\ScoreLog</string>
       <string id="AllowApiKeys_Help">Disabled: no VirusTotal, abuse.ch or AbuseIPDB key is used on the computer and entering one is blocked. A key cannot be distributed by policy: any key readable by the computer is readable by the user. The free tiers of some services forbid business use: check their terms.
 
 Registry value: Software\Policies\PhishGuard\AllowApiKeys</string>
-      <string id="CheckUpdates">Notify of new versions</string>
-      <string id="CheckUpdates_Help">Once a day, asks GitHub for the latest published version number and notifies the user (About tab, status bar of the detailed analysis). Nothing is downloaded or installed. Disabled: no connection to GitHub, useful when updates are deployed by IT.
+      <string id="CheckUpdates">Check for a new version</string>
+      <string id="CheckUpdates_Help">Button in the About tab that asks GitHub, on click, for the latest published version number. Nothing is downloaded or installed. Disabled: the button is hidden and PhishGuard never contacts GitHub, useful when updates are deployed by IT.
 
 Registry value: Software\Policies\PhishGuard\CheckUpdates</string>
       <string id="RedFlagEnabled">Red Flag Domains list</string>

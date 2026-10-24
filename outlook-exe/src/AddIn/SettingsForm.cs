@@ -16,7 +16,7 @@ namespace PhishGuard.AddIn
     {
         readonly PhishGuardConfig cfg;
         readonly TextBox txtDomains, txtReport, txtVips, txtTrusted, txtCustom, txtTrustedSenders, txtShared;
-        readonly CheckBox chkAuto, chkRedFlag, chkExplain, chkCorr, chkAge, chkTag, chkMove, chkLog, chkUpdates;
+        readonly CheckBox chkAuto, chkRedFlag, chkExplain, chkCorr, chkAge, chkTag, chkMove, chkLog;
         readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert, chkPublic;
         readonly TextBox txtVt, txtAbuseCh, txtAbuseIpdb;
         readonly Label lblBeta;
@@ -259,7 +259,7 @@ namespace PhishGuard.AddIn
 
             // ---------------- À propos ----------------
             var pAbout = Page(L.T("À propos"));
-            chkUpdates = AboutPage.Fill(pAbout, cfg);
+            AboutPage.Fill(pAbout, cfg);
             tabs.TabPages.Add(pAbout);
 
             // ---------------- Boutons ----------------
@@ -432,7 +432,7 @@ namespace PhishGuard.AddIn
                 { "reportaddress", new Control[] { txtReport } }, { "trusteddomains", new Control[] { txtTrusted } },
                 { "trustedsenders", new Control[] { txtTrustedSenders } }, { "sharedblocklistpath", new Control[] { txtShared } },
                 { "autoanalyze", new Control[] { chkAuto } }, { "alertlevel", new Control[] { cboAlert } }, { "language", new Control[] { cboLang } }, { "theme", new Control[] { cboTheme } },
-                { "autohashmaxmb", new Control[] { numHash } }, { "redflagenabled", new Control[] { chkRedFlag } }, { "showexplanations", new Control[] { chkExplain } }, { "checkupdates", new Control[] { chkUpdates } },
+                { "autohashmaxmb", new Control[] { numHash } }, { "redflagenabled", new Control[] { chkRedFlag } }, { "showexplanations", new Control[] { chkExplain } },
                 { "knowncorrespondents", new Control[] { chkCorr } }, { "domainagelookup", new Control[] { chkAge } }, { "domainageauto", new Control[] { chkAge } }, { "tagcategory", new Control[] { chkTag } },
                 { "moveafterreport", new Control[] { chkMove } }, { "scorelog", new Control[] { chkLog } }, { "watchdomains", new Control[] { chkWatch } },
                 { "expertmode", new Control[] { cboMode } }, { "publicsectorlist", new Control[] { chkPublic } }, { "betaopenphish", new Control[] { chkOpenPhish } },
@@ -558,7 +558,6 @@ namespace PhishGuard.AddIn
             cfg.AutoHashMaxMB = (int)numHash.Value;
             cfg.RedFlagEnabled = chkRedFlag.Checked;
             cfg.ShowExplanations = chkExplain.Checked;
-            cfg.CheckUpdates = chkUpdates.Checked;
             cfg.KnownCorrespondents = chkCorr.Checked;
             cfg.DomainAgeLookup = chkAge.Checked;
             cfg.TagCategory = chkTag.Checked;

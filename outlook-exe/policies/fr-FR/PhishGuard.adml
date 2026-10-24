@@ -94,8 +94,8 @@ Valeur de registre : Software\Policies\PhishGuard\ScoreLog</string>
       <string id="AllowApiKeys_Help">Désactivé : aucune clé VirusTotal, abuse.ch ou AbuseIPDB n'est utilisée sur le poste et leur saisie est bloquée. Une clé ne peut pas être distribuée par stratégie : toute clé lisible par le poste l'est aussi par l'utilisateur. Les versions gratuites de certains services interdisent l'usage professionnel : vérifiez leurs conditions.
 
 Valeur de registre : Software\Policies\PhishGuard\AllowApiKeys</string>
-      <string id="CheckUpdates">Avertir des nouvelles versions</string>
-      <string id="CheckUpdates_Help">Une fois par jour, demande à GitHub le numéro de la dernière version publiée et prévient l'utilisateur (onglet À propos, barre d'état de l'analyse détaillée). Rien n'est téléchargé ni installé. Désactivée : aucune connexion à GitHub, utile si les mises à jour sont déployées par le service informatique.
+      <string id="CheckUpdates">Rechercher une nouvelle version</string>
+      <string id="CheckUpdates_Help">Bouton de l'onglet À propos qui demande à GitHub, d'un clic, le numéro de la dernière version publiée. Rien n'est téléchargé ni installé. Désactivée : le bouton est masqué et PhishGuard ne contacte jamais GitHub, utile si les mises à jour sont déployées par le service informatique.
 
 Valeur de registre : Software\Policies\PhishGuard\CheckUpdates</string>
       <string id="RedFlagEnabled">Liste Red Flag Domains</string>

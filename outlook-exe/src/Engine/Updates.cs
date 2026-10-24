@@ -61,6 +61,17 @@ namespace PhishGuard
             return IsNewer(LatestTag, installed);
         }
 
+        /// <summary>Vérification demandée d'un clic : bloquante (à appeler hors du fil de l'interface). Renvoie "" ou l'erreur.</summary>
+        public static string CheckNow(string repository)
+        {
+            EnsureLoaded();
+            try { Check(repository); LastError = ""; }
+            catch (Exception ex) { LastError = ex.Message; }
+            CheckedOn = DateTime.UtcNow;
+            Save();
+            return LastError;
+        }
+
         /// <summary>Vérification en arrière-plan si la dernière date de plus de 24 h (ou si force).</summary>
         public static void CheckAsync(string repository, bool force)
         {
