@@ -58,7 +58,7 @@ jobs:
           foreach ($id in $drafts) { if ($id) { gh api -X DELETE "repos/${{ github.repository }}/releases/$id" } }
 
       - name: Déposer dans une release brouillon
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: captures-${{ github.run_number }}
           name: Captures d'écran (brouillon)
