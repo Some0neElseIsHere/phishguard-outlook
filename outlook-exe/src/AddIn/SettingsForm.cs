@@ -15,7 +15,7 @@ namespace PhishGuard.AddIn
     internal class SettingsForm : Form
     {
         readonly PhishGuardConfig cfg;
-        readonly TextBox txtDomains, txtReport, txtVips, txtTrusted, txtCustom, txtTrustedSenders, txtShared;
+        readonly TextBox txtDomains, txtReport, txtTrusted, txtCustom, txtTrustedSenders, txtShared;
         readonly CheckBox chkAuto, chkRedFlag, chkExplain, chkCorr, chkAge, chkTag, chkMove, chkLog;
         readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert, chkPublic;
         readonly TextBox txtVt, txtAbuseCh, txtAbuseIpdb;
@@ -87,7 +87,7 @@ namespace PhishGuard.AddIn
             pGeneral.Controls.Add(btnEditCompany);
             companyControls.AddRange(new Control[] { lvCompanies, btnAddCompany, btnRemoveCompany, btnEditCompany });
             y += 32;
-            AddHint(pGeneral, ref y, L.T("Le nom de chaque entreprise est repéré dans le nom affiché des expéditeurs externes. Recherche dans l’Annuaire des Entreprises (France) ou Wikidata (autres pays) ; « Modifier… » complète les dirigeants à la main."));
+            AddHint(pGeneral, ref y, L.T("Le nom de chaque entreprise et de ses dirigeants est repéré dans le nom affiché des expéditeurs externes (fraude au président). Recherche dans l’Annuaire des Entreprises (France) ou Wikidata (autres pays) ; « Modifier… » complète les dirigeants à la main."));
             y += 10;
             int yDomains = y;
             txtDomains = AddText(pGeneral, ref y, L.T("Domaines de l’entreprise (un par ligne)"), string.Join(Environment.NewLine, cfg.CompanyDomains.ToArray()), true, 70,
@@ -119,10 +119,6 @@ namespace PhishGuard.AddIn
                 txtWorkstations = AddText(pGeneral, ref y, L.T("Réseaux des postes de travail (VLAN)"), string.Join(Environment.NewLine, cfg.WorkstationNets.ToArray()), true, 46,
                     L.T("Une plage par ligne, par exemple 10.20.30.0/24 (de 10.20.30.0 à 10.20.30.255). Un message parti directement d’un de ces réseaux, sans l’authentification de la messagerie, est signalé comme critique, avec l’adresse du poste. Pour tester : envoyez un message en SMTP depuis votre poste."));
             }
-            txtVips = AddText(pGeneral, ref y, L.T("Dirigeants"), "", true, 60,
-                L.T("Rempli à partir des entreprises ci-dessus. Un email externe affichant l’un de ces noms est signalé (fraude au président)."));
-            txtVips.ReadOnly = true;
-            txtVips.BackColor = SystemColors.Control;
             RefreshCompanies();
             txtReport = AddText(pGeneral, ref y, L.T("Adresse de l’équipe sécurité (bouton « Signaler »)"), cfg.ReportAddress, false, 0,
                 L.T("Le bouton « Signaler » de la fenêtre d’analyse lui transfère le message avec le rapport."));
@@ -324,10 +320,6 @@ namespace PhishGuard.AddIn
             lvCompanies.Items.Clear();
             foreach (var c in companies)
                 lvCompanies.Items.Add(new ListViewItem(new[] { c.Name, c.Country, c.Id, string.Join(", ", c.Directors.ToArray()) }));
-            var vips = new List<string>();
-            foreach (var d in companies.SelectMany(c => c.Directors))
-                if (!vips.Any(v => string.Equals(v, d, StringComparison.OrdinalIgnoreCase))) vips.Add(d);
-            txtVips.Text = string.Join(Environment.NewLine, vips.ToArray());
         }
 
         /// <summary>Ajoute (ou met à jour) une entreprise trouvée, et propose ses domaines.</summary>
