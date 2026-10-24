@@ -18,6 +18,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   complement-outlook:
@@ -71,6 +73,14 @@ jobs:
         with:
           name: PhishGuard-Outlook
           path: dist/*
+
+      # Attestation de provenance signée par GitHub : prouve que l'installeur a été construit ici, à partir de ce code.
+      # Vérification : gh attestation verify PhishGuard-Outlook-vX.Y.Z-installeur.exe --repo Some0neElseIsHere/phishguard-outlook
+      - name: Attester la provenance des fichiers publiés
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.version != ''
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'dist/*'
 
       - name: Publier la release
         if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.version != ''

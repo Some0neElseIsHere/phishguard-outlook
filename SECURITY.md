@@ -26,6 +26,15 @@ dans les notes de version une fois la correction disponible.
 Un phishing simplement non détecté n'est pas une faille : signalez-le dans une issue normale, toujours sans données
 personnelles.
 
+## Vérifier qu'un installeur est authentique
+
+Chaque installeur publié est accompagné d'une attestation de provenance signée par GitHub : elle prouve qu'il a été
+construit par le workflow du dépôt, à partir du code publié. Avec l'outil `gh` :
+
+```
+gh attestation verify PhishGuard-Outlook-vX.Y.Z-installeur.exe --repo Some0neElseIsHere/phishguard-outlook
+```
+
 ## Versions maintenues
 
 Seule la dernière version publiée reçoit des corrections. PhishGuard prévient lui-même quand une nouvelle version est
