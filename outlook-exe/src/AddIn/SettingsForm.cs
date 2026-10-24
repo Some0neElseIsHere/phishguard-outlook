@@ -113,11 +113,11 @@ namespace PhishGuard.AddIn
                 y += 26;
                 AddHint(pGeneral, ref y, L.T("Pour repérer un message « interne » fabriqué depuis un poste du réseau (envoi direct au serveur, sans authentification). Adresses IP, plages (10.20.30.0/24) ou noms (mail01.entreprise.local), un par ligne. Les noms sont traduits en adresses par votre DNS."));
                 txtMailServers = AddText(pGeneral, ref y, L.T("Serveurs de messagerie internes"), string.Join(Environment.NewLine, cfg.MailServers.ToArray()), true, 46,
-                    L.T("Exchange, passerelle de filtrage (FortiMail…), relais SMTP : tous ceux par lesquels passent vos messages."));
+                    L.T("Exchange, passerelle de filtrage (FortiMail…), relais SMTP : tous ceux par lesquels passent vos messages. Une ligne par serveur : adresse IP (10.0.0.5), nom complet (mail01.entreprise.local) ou plage (10.0.0.0/28)."));
                 txtRelays = AddText(pGeneral, ref y, L.T("Équipements qui envoient des mails (alertes, copieurs, applications)"), string.Join(Environment.NewLine, cfg.InternalRelays.ToArray()), true, 70,
                     L.T("Une ligne par équipement : son adresse IP (ou son nom), puis les seules adresses d’expéditeur qu’il a le droit d’utiliser, séparées par des espaces. Exemple : 10.0.50.12 alertes@entreprise.fr. Un message au nom d’une autre adresse venant de lui est critique (équipement piraté). Sans adresse d’expéditeur, il peut écrire au nom de n’importe qui dans l’entreprise. N’indiquez jamais l’adresse d’un service partagé (Microsoft 365, Google…)."));
                 txtWorkstations = AddText(pGeneral, ref y, L.T("Réseaux des postes de travail (VLAN)"), string.Join(Environment.NewLine, cfg.WorkstationNets.ToArray()), true, 46,
-                    L.T("Un message à votre nom parti directement d’un de ces réseaux, sans l’authentification de la messagerie, est signalé comme critique, avec l’adresse du poste. Pour tester : envoyez un message en SMTP depuis votre poste."));
+                    L.T("Une plage par ligne, par exemple 10.20.30.0/24 (de 10.20.30.0 à 10.20.30.255). Un message parti directement d’un de ces réseaux, sans l’authentification de la messagerie, est signalé comme critique, avec l’adresse du poste. Pour tester : envoyez un message en SMTP depuis votre poste."));
             }
             txtVips = AddText(pGeneral, ref y, L.T("Dirigeants"), "", true, 60,
                 L.T("Rempli à partir des entreprises ci-dessus. Un email externe affichant l’un de ces noms est signalé (fraude au président)."));
