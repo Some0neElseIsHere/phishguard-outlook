@@ -91,7 +91,10 @@ namespace PhishGuard
         static readonly Dictionary<char, char> Cyrillic = new Dictionary<char, char> {
             { 'a', '\u0430' }, { 'c', '\u0441' }, { 'e', '\u0435' }, { 'i', '\u0456' }, { 'j', '\u0458' }, { 'o', '\u043E' }, { 'p', '\u0440' }, { 's', '\u0455' }, { 'x', '\u0445' }, { 'y', '\u0443' } };
         static readonly string[][] Glyphs = { new[] { "o", "0" }, new[] { "l", "1" }, new[] { "i", "1" }, new[] { "i", "l" }, new[] { "l", "i" }, new[] { "m", "rn" },
-            new[] { "rn", "m" }, new[] { "w", "vv" }, new[] { "vv", "w" }, new[] { "d", "cl" }, new[] { "cl", "d" }, new[] { "e", "3" }, new[] { "a", "4" }, new[] { "s", "5" } };
+            new[] { "rn", "m" }, new[] { "m", "nn" }, new[] { "nn", "m" }, new[] { "m", "ni" }, new[] { "m", "ri" }, new[] { "m", "in" }, new[] { "n", "ri" }, new[] { "n", "ii" },
+            new[] { "w", "vv" }, new[] { "vv", "w" }, new[] { "w", "uu" }, new[] { "u", "v" }, new[] { "v", "u" }, new[] { "u", "ii" }, new[] { "d", "cl" }, new[] { "cl", "d" },
+            new[] { "g", "q" }, new[] { "q", "g" }, new[] { "h", "lh" }, new[] { "b", "lb" }, new[] { "a", "ci" }, new[] { "o", "c" }, new[] { "e", "c" }, new[] { "c", "e" },
+            new[] { "e", "3" }, new[] { "a", "4" }, new[] { "s", "5" } };
 
         /// <summary>Variantes plausibles d'un domaine, avec la technique utilisée. Le domaine lui-même est exclu.
         /// Les « touches voisines » tombent parfois sur de vraies entreprises : la liste est informative, rien n'est bloqué sans votre accord.</summary>

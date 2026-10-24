@@ -76,13 +76,14 @@ namespace PhishGuard.AddIn
             var domBar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 40, FlowDirection = FlowDirection.LeftToRight, Padding = new Padding(0, 6, 0, 0) };
             btnBlock = new Button { Text = L.T("Bloquer les sosies cochés"), AutoSize = true, Enabled = false };
             btnBlock.Click += (s, e) => ApplyBlock();
-            btnAddDomains = new Button { Text = L.T("Ajouter les domaines liés cochés à l’entreprise"), AutoSize = true, Enabled = false };
+            btnAddDomains = new Button { Text = L.T("Ajouter les domaines cochés à l’entreprise"), AutoSize = true, Enabled = false };
             btnAddDomains.Click += (s, e) => ApplyRelated();
             var btnAll = new Button { Text = L.T("Tout cocher"), AutoSize = true };
             btnAll.Click += (s, e) => { foreach (ListViewItem i in lvDomains.Items) if (i.Tag is FoundDomain) i.Checked = true; };
             var btnNone = new Button { Text = L.T("Tout décocher"), AutoSize = true };
             btnNone.Click += (s, e) => { foreach (ListViewItem i in lvDomains.Items) i.Checked = false; };
             domBar.Controls.AddRange(new Control[] { btnAll, btnNone, btnBlock, btnAddDomains });
+            lvDomains.ItemChecked += (s, e) => UpdateButtons();
             pDom.Controls.Add(lvDomains);
             pDom.Controls.Add(domBar);
             tabs.TabPages.Add(pDom);
@@ -165,8 +166,7 @@ namespace PhishGuard.AddIn
                 lvDomains.Items.Add(new ListViewItem(new[] { f.Domain, L.T("certificat récent"), f.Technique + (f.Seen.HasValue ? " — " + f.Seen.Value.ToString("dd/MM/yyyy") : "") }, gCert) { Tag = f, Checked = true });
             foreach (var f in r.Related)
                 lvDomains.Items.Add(new ListViewItem(new[] { f.Domain, L.T("domaine lié"), L.F("Sur {0} certificat(s) de votre domaine : probablement à vous.", f.Count) }, gRel) { Tag = f, Checked = true });
-            btnBlock.Enabled = r.Lookalikes.Count + r.BrandCerts.Count > 0;
-            btnAddDomains.Enabled = r.Related.Count > 0 || r.Lookalikes.Any(x => x.LikelyOwned);
+            UpdateButtons();
             if (lvDomains.Items.Count == 0) lvDomains.Items.Add(new ListViewItem(new[] { L.T("Aucun sosie enregistré trouvé."), "", "" }));
 
 
@@ -176,6 +176,20 @@ namespace PhishGuard.AddIn
 
             // Point de départ de la surveillance hebdomadaire
             try { DomainAudit.RecordBaseline(r.Domain, r.Lookalikes); } catch (Exception) { }
+        }
+
+        List<FoundDomain> CheckedDomains()
+        {
+            return lvDomains.Items.Cast<ListViewItem>().Where(i => i.Checked && i.Tag is FoundDomain).Select(i => (FoundDomain)i.Tag).ToList();
+        }
+
+        /// <summary>Les boutons suivent les cases cochées : bloquer les sosies, ou déclarer comme vôtres les domaines que vous possédez.</summary>
+        void UpdateButtons()
+        {
+            if (report == null) { btnBlock.Enabled = btnAddDomains.Enabled = false; return; }
+            var c = CheckedDomains();
+            btnBlock.Enabled = c.Any(f => f.Kind != "related" && !f.LikelyOwned);
+            btnAddDomains.Enabled = c.Count > 0;
         }
 
         void ApplyBlock()
@@ -190,10 +204,18 @@ namespace PhishGuard.AddIn
 
         void ApplyRelated()
         {
-            var list = lvDomains.Items.Cast<ListViewItem>()
-                .Where(i => i.Checked && i.Tag is FoundDomain && (((FoundDomain)i.Tag).Kind == "related" || ((FoundDomain)i.Tag).LikelyOwned))
-                .Select(i => ((FoundDomain)i.Tag).Domain).ToList();
-            if (list.Count == 0 || AddCompanyDomains == null) return;
+            var chosen = CheckedDomains();
+            if (chosen.Count == 0 || AddCompanyDomains == null) return;
+            // Un domaine de l'entreprise est traité comme sûr : déclarer par erreur le sosie d'un escroc lui ouvrirait la porte
+            var doubtful = chosen.Where(f => f.Kind != "related" && !f.LikelyOwned).Select(f => f.Domain).ToList();
+            if (doubtful.Count > 0)
+            {
+                string names = string.Join("\n", doubtful.Take(10).Select(d => "  • " + d).ToArray()) + (doubtful.Count > 10 ? "\n  …" : "");
+                var ans = MessageBox.Show(this, L.F("Rien n’indique que ces domaines sont à vous :\n\n{0}\n\nUn domaine de l’entreprise est considéré comme sûr : si l’un d’eux appartient à un escroc, ses messages ne seront plus signalés. Les ajouter quand même ?", names),
+                    "PhishGuard", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+                if (ans != DialogResult.Yes) return;
+            }
+            var list = chosen.Select(f => f.Domain).ToList();
             AddCompanyDomains(list);
             lblStatus.Text = L.F("{0} domaine(s) ajouté(s) aux domaines de l’entreprise. Cliquez sur « Enregistrer » dans les paramètres.", list.Count);
         }
