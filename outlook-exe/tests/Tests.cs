@@ -665,6 +665,13 @@ namespace PhishGuard.Tests
             var au3 = DomainAudit.AuditRecords("x.fr", new List<string> { "mx.x.fr" }, new List<string> { "v=spf1 mx ~all" }, new List<string> { "v=DMARC1; p=none" },
                 new List<string>(), new List<string>(), new List<string>(), new List<string>(), new List<string>());
             Check("bilan email : p=none à améliorer", au3[0].Status == "warn" && au3.Any(x => x.Title.Contains("p=none")));
+            var au4 = DomainAudit.AuditRecords("x.fr", new List<string> { "mail1.x.fr" }, new List<string> { "v=spf1 mx -all" }, new List<string> { "v=DMARC1; p=reject" },
+                new List<string>(), new List<string>(), new List<string>(), new List<string> { "brevo1" }, new List<string>());
+            Check("bilan email : DKIM seulement pour une plateforme d'envoi", au4.Any(x => x.Status == "warn" && x.Title.Contains("Brevo")) && !au4.Any(x => x.Title == "Signature DKIM publiée"),
+                string.Join(" | ", au4.Select(x => x.Status + ":" + x.Title).ToArray()));
+            Check("DKIM : vrai enregistrement seulement", DomainAudit.IsDkimRecord("v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx1y2z3")
+                && DomainAudit.IsDkimRecord("k=rsa; p=") && !DomainAudit.IsDkimRecord("v=spf1 a mx -all") && !DomainAudit.IsDkimRecord("v=DMARC1; p=none")
+                && !DomainAudit.IsDkimRecord("google-site-verification=abc") && !DomainAudit.IsDkimRecord("p=x"));
             Check("bilan email : DKIM introuvable à améliorer", au3.Any(x => x.Title == "Signature DKIM introuvable" && x.Status == "warn"));
             const string CRT = "[{\"name_value\":\"lorema.com\\nwww.lorema.com\\nlorema.fr\",\"not_before\":\"2026-10-10T08:00:00\"},"
                 + "{\"name_value\":\"*.lorema.com\\nlorema-group.com\",\"not_before\":\"2026-01-01T00:00:00\"},"

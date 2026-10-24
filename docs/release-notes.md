@@ -12,6 +12,11 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.16** : « Analyser mon domaine » :
+  - **DKIM plus juste** : seul un vrai enregistrement DKIM compte (un DNS « joker » qui répond pour n'importe quel nom est détecté), chaque sélecteur trouvé indique le service qui l'utilise habituellement, et une clé publiée seulement pour une plateforme d'envoi (Brevo, Mailchimp, Mailjet, SendGrid) est signalée « À améliorer » : vos propres emails ne sont probablement pas signés ;
+  - **recherche en cours visible** : barre animée et pointeur d'attente pendant l'analyse ;
+  - **Sosies du domaine** : boutons « Tout cocher » et « Tout décocher » ; en mode sombre, plus de titres de groupe en bleu illisibles (la colonne Type indique déjà le genre de domaine).
+
 - **v1.19.15** : « Analyser mon domaine » :
   - **DKIM introuvable** : signalé « À améliorer » (au lieu d'une simple information), avec ses conséquences, et deux fois plus de sélecteurs essayés ;
   - **Sosies du domaine** (onglet renommé) : 350 à 500 variantes au lieu d'environ 170 ; nouvelles techniques : touches voisines (AZERTY et QWERTY), voyelles changées, lettres cyrilliques identiques à l'œil (`xn--…`), préfixes (my, mon, www…), 25 extensions et 25 mots de plus ;

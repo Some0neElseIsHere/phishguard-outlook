@@ -292,8 +292,21 @@ namespace PhishGuard
             // ---- DKIM ----
             if (dkimSelectors.Count > 0)
             {
-                Func<string, string> desc = s => { int b; return dkimBits != null && dkimBits.TryGetValue(s, out b) && b > 0 ? s + " (" + b + " bits)" : s; };
-                items.Add(new AuditItem("ok", L.T("Signature DKIM publiée"), L.T("Sélecteurs trouvés : ") + string.Join(", ", dkimSelectors.Select(desc).ToArray())));
+                Func<string, string> desc = s =>
+                {
+                    int b; string who = SelectorProvider(s);
+                    return s + (who != null ? " — " + who : "") + (dkimBits != null && dkimBits.TryGetValue(s, out b) && b > 0 ? " (" + b + " bits)" : "");
+                };
+                // Clés publiées seulement pour des plateformes d'envoi (Brevo, Mailchimp…) alors que vos emails partent d'ailleurs :
+                // les emails de vos boîtes ne sont probablement pas signés
+                var ownProviders = new HashSet<string>(mx.Select(ProviderOf).Where(p => p != null));
+                var selProviders = dkimSelectors.Select(SelectorProvider).ToList();
+                bool onlyPlatforms = selProviders.All(p => p != null && BulkPlatforms.Contains(p)) && !selProviders.Any(ownProviders.Contains);
+                if (onlyPlatforms)
+                    items.Add(new AuditItem("warn", L.F("Signature DKIM seulement pour {0}", string.Join(", ", selProviders.Distinct().ToArray())),
+                        L.T("Une clé est publiée pour cette plateforme d’envoi, mais aucune pour vos propres serveurs : les emails de vos boîtes ne sont probablement pas signés. Vérifiez l’en-tête « DKIM-Signature » d’un message envoyé depuis Outlook. Sélecteurs trouvés : ") + string.Join(", ", dkimSelectors.Select(desc).ToArray())));
+                else
+                    items.Add(new AuditItem("ok", L.T("Signature DKIM publiée"), L.T("Sélecteurs trouvés : ") + string.Join(", ", dkimSelectors.Select(desc).ToArray())));
                 if (dkimBits != null)
                 {
                     var weak = dkimSelectors.Where(s => dkimBits.ContainsKey(s) && dkimBits[s] > 256 && dkimBits[s] < 2048).ToList();
@@ -343,6 +356,39 @@ namespace PhishGuard
             "smtp", "mx", "key1", "key2", "sig1", "everlytickey1", "everlytickey2", "mailjet", "mandrill", "brevo1", "brevo2", "sendinblue", "zoho", "zmail", "protonmail", "protonmail2",
             "fm1", "fm2", "fm3", "mxvault", "ovh", "ionos", "dk", "pm", "scph", "sm", "spop", "x" };
 
+        static readonly HashSet<string> BulkPlatforms = new HashSet<string> { "Brevo", "Mailchimp", "Mailjet", "SendGrid", "Everlytic" };
+
+        /// <summary>Service qui utilise habituellement ce nom de sélecteur DKIM (indicatif), ou null.</summary>
+        public static string SelectorProvider(string selector)
+        {
+            switch ((selector ?? "").ToLowerInvariant())
+            {
+                case "selector1": case "selector2": return "Microsoft 365";
+                case "google": return "Google Workspace";
+                case "brevo1": case "brevo2": case "sendinblue": return "Brevo";
+                case "k1": case "k2": case "k3": case "mandrill": return "Mailchimp";
+                case "mailjet": return "Mailjet";
+                case "s1": case "s2": return "SendGrid";
+                case "everlytickey1": case "everlytickey2": return "Everlytic";
+                case "zoho": case "zmail": return "Zoho";
+                case "protonmail": case "protonmail2": return "Proton";
+                case "fm1": case "fm2": case "fm3": return "Fastmail";
+                default: return null;
+            }
+        }
+
+        static readonly Regex DkimKeyRe = new Regex(@"(^|;)\s*p=\s*([A-Za-z0-9+/=\s]*)\s*(;|$)", RegexOptions.Compiled);
+
+        /// <summary>Vraie clé DKIM : « v=DKIM1 » ou une balise p= (clé publique, ou vide si révoquée) ; ni SPF, ni DMARC, ni autre TXT.</summary>
+        public static bool IsDkimRecord(string txt)
+        {
+            string t = (txt ?? "").Trim();
+            if (t.StartsWith("v=spf1", StringComparison.OrdinalIgnoreCase) || t.StartsWith("v=DMARC1", StringComparison.OrdinalIgnoreCase)) return false;
+            if (t.StartsWith("v=DKIM1", StringComparison.OrdinalIgnoreCase)) return true;
+            var m = DkimKeyRe.Match(t);
+            return m.Success && (m.Groups[2].Value.Trim().Length == 0 || m.Groups[2].Value.Replace(" ", "").Length >= 64);
+        }
+
         public static List<AuditItem> AuditEmail(string domain, List<string> senders)
         {
             var mx = new List<string>(); var txt = new List<string>(); var dmarc = new List<string>(); var bimi = new List<string>();
@@ -357,11 +403,16 @@ namespace PhishGuard
             var found = new List<string>();
             var bits = new Dictionary<string, int>();
             var sync = new object();
+            // Un DNS « joker » (*.domaine ou *._domainkey.domaine) répond pour n'importe quel nom : un sélecteur inventé
+            // sert de témoin, et toute réponse identique à la sienne est ignorée.
+            var probe = new List<string>();
+            Intel.Query("pg" + Guid.NewGuid().ToString("N").Substring(0, 10) + "._domainkey." + domain, Intel.TypeTxt, probe);
+            var wildcard = new HashSet<string>(probe);
             Parallel.ForEach(DkimSelectors, new ParallelOptions { MaxDegreeOfParallelism = 6 }, s =>
             {
                 var v = new List<string>();
                 Intel.Query(s + "._domainkey." + domain, Intel.TypeTxt, v);
-                string rec = v.FirstOrDefault(x => x.Contains("p=") || x.Contains("k=rsa"));
+                string rec = v.FirstOrDefault(x => IsDkimRecord(x) && !wildcard.Contains(x));
                 if (rec != null) lock (sync) { found.Add(s); bits[s] = Intel.DkimKeyBits(rec); }
             });
             return AuditRecords(domain, mx, txt, dmarc, bimi, sts, rpt, DkimSelectors.Where(found.Contains).ToList(), senders, bits);

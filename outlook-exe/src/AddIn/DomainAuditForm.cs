@@ -17,6 +17,7 @@ namespace PhishGuard.AddIn
         readonly ComboBox cboDomain;
         readonly Button btnRun, btnCopy, btnBlock, btnAddDomains;
         readonly Label lblStatus;
+        readonly ProgressBar progress;
         readonly ListView lvEmail, lvDomains;
         readonly TabControl tabs;
         readonly List<string> companyDomains;
@@ -50,7 +51,9 @@ namespace PhishGuard.AddIn
             btnRun.Click += (s, e) => Start();
             lblStatus = new Label { Location = new Point(10, 40), AutoSize = true, ForeColor = SystemColors.GrayText,
                 Text = L.T("Ne sont envoyés que des noms de domaine (DNS, crt.sh). Durée : deux à trois minutes.") };
-            top.Controls.AddRange(new Control[] { cboDomain, btnRun, lblStatus });
+            // Recherche en cours : barre animée à côté du bouton, et le pointeur indique l'attente
+            progress = new ProgressBar { Location = new Point(450, 14), Size = new Size(220, 16), Style = ProgressBarStyle.Marquee, MarqueeAnimationSpeed = 30, Visible = false };
+            top.Controls.AddRange(new Control[] { cboDomain, btnRun, progress, lblStatus });
 
             tabs = new ThemedTabControl { Dock = DockStyle.Fill, Padding = new Point(12, 4) };
 
@@ -65,7 +68,8 @@ namespace PhishGuard.AddIn
 
             // ---- Domaines ----
             var pDom = new TabPage(L.T("Sosies du domaine")) { Padding = new Padding(6) };
-            lvDomains = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, CheckBoxes = true, ShowItemToolTips = true };
+            // En mode sombre, les titres de groupe sont dessinés en bleu par Windows (illisibles) : sans groupes, la colonne Type suffit
+            lvDomains = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, CheckBoxes = true, ShowItemToolTips = true, ShowGroups = !Theme.Dark };
             lvDomains.Columns.Add(L.T("Domaine"), 230);
             lvDomains.Columns.Add(L.T("Type"), 170);
             lvDomains.Columns.Add(L.T("Détail"), 380);
@@ -74,7 +78,11 @@ namespace PhishGuard.AddIn
             btnBlock.Click += (s, e) => ApplyBlock();
             btnAddDomains = new Button { Text = L.T("Ajouter les domaines liés cochés à l’entreprise"), AutoSize = true, Enabled = false };
             btnAddDomains.Click += (s, e) => ApplyRelated();
-            domBar.Controls.AddRange(new Control[] { btnBlock, btnAddDomains });
+            var btnAll = new Button { Text = L.T("Tout cocher"), AutoSize = true };
+            btnAll.Click += (s, e) => { foreach (ListViewItem i in lvDomains.Items) if (i.Tag is FoundDomain) i.Checked = true; };
+            var btnNone = new Button { Text = L.T("Tout décocher"), AutoSize = true };
+            btnNone.Click += (s, e) => { foreach (ListViewItem i in lvDomains.Items) i.Checked = false; };
+            domBar.Controls.AddRange(new Control[] { btnAll, btnNone, btnBlock, btnAddDomains });
             pDom.Controls.Add(lvDomains);
             pDom.Controls.Add(domBar);
             tabs.TabPages.Add(pDom);
@@ -103,6 +111,7 @@ namespace PhishGuard.AddIn
                 return;
             }
             btnRun.Enabled = false; btnCopy.Enabled = false; btnBlock.Enabled = false; btnAddDomains.Enabled = false;
+            progress.Visible = true; UseWaitCursor = true;
             lvEmail.Items.Clear(); lvDomains.Items.Clear(); lvDomains.Groups.Clear();
             var others = companyDomains.ToList();
             var t = new System.Threading.Thread(() =>
@@ -124,6 +133,7 @@ namespace PhishGuard.AddIn
         void ShowReport(DomainReport r)
         {
             btnRun.Enabled = true;
+            progress.Visible = false; UseWaitCursor = false;
             if (r == null) return;
             report = r;
             btnCopy.Enabled = true;
