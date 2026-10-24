@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.11** : chaque fichier publié est accompagné d'une **attestation de provenance** signée par GitHub, qui prouve qu'il a été construit par le workflow du dépôt à partir du code publié (vérification : `gh attestation verify <fichier> --repo Some0neElseIsHere/phishguard-outlook`). Nouvelle politique de sécurité (`SECURITY.md`) et analyse automatique du code par CodeQL.
+
 - **v1.19.10** : bilan complet de l'application.
   - **Sécurité** : pour un message reçu sur un compte IMAP/POP (Gmail, Orange…) ou lu dans un fichier .pst, les en-têtes « Exchange » qui marquent un message comme interne sont ignorés : un expéditeur pouvait les ajouter lui-même pour faire passer un faux message pour interne et adoucir son analyse.
   - **Nouvel indice** : un message au nom de votre entreprise, arrivé d'Internet sans aucun résultat d'authentification, est signalé (élevé).
