@@ -1,6 +1,6 @@
 ﻿// PhishGuard - analyse de votre propre domaine (Paramètres → Entreprise → « Analyser mon domaine ») :
 // 1. sécurité de la messagerie : MX, SPF, DKIM, DMARC, BIMI, MTA-STS (DNS de Windows) ;
-// 2. identité : mentions légales du site → SIREN → Annuaire des Entreprises (dirigeants) ;
+// 2. (retiré : identité de l'entreprise, déjà dans Paramètres → Entreprise) ;
 // 3. domaines liés trouvés sur vos certificats HTTPS (crt.sh) ;
 // 4. certificats récents contenant votre marque sur d'autres domaines (crt.sh) ;
 // 5. sosies déjà enregistrés (variantes de votre domaine vérifiées dans le DNS).
@@ -60,14 +60,41 @@ namespace PhishGuard
         // Variantes (sosies possibles)
         // =================================================================
 
-        static readonly string[] Tlds = { "com", "fr", "net", "org", "eu", "info", "biz", "co", "io", "online", "site", "shop", "store", "app", "pro", "group", "cloud", "tech" };
-        static readonly string[] Words = { "fr", "france", "group", "groupe", "sas", "pay", "paiement", "facture", "factures", "invoice", "rh", "support",
-            "secure", "securite", "login", "connexion", "compte", "mail", "info", "service", "services", "client", "clients", "online", "portail" };
+        static readonly string[] Tlds = { "com", "fr", "net", "org", "eu", "info", "biz", "co", "io", "online", "site", "shop", "store", "app", "pro", "group", "cloud", "tech",
+            "be", "ch", "de", "es", "it", "nl", "uk", "us", "ca", "me", "cc", "tv", "xyz", "top", "live", "life", "email", "digital", "services", "solutions", "company", "support", "link", "click", "website", "space" };
+        static readonly string[] Words = { "fr", "france", "group", "groupe", "sas", "pay", "paiement", "facture", "factures", "facturation", "invoice", "rh", "paie", "support",
+            "secure", "securite", "login", "connexion", "compte", "account", "mail", "info", "service", "services", "client", "clients", "online", "portail",
+            "it", "dsi", "admin", "helpdesk", "office", "o365", "microsoft", "sharepoint", "docs", "drive", "cloud", "verify", "verification", "update", "intranet", "extranet", "web", "direction", "compta" };
+        static readonly string[] Prefixes = { "my", "mon", "www", "e", "the" };
+
+        // Claviers AZERTY et QWERTY : une touche voisine (même rangée ou rangée du dessus / du dessous)
+        static readonly string[][] Keyboards = { new[] { "azertyuiop", "qsdfghjklm", "wxcvbn" }, new[] { "qwertyuiop", "asdfghjkl", "zxcvbnm" } };
+
+        static HashSet<char> Neighbours(char c)
+        {
+            var res = new HashSet<char>();
+            foreach (var kb in Keyboards)
+                for (int r = 0; r < kb.Length; r++)
+                {
+                    int i = kb[r].IndexOf(c);
+                    if (i < 0) continue;
+                    if (i > 0) res.Add(kb[r][i - 1]);
+                    if (i + 1 < kb[r].Length) res.Add(kb[r][i + 1]);
+                    foreach (int rr in new[] { r - 1, r + 1 })
+                        if (rr >= 0 && rr < kb.Length) for (int j = Math.Max(0, i - 1); j <= Math.Min(kb[rr].Length - 1, i); j++) res.Add(kb[rr][j]);
+                }
+            res.Remove(c);
+            return res;
+        }
+
+        // Lettres d'autres alphabets identiques à l'œil (cyrillique) : le nom s'écrit en « xn--… » mais s'affiche comme le vôtre
+        static readonly Dictionary<char, char> Cyrillic = new Dictionary<char, char> {
+            { 'a', '\u0430' }, { 'c', '\u0441' }, { 'e', '\u0435' }, { 'i', '\u0456' }, { 'j', '\u0458' }, { 'o', '\u043E' }, { 'p', '\u0440' }, { 's', '\u0455' }, { 'x', '\u0445' }, { 'y', '\u0443' } };
         static readonly string[][] Glyphs = { new[] { "o", "0" }, new[] { "l", "1" }, new[] { "i", "1" }, new[] { "i", "l" }, new[] { "l", "i" }, new[] { "m", "rn" },
             new[] { "rn", "m" }, new[] { "w", "vv" }, new[] { "vv", "w" }, new[] { "d", "cl" }, new[] { "cl", "d" }, new[] { "e", "3" }, new[] { "a", "4" }, new[] { "s", "5" } };
 
         /// <summary>Variantes plausibles d'un domaine, avec la technique utilisée. Le domaine lui-même est exclu.
-        /// Les remplacements « touche voisine du clavier » sont volontairement absents : ils tombent trop souvent sur de vraies entreprises.</summary>
+        /// Les « touches voisines » tombent parfois sur de vraies entreprises : la liste est informative, rien n'est bloqué sans votre accord.</summary>
         public static List<KeyValuePair<string, string>> Variants(string domain)
         {
             var list = new List<KeyValuePair<string, string>>();
@@ -77,11 +104,12 @@ namespace PhishGuard
             var seen = new HashSet<string> { self };
             Action<string, string, string> add = (lab, suf, tech) =>
             {
-                if (lab.Length < 2 || lab.StartsWith("-") || lab.EndsWith("-") || lab.Contains("--")) return;
+                if (lab.Length < 2 || lab.StartsWith("-") || lab.EndsWith("-") || (lab.Contains("--") && !lab.StartsWith("xn--"))) return;
                 string d = lab + "." + suf;
                 if (seen.Add(d)) list.Add(new KeyValuePair<string, string>(d, tech));
             };
             string tTld = L.T("autre extension"), tTypo = L.T("faute de frappe"), tGlyph = L.T("caractère trompeur"), tHyphen = L.T("tiret ajouté"), tWord = L.T("mot ajouté");
+            string tKey = L.T("touche voisine"), tVowel = L.T("voyelle changée"), tIdn = L.T("lettre étrangère identique");
 
             foreach (var t in Tlds) if (t != suffix) add(label, t, tTld);
             if (suffix != "com" && suffix != "fr") add(label, "com.fr", tTld);
@@ -93,6 +121,20 @@ namespace PhishGuard
                 for (int i = label.IndexOf(g[0], StringComparison.Ordinal); i >= 0; i = label.IndexOf(g[0], i + 1, StringComparison.Ordinal))
                     add(label.Substring(0, i) + g[1] + label.Substring(i + g[0].Length), suffix, tGlyph);
             for (int i = 2; i <= label.Length - 2; i++) add(label.Insert(i, "-"), suffix, tHyphen);
+            for (int i = 0; i < label.Length; i++)                                                                                  // touche voisine
+                foreach (char n in Neighbours(label[i])) add(label.Substring(0, i) + n + label.Substring(i + 1), suffix, tKey);
+            const string vowels = "aeiouy";
+            for (int i = 0; i < label.Length; i++)                                                                                  // voyelle changée
+                if (vowels.IndexOf(label[i]) >= 0) foreach (char v in vowels) if (v != label[i]) add(label.Substring(0, i) + v + label.Substring(i + 1), suffix, tVowel);
+            var idn = new System.Globalization.IdnMapping();
+            for (int i = 0; i < label.Length; i++)                                                                                  // lettre cyrillique
+            {
+                char cy;
+                if (!Cyrillic.TryGetValue(label[i], out cy)) continue;
+                try { add(idn.GetAscii(label.Substring(0, i) + cy + label.Substring(i + 1)), suffix, tIdn); } catch (Exception) { }
+            }
+            foreach (var pre in Prefixes) add(pre + label, suffix, tWord);
+            add(label + "com", "fr", tWord); add(label + "com", "net", tWord);
             var sufs = suffix == "com" ? new[] { "com", "fr" } : new[] { suffix, "com" };
             foreach (var w in Words)
                 foreach (var s in sufs)
@@ -265,7 +307,7 @@ namespace PhishGuard
                 }
             }
             else
-                items.Add(new AuditItem("info", L.T("Aucun sélecteur DKIM courant trouvé"), L.T("Il peut exister sous un autre nom : vérifiez dans l’en-tête « DKIM-Signature » (s=) d’un de vos emails.")));
+                items.Add(new AuditItem("warn", L.T("Signature DKIM introuvable"), L.T("Aucun des sélecteurs courants n’est publié. Sans DKIM, vos emails ne sont authentifiés que par SPF : un simple transfert les fait échouer à DMARC, et Gmail, Yahoo et Microsoft exigent DKIM pour les envois en nombre. Si vous signez déjà vos emails, le sélecteur porte un autre nom : vérifiez l’en-tête « DKIM-Signature » (s=) d’un de vos messages.")));
 
             // ---- DMARC (détail) ----
             if (dmarc.Count > 1)
@@ -297,7 +339,9 @@ namespace PhishGuard
             return items;
         }
 
-        static readonly string[] DkimSelectors = { "selector1", "selector2", "google", "default", "dkim", "mail", "k1", "k2", "s1", "s2", "smtp", "mx", "key1", "sig1", "everlytickey1", "mailjet", "mandrill" };
+        static readonly string[] DkimSelectors = { "selector1", "selector2", "google", "default", "dkim", "dkim1", "dkim2", "mail", "email", "k1", "k2", "k3", "s1", "s2", "s1024", "s2048",
+            "smtp", "mx", "key1", "key2", "sig1", "everlytickey1", "everlytickey2", "mailjet", "mandrill", "brevo1", "brevo2", "sendinblue", "zoho", "zmail", "protonmail", "protonmail2",
+            "fm1", "fm2", "fm3", "mxvault", "ovh", "ionos", "dk", "pm", "scph", "sm", "spop", "x" };
 
         public static List<AuditItem> AuditEmail(string domain, List<string> senders)
         {
@@ -523,20 +567,6 @@ namespace PhishGuard
             step(L.T("Sécurité de la messagerie (DNS)…"));
             try { r.Email = AuditEmail(d, r.Senders); } catch (Exception ex) { r.Errors.Add("DNS : " + ex.Message); }
 
-            step(L.T("Mentions légales du site…"));
-            try
-            {
-                string page;
-                r.Siren = SirenFromWebsite(d, out page);
-                r.LegalUrl = page;
-                if (r.Siren.Length > 0)
-                {
-                    step(L.T("Annuaire des Entreprises…"));
-                    r.Company = CompanyLookup.Search(r.Siren).FirstOrDefault(c => c.Siren == r.Siren);
-                }
-            }
-            catch (Exception ex) { r.Errors.Add(L.T("Site web : ") + ex.Message); }
-
             step(L.T("Domaines liés (certificats, crt.sh)…"));
             try { r.Related = ParseRelated(Crt(d, 60000), orgs); } catch (Exception ex) { r.Errors.Add("crt.sh : " + ex.Message); }
 
@@ -567,12 +597,7 @@ namespace PhishGuard
             sb.AppendLine(L.T("--- Sécurité de la messagerie ---"));
             foreach (var i in r.Email) sb.AppendLine("[" + Mark(i.Status) + "] " + i.Title + (i.Detail.Length > 0 ? " - " + i.Detail : ""));
             sb.AppendLine();
-            sb.AppendLine(L.T("--- Entreprise ---"));
-            if (r.Company != null) sb.AppendLine(r.Company.Name + " (SIREN " + r.Company.Siren + ", " + r.Company.City + ") : " + string.Join(", ", r.Company.Roles.ToArray()));
-            else if (r.Siren.Length > 0) sb.AppendLine("SIREN " + r.Siren);
-            else sb.AppendLine(L.T("SIREN introuvable sur le site."));
-            sb.AppendLine();
-            sb.AppendLine(L.F("--- Sosies enregistrés ({0} sur {1} variantes) ---", r.Lookalikes.Count, r.VariantsChecked));
+            sb.AppendLine(L.F("--- Sosies du domaine ({0} enregistrés sur {1} variantes) ---", r.Lookalikes.Count, r.VariantsChecked));
             foreach (var f in r.Lookalikes) sb.AppendLine("- " + f.Domain + " (" + f.Technique + (f.HasMx ? ", MX" : "") + (f.LikelyOwned ? ", " + L.T("probablement à vous") : "") + ")");
             if (r.BrandCerts.Count > 0)
             {

@@ -643,8 +643,10 @@ namespace PhishGuard.Tests
             Check("variantes : extension, caractère, faute, mot", hasV("lorema.fr") && hasV("l0rema.com") && hasV("lorerna.com") && hasV("lorrema.com")
                 && hasV("lroema.com") && hasV("lorema-paiement.com") && hasV("lorema-fr.com") && hasV("lorema-com.fr"), va.Count.ToString());
             Check("variantes : sans le domaine lui-même ni doublon", !hasV("lorema.com") && va.Select(x => x.Key).Distinct().Count() == va.Count);
-            Check("variantes : nombre raisonnable", va.Count > 80 && va.Count < 400, va.Count.ToString());
-            Check("variantes : pas de touche voisine", !hasV("lirema.com"));
+            Check("variantes : nombre raisonnable", va.Count > 250 && va.Count < 700, va.Count.ToString());
+            Check("variantes : touche voisine, voyelle, lettre cyrillique, préfixe", hasV("lirema.com") && hasV("lorama.com") && hasV("mylorema.com") && hasV("lorema.de")
+                && va.Any(x => x.Key.StartsWith("xn--") && x.Key.EndsWith(".com")));
+            Check("variantes : lettre cyrillique correctement encodée", va.Where(x => x.Key.StartsWith("xn--")).All(x => new System.Globalization.IdnMapping().GetUnicode(x.Key.Split('.')[0]).Length == 6));
             Check("SIREN : clé de Luhn", DomainAudit.IsValidSiren("123456782") && !DomainAudit.IsValidSiren("123456783") && !DomainAudit.IsValidSiren("12345"));
             Check("SIREN : RCS", DomainAudit.FindSiren("<footer>LOREMA SAS au capital de 10&nbsp;000 € – RCS Toulon 123 456 782</footer>") == "123456782");
             Check("SIREN : SIRET", DomainAudit.FindSiren("<p>SIRET : <b>123 456 782 00047</b></p>") == "123456782");
@@ -663,6 +665,7 @@ namespace PhishGuard.Tests
             var au3 = DomainAudit.AuditRecords("x.fr", new List<string> { "mx.x.fr" }, new List<string> { "v=spf1 mx ~all" }, new List<string> { "v=DMARC1; p=none" },
                 new List<string>(), new List<string>(), new List<string>(), new List<string>(), new List<string>());
             Check("bilan email : p=none à améliorer", au3[0].Status == "warn" && au3.Any(x => x.Title.Contains("p=none")));
+            Check("bilan email : DKIM introuvable à améliorer", au3.Any(x => x.Title == "Signature DKIM introuvable" && x.Status == "warn"));
             const string CRT = "[{\"name_value\":\"lorema.com\\nwww.lorema.com\\nlorema.fr\",\"not_before\":\"2026-10-10T08:00:00\"},"
                 + "{\"name_value\":\"*.lorema.com\\nlorema-group.com\",\"not_before\":\"2026-01-01T00:00:00\"},"
                 + "{\"name_value\":\"a.com\\nb.com\\nc.com\\nd.com\\ne.com\\nlorema.com\",\"not_before\":\"2026-01-01T00:00:00\"},"

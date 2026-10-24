@@ -15,8 +15,8 @@ namespace PhishGuard.AddIn
     internal class DomainAuditForm : Form
     {
         readonly ComboBox cboDomain;
-        readonly Button btnRun, btnCopy, btnBlock, btnAddDomains, btnAddVips;
-        readonly Label lblStatus, lblCompany;
+        readonly Button btnRun, btnCopy, btnBlock, btnAddDomains;
+        readonly Label lblStatus;
         readonly ListView lvEmail, lvDomains;
         readonly TabControl tabs;
         readonly List<string> companyDomains;
@@ -49,7 +49,7 @@ namespace PhishGuard.AddIn
             btnRun = new Button { Text = L.T("Analyser"), Location = new Point(350, 10), AutoSize = true };
             btnRun.Click += (s, e) => Start();
             lblStatus = new Label { Location = new Point(10, 40), AutoSize = true, ForeColor = SystemColors.GrayText,
-                Text = L.T("Ne sont envoyés que des noms de domaine (DNS, crt.sh) et l’adresse de votre site (mentions légales). Durée : une à deux minutes.") };
+                Text = L.T("Ne sont envoyés que des noms de domaine (DNS, crt.sh). Durée : deux à trois minutes.") };
             top.Controls.AddRange(new Control[] { cboDomain, btnRun, lblStatus });
 
             tabs = new ThemedTabControl { Dock = DockStyle.Fill, Padding = new Point(12, 4) };
@@ -64,7 +64,7 @@ namespace PhishGuard.AddIn
             tabs.TabPages.Add(pMail);
 
             // ---- Domaines ----
-            var pDom = new TabPage(L.T("Sosies et domaines")) { Padding = new Padding(6) };
+            var pDom = new TabPage(L.T("Sosies du domaine")) { Padding = new Padding(6) };
             lvDomains = new ListView { Dock = DockStyle.Fill, View = View.Details, FullRowSelect = true, CheckBoxes = true, ShowItemToolTips = true };
             lvDomains.Columns.Add(L.T("Domaine"), 230);
             lvDomains.Columns.Add(L.T("Type"), 170);
@@ -79,17 +79,6 @@ namespace PhishGuard.AddIn
             pDom.Controls.Add(domBar);
             tabs.TabPages.Add(pDom);
 
-            // ---- Entreprise ----
-            var pCo = new TabPage(L.T("Entreprise")) { Padding = new Padding(12), AutoScroll = true };
-            lblCompany = new Label { Location = new Point(12, 12), MaximumSize = new Size(780, 0), AutoSize = true };
-            btnAddVips = new Button { Text = L.T("Ajouter les dirigeants"), AutoSize = true, Enabled = false, Location = new Point(12, 150) };
-            btnAddVips.Click += (s, e) =>
-            {
-                if (report != null && report.Company != null && AddCompany != null) { AddCompany(report.Company); btnAddVips.Enabled = false; btnAddVips.Text = L.T("Dirigeants ajoutés"); }
-            };
-            pCo.Controls.Add(lblCompany);
-            pCo.Controls.Add(btnAddVips);
-            tabs.TabPages.Add(pCo);
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 44, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8) };
             var btnClose = new Button { Text = L.T("Fermer"), DialogResult = DialogResult.Cancel, AutoSize = true };
@@ -113,9 +102,8 @@ namespace PhishGuard.AddIn
                 lblStatus.Text = L.T("Saisissez un domaine, par exemple votre-entreprise.fr.");
                 return;
             }
-            btnRun.Enabled = false; btnCopy.Enabled = false; btnBlock.Enabled = false; btnAddDomains.Enabled = false; btnAddVips.Enabled = false;
+            btnRun.Enabled = false; btnCopy.Enabled = false; btnBlock.Enabled = false; btnAddDomains.Enabled = false;
             lvEmail.Items.Clear(); lvDomains.Items.Clear(); lvDomains.Groups.Clear();
-            lblCompany.Text = "";
             var others = companyDomains.ToList();
             var t = new System.Threading.Thread(() =>
             {
@@ -171,20 +159,6 @@ namespace PhishGuard.AddIn
             btnAddDomains.Enabled = r.Related.Count > 0 || r.Lookalikes.Any(x => x.LikelyOwned);
             if (lvDomains.Items.Count == 0) lvDomains.Items.Add(new ListViewItem(new[] { L.T("Aucun sosie enregistré trouvé."), "", "" }));
 
-            // Entreprise
-            if (r.Company != null)
-            {
-                lblCompany.Text = L.F("{0} — SIREN {1} — {2}", r.Company.Name, r.Company.Siren, r.Company.City) + "\n\n"
-                    + L.T("Dirigeants : ") + (r.Company.Roles.Count > 0 ? string.Join(", ", r.Company.Roles.ToArray()) : L.T("aucun publié")) + "\n\n"
-                    + L.T("SIREN trouvé sur : ") + r.LegalUrl;
-                btnAddVips.Enabled = r.Company.Directors.Count > 0 && AddCompany != null;
-                btnAddVips.Text = L.T("Ajouter les dirigeants");
-            }
-            else if (r.Siren.Length > 0)
-                lblCompany.Text = L.F("SIREN {0} trouvé sur {1}, mais introuvable dans l’Annuaire des Entreprises.", r.Siren, r.LegalUrl);
-            else
-                lblCompany.Text = L.T("Aucun SIREN trouvé sur le site (page d’accueil et mentions légales). Utilisez « Rechercher… » avec le nom de l’entreprise.");
-            btnAddVips.Top = lblCompany.Bottom + 16;
 
             int bad = r.Email.Count(x => x.Status == "bad"), warn = r.Email.Count(x => x.Status == "warn");
             int susp = r.Lookalikes.Count(x => !x.LikelyOwned) + r.BrandCerts.Count;

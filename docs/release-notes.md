@@ -12,6 +12,11 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.15** : « Analyser mon domaine » :
+  - **DKIM introuvable** : signalé « À améliorer » (au lieu d'une simple information), avec ses conséquences, et deux fois plus de sélecteurs essayés ;
+  - **Sosies du domaine** (onglet renommé) : 350 à 500 variantes au lieu d'environ 170 ; nouvelles techniques : touches voisines (AZERTY et QWERTY), voyelles changées, lettres cyrilliques identiques à l'œil (`xn--…`), préfixes (my, mon, www…), 25 extensions et 25 mots de plus ;
+  - **onglet Entreprise retiré**, ainsi que la lecture des mentions légales du site : l'identité de l'entreprise se gère dans Paramètres → Entreprise.
+
 - **v1.19.14** : paramètres → Entreprise : le cadre « Dirigeants », qui répétait la colonne Dirigeants de la liste des entreprises, est retiré. La détection de la fraude au président est inchangée.
 
 - **v1.19.13** : plus de vérification quotidienne automatique des nouvelles versions. Un bouton **Rechercher une nouvelle version** dans Paramètres → À propos interroge GitHub d'un clic et propose le téléchargement si une version plus récente existe. La stratégie `CheckUpdates = false` masque le bouton.
