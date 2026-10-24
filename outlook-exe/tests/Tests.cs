@@ -646,6 +646,7 @@ namespace PhishGuard.Tests
             Check("variantes : nombre raisonnable", va.Count > 250 && va.Count < 700, va.Count.ToString());
             Check("variantes : touche voisine, voyelle, lettre cyrillique, préfixe", hasV("lirema.com") && hasV("lorama.com") && hasV("mylorema.com") && hasV("lorema.de")
                 && va.Any(x => x.Key.StartsWith("xn--") && x.Key.EndsWith(".com")));
+            Check("variantes : lettres qui se ressemblent (m/ni, m/nn, u/v)", hasV("lorenia.com") && hasV("lorenna.com") && hasV("lorerna.com"), va.Count.ToString());
             Check("variantes : lettre cyrillique correctement encodée", va.Where(x => x.Key.StartsWith("xn--")).All(x => new System.Globalization.IdnMapping().GetUnicode(x.Key.Split('.')[0]).Length == 6));
             Check("SIREN : clé de Luhn", DomainAudit.IsValidSiren("123456782") && !DomainAudit.IsValidSiren("123456783") && !DomainAudit.IsValidSiren("12345"));
             Check("SIREN : RCS", DomainAudit.FindSiren("<footer>LOREMA SAS au capital de 10&nbsp;000 € – RCS Toulon 123 456 782</footer>") == "123456782");

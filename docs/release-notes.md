@@ -12,6 +12,10 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.17** : « Analyser mon domaine » → Sosies du domaine :
+  - **plus de lettres qui se ressemblent** : m ↔ nn, ni, ri, in ; n ↔ ri, ii ; u ↔ v ; w ↔ uu ; g ↔ q ; o, e ↔ c… (par exemple `exemple.fr` → `exernple.fr`, `exenple.fr`) ;
+  - **« Ajouter les domaines cochés à l'entreprise »** n'est plus grisé : il suit les cases cochées. Pour un domaine que rien ne relie au vôtre, une confirmation est demandée, car un domaine de l'entreprise est considéré comme sûr.
+
 - **v1.19.16** : « Analyser mon domaine » :
   - **DKIM plus juste** : seul un vrai enregistrement DKIM compte (un DNS « joker » qui répond pour n'importe quel nom est détecté), chaque sélecteur trouvé indique le service qui l'utilise habituellement, et une clé publiée seulement pour une plateforme d'envoi (Brevo, Mailchimp, Mailjet, SendGrid) est signalée « À améliorer » : vos propres emails ne sont probablement pas signés ;
   - **recherche en cours visible** : barre animée et pointeur d'attente pendant l'analyse ;
