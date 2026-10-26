@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.18** : « Analyser mon domaine » depuis le réseau de l'entreprise : quand le domaine interne (Active Directory) porte le même nom que le domaine public, le DNS interne cachait les enregistrements publics, et l'analyse annonçait à tort « aucun MX, pas de SPF, pas de DMARC ». PhishGuard le détecte et lit alors ces enregistrements sur un DNS public (1.1.1.1 ou 8.8.8.8), en l'indiquant dans le rapport. Si aucun DNS public n'est joignable, un avertissement invite à confirmer les résultats depuis un réseau extérieur.
+
 - **v1.19.17** : « Analyser mon domaine » → Sosies du domaine :
   - **plus de lettres qui se ressemblent** : m ↔ nn, ni, ri, in ; n ↔ ri, ii ; u ↔ v ; w ↔ uu ; g ↔ q ; o, e ↔ c… (par exemple `exemple.fr` → `exernple.fr`, `exenple.fr`) ;
   - **« Ajouter les domaines cochés à l'entreprise »** n'est plus grisé : il suit les cases cochées. Pour un domaine que rien ne relie au vôtre, une confirmation est demandée, car un domaine de l'entreprise est considéré comme sûr.
