@@ -108,6 +108,10 @@ namespace PhishGuard.AddIn
                 pGeneral.Controls.Add(chkWatch);
                 y += 26;
                 AddHint(pGeneral, ref y, WatchStatus());
+            }
+            // Réseau interne : pour toute utilisation en entreprise, en mode simple aussi (déclaré dans l'assistant de démarrage)
+            if (cfg.ExpertMode || cfg.Usage != "personal")
+            {
                 y += 14;
                 pGeneral.Controls.Add(new Label { Text = L.T("Réseau interne"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font.FontFamily, 10.5f, FontStyle.Bold) });
                 y += 26;
@@ -605,7 +609,10 @@ namespace PhishGuard.AddIn
         public CompanyInfo Selected;
         public string ManualName = "";
 
-        public CompanyAddForm()
+        public CompanyAddForm() : this("") { }
+
+        /// <summary>Avec un nom de départ : la recherche est lancée dès l'ouverture.</summary>
+        public CompanyAddForm(string initialName)
         {
             Text = L.T("PhishGuard - Ajouter une entreprise");
             Size = new Size(780, 440);
@@ -615,7 +622,7 @@ namespace PhishGuard.AddIn
 
             var top = new Panel { Dock = DockStyle.Top, Height = 74 };
             top.Controls.Add(new Label { Text = L.T("Nom de l’entreprise (ou SIREN)"), Location = new Point(10, 12), AutoSize = true });
-            txtName = new TextBox { Location = new Point(10, 34), Width = 300 };
+            txtName = new TextBox { Location = new Point(10, 34), Width = 300, Text = initialName ?? "" };
             cboSource = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(320, 33), Width = 290 };
             cboSource.Items.AddRange(new object[] { L.T("France (Annuaire des Entreprises)"), L.T("Autre pays (Wikidata)") });
             cboSource.SelectedIndex = 0;
@@ -646,6 +653,7 @@ namespace PhishGuard.AddIn
             };
             bar.Controls.AddRange(new Control[] { cancel, btnOk, manual });
             AcceptButton = btnSearch; CancelButton = cancel;
+            Shown += (s, e) => { if (txtName.Text.Trim().Length > 0) Search(); };
             Controls.Add(list); Controls.Add(lblInfo); Controls.Add(top); Controls.Add(bar);
             ThemeUi.Attach(this);
         }

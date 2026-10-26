@@ -34,6 +34,10 @@ if not exist "%DEST%" mkdir "%DEST%"
 for %%F in (PhishGuard.dll config.ini custom.txt phishguard.ico installer.cmd desinstaller.cmd) do (
   if exist "%SRC%%%F" copy /y "%SRC%%%F" "%DEST%\" >nul
 )
+rem Reglages gardes lors d'une desinstallation precedente : remis en place
+for %%F in (config.user.ini custom.user.txt) do (
+  if not exist "%DEST%\%%F" if exist "%LOCALAPPDATA%\PhishGuard-reglages\%%F" copy /y "%LOCALAPPDATA%\PhishGuard-reglages\%%F" "%DEST%\" >nul
+)
 if not exist "%DEST%\PhishGuard.dll" (
   echo [!] Copie impossible dans %DEST%
   goto fail

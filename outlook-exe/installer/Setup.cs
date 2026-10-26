@@ -103,9 +103,17 @@ namespace PhishGuard.Setup
         // Installation
         // -----------------------------------------------------------------
 
+        // Réglages de l'utilisateur conservés lors d'une désinstallation
+        static readonly string[] KeptFiles = { "config.user.ini", "custom.user.txt" };
+        static string KeptDir { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PhishGuard-reglages"); } }
+
         internal static void Install()
         {
             Directory.CreateDirectory(Dest);
+            // Réinstallation après une désinstallation : les réglages gardés de côté sont remis en place
+            foreach (var f in KeptFiles)
+                try { string kept = Path.Combine(KeptDir, f), target = Path.Combine(Dest, f); if (File.Exists(kept) && !File.Exists(target)) File.Copy(kept, target); }
+                catch (Exception) { }
             var asm = Assembly.GetExecutingAssembly();
             foreach (var name in Files)
             {
@@ -225,7 +233,18 @@ namespace PhishGuard.Setup
                     if (rk != null) rk.DeleteValue(ProgId, false);
             }
             catch (Exception) { }
-            // Les fichiers du programme sont supprimés ; les réglages et journaux de l'utilisateur aussi (dossier entier).
+            // Les réglages de l'utilisateur sont gardés de côté (une réinstallation les retrouve), puis le dossier est supprimé
+            try
+            {
+                foreach (var f in KeptFiles)
+                {
+                    string src = Path.Combine(Dest, f);
+                    if (!File.Exists(src)) continue;
+                    Directory.CreateDirectory(KeptDir);
+                    File.Copy(src, Path.Combine(KeptDir, f), true);
+                }
+            }
+            catch (Exception) { }
             try { if (Directory.Exists(Dest)) Directory.Delete(Dest, true); } catch (Exception) { }
         }
 
