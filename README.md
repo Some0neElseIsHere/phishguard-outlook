@@ -157,6 +157,7 @@ Le fichier `config.ini` fourni avec l'installeur définit les valeurs par défau
 | `CompanyName`, `CompanyDomains` | Nom principal (anciennes versions) et domaines de l'entreprise ; leurs sosies sont classés critiques | — (domaines : celui de l'adresse Outlook de l'utilisateur, hors messageries gratuites) |
 | `VipNames` | Dirigeants (anciennes versions : repris dans la première entreprise) | — |
 | `ReportAddress` | Adresse de l'équipe sécurité pour **Signaler** | — |
+| `Usage` | `entreprise` ou `personnel` (choisi dans l'assistant de démarrage). En usage personnel, **Signaler** déplace simplement le message dans le courrier indésirable | — |
 | `Language` | `auto` (langue de Windows), `fr` ou `en` | `auto` |
 | `Theme` | `auto` (mode clair ou sombre de Windows), `light` ou `dark` | `auto` |
 | `TrustedDomains`, `TrustedSenders` | Domaines et adresses de confiance | — |
