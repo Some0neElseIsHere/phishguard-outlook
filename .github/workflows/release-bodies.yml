@@ -21,5 +21,5 @@ jobs:
             python3 outlook-exe/tools/release-body.py docs/release-notes.md "$tag" "$GITHUB_REPOSITORY" body.md
             gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --notes-file body.md > /dev/null && echo "::notice::$tag mise à jour"
             # Copie sans numéro de version publiée par erreur avec la v1.21.6 : seul l'installeur numéroté est gardé
-            gh release delete-asset "$tag" PhishGuard-Outlook-installeur.exe --repo "$GITHUB_REPOSITORY" -y > /dev/null 2>&1 && echo "::notice::$tag : copie sans numéro retirée"
+            gh release delete-asset "$tag" PhishGuard-Outlook-installeur.exe --repo "$GITHUB_REPOSITORY" -y > /dev/null 2>&1 && echo "::notice::$tag : copie sans numéro retirée" || true
           done
