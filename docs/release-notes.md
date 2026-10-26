@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.21.3** : désinstallation : la fenêtre se ferme toute seule après quelques secondes (plus de « Appuyez sur une touche »).
+
 - **v1.21.2** : correction de la v1.21.1 : « Plus tard » sur les pages de l'entreprise fermait encore l'assistant au lieu de passer à la page Réputation.
 
 - **v1.21.1** : assistant, en entreprise : « Plus tard » sur les pages Configuration, Entreprise ou Réseau interne passe directement à la page Réputation (au lieu de fermer l'assistant). Ces informations se complètent ensuite dans Paramètres → Entreprise.
