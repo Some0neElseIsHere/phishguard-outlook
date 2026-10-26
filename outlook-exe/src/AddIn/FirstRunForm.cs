@@ -209,13 +209,14 @@ namespace PhishGuard.AddIn
                 companies = cfg.Companies.Select(c => new CompanyEntry { Name = c.Name, Country = c.Country, Id = c.Id, Directors = new List<string>(c.Directors) }).ToList();
                 if (companies.Count == 0 && !string.IsNullOrEmpty(cfg.CompanyName)) companies.Add(new CompanyEntry { Name = cfg.CompanyName });
                 Field(p, L.T("Entreprise"), y);
-                lblCompanies = new Label { Location = new Point(FieldX, y + 3), MaximumSize = new Size(Inner + X - FieldX - 8, 0), AutoSize = true };
-                p.Controls.Add(lblCompanies);
-                y += 26;
-                btnFindCompany = new Button { Text = L.T("Rechercher dans l’annuaire…"), Location = new Point(FieldX, y), AutoSize = true, Enabled = !cfg.IsLocked("company#") };
+                btnFindCompany = new Button { Text = L.T("Rechercher dans l’annuaire…"), Location = new Point(FieldX, y - 2), AutoSize = true, Enabled = !cfg.IsLocked("company#") };
                 btnFindCompany.Click += (s, e) => FindCompany();
                 p.Controls.Add(btnFindCompany);
-                y += 34;
+                y += 32;
+                // Place pour trois entreprises ; au-delà, la liste complète est dans Paramètres
+                lblCompanies = new Label { Location = new Point(FieldX, y), Size = new Size(Inner + X - FieldX - 8, 54), AutoEllipsis = true, Font = new Font(Font, FontStyle.Bold) };
+                p.Controls.Add(lblCompanies);
+                y += 56;
                 y = Para(p, L.T("Annuaire des Entreprises (France) ou Wikidata (autres pays) : le nom de l’entreprise et de ses dirigeants sont repérés dans le nom affiché des expéditeurs externes (fraude au président). Vous pouvez en ajouter plusieurs."), y, FieldX);
                 RefreshCompanies();
                 y += 4;
