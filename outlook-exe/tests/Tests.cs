@@ -731,6 +731,12 @@ namespace PhishGuard.Tests
             var eMoney = Base(); eMoney.BodyText = "Suite à un changement de banque, merci d'utiliser notre nouveau RIB : DE89 3704 0044 0532 0130 00";
             var rMoney = Analyzer.Analyze(eMoney, cfg);
             Check("mode simple : conseil coordonnées bancaires", rMoney.Level == "safe" || SimpleView.Actions(rMoney).Any(x => x.Key.Contains("bancaires")), rMoney.Level);
+            var rLow = Analyzer.Analyze(Base(), cfg);
+            rLow.Findings.Add(new Finding("link-local-file", "links", Severity.Low, "Lien vers un partage", "Ce lien lance un fichier.", new[] { @"Affiché : H:\Commun\doc → Réel : file://exemple-pme.fr/Commun/doc" }));
+            rLow.Findings.Add(new Finding("info-x", "content", Severity.Info, "Simple information", "detail invisible", null));
+            string svLow = SimpleView.Build(rLow, Base(), true);
+            Check("mode simple : indice faible détaillé avec sa preuve", svLow.Contains("Ce lien lance un fichier.") && svLow.Contains("exemple-pme") && svLow.Contains("Lien vers un partage")
+                && svLow.Contains("Simple information") && !svLow.Contains("detail invisible"));
             Check("mode simple : message sain", SimpleView.Build(Analyzer.Analyze(Base(), cfg), Base(), true).Contains("Aucun danger"));   // HtmlEncode transforme les accents en entités
 
             // ---------- QR codes dans les images ----------

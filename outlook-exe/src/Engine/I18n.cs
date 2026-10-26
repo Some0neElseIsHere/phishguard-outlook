@@ -967,6 +967,7 @@ namespace PhishGuard
             { "PhishGuard n’a rien trouvé d’inquiétant dans ce message.", "PhishGuard found nothing worrying in this message." },
             { "Pourquoi ?", "Why?" },
             { "Ce qui le confirme", "What confirms it" },
+            { "À noter", "Worth noting" },
             { "Autres informations", "Other information" },
             { "Que dois-je faire ?", "What should I do?" },
             { "Comment reconnaître un phishing ?", "How to recognize phishing?" },

@@ -120,7 +120,9 @@ namespace PhishGuard
 
             // ---- Pourquoi : points dangereux et suspects en détail, le reste en gris ----
             var important = r.Findings.Where(f => f.Severity >= Severity.Medium).OrderByDescending(f => (int)f.Severity).ToList();
-            var minor = r.Findings.Where(f => f.Severity < Severity.Medium).OrderByDescending(f => (int)f.Severity).ToList();
+            // Indices faibles : ils comptent dans la note, donc ils sont détaillés (avec la preuve) ; les simples informations restent en gris
+            var low = r.Findings.Where(f => f.Severity == Severity.Low).ToList();
+            var minor = r.Findings.Where(f => f.Severity < Severity.Low).ToList();
             if (important.Count > 0)
             {
                 sb.Append("<h2>" + H(L.T("Pourquoi ?")) + "</h2><div class='card'>");
@@ -148,6 +150,23 @@ namespace PhishGuard
             {
                 sb.Append("<h2 class='mh'>" + H(L.T("Ce qui le confirme")) + "</h2><div class='minor'>");
                 foreach (var t in r.Trust.Take(5)) sb.Append("<div class='mi ok'>" + H(t) + "</div>");
+                sb.Append("</div>");
+            }
+            if (low.Count > 0)
+            {
+                sb.Append("<h2>" + H(L.T("À noter")) + "</h2><div class='card'>");
+                foreach (var f in low)
+                {
+                    sb.Append("<div class='why'><span class='dot Low'></span><span class='wt'>" + H(PlainTitle(f)) + "</span>");
+                    if (f.Category != "auth" && f.Detail.Length > 0) sb.Append("<div class='wd'>" + H(f.Detail) + "</div>");
+                    if (f.Category != "auth" && f.Evidence.Count > 0)
+                    {
+                        sb.Append("<div class='evs'>");
+                        foreach (var ev in f.Evidence.Take(4)) sb.Append("<span class='ev'>" + H(ReportHtml.DefangText(ev)) + "</span>");
+                        sb.Append("</div>");
+                    }
+                    sb.Append("</div>");
+                }
                 sb.Append("</div>");
             }
             if (minor.Count > 0)
