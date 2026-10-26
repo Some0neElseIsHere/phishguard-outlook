@@ -16,7 +16,7 @@ usurpation d'identité, **fraude au président**, **faux RIB**, liens piégés, 
   <img src="docs/images/ruban.png" alt="Bouton PhishGuard dans le ruban d'Outlook : dangereux, suspect, expéditeur vérifié" width="720">
 </p>
 
-**[⬇ Télécharger PhishGuard pour Outlook](../../releases/latest)** · installation en un clic, sans droits administrateur.
+**[⬇ Télécharger PhishGuard pour Outlook](https://github.com/Some0neElseIsHere/phishguard-outlook/releases/latest/download/PhishGuard-Outlook-installeur.exe)** (dernière version, installeur .exe) · installation en un clic, sans droits administrateur · [autres fichiers et nouveautés](../../releases/latest)
 
 - **Pour tout le monde** : un mode simple explique le verdict sans jargon, étape par étape. Un mode expert offre une analyse détaillée des en-têtes, du parcours du message, des liens et des pièces jointes.
 - **Confidentiel** : le contenu des messages ne quitte jamais le poste. Aucune clé d'API nécessaire.

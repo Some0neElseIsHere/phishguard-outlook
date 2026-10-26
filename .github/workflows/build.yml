@@ -63,7 +63,12 @@ jobs:
           Compress-Archive -Path outlook-exe/build/package/* -DestinationPath "dist/PhishGuard-Outlook-$version.zip" -Force
           if (Test-Path outlook-exe/build/PhishGuard-Outlook.exe) {
             Copy-Item outlook-exe/build/PhishGuard-Outlook.exe "dist/PhishGuard-Outlook-$version-installeur.exe"
+            # Même installeur sans numéro : lien permanent …/releases/latest/download/PhishGuard-Outlook-installeur.exe
+            Copy-Item outlook-exe/build/PhishGuard-Outlook.exe "dist/PhishGuard-Outlook-installeur.exe"
           }
+          # Description courte de la release : liens de téléchargement, nouveautés de cette version seulement
+          python outlook-exe/tools/release-body.py docs/release-notes.md $version $env:GITHUB_REPOSITORY release-body.md
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path release-body.md)) { throw "Description de la release non générée" }
           Get-ChildItem dist | ForEach-Object {
             (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower() + "  " + $_.Name
           } | Set-Content dist/SHA256SUMS.txt -Encoding ascii
@@ -89,5 +94,5 @@ jobs:
           tag_name: ${{ github.event.inputs.version || github.ref_name }}
           target_commitish: ${{ github.sha }}
           name: PhishGuard pour Outlook ${{ github.event.inputs.version || github.ref_name }}
-          body_path: docs/release-notes.md
+          body_path: release-body.md
           files: dist/*
