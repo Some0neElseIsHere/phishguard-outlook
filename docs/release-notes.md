@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.21.7** : retour du lien permanent vers la dernière version (`…/releases/latest/download/PhishGuard-Outlook-installeur.exe`, en tête du README) : chaque version publie aussi une copie de l'installeur sans numéro dans son nom.
+
 - **v1.21.6** : page des versions plus lisible : chaque version n'affiche plus que ses propres nouveautés, avec les liens de téléchargement en tête. Le lien « Télécharger » du README mène toujours à la dernière version.
 
 - **v1.21.5** : le fichier de configuration de l'entreprise ne contient plus que ce qui décrit l'entreprise : entreprises et dirigeants, domaines, adresse de l'équipe sécurité, réseau interne. Les sources de réputation, listes et autres réglages restent propres à chaque poste (et ne sont plus lus à l'import).
