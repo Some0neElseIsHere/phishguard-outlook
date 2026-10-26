@@ -30,7 +30,12 @@ namespace PhishGuard.AddIn
 
         ComboBox cboLang;
         RadioButton rbSimple, rbExpert, rbCompany, rbPersonal;
-        TextBox txtCompany, txtDomain, txtReport, txtMailServers, txtRelays, txtWorkstations;
+        TextBox txtDomain, txtReport, txtMailServers, txtRelays, txtWorkstations;
+        Label lblCompanies;
+        Button btnFindCompany;
+        bool askCompany, askReport;
+        List<CompanyEntry> companies;
+        string mailbox = "";
         CheckBox chkRedFlag, chkPublic, chkOpenPhish, chkTranco, chkDns, chkCert, chkAge;
         static readonly string[] LangValues = { "auto", "fr", "en" };
 
@@ -47,6 +52,7 @@ namespace PhishGuard.AddIn
             BackColor = Color.White;
             if (icon != null) Icon = icon;
             ClientSize = new Size(W, 560);
+            mailbox = mailboxDomain ?? "";
 
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 50, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(12, 10, 12, 8), BackColor = Color.FromArgb(247, 249, 251) };
             btnNext = new Button { AutoSize = true, Height = 30, Font = new Font(Font, FontStyle.Bold) };
@@ -64,8 +70,13 @@ namespace PhishGuard.AddIn
             // Une page n'est construite que si l'une de ses questions reste à poser
             if (welcome || steps.Contains("language") || steps.Contains("mode")) AddPage("welcome", BuildWelcome());
             if (steps.Contains("usage")) AddPage("usage", BuildUsage());
-            if (steps.Contains("company") || steps.Contains("report")) AddPage("company", BuildCompany(mailboxDomain));
-            if (steps.Contains("network")) AddPage("network", BuildNetwork());
+            // Quand l'usage est demandé, ce qui manque pour une entreprise est proposé aussi (même si l'étape a déjà été vue)
+            bool askUsage = steps.Contains("usage");
+            askCompany = steps.Contains("company") || (askUsage && cfg.CompanyDomains.Count == 0 && !cfg.IsLocked("companydomains"));
+            askReport = steps.Contains("report") || (askUsage && string.IsNullOrEmpty(cfg.ReportAddress) && !cfg.IsLocked("reportaddress"));
+            bool askNetwork = steps.Contains("network") || (askUsage && cfg.MailServers.Count + cfg.InternalRelays.Count + cfg.WorkstationNets.Count == 0);
+            if (askCompany || askReport) AddPage("company", BuildCompany(mailboxDomain));
+            if (askNetwork) AddPage("network", BuildNetwork());
             if (steps.Contains("reputation")) AddPage("reputation", BuildReputation());
             if (pages.Count == 0) AddPage("welcome", BuildWelcome());
             ThemeUi.Attach(this);
@@ -173,12 +184,15 @@ namespace PhishGuard.AddIn
             int y = Title(p, L.T("Utilisation"), 16);
             y = Para(p, L.T("Utilisez-vous PhishGuard dans le cadre d’une entreprise ou d’une organisation ?"), y);
             y += 6;
-            rbCompany = new RadioButton { Text = L.T("Oui, en entreprise"), Location = new Point(X + 10, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold), Checked = cfg.Usage != "personal" };
+            // Sans réponse précédente, le choix proposé vient de l'adresse : Gmail, Orange… → personnel ; sinon entreprise
+            bool personal = cfg.Usage == "personal"
+                || (cfg.Usage.Length == 0 && cfg.CompanyDomains.Count == 0 && mailbox.Length > 0 && Lists.FreemailDomains.Contains(mailbox));
+            rbCompany = new RadioButton { Text = L.T("Oui, en entreprise"), Location = new Point(X + 10, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold), Checked = !personal };
             p.Controls.Add(rbCompany);
             y += 26;
             y = Para(p, L.T("PhishGuard repère alors les messages qui imitent votre entreprise (fraude au président, faux domaines), les faux messages « internes » fabriqués depuis le réseau, et envoie les messages douteux à votre équipe sécurité. Les deux pages suivantes vous demandent de quoi le faire."), y, X + 28);
             y += 8;
-            rbPersonal = new RadioButton { Text = L.T("Non, à titre personnel"), Location = new Point(X + 10, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold), Checked = cfg.Usage == "personal" };
+            rbPersonal = new RadioButton { Text = L.T("Non, à titre personnel"), Location = new Point(X + 10, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold), Checked = personal };
             p.Controls.Add(rbPersonal);
             y += 26;
             Para(p, L.T("Pas d’entreprise, d’équipe sécurité ni de réseau interne à déclarer : le bouton « Signaler » déplace simplement le message dans le courrier indésirable."), y, X + 28);
@@ -190,12 +204,20 @@ namespace PhishGuard.AddIn
         {
             var p = new Panel();
             int y = Title(p, L.T("Votre entreprise"), 16);
-            if (steps.Contains("company"))
+            if (askCompany)
             {
-                Field(p, L.T("Nom de l’entreprise"), y);
-                txtCompany = Box(p, cfg.CompanyName, y, false, 0);
-                y += 30;
-                y = Para(p, L.T("Repéré dans le nom affiché des expéditeurs externes : un inconnu qui signe « Direction de Votre Entreprise » est suspect."), y, FieldX);
+                companies = cfg.Companies.Select(c => new CompanyEntry { Name = c.Name, Country = c.Country, Id = c.Id, Directors = new List<string>(c.Directors) }).ToList();
+                if (companies.Count == 0 && !string.IsNullOrEmpty(cfg.CompanyName)) companies.Add(new CompanyEntry { Name = cfg.CompanyName });
+                Field(p, L.T("Entreprise"), y);
+                lblCompanies = new Label { Location = new Point(FieldX, y + 3), MaximumSize = new Size(Inner + X - FieldX - 8, 0), AutoSize = true };
+                p.Controls.Add(lblCompanies);
+                y += 26;
+                btnFindCompany = new Button { Text = L.T("Rechercher dans l’annuaire…"), Location = new Point(FieldX, y), AutoSize = true, Enabled = !cfg.IsLocked("company#") };
+                btnFindCompany.Click += (s, e) => FindCompany();
+                p.Controls.Add(btnFindCompany);
+                y += 34;
+                y = Para(p, L.T("Annuaire des Entreprises (France) ou Wikidata (autres pays) : le nom de l’entreprise et de ses dirigeants sont repérés dans le nom affiché des expéditeurs externes (fraude au président). Vous pouvez en ajouter plusieurs."), y, FieldX);
+                RefreshCompanies();
                 y += 4;
                 Field(p, L.T("Domaines de l’entreprise"), y);
                 string dom = cfg.CompanyDomains.Count > 0 ? string.Join(", ", cfg.CompanyDomains.ToArray())
@@ -205,7 +227,7 @@ namespace PhishGuard.AddIn
                 y = Para(p, L.T("Celui de vos adresses email, et les autres s’il y en a, séparés par des virgules (exemple : entreprise.fr, entreprise.com). Un domaine qui les imite (entreprlse.fr, entreprise-fr.com…) est classé critique."), y, FieldX);
                 y += 8;
             }
-            if (steps.Contains("report"))
+            if (askReport)
             {
                 Field(p, L.T("Adresse de l’équipe sécurité"), y);
                 txtReport = Box(p, cfg.ReportAddress, y, false, 0);
@@ -271,6 +293,43 @@ namespace PhishGuard.AddIn
             y = Para(p, L.T("VirusTotal (pièces jointes, par leur empreinte : le fichier n’est jamais envoyé), abuse.ch (domaines et fichiers malveillants) et AbuseIPDB (adresse IP d’origine) demandent une inscription gratuite. Les clés se saisissent en mode expert, dans Paramètres → Réputation, et sont rangées chiffrées dans le Gestionnaire d’identification de Windows."), y);
             p.Controls.Add(new Label { Location = new Point(0, y + 10), Size = new Size(1, 1) });
             return p;
+        }
+
+        void RefreshCompanies()
+        {
+            lblCompanies.Text = companies.Count == 0 ? L.T("Aucune entreprise choisie")
+                : string.Join(Environment.NewLine, companies.Select(c => c.Name + (c.Id.Length > 0 ? " (" + c.Id + ")" : "")
+                    + (c.Directors.Count > 0 ? " — " + L.F("{0} dirigeant(s)", c.Directors.Count) : "")).ToArray());
+        }
+
+        void FindCompany()
+        {
+            // Point de départ : le nom déjà connu, sinon celui du domaine de l'adresse (exemple-pme.fr → exemple-pme)
+            string start = companies.Count > 0 ? companies[0].Name
+                : mailbox.Length > 0 && !Lists.FreemailDomains.Contains(mailbox) ? mailbox.Split('.')[0] : "";
+            using (var f = new CompanyAddForm(start))
+            {
+                if (f.ShowDialog(this) != DialogResult.OK) return;
+                if (f.Selected != null)
+                {
+                    var c = f.Selected;
+                    var existing = companies.FirstOrDefault(x => (x.Id.Length > 0 && x.Id == c.Siren) || string.Equals(x.Name, c.Name, StringComparison.OrdinalIgnoreCase)
+                        || (x.Id.Length == 0 && x.Directors.Count == 0));   // un nom saisi à la main est remplacé par la fiche de l'annuaire
+                    if (existing == null) { existing = new CompanyEntry(); companies.Add(existing); }
+                    existing.Name = c.Country == "FR" ? CompanyLookup.Title(c.Name) : c.Name;
+                    existing.Country = c.Country;
+                    existing.Id = c.Siren;
+                    existing.Directors = new List<string>(c.Directors);
+                    if (c.Website.Length > 0 && txtDomain != null)
+                    {
+                        string w = PhishGuard.Domains.RegistrableDomain(c.Website.ToLowerInvariant());
+                        if (w.Length > 0 && !txtDomain.Text.ToLowerInvariant().Contains(w)) txtDomain.Text = (txtDomain.Text.Trim().Length > 0 ? txtDomain.Text.Trim() + ", " : "") + w;
+                    }
+                }
+                else if (f.ManualName.Length > 0 && !companies.Any(x => string.Equals(x.Name, f.ManualName, StringComparison.OrdinalIgnoreCase)))
+                    companies.Add(new CompanyEntry { Name = f.ManualName });
+                RefreshCompanies();
+            }
         }
 
         // ------------------------------------------------------------------ contrôles
@@ -361,7 +420,12 @@ namespace PhishGuard.AddIn
             if (rbExpert != null) cfg.ExpertMode = rbExpert.Checked;
             if (company)
             {
-                if (txtCompany != null) cfg.CompanyName = txtCompany.Text.Trim();
+                if (companies != null && !cfg.IsLocked("company#"))
+                {
+                    cfg.Companies = companies;
+                    cfg.CompanyName = companies.Select(c => c.Name).FirstOrDefault(n => !string.IsNullOrEmpty(n)) ?? "";
+                    cfg.NormalizeCompanies();
+                }
                 if (txtDomain != null)
                     cfg.CompanyDomains = txtDomain.Text.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(d => d.Trim().TrimStart('@').ToLowerInvariant()).Where(d => d.Contains(".")).Distinct().ToList();

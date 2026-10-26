@@ -276,7 +276,8 @@ namespace PhishGuard
             if (IsLocked("companydomains") || IsLocked("company#")) done.Add("company");
             if (IsLocked("reportaddress")) done.Add("report");
             // Usage : déjà connu si l'entreprise est renseignée ; un usage personnel n'a ni entreprise, ni équipe sécurité, ni réseau interne
-            if (Usage.Length > 0 || IsLocked("usage") || done.Contains("company")) done.Add("usage");
+            // Usage : demandé tant qu'il n'est pas connu ; une entreprise imposée par l'administrateur vaut réponse
+            if (Usage.Length > 0 || IsLocked("usage") || IsLocked("companydomains") || IsLocked("company#")) done.Add("usage");
             if (Usage == "personal") { done.Add("company"); done.Add("report"); done.Add("network"); }
             if (MailServers.Count + InternalRelays.Count + WorkstationNets.Count > 0
                 || (IsLocked("mailservers") && IsLocked("internalrelays") && IsLocked("workstationnets"))) done.Add("network");

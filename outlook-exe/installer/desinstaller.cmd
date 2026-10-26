@@ -24,6 +24,12 @@ reg delete "HKCU\Software\Microsoft\Office\16.0\Outlook\Resiliency\DoNotDisableA
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\PhishGuard" /f >nul 2>&1
 echo PhishGuard a ete desinstalle.
 pause
+rem Les reglages de l'utilisateur sont gardes de cote : une reinstallation les retrouve
+if not exist "%LOCALAPPDATA%\PhishGuard-reglages" mkdir "%LOCALAPPDATA%\PhishGuard-reglages"
+for %%F in (config.user.ini custom.user.txt) do (
+  if exist "%LOCALAPPDATA%\PhishGuard\%%F" copy /y "%LOCALAPPDATA%\PhishGuard\%%F" "%LOCALAPPDATA%\PhishGuard-reglages\" >nul
+)
+echo Vos reglages sont conserves dans %LOCALAPPDATA%\PhishGuard-reglages
 rem Supprime le dossier d'installation (ce script compris)
 cd /d "%TEMP%"
 start "" /b cmd /c "timeout /t 1 >nul & rmdir /s /q "%LOCALAPPDATA%\PhishGuard""
