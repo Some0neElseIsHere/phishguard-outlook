@@ -63,6 +63,8 @@ jobs:
           Compress-Archive -Path outlook-exe/build/package/* -DestinationPath "dist/PhishGuard-Outlook-$version.zip" -Force
           if (Test-Path outlook-exe/build/PhishGuard-Outlook.exe) {
             Copy-Item outlook-exe/build/PhishGuard-Outlook.exe "dist/PhishGuard-Outlook-$version-installeur.exe"
+            # Même installeur sans numéro : lien permanent …/releases/latest/download/PhishGuard-Outlook-installeur.exe
+            Copy-Item outlook-exe/build/PhishGuard-Outlook.exe "dist/PhishGuard-Outlook-installeur.exe"
           }
           # Description courte de la release : liens de téléchargement, nouveautés de cette version seulement
           python outlook-exe/tools/release-body.py docs/release-notes.md $version $env:GITHUB_REPOSITORY release-body.md
