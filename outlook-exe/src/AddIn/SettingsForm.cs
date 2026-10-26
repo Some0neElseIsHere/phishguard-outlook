@@ -20,7 +20,9 @@ namespace PhishGuard.AddIn
         readonly CheckBox chkOpenPhish, chkTranco, chkDns, chkCert, chkPublic;
         readonly TextBox txtVt, txtAbuseCh, txtAbuseIpdb;
         readonly Label lblBeta;
-        readonly ComboBox cboAlert, cboLang, cboMode, cboTheme;
+        readonly ComboBox cboAlert, cboLang, cboMode, cboTheme, cboUsage;
+        readonly ThemedTabControl tabs;
+        readonly TabPage pGeneral;
         readonly NumericUpDown numHash;
         readonly Label lblLists;
 
@@ -54,10 +56,13 @@ namespace PhishGuard.AddIn
             ShowInTaskbar = true;
             if (icon != null) Icon = icon;
 
-            var tabs = new ThemedTabControl { Dock = DockStyle.Fill, Padding = new Point(12, 4) };
+            tabs = new ThemedTabControl { Dock = DockStyle.Fill, Padding = new Point(12, 4) };
+            // Tous les réglages sont proposés quel que soit le mode d'affichage (le mode ne change que la fenêtre d'analyse),
+            // sauf si l'administrateur impose le mode simple par stratégie
+            bool full = !cfg.ForceSimpleMode;
 
             // ---------------- Entreprise ----------------
-            var pGeneral = Page(L.T("Entreprise"));
+            pGeneral = Page(L.T("Entreprise"));
             var y = 12;
             companies = cfg.Companies.Select(c => new CompanyEntry { Name = c.Name, Country = c.Country, Id = c.Id, Directors = new List<string>(c.Directors) }).ToList();
             pGeneral.Controls.Add(new Label { Text = L.T("Entreprises"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
@@ -100,7 +105,7 @@ namespace PhishGuard.AddIn
                 domainControls.Add(addDom);
             }
             chkWatch = new CheckBox { Text = L.T("Surveiller chaque semaine les nouveaux sosies"), Checked = cfg.WatchDomains, Location = new Point(200, y - 2), AutoSize = true };
-            if (cfg.ExpertMode)
+            if (full)
             {
                 var btnAudit = new Button { Text = L.T("Analyser mon domaine…"), Location = new Point(12, y - 6), AutoSize = true };
                 btnAudit.Click += (s, e) => OpenAudit();
@@ -110,7 +115,7 @@ namespace PhishGuard.AddIn
                 AddHint(pGeneral, ref y, WatchStatus());
             }
             // Réseau interne : pour toute utilisation en entreprise, en mode simple aussi (déclaré dans l'assistant de démarrage)
-            if (cfg.ExpertMode || cfg.Usage != "personal")
+            if (full || cfg.Usage != "personal")
             {
                 y += 14;
                 pGeneral.Controls.Add(new Label { Text = L.T("Réseau interne"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font.FontFamily, 10.5f, FontStyle.Bold) });
@@ -126,11 +131,32 @@ namespace PhishGuard.AddIn
             RefreshCompanies();
             txtReport = AddText(pGeneral, ref y, L.T("Adresse de l’équipe sécurité (bouton « Signaler »)"), cfg.ReportAddress, false, 0,
                 L.T("Le bouton « Signaler » de la fenêtre d’analyse lui transfère le message avec le rapport."));
+            y += 6;
+            pGeneral.Controls.Add(new Label { Text = L.T("Fichier de configuration de l’entreprise"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font.FontFamily, 10.5f, FontStyle.Bold) });
+            y += 26;
+            var btnExport = new Button { Text = L.T("Exporter…"), Location = new Point(12, y), AutoSize = true };
+            btnExport.Click += (s, e) => ExportCompany();
+            var btnImport = new Button { Text = L.T("Importer…"), Location = new Point(120, y), AutoSize = true };
+            btnImport.Click += (s, e) => ImportCompany();
+            pGeneral.Controls.Add(btnExport); pGeneral.Controls.Add(btnImport);
+            y += 32;
+            AddHint(pGeneral, ref y, L.T("Exporter crée un fichier avec ces réglages (entreprises, domaines, équipe sécurité, réseau interne, sources de réputation) à donner aux autres postes : ils l’importent dans l’assistant de démarrage. Aucune clé d’API ni réglage personnel n’y figure."));
             tabs.TabPages.Add(pGeneral);
 
             // ---------------- Analyse ----------------
             var pAnalyse = Page(L.T("Analyse"));
             y = 12;
+            // Usage : en usage personnel, l'onglet Entreprise est masqué (et revient si l'on repasse en entreprise)
+            pAnalyse.Controls.Add(new Label { Text = L.T("Utilisation"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
+            y += 22;
+            cboUsage = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(12, y), Width = 300, Enabled = !cfg.IsLocked("usage") };
+            cboUsage.Items.AddRange(new object[] { L.T("En entreprise"), L.T("À titre personnel") });
+            cboUsage.SelectedIndex = cfg.Usage == "personal" ? 1 : 0;
+            cboUsage.SelectedIndexChanged += (s, e) => ShowCompanyTab(cboUsage.SelectedIndex == 0);
+            pAnalyse.Controls.Add(cboUsage);
+            y += 30;
+            AddHint(pAnalyse, ref y, L.T("À titre personnel : pas d’onglet Entreprise, et le bouton « Signaler » déplace simplement le message dans le courrier indésirable."));
+            y += 10;
             chkAuto = new CheckBox { Text = L.T("Analyser automatiquement le message sélectionné ou ouvert"), Checked = cfg.AutoAnalyze, Location = new Point(12, y), AutoSize = true };
             pAnalyse.Controls.Add(chkAuto);
             y += 26;
@@ -168,7 +194,7 @@ namespace PhishGuard.AddIn
             cboMode.SelectedIndex = cfg.ExpertMode ? 1 : 0;
             pDisplay.Controls.Add(cboMode);
             y += 28;
-            AddHint(pDisplay, ref y, L.T("En mode expert, les onglets Listes et Réputation et l’analyse de votre domaine s’ajoutent aux paramètres (rouvrez-les après avoir changé)."));
+            AddHint(pDisplay, ref y, L.T("Le mode ne change que la fenêtre d’analyse : tous les réglages restent accessibles ici."));
             y += 10;
             pDisplay.Controls.Add(new Label { Text = L.T("Thème"), Location = new Point(12, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) });
             y += 22;
@@ -206,7 +232,7 @@ namespace PhishGuard.AddIn
                 L.T("Tout message ou lien vers ces domaines (et leurs sous-domaines) est classé critique."));
             txtShared = AddText(pLists, ref y, L.T("Liste de blocage partagée (chemin réseau, facultatif)"), cfg.SharedBlocklistPath, false, 0,
                 L.T("Ex. : \\\\serveur\\securite\\phishguard.txt — gérée par l’équipe sécurité, un domaine par ligne."));
-            if (cfg.ExpertMode) tabs.TabPages.Add(pLists);
+            if (full) tabs.TabPages.Add(pLists);
 
             // ---------------- Réputation ----------------
             var pBeta = Page(L.T("Réputation"));
@@ -249,7 +275,7 @@ namespace PhishGuard.AddIn
                 L.T("Réputation de l’adresse IP d’origine du message."));
             lblBeta = new Label { Location = new Point(12, y), Size = new Size(500, 70), ForeColor = SystemColors.GrayText, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
             pBeta.Controls.Add(lblBeta);
-            if (cfg.ExpertMode) tabs.TabPages.Add(pBeta);
+            if (full) tabs.TabPages.Add(pBeta);
             RefreshBetaStatus();
             RefreshListStatus();
             var listTimer = new Timer { Interval = 1500 };
@@ -274,6 +300,7 @@ namespace PhishGuard.AddIn
             CancelButton = btnCancel;
 
             Controls.Add(tabs);
+            if (cfg.Usage == "personal") tabs.TabPages.Remove(pGeneral);
             ApplyLocks();
             Controls.Add(bar);
             ThemeUi.Attach(this);
@@ -347,6 +374,56 @@ namespace PhishGuard.AddIn
             if (lvCompanies.SelectedIndices.Count == 0 || cfg.IsLocked("company#")) return;
             using (var m = new CompanyEditForm(companies[lvCompanies.SelectedIndices[0]]))
                 if (m.ShowDialog(this) == DialogResult.OK) RefreshCompanies();
+        }
+
+        void ShowCompanyTab(bool show)
+        {
+            bool shown = tabs.TabPages.Contains(pGeneral);
+            if (show && !shown) { tabs.TabPages.Insert(0, pGeneral); tabs.SelectedTab = pGeneral; }
+            else if (!show && shown) tabs.TabPages.Remove(pGeneral);
+        }
+
+        void ExportCompany()
+        {
+            // Ce qui est à l'écran, même pas encore enregistré
+            var c = new PhishGuardConfig
+            {
+                Companies = companies, CompanyDomains = Lines(txtDomains, true), ReportAddress = txtReport.Text.Trim(), TrustedDomains = Lines(txtTrusted, true),
+                MailServers = txtMailServers != null ? Lines(txtMailServers, false) : cfg.MailServers,
+                InternalRelays = txtRelays != null ? RelayLines(txtRelays) : cfg.InternalRelays,
+                WorkstationNets = txtWorkstations != null ? Lines(txtWorkstations, false) : cfg.WorkstationNets,
+                SharedBlocklistPath = txtShared.Text.Trim(), WatchDomains = chkWatch.Checked,
+                RedFlagEnabled = chkRedFlag.Checked, PublicSectorList = chkPublic.Checked, BetaOpenPhish = chkOpenPhish.Checked, BetaTranco = chkTranco.Checked,
+                BetaDnsChecks = chkDns.Checked, BetaCertAge = chkCert.Checked, DomainAgeLookup = chkAge.Checked
+            };
+            using (var d = new SaveFileDialog { Filter = L.T("Configuration PhishGuard (*.ini)") + "|*.ini", FileName = "phishguard-entreprise.ini" })
+            {
+                if (d.ShowDialog(this) != DialogResult.OK) return;
+                try
+                {
+                    File.WriteAllText(d.FileName, c.ExportCompanyFile(), new UTF8Encoding(true));
+                    MessageBox.Show(this, L.F("Configuration exportée :\n{0}", d.FileName), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex) { MessageBox.Show(this, L.T("Enregistrement impossible :") + "\n" + ex.Message, "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            }
+        }
+
+        void ImportCompany()
+        {
+            using (var d = new OpenFileDialog { Filter = L.T("Configuration PhishGuard (*.ini)") + "|*.ini|" + L.T("Tous les fichiers") + "|*.*" })
+            {
+                if (d.ShowDialog(this) != DialogResult.OK) return;
+                try
+                {
+                    var keys = cfg.ImportCompanyFile(File.ReadAllLines(d.FileName, Encoding.UTF8));
+                    if (keys.Count == 0) { MessageBox.Show(this, L.T("Ce fichier ne contient aucun réglage d’entreprise PhishGuard."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+                    cfg.SaveUser(Connect.UserConfigPath);
+                    MessageBox.Show(this, L.T("Configuration importée et enregistrée. Rouvrez les paramètres pour la voir."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    DialogResult = DialogResult.OK;   // rechargé par Outlook ; les champs à l'écran, périmés, ne sont pas réenregistrés
+                    Close();
+                }
+                catch (Exception ex) { MessageBox.Show(this, L.T("Lecture impossible :") + "\n" + ex.Message, "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            }
         }
 
         void AddCompanyDialog()
@@ -572,6 +649,7 @@ namespace PhishGuard.AddIn
             if (txtMailServers != null) cfg.MailServers = Lines(txtMailServers, false);
             if (txtWorkstations != null) cfg.WorkstationNets = Lines(txtWorkstations, false);
             cfg.ExpertMode = cboMode.SelectedIndex == 1;
+            if (cboUsage.Enabled) cfg.Usage = cboUsage.SelectedIndex == 1 ? "personal" : "company";
             cfg.PublicSectorList = chkPublic.Checked;
             cfg.BetaOpenPhish = chkOpenPhish.Checked;
             cfg.BetaTranco = chkTranco.Checked;

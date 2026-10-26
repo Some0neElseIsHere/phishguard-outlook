@@ -792,6 +792,20 @@ namespace PhishGuard.Tests
             Check("assistant : réseau déjà déclaré", !cNet.PendingSetup(new[] { "network" }, true).Any());
             Func<string, string> usageOf = v => { var cu = new PhishGuardConfig(); cu.ApplyPolicies(new[] { new KeyValuePair<string, string>("Usage", v) }); return cu.Usage; };
             Check("réglage : usage", usageOf("personnel") == "personal" && usageOf("entreprise") == "company" && usageOf("company") == "company" && usageOf("n'importe") == "");
+            var cExp = new PhishGuardConfig { CompanyDomains = new List<string> { "exemple-pme.fr" }, ReportAddress = "securite@exemple-pme.fr",
+                MailServers = new List<string> { "10.0.0.5" }, InternalRelays = new List<string> { "10.0.50.12 alertes@exemple-pme.fr" }, WorkstationNets = new List<string> { "10.20.30.0/24" },
+                Companies = new List<CompanyEntry> { CompanyEntry.Parse("Exemple SAS | FR | 123456782 | Claire Martin") }, VirusTotalKey = "secret-ne-pas-exporter", Language = "en" };
+            string exported = cExp.ExportCompanyFile();
+            Check("fichier entreprise : sans clé ni réglage personnel", !exported.Contains("secret-ne-pas-exporter") && !exported.Contains("VirusTotal") && !exported.Contains("Language"));
+            var cImpF = new PhishGuardConfig();
+            var keysImp = cImpF.ImportCompanyFile((exported + "\nVirusTotalKey = abc\nLanguage = en\nExpertMode = true").Split('\n'));
+            Check("fichier entreprise : import", cImpF.Usage == "company" && cImpF.CompanyDomains.SequenceEqual(new[] { "exemple-pme.fr" }) && cImpF.ReportAddress == "securite@exemple-pme.fr"
+                && cImpF.InternalRelays.SequenceEqual(new[] { "10.0.50.12 alertes@exemple-pme.fr" }) && cImpF.WorkstationNets.Count == 1 && cImpF.Companies.Count == 1 && cImpF.Companies[0].Directors[0] == "Claire Martin",
+                string.Join(",", keysImp.ToArray()));
+            Check("fichier entreprise : clés et réglages personnels ignorés", cImpF.VirusTotalKey == "" && cImpF.Language == "auto" && !cImpF.ExpertMode);
+            var cLockF = new PhishGuardConfig(); cLockF.ApplyPolicies(new[] { new KeyValuePair<string, string>("ReportAddress", "soc@exemple-pme.fr") });
+            cLockF.ImportCompanyFile(new[] { "ReportAddress = autre@exemple-pme.fr" });
+            Check("fichier entreprise : stratégie prioritaire", cLockF.ReportAddress == "soc@exemple-pme.fr");
             Check("assistant : déjà vu", cDone.PendingSetup(setupSteps, true).Count == 0 && cDone.PendingSetup(setupSteps.Concat(new[] { "nouveau" }), true).SequenceEqual(new[] { "nouveau" }));
 
             // ---------- Plusieurs entreprises ----------

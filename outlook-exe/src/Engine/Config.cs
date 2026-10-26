@@ -285,6 +285,63 @@ namespace PhishGuard
             return steps.Where(s => !done.Contains(s)).ToList();
         }
 
+        // Fichier de configuration de l'entreprise : ce qui est commun à tous les postes. Jamais de clé d'API (une clé
+        // écrite dans un fichier se lit et se copie) ni de réglage personnel (langue, thème, affichage).
+        static readonly string[] CompanyFileKeys = { "companyname", "company#", "companydomains", "vipnames", "trusteddomains", "reportaddress",
+            "mailservers", "internalrelays", "workstationnets", "sharedblocklistpath", "watchdomains",
+            "redflagenabled", "publicsectorlist", "betaopenphish", "betatranco", "betadnschecks", "betacertage", "domainageauto" };
+
+        /// <summary>Contenu du fichier de configuration de l'entreprise, à importer sur les autres postes.</summary>
+        public string ExportCompanyFile()
+        {
+            NormalizeCompanies();
+            var sb = new StringBuilder();
+            sb.AppendLine("# PhishGuard - configuration de l'entreprise, à importer sur chaque poste (assistant de démarrage ou Paramètres).");
+            sb.AppendLine("# Aucune clé d'API ni réglage personnel. Pour l'imposer sans que l'utilisateur puisse la modifier : stratégies (GPO).");
+            sb.AppendLine("Usage = company");
+            for (int i = 0; i < Companies.Count; i++) sb.AppendLine("Company" + (i + 1) + " = " + Companies[i].Serialize());
+            if (Companies.Count == 0) sb.AppendLine("CompanyName = " + Clean(CompanyName));
+            sb.AppendLine("CompanyDomains = " + string.Join(", ", CompanyDomains.Select(x => Clean(x)).ToArray()));
+            sb.AppendLine("TrustedDomains = " + string.Join(", ", TrustedDomains.Select(x => Clean(x)).ToArray()));
+            sb.AppendLine("ReportAddress = " + Clean(ReportAddress));
+            sb.AppendLine("MailServers = " + string.Join(", ", MailServers.Select(x => Clean(x)).ToArray()));
+            sb.AppendLine("InternalRelays = " + string.Join(", ", InternalRelays.Select(x => Clean(x)).ToArray()));
+            sb.AppendLine("WorkstationNets = " + string.Join(", ", WorkstationNets.Select(x => Clean(x)).ToArray()));
+            sb.AppendLine("SharedBlocklistPath = " + (SharedBlocklistPath ?? "").Replace("\r", "").Replace("\n", "").Trim());
+            sb.AppendLine("WatchDomains = " + (WatchDomains ? "true" : "false"));
+            sb.AppendLine("RedFlagEnabled = " + (RedFlagEnabled ? "true" : "false"));
+            sb.AppendLine("PublicSectorList = " + (PublicSectorList ? "true" : "false"));
+            sb.AppendLine("BetaOpenPhish = " + (BetaOpenPhish ? "true" : "false"));
+            sb.AppendLine("BetaTranco = " + (BetaTranco ? "true" : "false"));
+            sb.AppendLine("BetaDnsChecks = " + (BetaDnsChecks ? "true" : "false"));
+            sb.AppendLine("BetaCertAge = " + (BetaCertAge ? "true" : "false"));
+            sb.AppendLine("DomainAgeAuto = " + (DomainAgeLookup ? "true" : "false"));
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Importe le fichier de configuration de l'entreprise : seules les clés communes sont lues (pas de clé d'API, pas de
+        /// réglage personnel), et ce que l'administrateur impose par stratégie reste prioritaire. Renvoie les clés importées.
+        /// </summary>
+        public List<string> ImportCompanyFile(IEnumerable<string> lines)
+        {
+            var keep = new List<string>();
+            foreach (var raw in lines ?? new string[0])
+            {
+                string line = raw.Trim();
+                int eq = line.IndexOf('=');
+                if (eq <= 0 || line.StartsWith("#") || line.StartsWith(";")) continue;
+                string key = line.Substring(0, eq).Trim().ToLowerInvariant();
+                string k = System.Text.RegularExpressions.Regex.IsMatch(key, @"^company\d+$") ? "company#" : key;
+                if (!CompanyFileKeys.Contains(k) || IsLocked(k)) continue;
+                keep.Add(line);
+            }
+            var seen = ApplyLines(this, keep, false);
+            NormalizeCompanies();
+            if (seen.Count > 0 && !IsLocked("usage")) Usage = "company";
+            return seen.ToList();
+        }
+
         /// <summary>Enregistre les réglages modifiables par l'utilisateur.</summary>
         public void SaveUser(string path)
         {

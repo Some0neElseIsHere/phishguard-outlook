@@ -33,7 +33,9 @@ namespace PhishGuard.AddIn
         TextBox txtDomain, txtReport, txtMailServers, txtRelays, txtWorkstations;
         Label lblCompanies;
         Button btnFindCompany;
-        bool askCompany, askReport;
+        bool askCompany, askReport, askNetwork, imported;
+        CheckBox chkNoRelay;
+        Label lblImport;
         List<CompanyEntry> companies;
         string mailbox = "";
         CheckBox chkRedFlag, chkPublic, chkOpenPhish, chkTranco, chkDns, chkCert, chkAge;
@@ -74,7 +76,8 @@ namespace PhishGuard.AddIn
             bool askUsage = steps.Contains("usage");
             askCompany = steps.Contains("company") || (askUsage && cfg.CompanyDomains.Count == 0 && !cfg.IsLocked("companydomains"));
             askReport = steps.Contains("report") || (askUsage && string.IsNullOrEmpty(cfg.ReportAddress) && !cfg.IsLocked("reportaddress"));
-            bool askNetwork = steps.Contains("network") || (askUsage && cfg.MailServers.Count + cfg.InternalRelays.Count + cfg.WorkstationNets.Count == 0);
+            askNetwork = steps.Contains("network") || (askUsage && cfg.MailServers.Count + cfg.InternalRelays.Count + cfg.WorkstationNets.Count == 0);
+            if (askCompany || askReport || askNetwork) AddPage("import", BuildImport());
             if (askCompany || askReport) AddPage("company", BuildCompany(mailboxDomain));
             if (askNetwork) AddPage("network", BuildNetwork());
             if (steps.Contains("reputation")) AddPage("reputation", BuildReputation());
@@ -107,7 +110,7 @@ namespace PhishGuard.AddIn
         bool Applies(Panel p)
         {
             string k = pageKind[p];
-            return Company || (k != "company" && k != "network");
+            return Company || (k != "company" && k != "network" && k != "import");
         }
 
         List<Panel> VisiblePages() { return pages.Where(Applies).ToList(); }
@@ -200,6 +203,62 @@ namespace PhishGuard.AddIn
             return p;
         }
 
+        Panel BuildImport()
+        {
+            var p = new Panel();
+            int y = Title(p, L.T("Configuration de l’entreprise"), 16);
+            y = Para(p, L.T("Votre service informatique vous a peut-être donné un fichier de configuration PhishGuard (phishguard-entreprise.ini). Il remplit pour vous l’entreprise, ses domaines, l’adresse de l’équipe sécurité, le réseau interne et les sources de réputation : vous n’aurez plus qu’à vérifier."), y);
+            y += 6;
+            var btn = new Button { Text = L.T("Importer le fichier de configuration…"), Location = new Point(X, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) };
+            btn.Click += (s, e) => ImportFile();
+            p.Controls.Add(btn);
+            y += 40;
+            lblImport = new Label { Location = new Point(X, y), MaximumSize = new Size(Inner, 0), AutoSize = true, ForeColor = Color.FromArgb(16, 124, 65) };
+            p.Controls.Add(lblImport);
+            y += 30;
+            y = Para(p, L.T("Sans fichier, cliquez sur « Suivant » : vous saisirez ces informations dans les pages suivantes. Elles sont toutes obligatoires ; demandez-les à votre service informatique si besoin."), y);
+            y += 4;
+            Para(p, L.T("Pour créer ce fichier : sur un poste déjà réglé, Paramètres → Entreprise → « Exporter… ». Il ne contient aucune clé d’API."), y);
+            return p;
+        }
+
+        void ImportFile()
+        {
+            using (var d = new OpenFileDialog { Filter = L.T("Configuration PhishGuard (*.ini)") + "|*.ini|" + L.T("Tous les fichiers") + "|*.*" })
+            {
+                if (d.ShowDialog(this) != DialogResult.OK) return;
+                List<string> keys;
+                try { keys = cfg.ImportCompanyFile(System.IO.File.ReadAllLines(d.FileName, System.Text.Encoding.UTF8)); }
+                catch (Exception ex) { MessageBox.Show(this, L.T("Lecture impossible :") + "\n" + ex.Message, "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+                if (keys.Count == 0)
+                {
+                    MessageBox.Show(this, L.T("Ce fichier ne contient aucun réglage d’entreprise PhishGuard."), "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                imported = true;
+                // Les pages suivantes sont refaites avec les valeurs importées, à vérifier
+                if (askCompany || askReport) ReplacePage("company", BuildCompany(mailbox));
+                if (askNetwork) ReplacePage("network", BuildNetwork());
+                if (steps.Contains("reputation")) ReplacePage("reputation", BuildReputation());
+                lblImport.Text = "✓ " + L.F("Configuration importée : {0}. Vérifiez-la dans les pages suivantes.", System.IO.Path.GetFileName(d.FileName));
+                ShowPage(pageIndex);
+            }
+        }
+
+        void ReplacePage(string kind, Panel fresh)
+        {
+            int i = pages.FindIndex(x => pageKind[x] == kind);
+            if (i < 0) return;
+            var old = pages[i];
+            host.Controls.Remove(old);
+            pageKind.Remove(old);
+            old.Dispose();
+            fresh.Dock = DockStyle.Fill; fresh.AutoScroll = true; fresh.Visible = false;
+            host.Controls.Add(fresh);
+            pages[i] = fresh;
+            pageKind[fresh] = kind;
+        }
+
         Panel BuildCompany(string mailboxDomain)
         {
             var p = new Panel();
@@ -254,6 +313,10 @@ namespace PhishGuard.AddIn
             txtRelays = Box(p, string.Join(Environment.NewLine, cfg.InternalRelays.ToArray()), y, true, 70, X);
             y += 76;
             y = Para(p, L.T("L’adresse IP ou le nom de l’équipement, puis les seules adresses d’expéditeur qu’il a le droit d’utiliser. Exemple : 10.0.50.12 alertes@entreprise.fr. S’il écrit au nom d’une autre adresse, le message est critique (équipement piraté)."), y);
+            chkNoRelay = new CheckBox { Text = L.T("Aucun équipement n’envoie de mails"), Location = new Point(X, y), AutoSize = true, Checked = imported && cfg.InternalRelays.Count == 0 };
+            chkNoRelay.CheckedChanged += (s, e) => { if (chkNoRelay.Checked) txtRelays.Text = ""; txtRelays.Enabled = !chkNoRelay.Checked && !cfg.IsLocked("internalrelays"); };
+            p.Controls.Add(chkNoRelay);
+            y += 28;
             y += 8;
             y = Section(p, L.T("Réseaux des postes de travail (VLAN)"), y);
             txtWorkstations = Box(p, string.Join(Environment.NewLine, cfg.WorkstationNets.ToArray()), y, true, 52, X);
@@ -379,7 +442,9 @@ namespace PhishGuard.AddIn
 
         CheckBox Check(Panel p, ref int y, string text, bool value, string key, string hint)
         {
-            var c = new CheckBox { Text = text, Checked = value, Location = new Point(X + 4, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold), Enabled = !cfg.IsLocked(key) };
+            // Première fois : tout est coché ; une valeur importée ou imposée par l'administrateur est reprise telle quelle
+            bool on = cfg.IsLocked(key) || imported ? value : true;
+            var c = new CheckBox { Text = text, Checked = on, Location = new Point(X + 4, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold), Enabled = !cfg.IsLocked(key) };
             p.Controls.Add(c);
             y += 24;
             y = Para(p, hint, y, X + 22);
@@ -400,6 +465,23 @@ namespace PhishGuard.AddIn
                     return false;
                 }
             }
+            if (kind == "company")
+            {
+                // Utilisation en entreprise : tout est obligatoire (ou importé)
+                var missing = new List<string>();
+                if (companies != null && btnFindCompany.Enabled && companies.Count == 0) missing.Add(L.T("l’entreprise (« Rechercher dans l’annuaire… »)"));
+                if (txtDomain != null && txtDomain.Enabled && txtDomain.Text.Trim().Length == 0) missing.Add(L.T("les domaines de l’entreprise"));
+                if (txtReport != null && txtReport.Enabled && txtReport.Text.Trim().Length == 0) missing.Add(L.T("l’adresse de l’équipe sécurité"));
+                if (missing.Count > 0) { Missing(missing); return false; }
+            }
+            if (kind == "network")
+            {
+                var missing = new List<string>();
+                if (txtMailServers.Enabled && txtMailServers.Text.Trim().Length == 0) missing.Add(L.T("les serveurs de messagerie internes"));
+                if (txtRelays.Enabled && txtRelays.Text.Trim().Length == 0 && !chkNoRelay.Checked) missing.Add(L.T("les équipements qui envoient des mails (ou cochez « Aucun équipement n’envoie de mails »)"));
+                if (txtWorkstations.Enabled && txtWorkstations.Text.Trim().Length == 0) missing.Add(L.T("les réseaux des postes de travail"));
+                if (missing.Count > 0) { Missing(missing); return false; }
+            }
             if (kind == "network" && txtRelays != null)
             {
                 var bad = SettingsForm.BadRelayLines(SettingsForm.RelayLines(txtRelays));
@@ -411,6 +493,13 @@ namespace PhishGuard.AddIn
                 }
             }
             return true;
+        }
+
+        void Missing(List<string> what)
+        {
+            MessageBox.Show(this, L.T("Pour une utilisation en entreprise, indiquez :") + "\n\n" + string.Join("\n", what.Select(w => "  • " + w).ToArray())
+                + "\n\n" + L.T("Votre service informatique peut vous les donner, ou vous fournir un fichier de configuration à importer (page précédente). Vous pouvez aussi cliquer sur « Plus tard »."),
+                "PhishGuard", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         void Apply()
@@ -433,6 +522,7 @@ namespace PhishGuard.AddIn
                 if (txtReport != null) cfg.ReportAddress = txtReport.Text.Trim();
                 if (txtMailServers != null && txtMailServers.Enabled) cfg.MailServers = SettingsForm.Lines(txtMailServers, false);
                 if (txtRelays != null && txtRelays.Enabled) cfg.InternalRelays = SettingsForm.RelayLines(txtRelays);
+                else if (chkNoRelay != null && chkNoRelay.Checked && !cfg.IsLocked("internalrelays")) cfg.InternalRelays = new List<string>();
                 if (txtWorkstations != null && txtWorkstations.Enabled) cfg.WorkstationNets = SettingsForm.Lines(txtWorkstations, false);
             }
             if (chkRedFlag != null)
