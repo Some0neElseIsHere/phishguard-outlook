@@ -17,6 +17,7 @@ namespace PhishGuard
         public List<string> VipNames = new List<string>();
         public List<string> TrustedDomains = new List<string>();
         public string ReportAddress = "";
+        public string Usage = "";                // company (entreprise), personal, ou "" (pas encore demandé)
         public bool RedFlagEnabled = true;
         public string RedFlagUrl = "https://dl.red.flag.domains/red.flag.domains.txt";
         public int RedFlagMaxAgeHours = 24;
@@ -215,6 +216,7 @@ namespace PhishGuard
                     case "vipnames": c.VipNames = SplitList(val, false); break;
                     case "trusteddomains": c.TrustedDomains = SplitList(val, true); break;
                     case "reportaddress": c.ReportAddress = val; break;
+                    case "usage": { string u = val.Trim().ToLowerInvariant(); c.Usage = u == "personal" || u == "personnel" ? "personal" : u == "company" || u == "entreprise" ? "company" : ""; } break;
                     case "redflagenabled": c.RedFlagEnabled = !(val == "0" || val.Equals("false", StringComparison.OrdinalIgnoreCase) || val.Equals("non", StringComparison.OrdinalIgnoreCase)); break;
                     case "redflagurl": if (val.Length > 0) c.RedFlagUrl = val; break;
                     case "autoanalyze": c.AutoAnalyze = !IsFalse(val); break;
@@ -273,6 +275,12 @@ namespace PhishGuard
             if (IsLocked("expertmode")) done.Add("mode");
             if (IsLocked("companydomains") || IsLocked("company#")) done.Add("company");
             if (IsLocked("reportaddress")) done.Add("report");
+            // Usage : déjà connu si l'entreprise est renseignée ; un usage personnel n'a ni entreprise, ni équipe sécurité, ni réseau interne
+            if (Usage.Length > 0 || IsLocked("usage") || done.Contains("company")) done.Add("usage");
+            if (Usage == "personal") { done.Add("company"); done.Add("report"); done.Add("network"); }
+            if (MailServers.Count + InternalRelays.Count + WorkstationNets.Count > 0
+                || (IsLocked("mailservers") && IsLocked("internalrelays") && IsLocked("workstationnets"))) done.Add("network");
+            if (new[] { "redflagenabled", "publicsectorlist", "betaopenphish", "betatranco", "betadnschecks", "betacertage", "domainageauto" }.All(IsLocked)) done.Add("reputation");
             return steps.Where(s => !done.Contains(s)).ToList();
         }
 
@@ -289,6 +297,7 @@ namespace PhishGuard
             sb.AppendLine("VipNames = " + string.Join(", ", VipNames.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("TrustedDomains = " + string.Join(", ", TrustedDomains.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("ReportAddress = " + Clean(ReportAddress));
+            sb.AppendLine("Usage = " + Clean(Usage));
             sb.AppendLine("AutoAnalyze = " + (AutoAnalyze ? "true" : "false"));
             sb.AppendLine("AlertLevel = " + Clean(AlertLevel));
             sb.AppendLine("AutoHashMaxMB = " + AutoHashMaxMB);

@@ -89,6 +89,12 @@ namespace PhishGuard.Tools
 
             Application.EnableVisualStyles();
             Capture(new FirstRunForm(new PhishGuardConfig(), "exemple-pme.fr", null, FirstRunForm.Steps), Path.Combine(outDir, "assistant.png"));
+            for (int page = 1; page < 5; page++)
+            {
+                var fw = new FirstRunForm(new PhishGuardConfig(), "exemple-pme.fr", null, FirstRunForm.Steps);
+                fw.GoTo(page);
+                Capture(fw, Path.Combine(outDir, "assistant-" + (page + 1) + ".png"));
+            }
             Capture(new SettingsForm(cfg, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres.png"));
             var fAff = new SettingsForm(cfg, null, "exemple-pme.fr");
             foreach (var tc in fAff.Controls.OfType<TabControl>()) tc.SelectedIndex = 2;   // onglet Affichage

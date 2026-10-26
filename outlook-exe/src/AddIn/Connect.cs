@@ -538,6 +538,16 @@ namespace PhishGuard.AddIn
 
         void Report(object mail, EmailData data, AnalysisResult result)
         {
+            if (string.IsNullOrEmpty(config.ReportAddress) && config.Usage == "personal")
+            {
+                // Usage personnel : pas d'équipe sécurité, le message est simplement écarté
+                IWin32Window own = form != null && !form.IsDisposed && form.Visible ? form : null;
+                string q = L.T("Déplacer ce message dans « Courrier indésirable » ?") + "\n\n" + L.T("De : ") + data.FromName + " <" + data.FromAddress + ">\n" + L.T("Objet : ") + data.Subject;
+                if (MessageBox.Show(own, q, "PhishGuard", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                MoveToJunk(mail, true);
+                if (form != null && !form.IsDisposed) form.SetStatus(L.T("Message déplacé dans « Courrier indésirable »."));
+                return;
+            }
             if (string.IsNullOrEmpty(config.ReportAddress))
             {
                 var ask = MessageBox.Show(L.T("Aucune adresse de l’équipe sécurité n’est configurée.") + "\n\n" + L.T("Voulez-vous l’indiquer maintenant ?"),
