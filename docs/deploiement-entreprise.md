@@ -16,6 +16,19 @@ ne peut pas les modifier.
   horodatés (signtool du Windows SDK requis). Sur GitHub, les secrets `SIGN_PFX_BASE64` et `SIGN_PASSWORD` font la
   même chose lors de la publication.
 
+## 1 bis. Sans GPO : le fichier de configuration de l'entreprise
+
+Sur un poste déjà réglé : **Paramètres → Entreprise → Exporter…** crée `phishguard-entreprise.ini` (entreprises,
+domaines, adresse de l'équipe sécurité, réseau interne, sources de réputation). Il ne contient **aucune clé d'API** ni
+réglage personnel (langue, thème, affichage).
+
+Donnez ce fichier aux utilisateurs : dans l'assistant de démarrage, après « Oui, en entreprise », le bouton
+**Importer le fichier de configuration…** remplit tout ; ils n'ont plus qu'à vérifier. Sans fichier, toutes ces
+informations leur sont demandées. Un poste déjà installé l'importe par **Paramètres → Entreprise → Importer…**.
+
+Les réglages importés restent modifiables par l'utilisateur. Pour les imposer, utilisez les stratégies (section 2) :
+elles l'emportent toujours sur le fichier importé.
+
 ## 2. Imposer les réglages par stratégie
 
 Le zip de chaque release contient le modèle de stratégies dans le dossier `policies\` :

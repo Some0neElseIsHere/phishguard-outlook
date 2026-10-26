@@ -12,6 +12,13 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.21.0** :
+  - **Paramètres complets en mode simple** : les onglets Listes et Réputation, et l'analyse de votre domaine, ne sont plus réservés au mode expert. Le mode ne change plus que la fenêtre d'analyse. Seule la stratégie « mode simple imposé » les masque encore ;
+  - **usage personnel** : l'onglet Entreprise est masqué. Le choix se change dans Paramètres → Analyse → Utilisation, et l'onglet revient aussitôt ;
+  - **assistant, en entreprise** : une page propose d'**importer le fichier de configuration de l'entreprise**. Sans fichier, tout est obligatoire : entreprise (annuaire), domaines, équipe sécurité, serveurs de messagerie, équipements (ou « aucun »), réseaux des postes ;
+  - **Paramètres → Entreprise → Exporter… / Importer…** : le fichier de configuration à donner aux autres postes, sans clé d'API ni réglage personnel ;
+  - **assistant, réputation** : toutes les sources sont cochées par défaut.
+
 - **v1.20.2** : thème sombre : la ligne sélectionnée d'une liste (entreprises, résultats de l'annuaire, sosies…) s'affiche en blanc sur bleu, au lieu de gris foncé sur gris, illisible.
 
 - **v1.20.1** : corrections de l'assistant de démarrage et de la désinstallation :
