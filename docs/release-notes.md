@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.21.1** : assistant, en entreprise : « Plus tard » sur les pages Configuration, Entreprise ou Réseau interne passe directement à la page Réputation (au lieu de fermer l'assistant). Ces informations se complètent ensuite dans Paramètres → Entreprise.
+
 - **v1.21.0** :
   - **Paramètres complets en mode simple** : les onglets Listes et Réputation, et l'analyse de votre domaine, ne sont plus réservés au mode expert. Le mode ne change plus que la fenêtre d'analyse. Seule la stratégie « mode simple imposé » les masque encore ;
   - **usage personnel** : l'onglet Entreprise est masqué. Le choix se change dans Paramètres → Analyse → Utilisation, et l'onglet revient aussitôt ;
