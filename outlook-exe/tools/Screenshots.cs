@@ -89,6 +89,11 @@ namespace PhishGuard.Tools
 
             Application.EnableVisualStyles();
             Capture(new FirstRunForm(new PhishGuardConfig(), "exemple-pme.fr", null, FirstRunForm.Steps), Path.Combine(outDir, "assistant.png"));
+            // « Plus tard » sur la page Réseau interne (5/6) doit mener à la page Réputation, sans fermer l'assistant
+            var fl = new FirstRunForm(new PhishGuardConfig(), "exemple-pme.fr", null, FirstRunForm.Steps);
+            fl.GoTo(4);
+            fl.Shown += (sd, ev) => fl.ClickLater();
+            Capture(fl, Path.Combine(outDir, "assistant-plus-tard.png"));
             for (int page = 1; page < 6; page++)
             {
                 var fw = new FirstRunForm(new PhishGuardConfig(), "exemple-pme.fr", null, FirstRunForm.Steps);

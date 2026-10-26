@@ -68,7 +68,11 @@ namespace PhishGuard.AddIn
             host = new Panel { Dock = DockStyle.Fill };
             Controls.Add(host);
             Controls.Add(bar);
-            AcceptButton = btnNext; CancelButton = btnLater;
+            // Pas de CancelButton : Windows Forms donnerait au bouton « Plus tard » un DialogResult qui fermerait l'assistant
+            // même quand il doit seulement passer à la page Réputation. Échap passe par Later().
+            AcceptButton = btnNext;
+            KeyPreview = true;
+            KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) { e.Handled = true; Later(); } };
 
             // Une page n'est construite que si l'une de ses questions reste à poser
             if (welcome || steps.Contains("language") || steps.Contains("mode")) AddPage("welcome", BuildWelcome());
@@ -131,6 +135,9 @@ namespace PhishGuard.AddIn
 
         /// <summary>Pour les captures d'écran.</summary>
         internal void GoTo(int index) { ShowPage(index); }
+
+        /// <summary>Pour les captures d'écran : clic sur « Plus tard ».</summary>
+        internal void ClickLater() { btnLater.PerformClick(); }
 
         static bool IsCompanyPage(string kind) { return kind == "import" || kind == "company" || kind == "network"; }
 
