@@ -26,7 +26,7 @@ namespace PhishGuard.AddIn
         readonly Label lblPage;
         readonly List<Panel> pages = new List<Panel>();
         readonly Dictionary<Panel, string> pageKind = new Dictionary<Panel, string>();
-        int current;
+        int pageIndex;
 
         ComboBox cboLang;
         RadioButton rbSimple, rbExpert, rbCompany, rbPersonal;
@@ -54,7 +54,7 @@ namespace PhishGuard.AddIn
             btnLater = new Button { Text = L.T("Plus tard"), AutoSize = true, Height = 30, DialogResult = DialogResult.Cancel };
             lblPage = new Label { AutoSize = true, ForeColor = SystemColors.GrayText, Margin = new Padding(0, 8, 16, 0) };
             btnNext.Click += (s, e) => Next();
-            btnBack.Click += (s, e) => ShowPage(current - 1);
+            btnBack.Click += (s, e) => ShowPage(pageIndex - 1);
             bar.Controls.AddRange(new Control[] { btnNext, btnBack, btnLater, lblPage });
             host = new Panel { Dock = DockStyle.Fill };
             Controls.Add(host);
@@ -99,13 +99,13 @@ namespace PhishGuard.AddIn
             return Company || (k != "company" && k != "network");
         }
 
-        List<Panel> Visible() { return pages.Where(Applies).ToList(); }
+        List<Panel> VisiblePages() { return pages.Where(Applies).ToList(); }
 
         void ShowPage(int index)
         {
-            var vis = Visible();
+            var vis = VisiblePages();
             index = Math.Max(0, Math.Min(index, vis.Count - 1));
-            current = index;
+            pageIndex = index;
             foreach (var p in pages) p.Visible = p == vis[index];
             vis[index].AutoScrollPosition = new Point(0, 0);
             btnBack.Visible = index > 0;
@@ -119,9 +119,9 @@ namespace PhishGuard.AddIn
 
         void Next()
         {
-            var vis = Visible();
-            if (!Validate(vis[current])) return;
-            if (current < vis.Count - 1) { ShowPage(current + 1); return; }
+            var vis = VisiblePages();
+            if (!Validate(vis[pageIndex])) return;
+            if (pageIndex < vis.Count - 1) { ShowPage(pageIndex + 1); return; }
             Apply();
             DialogResult = DialogResult.OK;
             Close();
@@ -182,7 +182,7 @@ namespace PhishGuard.AddIn
             p.Controls.Add(rbPersonal);
             y += 26;
             Para(p, L.T("Pas d’entreprise, d’équipe sécurité ni de réseau interne à déclarer : le bouton « Signaler » déplace simplement le message dans le courrier indésirable."), y, X + 28);
-            rbCompany.CheckedChanged += (s, e) => ShowPage(current);   // met à jour le nombre d'étapes
+            rbCompany.CheckedChanged += (s, e) => ShowPage(pageIndex);   // met à jour le nombre d'étapes
             return p;
         }
 
