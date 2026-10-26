@@ -1,7 +1,7 @@
 name: Descriptions des releases
 
 # Réécrit la description de toutes les versions publiées au format court (liens de téléchargement en tête,
-# nouveautés de la version seulement). À lancer à la main, par exemple après une modification des notes de version.
+# nouveautés de la version seulement) et retire les installeurs sans numéro de version. À lancer à la main, par exemple après une modification des notes de version.
 on:
   workflow_dispatch:
 
@@ -20,4 +20,6 @@ jobs:
           gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --exclude-drafts --json tagName --jq '.[].tagName' | grep '^v' | while read -r tag; do
             python3 outlook-exe/tools/release-body.py docs/release-notes.md "$tag" "$GITHUB_REPOSITORY" body.md
             gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --notes-file body.md > /dev/null && echo "::notice::$tag mise à jour"
+            # Copie sans numéro de version publiée par erreur avec la v1.21.6 : seul l'installeur numéroté est gardé
+            gh release delete-asset "$tag" PhishGuard-Outlook-installeur.exe --repo "$GITHUB_REPOSITORY" -y > /dev/null 2>&1 && echo "::notice::$tag : copie sans numéro retirée"
           done
