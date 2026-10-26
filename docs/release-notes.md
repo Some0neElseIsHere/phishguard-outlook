@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.19.19** : mode simple : les indices faibles, qui comptent dans la note, sont maintenant détaillés dans une rubrique « À noter », avec leur explication et la preuve (par exemple l'adresse réelle d'un lien). Seules les simples informations, sans effet sur la note, restent en gris.
+
 - **v1.19.18** : « Analyser mon domaine » depuis le réseau de l'entreprise : quand le domaine interne (Active Directory) porte le même nom que le domaine public, le DNS interne cachait les enregistrements publics, et l'analyse annonçait à tort « aucun MX, pas de SPF, pas de DMARC ». PhishGuard le détecte et lit alors ces enregistrements sur un DNS public (1.1.1.1 ou 8.8.8.8), en l'indiquant dans le rapport. Si aucun DNS public n'est joignable, un avertissement invite à confirmer les résultats depuis un réseau extérieur.
 
 - **v1.19.17** : « Analyser mon domaine » → Sosies du domaine :
