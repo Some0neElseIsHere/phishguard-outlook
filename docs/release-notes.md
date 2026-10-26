@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.21.4** : molette de la souris dans les paramètres, l'assistant et l'analyse du domaine : la page défile d'un trait, sans s'arrêter sur chaque zone de saisie ou liste traversée. Pour faire défiler une zone longue, cliquez d'abord dedans. Une liste déroulante n'est plus modifiée par erreur en passant dessus.
+
 - **v1.21.3** : désinstallation : la fenêtre se ferme toute seule après quelques secondes (plus de « Appuyez sur une touche »).
 
 - **v1.21.2** : correction de la v1.21.1 : « Plus tard » sur les pages de l'entreprise fermait encore l'assistant au lieu de passer à la page Réputation.

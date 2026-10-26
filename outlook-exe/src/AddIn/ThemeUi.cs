@@ -139,6 +139,7 @@ namespace PhishGuard.AddIn
         {
             lock (attached) attached.Add(new WeakReference(f));
             Apply(f);
+            WheelRouter.Attach(f);   // molette : la page défile sans s'arrêter sur chaque zone de saisie
             f.HandleCreated += (s, e) => { TitleBar(f); NativeThemes(f); };
         }
 
