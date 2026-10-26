@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.21.5** : le fichier de configuration de l'entreprise ne contient plus que ce qui décrit l'entreprise : entreprises et dirigeants, domaines, adresse de l'équipe sécurité, réseau interne. Les sources de réputation, listes et autres réglages restent propres à chaque poste (et ne sont plus lus à l'import).
+
 - **v1.21.4** : molette de la souris dans les paramètres, l'assistant et l'analyse du domaine : la page défile d'un trait, sans s'arrêter sur chaque zone de saisie ou liste traversée. Pour faire défiler une zone longue, cliquez d'abord dedans. Une liste déroulante n'est plus modifiée par erreur en passant dessus.
 
 - **v1.21.3** : désinstallation : la fenêtre se ferme toute seule après quelques secondes (plus de « Appuyez sur une touche »).

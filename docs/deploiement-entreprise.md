@@ -18,9 +18,9 @@ ne peut pas les modifier.
 
 ## 1 bis. Sans GPO : le fichier de configuration de l'entreprise
 
-Sur un poste déjà réglé : **Paramètres → Entreprise → Exporter…** crée `phishguard-entreprise.ini` (entreprises,
-domaines, adresse de l'équipe sécurité, réseau interne, sources de réputation). Il ne contient **aucune clé d'API** ni
-réglage personnel (langue, thème, affichage).
+Sur un poste déjà réglé : **Paramètres → Entreprise → Exporter…** crée `phishguard-entreprise.ini` : seulement ce qui
+décrit l'entreprise (entreprises et dirigeants, domaines, adresse de l'équipe sécurité, réseau interne). Il ne contient
+**aucune clé d'API**, ni sources de réputation, ni réglage personnel.
 
 Donnez ce fichier aux utilisateurs : dans l'assistant de démarrage, après « Oui, en entreprise », le bouton
 **Importer le fichier de configuration…** remplit tout ; ils n'ont plus qu'à vérifier. Sans fichier, toutes ces

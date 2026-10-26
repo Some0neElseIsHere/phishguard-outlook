@@ -140,7 +140,7 @@ namespace PhishGuard.AddIn
             btnImport.Click += (s, e) => ImportCompany();
             pGeneral.Controls.Add(btnExport); pGeneral.Controls.Add(btnImport);
             y += 32;
-            AddHint(pGeneral, ref y, L.T("Exporter crée un fichier avec ces réglages (entreprises, domaines, équipe sécurité, réseau interne, sources de réputation) à donner aux autres postes : ils l’importent dans l’assistant de démarrage. Aucune clé d’API ni réglage personnel n’y figure."));
+            AddHint(pGeneral, ref y, L.T("Exporter crée un fichier avec ce qui décrit l’entreprise (entreprises, domaines, équipe sécurité, réseau interne), à donner aux autres postes : ils l’importent dans l’assistant de démarrage. Rien d’autre n’y figure : ni clé d’API, ni sources de réputation, ni réglage personnel."));
             tabs.TabPages.Add(pGeneral);
 
             // ---------------- Analyse ----------------
@@ -388,13 +388,10 @@ namespace PhishGuard.AddIn
             // Ce qui est à l'écran, même pas encore enregistré
             var c = new PhishGuardConfig
             {
-                Companies = companies, CompanyDomains = Lines(txtDomains, true), ReportAddress = txtReport.Text.Trim(), TrustedDomains = Lines(txtTrusted, true),
+                Companies = companies, CompanyDomains = Lines(txtDomains, true), ReportAddress = txtReport.Text.Trim(),
                 MailServers = txtMailServers != null ? Lines(txtMailServers, false) : cfg.MailServers,
                 InternalRelays = txtRelays != null ? RelayLines(txtRelays) : cfg.InternalRelays,
-                WorkstationNets = txtWorkstations != null ? Lines(txtWorkstations, false) : cfg.WorkstationNets,
-                SharedBlocklistPath = txtShared.Text.Trim(), WatchDomains = chkWatch.Checked,
-                RedFlagEnabled = chkRedFlag.Checked, PublicSectorList = chkPublic.Checked, BetaOpenPhish = chkOpenPhish.Checked, BetaTranco = chkTranco.Checked,
-                BetaDnsChecks = chkDns.Checked, BetaCertAge = chkCert.Checked, DomainAgeLookup = chkAge.Checked
+                WorkstationNets = txtWorkstations != null ? Lines(txtWorkstations, false) : cfg.WorkstationNets
             };
             using (var d = new SaveFileDialog { Filter = L.T("Configuration PhishGuard (*.ini)") + "|*.ini", FileName = "phishguard-entreprise.ini" })
             {

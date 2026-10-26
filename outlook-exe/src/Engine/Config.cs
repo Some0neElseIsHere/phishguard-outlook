@@ -285,11 +285,11 @@ namespace PhishGuard
             return steps.Where(s => !done.Contains(s)).ToList();
         }
 
-        // Fichier de configuration de l'entreprise : ce qui est commun à tous les postes. Jamais de clé d'API (une clé
-        // écrite dans un fichier se lit et se copie) ni de réglage personnel (langue, thème, affichage).
-        static readonly string[] CompanyFileKeys = { "companyname", "company#", "companydomains", "vipnames", "trusteddomains", "reportaddress",
-            "mailservers", "internalrelays", "workstationnets", "sharedblocklistpath", "watchdomains",
-            "redflagenabled", "publicsectorlist", "betaopenphish", "betatranco", "betadnschecks", "betacertage", "domainageauto" };
+        // Fichier de configuration de l'entreprise : seulement ce qui décrit l'entreprise (identité, domaines, équipe
+        // sécurité, réseau interne). Ni clé d'API (une clé écrite dans un fichier se lit et se copie), ni choix de
+        // l'utilisateur (sources de réputation, listes, affichage).
+        static readonly string[] CompanyFileKeys = { "companyname", "company#", "companydomains", "vipnames", "reportaddress",
+            "mailservers", "internalrelays", "workstationnets" };
 
         /// <summary>Contenu du fichier de configuration de l'entreprise, à importer sur les autres postes.</summary>
         public string ExportCompanyFile()
@@ -297,25 +297,16 @@ namespace PhishGuard
             NormalizeCompanies();
             var sb = new StringBuilder();
             sb.AppendLine("# PhishGuard - configuration de l'entreprise, à importer sur chaque poste (assistant de démarrage ou Paramètres).");
-            sb.AppendLine("# Aucune clé d'API ni réglage personnel. Pour l'imposer sans que l'utilisateur puisse la modifier : stratégies (GPO).");
+            sb.AppendLine("# Entreprise, domaines, équipe sécurité, réseau interne. Ni clé d'API, ni réglage propre à l'utilisateur.");
+            sb.AppendLine("# Pour l'imposer sans que l'utilisateur puisse la modifier : stratégies (GPO).");
             sb.AppendLine("Usage = company");
             for (int i = 0; i < Companies.Count; i++) sb.AppendLine("Company" + (i + 1) + " = " + Companies[i].Serialize());
             if (Companies.Count == 0) sb.AppendLine("CompanyName = " + Clean(CompanyName));
             sb.AppendLine("CompanyDomains = " + string.Join(", ", CompanyDomains.Select(x => Clean(x)).ToArray()));
-            sb.AppendLine("TrustedDomains = " + string.Join(", ", TrustedDomains.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("ReportAddress = " + Clean(ReportAddress));
             sb.AppendLine("MailServers = " + string.Join(", ", MailServers.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("InternalRelays = " + string.Join(", ", InternalRelays.Select(x => Clean(x)).ToArray()));
             sb.AppendLine("WorkstationNets = " + string.Join(", ", WorkstationNets.Select(x => Clean(x)).ToArray()));
-            sb.AppendLine("SharedBlocklistPath = " + (SharedBlocklistPath ?? "").Replace("\r", "").Replace("\n", "").Trim());
-            sb.AppendLine("WatchDomains = " + (WatchDomains ? "true" : "false"));
-            sb.AppendLine("RedFlagEnabled = " + (RedFlagEnabled ? "true" : "false"));
-            sb.AppendLine("PublicSectorList = " + (PublicSectorList ? "true" : "false"));
-            sb.AppendLine("BetaOpenPhish = " + (BetaOpenPhish ? "true" : "false"));
-            sb.AppendLine("BetaTranco = " + (BetaTranco ? "true" : "false"));
-            sb.AppendLine("BetaDnsChecks = " + (BetaDnsChecks ? "true" : "false"));
-            sb.AppendLine("BetaCertAge = " + (BetaCertAge ? "true" : "false"));
-            sb.AppendLine("DomainAgeAuto = " + (DomainAgeLookup ? "true" : "false"));
             return sb.ToString();
         }
 
