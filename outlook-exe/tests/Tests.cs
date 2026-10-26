@@ -781,6 +781,15 @@ namespace PhishGuard.Tests
             var pOld = cOld.PendingSetup(setupSteps, true);
             Check("assistant : mise à jour, seulement les nouveautés", pOld.Count == 1 && pOld[0] == "mode", string.Join(",", pOld.ToArray()));
             var cDone = new PhishGuardConfig { SetupKeyPresent = true, SetupDone = new List<string>(setupSteps) };
+            var cPerso = new PhishGuardConfig { Usage = "personal" };
+            var pPerso = cPerso.PendingSetup(new[] { "usage", "company", "report", "network", "reputation" }, true);
+            Check("assistant : usage personnel, ni entreprise ni réseau", pPerso.SequenceEqual(new[] { "reputation" }), string.Join(",", pPerso.ToArray()));
+            var pEnt = cOld.PendingSetup(new[] { "usage", "network", "reputation" }, true);
+            Check("assistant : entreprise déjà renseignée, usage déduit", pEnt.SequenceEqual(new[] { "network", "reputation" }), string.Join(",", pEnt.ToArray()));
+            var cNet = new PhishGuardConfig { CompanyDomains = new List<string> { "x.fr" }, WorkstationNets = new List<string> { "10.0.0.0/24" } };
+            Check("assistant : réseau déjà déclaré", !cNet.PendingSetup(new[] { "network" }, true).Any());
+            Func<string, string> usageOf = v => { var cu = new PhishGuardConfig(); cu.ApplyPolicies(new[] { new KeyValuePair<string, string>("Usage", v) }); return cu.Usage; };
+            Check("réglage : usage", usageOf("personnel") == "personal" && usageOf("entreprise") == "company" && usageOf("company") == "company" && usageOf("n'importe") == "");
             Check("assistant : déjà vu", cDone.PendingSetup(setupSteps, true).Count == 0 && cDone.PendingSetup(setupSteps.Concat(new[] { "nouveau" }), true).SequenceEqual(new[] { "nouveau" }));
 
             // ---------- Plusieurs entreprises ----------

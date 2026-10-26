@@ -495,7 +495,7 @@ namespace PhishGuard.AddIn
         }
 
         /// <summary>Équipements : une ligne par équipement, « adresse expéditeur1 expéditeur2 » (virgules tolérées entre les expéditeurs).</summary>
-        static List<string> RelayLines(TextBox t)
+        internal static List<string> RelayLines(TextBox t)
         {
             var list = new List<string>();
             foreach (var raw in t.Text.Split(new[] { '\r', '\n', ';' }, StringSplitOptions.RemoveEmptyEntries))
@@ -506,7 +506,13 @@ namespace PhishGuard.AddIn
             return list;
         }
 
-        static List<string> Lines(TextBox t, bool lower)
+        /// <summary>« 10.0.50.12 serveur.entreprise.local » : le second mot n'est pas une adresse d'expéditeur.</summary>
+        internal static List<string> BadRelayLines(List<string> lines)
+        {
+            return lines.Where(l => l.Split(' ').Skip(1).Any(x => !x.Contains("@"))).ToList();
+        }
+
+        internal static List<string> Lines(TextBox t, bool lower)
         {
             var list = new List<string>();
             foreach (var raw in t.Text.Split(new[] { '\r', '\n', ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
@@ -529,7 +535,7 @@ namespace PhishGuard.AddIn
             if (txtRelays != null)
             {
                 // « 10.0.50.12 serveur.entreprise.local » : le second mot n'est pas une adresse d'expéditeur, l'équipement resterait sans restriction
-                var bad = RelayLines(txtRelays).Where(l => l.Split(' ').Skip(1).Any(x => !x.Contains("@"))).ToList();
+                var bad = BadRelayLines(RelayLines(txtRelays));
                 if (bad.Count > 0)
                 {
                     MessageBox.Show(this, L.T("Équipements : après l’adresse IP ou le nom, indiquez seulement des adresses d’expéditeur (alertes@entreprise.fr). Lignes à corriger :") + "\n\n" + string.Join("\n", bad.ToArray()),

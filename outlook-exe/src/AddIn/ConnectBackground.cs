@@ -371,9 +371,11 @@ namespace PhishGuard.AddIn
         }
 
         /// <summary>Après un signalement : le message est déplacé dans « Courrier indésirable ».</summary>
-        void MoveToJunk(object mailObj)
+        void MoveToJunk(object mailObj) { MoveToJunk(mailObj, false); }
+
+        void MoveToJunk(object mailObj, bool always)
         {
-            if (!config.MoveAfterReport || mailObj == null) return;
+            if ((!config.MoveAfterReport && !always) || mailObj == null) return;
             try
             {
                 dynamic app = application;
