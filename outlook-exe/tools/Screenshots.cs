@@ -113,7 +113,7 @@ namespace PhishGuard.Tools
             var fEnt2 = new SettingsForm(cfg, null, "exemple-pme.fr");
             fEnt2.Shown += (snd, evt) => { foreach (var tc in fEnt2.Controls.OfType<TabControl>()) tc.TabPages[0].AutoScrollPosition = new Point(0, 520); };
             Capture(fEnt2, Path.Combine(outDir, "parametres-entreprise-bas.png"));
-            File.WriteAllLines(Path.Combine(outDir, "verif-liens.txt"), CheckAgeLink(cfg));
+            File.WriteAllLines(Path.Combine(outDir, "verif-liens.txt"), CheckAgeLink(cfg).Concat(CheckWheel(cfg)));
             var fRep = new SettingsForm(cfg, null, "exemple-pme.fr") { Height = 1200 };
             foreach (var tc in fRep.Controls.OfType<TabControl>()) tc.SelectedIndex = 4;   // onglet Réputation
             Capture(fRep, Path.Combine(outDir, "parametres-reputation.png"));
@@ -208,6 +208,37 @@ namespace PhishGuard.Tools
         static IEnumerable<Control> AllControls(Control c)
         {
             foreach (Control x in c.Controls) { yield return x; foreach (var y in AllControls(x)) yield return y; }
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern IntPtr SendMessage(IntPtr hwnd, int msg, IntPtr w, IntPtr l);
+
+        /// <summary>Molette sur une zone de saisie de l'onglet Entreprise : la page doit défiler, sauf si la zone a le focus et déborde.</summary>
+        static List<string> CheckWheel(PhishGuardConfig cfg)
+        {
+            var res = new List<string>();
+            var f = new SettingsForm(cfg, null, "exemple-pme.fr") { StartPosition = FormStartPosition.Manual, Location = new Point(0, 0), ShowInTaskbar = false };
+            f.Show(); Application.DoEvents();
+            var page = f.Controls.OfType<TabControl>().First().TabPages[0];
+            var box = page.Controls.OfType<TextBox>().First(t => t.Multiline);
+            Func<int> pos = () => -page.AutoScrollPosition.Y;
+            var pt = box.PointToScreen(new Point(10, 10));
+            IntPtr lp = (IntPtr)((pt.Y << 16) | (pt.X & 0xFFFF));
+            IntPtr down = (IntPtr)(-120 << 16);
+            int before = pos();
+            SendMessage(box.Handle, 0x020A, down, lp); Application.DoEvents();
+            int after = pos();
+            res.Add((after > before ? "OK" : "ÉCHEC") + " molette sur une zone sans focus : la page défile (" + before + " → " + after + ")");
+            page.AutoScrollPosition = new Point(0, 0); Application.DoEvents();
+            box.Text = string.Join(Environment.NewLine, Enumerable.Range(1, 40).Select(i => "exemple" + i + ".fr").ToArray());
+            box.Focus(); Application.DoEvents();
+            pt = box.PointToScreen(new Point(10, 10)); lp = (IntPtr)((pt.Y << 16) | (pt.X & 0xFFFF));
+            before = pos();
+            SendMessage(box.Handle, 0x020A, down, lp); Application.DoEvents();
+            after = pos();
+            res.Add((after == before ? "OK" : "ÉCHEC") + " molette dans une zone qui a le focus et déborde : la page ne bouge pas (" + before + " → " + after + ")");
+            f.Close();
+            return res;
         }
 
         static ListView FindList(Control c)
