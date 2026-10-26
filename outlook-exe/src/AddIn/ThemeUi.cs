@@ -288,11 +288,41 @@ namespace PhishGuard.AddIn
             foreach (Control child in c.Controls) Walk(child, c);
         }
 
-        /// <summary>En-têtes de colonnes dessinés en sombre (ceux de Windows restent clairs) ; les lignes restent dessinées par Windows.</summary>
+        // Ligne sélectionnée en thème sombre : Windows la dessine en gris sur gris, illisible
+        static readonly Color SelectBack = Color.FromArgb(0x1F, 0x5A, 0x96), SelectText = Color.White;
+
+        /// <summary>
+        /// En-têtes de colonnes dessinés en sombre (ceux de Windows restent clairs). Les lignes restent dessinées par Windows,
+        /// sauf la ligne sélectionnée en thème sombre : fond bleu, texte blanc.
+        /// </summary>
         static void DarkHeaders(ListView lv)
         {
-            lv.DrawItem += (s, e) => { e.DrawDefault = true; };
-            lv.DrawSubItem += (s, e) => { e.DrawDefault = true; };
+            lv.DrawItem += (s, e) => { e.DrawDefault = !(Theme.Dark && e.Item.Selected); };
+            // Le dessin de la sélection suit les changements de sélection et de focus
+            lv.ItemSelectionChanged += (s, e) => { if (Theme.Dark && lv.OwnerDraw) lv.Invalidate(e.Item.Bounds); };
+            lv.LostFocus += (s, e) => { if (Theme.Dark && lv.OwnerDraw) lv.Invalidate(); };
+            lv.GotFocus += (s, e) => { if (Theme.Dark && lv.OwnerDraw) lv.Invalidate(); };
+            lv.DrawSubItem += (s, e) =>
+            {
+                if (!(Theme.Dark && e.Item.Selected)) { e.DrawDefault = true; return; }
+                using (var b = new SolidBrush(SelectBack)) e.Graphics.FillRectangle(b, e.Bounds);
+                var r = e.Bounds;
+                if (e.ColumnIndex == 0)
+                {
+                    if (lv.CheckBoxes)
+                    {
+                        var state = e.Item.Checked ? System.Windows.Forms.VisualStyles.CheckBoxState.CheckedNormal : System.Windows.Forms.VisualStyles.CheckBoxState.UncheckedNormal;
+                        var size = CheckBoxRenderer.GetGlyphSize(e.Graphics, state);
+                        CheckBoxRenderer.DrawCheckBox(e.Graphics, new Point(r.X + 4, r.Y + (r.Height - size.Height) / 2), state);
+                        r = new Rectangle(r.X + size.Width + 6, r.Y, r.Width - size.Width - 6, r.Height);
+                    }
+                    // Avec ListView.Columns[0], la largeur couvre parfois toute la ligne : on s'en tient à la première colonne
+                    if (lv.Columns.Count > 0) r.Width = Math.Min(r.Width, lv.Columns[0].Width - (r.X - e.Bounds.X));
+                }
+                r = new Rectangle(r.X + 4, r.Y, Math.Max(0, r.Width - 6), r.Height);
+                TextRenderer.DrawText(e.Graphics, e.SubItem.Text, e.Item.Font ?? lv.Font, r, SelectText,
+                    TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix);
+            };
             lv.DrawColumnHeader += (s, e) =>
             {
                 using (var b = new SolidBrush(Color.FromArgb(0x30, 0x34, 0x3A))) e.Graphics.FillRectangle(b, e.Bounds);

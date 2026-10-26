@@ -126,6 +126,10 @@ namespace PhishGuard.Tools
             Write(outDir, "expert-dangereux-sombre.html", ResultForm.BuildHtml(rp, p, true));
             Capture(new FirstRunForm(new PhishGuardConfig(), "exemple-pme.fr", null, FirstRunForm.Steps), Path.Combine(outDir, "assistant-sombre.png"));
             Capture(new SettingsForm(cfg, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres-sombre.png"));
+            // Ligne sélectionnée d'une liste, sans le focus (cas illisible signalé en thème sombre)
+            var fSel = new SettingsForm(cfg, null, "exemple-pme.fr");
+            fSel.Shown += (sd, ev) => { var lvSel = FindList(fSel); if (lvSel != null && lvSel.Items.Count > 0) lvSel.Items[0].Selected = true; };
+            Capture(fSel, Path.Combine(outDir, "selection-sombre.png"));
             Capture(new SettingsForm(cfgPol, null, "exemple-pme.fr"), Path.Combine(outDir, "parametres-strategies-sombre.png"));
             Capture(new AlertForm(rp, p.Subject), Path.Combine(outDir, "alerte-sombre.png"));
             Theme.Dark = false;
@@ -199,6 +203,16 @@ namespace PhishGuard.Tools
         static IEnumerable<Control> AllControls(Control c)
         {
             foreach (Control x in c.Controls) { yield return x; foreach (var y in AllControls(x)) yield return y; }
+        }
+
+        static ListView FindList(Control c)
+        {
+            foreach (Control child in c.Controls)
+            {
+                var lv = child as ListView ?? FindList(child);
+                if (lv != null) return lv;
+            }
+            return null;
         }
 
         static void Capture(Form f, string path)
