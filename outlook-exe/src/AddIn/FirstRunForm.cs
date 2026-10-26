@@ -33,7 +33,7 @@ namespace PhishGuard.AddIn
         TextBox txtDomain, txtReport, txtMailServers, txtRelays, txtWorkstations;
         Label lblCompanies;
         Button btnFindCompany;
-        bool askCompany, askReport, askNetwork, imported;
+        bool askCompany, askReport, askNetwork, imported, companyLater;
         CheckBox chkNoRelay;
         Label lblImport;
         List<CompanyEntry> companies;
@@ -59,7 +59,8 @@ namespace PhishGuard.AddIn
             var bar = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 50, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(12, 10, 12, 8), BackColor = Color.FromArgb(247, 249, 251) };
             btnNext = new Button { AutoSize = true, Height = 30, Font = new Font(Font, FontStyle.Bold) };
             btnBack = new Button { Text = L.T("Précédent"), AutoSize = true, Height = 30 };
-            btnLater = new Button { Text = L.T("Plus tard"), AutoSize = true, Height = 30, DialogResult = DialogResult.Cancel };
+            btnLater = new Button { Text = L.T("Plus tard"), AutoSize = true, Height = 30 };
+            btnLater.Click += (s, e) => Later();
             lblPage = new Label { AutoSize = true, ForeColor = SystemColors.GrayText, Margin = new Padding(0, 8, 16, 0) };
             btnNext.Click += (s, e) => Next();
             btnBack.Click += (s, e) => ShowPage(pageIndex - 1);
@@ -131,9 +132,29 @@ namespace PhishGuard.AddIn
         /// <summary>Pour les captures d'écran.</summary>
         internal void GoTo(int index) { ShowPage(index); }
 
+        static bool IsCompanyPage(string kind) { return kind == "import" || kind == "company" || kind == "network"; }
+
+        /// <summary>
+        /// « Plus tard » sur une page de l'entreprise : ces pages sont laissées de côté (ce qui y a été saisi n'est pas
+        /// enregistré ; à remplir dans Paramètres → Entreprise) et l'assistant passe à la suite, la réputation.
+        /// Ailleurs : fermeture de l'assistant.
+        /// </summary>
+        void Later()
+        {
+            var vis = VisiblePages();
+            if (IsCompanyPage(pageKind[vis[pageIndex]]))
+            {
+                int next = vis.FindIndex(pageIndex, x => !IsCompanyPage(pageKind[x]));
+                if (next > pageIndex) { companyLater = true; ShowPage(next); return; }
+            }
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
+
         void Next()
         {
             var vis = VisiblePages();
+            if (IsCompanyPage(pageKind[vis[pageIndex]])) companyLater = false;   // revenu sur ces pages et validé
             if (!Validate(vis[pageIndex])) return;
             if (pageIndex < vis.Count - 1) { ShowPage(pageIndex + 1); return; }
             Apply();
@@ -508,7 +529,7 @@ namespace PhishGuard.AddIn
             if (rbCompany != null) cfg.Usage = company ? "company" : "personal";
             if (cboLang != null) cfg.Language = LangValues[Math.Max(0, cboLang.SelectedIndex)];
             if (rbExpert != null) cfg.ExpertMode = rbExpert.Checked;
-            if (company)
+            if (company && !companyLater)
             {
                 if (companies != null && !cfg.IsLocked("company#"))
                 {
