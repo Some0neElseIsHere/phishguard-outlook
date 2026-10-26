@@ -52,6 +52,8 @@ namespace PhishGuard
         public List<FoundDomain> BrandCerts = new List<FoundDomain>();
         public List<FoundDomain> Related = new List<FoundDomain>();
         public List<string> Errors = new List<string>();
+        /// <summary>DNS public utilisé à la place de celui du poste ("" : DNS du poste).</summary>
+        public string DnsServer = "";
     }
 
     public static class DomainAudit
@@ -155,7 +157,8 @@ namespace PhishGuard
         {
             var variants = Variants(domain);
             var ownMx = new List<string>();
-            Intel.Query(Domains.RegistrableDomain(domain), Intel.TypeMx, ownMx);
+            string own = Domains.RegistrableDomain(domain);
+            Intel.Query(own, Intel.TypeMx, ownMx, PublicResolver(own));
             var ownMxSet = new HashSet<string>(ownMx.Select(x => x.ToLowerInvariant().TrimEnd('.')));
             string ownLabel = Domains.ParseHost(domain).Label;
             var found = new List<FoundDomain>();
@@ -392,29 +395,65 @@ namespace PhishGuard
             return m.Success && (m.Groups[2].Value.Trim().Length == 0 || m.Groups[2].Value.Replace(" ", "").Length >= 64);
         }
 
+        // DNS publics essayés quand le DNS du poste ne montre pas la version publique du domaine
+        static readonly string[] PublicResolvers = { "1.1.1.1", "8.8.8.8" };
+        static readonly Dictionary<string, string> resolverFor = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// DNS « split-horizon » : quand le domaine Active Directory porte le nom du domaine public, le DNS interne répond
+        /// à sa place avec sa propre zone, sans MX, SPF ni DMARC. Si le DNS du poste ne voit aucun MX mais qu'un DNS public
+        /// en voit, c'est ce DNS public qu'il faut interroger. Renvoie son adresse, ou "" (DNS du poste, ou aucun ne répond).
+        /// </summary>
+        public static string PublicResolver(string domain)
+        {
+            lock (resolverFor) { string known; if (resolverFor.TryGetValue(domain, out known)) return known; }
+            string res = "";
+            var mx = new List<string>();
+            Intel.Query(domain, Intel.TypeMx, mx);
+            if (mx.Count == 0)
+            {
+                // en parallèle : si le pare-feu bloque le DNS vers l'extérieur, chaque essai attend une douzaine de secondes
+                var ok = new bool[PublicResolvers.Length];
+                Parallel.For(0, PublicResolvers.Length, i =>
+                {
+                    var pub = new List<string>();
+                    try { ok[i] = Intel.Query(domain, Intel.TypeMx, pub, PublicResolvers[i]) == 0 && pub.Count > 0; }
+                    catch (Exception) { }
+                });
+                for (int i = 0; i < ok.Length && res.Length == 0; i++) if (ok[i]) res = PublicResolvers[i];
+            }
+            if (res.Length > 0) lock (resolverFor) resolverFor[domain] = res;   // un échec n'est pas retenu : le réseau peut changer
+            return res;
+        }
+
         public static List<AuditItem> AuditEmail(string domain, List<string> senders)
+        {
+            return AuditEmail(domain, senders, "");
+        }
+
+        public static List<AuditItem> AuditEmail(string domain, List<string> senders, string server)
         {
             var mx = new List<string>(); var txt = new List<string>(); var dmarc = new List<string>(); var bimi = new List<string>();
             var sts = new List<string>(); var rpt = new List<string>();
-            int rc = Intel.Query(domain, Intel.TypeMx, mx);
+            int rc = Intel.Query(domain, Intel.TypeMx, mx, server);
             if (rc == Intel.NameError) return new List<AuditItem> { new AuditItem("bad", L.T("Ce domaine n’existe pas dans le DNS"), domain) };
-            Intel.Query(domain, Intel.TypeTxt, txt);
-            Intel.Query("_dmarc." + domain, Intel.TypeTxt, dmarc);
-            Intel.Query("default._bimi." + domain, Intel.TypeTxt, bimi);
-            Intel.Query("_mta-sts." + domain, Intel.TypeTxt, sts);
-            Intel.Query("_smtp._tls." + domain, Intel.TypeTxt, rpt);
+            Intel.Query(domain, Intel.TypeTxt, txt, server);
+            Intel.Query("_dmarc." + domain, Intel.TypeTxt, dmarc, server);
+            Intel.Query("default._bimi." + domain, Intel.TypeTxt, bimi, server);
+            Intel.Query("_mta-sts." + domain, Intel.TypeTxt, sts, server);
+            Intel.Query("_smtp._tls." + domain, Intel.TypeTxt, rpt, server);
             var found = new List<string>();
             var bits = new Dictionary<string, int>();
             var sync = new object();
             // Un DNS « joker » (*.domaine ou *._domainkey.domaine) répond pour n'importe quel nom : un sélecteur inventé
             // sert de témoin, et toute réponse identique à la sienne est ignorée.
             var probe = new List<string>();
-            Intel.Query("pg" + Guid.NewGuid().ToString("N").Substring(0, 10) + "._domainkey." + domain, Intel.TypeTxt, probe);
+            Intel.Query("pg" + Guid.NewGuid().ToString("N").Substring(0, 10) + "._domainkey." + domain, Intel.TypeTxt, probe, server);
             var wildcard = new HashSet<string>(probe);
             Parallel.ForEach(DkimSelectors, new ParallelOptions { MaxDegreeOfParallelism = 6 }, s =>
             {
                 var v = new List<string>();
-                Intel.Query(s + "._domainkey." + domain, Intel.TypeTxt, v);
+                Intel.Query(s + "._domainkey." + domain, Intel.TypeTxt, v, server);
                 string rec = v.FirstOrDefault(x => IsDkimRecord(x) && !wildcard.Contains(x));
                 if (rec != null) lock (sync) { found.Add(s); bits[s] = Intel.DkimKeyBits(rec); }
             });
@@ -619,7 +658,18 @@ namespace PhishGuard
             Action<string> step = s => { if (progress != null) progress(s); };
 
             step(L.T("Sécurité de la messagerie (DNS)…"));
-            try { r.Email = AuditEmail(d, r.Senders); } catch (Exception ex) { r.Errors.Add("DNS : " + ex.Message); }
+            try
+            {
+                r.DnsServer = PublicResolver(d);
+                r.Email = AuditEmail(d, r.Senders, r.DnsServer);
+                if (r.DnsServer.Length > 0)
+                    r.Email.Insert(0, new AuditItem("info", L.T("DNS interne contourné"),
+                        L.F("Le DNS de ce poste ne montre pas la version publique de {0} (domaine interne du même nom) : les enregistrements ont été lus sur un DNS public ({1}), comme les voit Internet.", d, r.DnsServer)));
+                else if (!r.Email.Any(x => x.Status == "ok"))
+                    r.Email.Insert(0, new AuditItem("warn", L.T("Résultats à confirmer hors du réseau interne"),
+                        L.F("Le DNS de ce poste ne montre presque rien pour {0}, et aucun DNS public n’a pu être joint. Si votre domaine interne porte le même nom, les « problèmes » ci-dessous peuvent être faux : relancez l’analyse depuis un réseau extérieur.", d)));
+            }
+            catch (Exception ex) { r.Errors.Add("DNS : " + ex.Message); }
 
             step(L.T("Domaines liés (certificats, crt.sh)…"));
             try { r.Related = ParseRelated(Crt(d, 60000), orgs); } catch (Exception ex) { r.Errors.Add("crt.sh : " + ex.Message); }

@@ -384,8 +384,29 @@ namespace PhishGuard
         /// <summary>Renvoie le code DNS et la liste des MX ou des textes TXT.</summary>
         internal static int Query(string name, ushort type, List<string> values)
         {
-            IntPtr list;
-            int rc = DnsQuery(name, type, 0, IntPtr.Zero, out list, IntPtr.Zero);
+            return Query(name, type, values, null);
+        }
+
+        /// <summary>
+        /// Idem, en interrogeant un serveur DNS précis (adresse IPv4) au lieu de celui du poste : sert quand le DNS
+        /// interne de l'entreprise ne montre pas la version publique de son propre domaine (DNS « split-horizon »).
+        /// </summary>
+        internal static int Query(string name, ushort type, List<string> values, string server)
+        {
+            IntPtr list, extra = IntPtr.Zero;
+            uint options = 0;
+            if (!string.IsNullOrEmpty(server))
+            {
+                IPAddress ip;
+                if (!IPAddress.TryParse(server, out ip) || ip.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork) return NameError;
+                extra = Marshal.AllocHGlobal(8);                                  // IP4_ARRAY : nombre, puis l'adresse
+                Marshal.WriteInt32(extra, 1);
+                Marshal.Copy(ip.GetAddressBytes(), 0, IntPtr.Add(extra, 4), 4);
+                options = 0x8;                                                    // DNS_QUERY_BYPASS_CACHE
+            }
+            int rc;
+            try { rc = DnsQuery(name, type, options, extra, out list, IntPtr.Zero); }
+            finally { if (extra != IntPtr.Zero) Marshal.FreeHGlobal(extra); }
             if (rc != 0 || list == IntPtr.Zero) return rc;
             try
             {
