@@ -301,7 +301,7 @@ namespace PhishGuard.AddIn
         {
             var p = new Panel();
             int y = Title(p, L.T("Réseau interne"), 16);
-            y = Para(p, L.T("Pour repérer un faux message « interne » : quelqu’un sur le réseau (un collègue malveillant, un poste ou un équipement piraté) qui envoie un email au nom d’un collègue sans passer par la messagerie. Ces informations se trouvent auprès de votre service informatique ; une rubrique laissée vide n’est simplement pas vérifiée."), y);
+            y = Para(p, L.T("Pour repérer un faux message « interne » : quelqu’un sur le réseau (un collègue malveillant, un poste ou un équipement piraté) qui envoie un email au nom d’un collègue sans passer par la messagerie. Ces informations se trouvent auprès de votre service informatique."), y);
             y = Para(p, L.T("Une ligne par élément : adresse IP (10.0.0.5), plage (10.0.0.0/24 ; /32 pour une seule adresse) ou nom complet (mail01.entreprise.local), traduit en adresse par votre DNS."), y + 2);
             y += 8;
             y = Section(p, L.T("Serveurs de messagerie internes"), y);
