@@ -796,7 +796,10 @@ namespace PhishGuard.Tests
                 MailServers = new List<string> { "10.0.0.5" }, InternalRelays = new List<string> { "10.0.50.12 alertes@exemple-pme.fr" }, WorkstationNets = new List<string> { "10.20.30.0/24" },
                 Companies = new List<CompanyEntry> { CompanyEntry.Parse("Exemple SAS | FR | 123456782 | Claire Martin") }, VirusTotalKey = "secret-ne-pas-exporter", Language = "en" };
             string exported = cExp.ExportCompanyFile();
-            Check("fichier entreprise : sans clé ni réglage personnel", !exported.Contains("secret-ne-pas-exporter") && !exported.Contains("VirusTotal") && !exported.Contains("Language"));
+            Check("fichier entreprise : sans clé ni réglage personnel", !exported.Contains("secret-ne-pas-exporter") && !exported.Contains("VirusTotal") && !exported.Contains("Language")
+                && !exported.Contains("BetaTranco") && !exported.Contains("RedFlag") && !exported.Contains("TrustedDomains"), exported);
+            var cRep = new PhishGuardConfig(); cRep.ImportCompanyFile(new[] { "BetaTranco = true", "RedFlagEnabled = false", "TrustedDomains = x.fr" });
+            Check("fichier entreprise : réputation et listes ignorées", !cRep.BetaTranco && cRep.RedFlagEnabled && cRep.TrustedDomains.Count == 0 && cRep.Usage == "");
             var cImpF = new PhishGuardConfig();
             var keysImp = cImpF.ImportCompanyFile((exported + "\nVirusTotalKey = abc\nLanguage = en\nExpertMode = true").Split('\n'));
             Check("fichier entreprise : import", cImpF.Usage == "company" && cImpF.CompanyDomains.SequenceEqual(new[] { "exemple-pme.fr" }) && cImpF.ReportAddress == "securite@exemple-pme.fr"

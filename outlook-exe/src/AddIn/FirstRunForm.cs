@@ -235,7 +235,7 @@ namespace PhishGuard.AddIn
         {
             var p = new Panel();
             int y = Title(p, L.T("Configuration de l’entreprise"), 16);
-            y = Para(p, L.T("Votre service informatique vous a peut-être donné un fichier de configuration PhishGuard (phishguard-entreprise.ini). Il remplit pour vous l’entreprise, ses domaines, l’adresse de l’équipe sécurité, le réseau interne et les sources de réputation : vous n’aurez plus qu’à vérifier."), y);
+            y = Para(p, L.T("Votre service informatique vous a peut-être donné un fichier de configuration PhishGuard (phishguard-entreprise.ini). Il remplit pour vous l’entreprise, ses domaines, l’adresse de l’équipe sécurité et le réseau interne : vous n’aurez plus qu’à vérifier."), y);
             y += 6;
             var btn = new Button { Text = L.T("Importer le fichier de configuration…"), Location = new Point(X, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold) };
             btn.Click += (s, e) => ImportFile();
@@ -267,7 +267,6 @@ namespace PhishGuard.AddIn
                 // Les pages suivantes sont refaites avec les valeurs importées, à vérifier
                 if (askCompany || askReport) ReplacePage("company", BuildCompany(mailbox));
                 if (askNetwork) ReplacePage("network", BuildNetwork());
-                if (steps.Contains("reputation")) ReplacePage("reputation", BuildReputation());
                 lblImport.Text = "✓ " + L.F("Configuration importée : {0}. Vérifiez-la dans les pages suivantes.", System.IO.Path.GetFileName(d.FileName));
                 ShowPage(pageIndex);
             }
@@ -470,8 +469,8 @@ namespace PhishGuard.AddIn
 
         CheckBox Check(Panel p, ref int y, string text, bool value, string key, string hint)
         {
-            // Première fois : tout est coché ; une valeur importée ou imposée par l'administrateur est reprise telle quelle
-            bool on = cfg.IsLocked(key) || imported ? value : true;
+            // Tout est coché ; une valeur imposée par l'administrateur est reprise telle quelle
+            bool on = cfg.IsLocked(key) ? value : true;
             var c = new CheckBox { Text = text, Checked = on, Location = new Point(X + 4, y), AutoSize = true, Font = new Font(Font, FontStyle.Bold), Enabled = !cfg.IsLocked(key) };
             p.Controls.Add(c);
             y += 24;
