@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.20.2** : thème sombre : la ligne sélectionnée d'une liste (entreprises, résultats de l'annuaire, sosies…) s'affiche en blanc sur bleu, au lieu de gris foncé sur gris, illisible.
+
 - **v1.20.1** : corrections de l'assistant de démarrage et de la désinstallation :
   - **l'usage (entreprise ou personnel) est toujours demandé** tant qu'il n'est pas connu, y compris après une mise à jour. Le choix proposé par défaut est « entreprise », sauf pour une adresse personnelle (Gmail, Orange…). En choisissant « entreprise », ce qui manque (entreprise, équipe sécurité, réseau interne) est proposé dans la foulée ;
   - **l'entreprise se cherche dans l'Annuaire des Entreprises** (France) ou Wikidata, comme dans les paramètres : nom, SIREN et dirigeants ;
