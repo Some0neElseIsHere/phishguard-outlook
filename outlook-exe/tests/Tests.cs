@@ -910,6 +910,9 @@ namespace PhishGuard.Tests
             tech.Links.Add(new LinkInfo("http://localhost:8083/connectors", "")); tech.Links.Add(new LinkInfo("http://127.0.0.1:9092", ""));
             Correspondents.Set(new[] { "client@client-connu.fr" }, false);
             var rtech = Analyzer.Analyze(tech, cfg);
+            var rLan = withLink("http://10.0.114.13/", "");
+            Check("lien vers le réseau local : listé et signalé (message externe)", rLan.Urls.Contains("http://10.0.114.13/") && hasSev(rLan, "link-local-network", Severity.Low)
+                && !Ids(rLan).Contains("link-ip") && Forensics.LookupsForUrl("http://10.0.114.13/").Count == 0, string.Join(",", Ids(rLan).ToArray()));
             Check("liste technique : localhost et adresse .invalid ne sont pas des indices", rtech.Level == "safe" && !Ids(rtech).Any(i => i.StartsWith("link-") || i.Contains("lookalike")),
                 rtech.Level + " " + string.Join(",", Ids(rtech).ToArray()));
             // Vrai code de connexion (service inconnu, boîte Orange : DMARC dans ARC) et ses imitations

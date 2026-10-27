@@ -612,7 +612,9 @@ namespace PhishGuard.AddIn
                     string host = "";
                     Uri parsed;
                     if (Uri.TryCreate(u, UriKind.Absolute, out parsed)) host = PhishGuard.Domains.ToUnicode(PhishGuard.Domains.HostOf(parsed));
-                    sb.Append("<tr><td class='mono'><b>" + H(host) + "</b></td><td class='mono muted'>" + H(Analyzer.Defang(u)) + "</td><td>" + Links(Forensics.LookupsForUrl(u)) + "</td></tr>");
+                    var look = Forensics.LookupsForUrl(u);
+                    sb.Append("<tr><td class='mono'><b>" + H(host) + "</b></td><td class='mono muted'>" + H(Analyzer.Defang(u)) + "</td><td>"
+                        + (look.Count > 0 ? Links(look) : "<span class='muted'>" + H(L.T("réseau local")) + "</span>") + "</td></tr>");
                 }
                 sb.Append("</tbody></table></div>");
                 var linkDomains = r.LinkDomains.Where(x => !PhishGuard.Domains.IsIpHost(x)).Distinct().ToList();

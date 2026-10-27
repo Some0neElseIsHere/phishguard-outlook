@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.21.8** : les liens vers une adresse du réseau local (10.x, 172.16-31.x, 192.168.x), par exemple la page d'une imprimante, étaient ignorés. Ils apparaissent maintenant dans la liste des liens, sans lien de vérification en ligne (l'adresse interne ne sort pas du poste), avec un indice : simple information dans un message interne, indice faible dans un message venu de l'extérieur.
+
 - **v1.21.7** : retour du lien permanent vers la dernière version (`…/releases/latest/download/PhishGuard-Outlook-installeur.exe`, en tête du README) : chaque version publie aussi une copie de l'installeur sans numéro dans son nom.
 
 - **v1.21.6** : page des versions plus lisible : chaque version n'affiche plus que ses propres nouveautés, avec les liens de téléchargement en tête. Le lien « Télécharger » du README mène toujours à la dernière version.
