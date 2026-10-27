@@ -253,7 +253,8 @@ namespace PhishGuard
 
         static readonly Regex ImagePathRe = new Regex(@"\.(png|jpe?g|gif|bmp|webp|svg|ico)$", RegexOptions.IgnoreCase);
 
-        static bool IsLocalHost(string host)
+        /// <summary>Le poste lui-même (localhost, 127.x) ou une adresse privée du réseau local (10.x, 172.16-31.x, 192.168.x).</summary>
+        internal static bool IsLocalHost(string host)
         {
             string h = (host ?? "").ToLowerInvariant().Trim('[', ']');
             if (h == "localhost" || h.EndsWith(".localhost") || h == "::1") return true;
@@ -1107,8 +1108,24 @@ namespace PhishGuard
                 string host = HostOf(url);
                 var p = PhishGuard.Domains.ParseHost(host);
                 if (p == null) continue;
-                // Exemple technique (localhost, réseau local) : pas une page qu'un escroc peut héberger
-                if (IsLocalHost(host)) continue;
+                // Poste ou réseau local : pas une page qu'un escroc peut héberger sur Internet. Le lien est listé (sans
+                // vérification en ligne : l'adresse interne ne sort pas du poste) ; seul le réseau local fait l'objet d'un indice.
+                if (IsLocalHost(host))
+                {
+                    urls.Add(url.AbsoluteUri);
+                    string h = host.Trim('[', ']').ToLowerInvariant();
+                    bool loopback = h == "localhost" || h.EndsWith(".localhost") || h == "::1" || h.StartsWith("127.");
+                    if (!loopback)
+                    {
+                        if (ctx.Internal)
+                            add("link-local-network", Severity.Info, L.T("Lien vers un équipement du réseau interne"),
+                                L.T("Adresse d’un équipement de votre réseau (imprimante, serveur…) : elle ne s’ouvre que depuis l’intérieur de l’entreprise."), shownEv);
+                        else
+                            add("link-local-network", Severity.Low, L.T("Lien vers une adresse du réseau local"),
+                                L.T("Un message venu de l’extérieur vous envoie vers une adresse de votre réseau local (box, imprimante, serveur) : un lien piégé peut ainsi modifier les réglages d’un équipement à votre insu. Vérifiez avant de cliquer."), shownEv);
+                    }
+                    continue;
+                }
                 string display = PhishGuard.Domains.ToUnicode(host);
                 bool legit = ctx.Domains.Legit.Contains(p.Registrable) || Feeds.IsPublicSector(host);
                 urls.Add(url.AbsoluteUri);

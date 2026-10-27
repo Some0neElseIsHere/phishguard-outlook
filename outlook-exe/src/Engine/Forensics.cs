@@ -745,6 +745,9 @@ namespace PhishGuard
 
         public static List<KeyValuePair<string, string>> LookupsForUrl(string url)
         {
+            // Adresse du poste ou du réseau local : rien à vérifier en ligne, et elle ne doit pas sortir de l'entreprise
+            Uri u;
+            if (Uri.TryCreate(url, UriKind.Absolute, out u) && Analyzer.IsLocalHost(u.Host)) return new List<KeyValuePair<string, string>>();
             return new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>("VirusTotal", "https://www.virustotal.com/gui/search/" + Enc(Enc(url))) };
         }
