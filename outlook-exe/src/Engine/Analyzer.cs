@@ -908,11 +908,14 @@ namespace PhishGuard
                 foreach (var a in AddressesIn(decoded.Split('?')[0])) mailtos.Add(new KeyValuePair<string, string>(a, Regex.Replace(l.Text ?? "", @"\s+", " ").Trim()));
             }
             var all = AddressesIn(e.BodyText ?? "").Concat(mailtos.Select(m => m.Key)).Distinct().ToList();
-            // Adresses de l'expéditeur, de l'entreprise ou d'un domaine connu : rien à vérifier
+            // Adresses de l'expéditeur, de l'entreprise ou d'un domaine connu : rien à vérifier. Une messagerie gratuite
+            // (gmail.com…) est un domaine connu, mais n'importe qui y crée une adresse : elle reste vérifiée.
             Func<string, bool> foreign = a =>
             {
-                string org = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(a));
-                return org.Length > 0 && org != fromOrg && !ctx.Domains.CompanyDomains.Contains(org) && !ctx.Domains.Legit.Contains(org) && !UnsubscribeRe.IsMatch(a);
+                string dom = PhishGuard.Domains.DomainOfAddress(a);
+                string org = PhishGuard.Domains.RegistrableDomain(dom);
+                bool free = Lists.FreemailDomains.Contains(dom) || Lists.FreemailDomains.Contains(org);
+                return org.Length > 0 && org != fromOrg && !ctx.Domains.CompanyDomains.Contains(org) && (free || !ctx.Domains.Legit.Contains(org)) && !UnsubscribeRe.IsMatch(a);
             };
             var others = all.Where(foreign).Take(12).ToList();
             if (others.Count == 0) return;
