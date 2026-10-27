@@ -121,6 +121,7 @@ namespace PhishGuard
             var urls = new List<string>();
             var linkDomains = new List<string>();
             AnalyzeLinks(e, ctx, findings, urls, linkDomains);
+            AnalyzeBodyAddresses(e, ctx, findings);
             var attNames = new List<string>();
             AnalyzeAttachments(e, ctx, findings, attNames);
             AnalyzeContent(e, headers, ctx, findings);
@@ -882,6 +883,89 @@ namespace PhishGuard
                     new[] { L.T("Reçu : ") + PhishGuard.Domains.ToUnicode(PhishGuard.Domains.RegistrableDomain(host)), L.T("Votre correspondant : ") + known }));
                 return;
             }
+        }
+
+        // Lien « Répondre / Contactez-nous » (texte du lien)
+        static readonly Regex ReplyLinkTextRe = new Regex(@"\b(r[ée]pond(re|ez|ez-nous)|reply|respond|contact(ez|er)?(-nous)?|contact us|[ée]crivez(-nous)?|write to us|nous [ée]crire)\b", RegexOptions.IgnoreCase);
+        static readonly Regex UnsubscribeRe = new Regex(@"unsubscribe|d[ée]sinscri|d[ée]sabonn|opt[-_]?out|^(leave|remove|list)[-_.+]", RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// Adresses email écrites dans le message ou dans un lien mailto: (« écrivez-nous à … », bouton « Répondre ») :
+        /// arnaques sans lien qui demandent d'écrire à une autre adresse (faux support, fausse facture, fraude au président).
+        /// </summary>
+        static void AnalyzeBodyAddresses(EmailData e, Ctx ctx, List<Finding> findings)
+        {
+            string fromAddr = (e.FromAddress ?? "").Trim().ToLowerInvariant();
+            string fromOrg = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(fromAddr));
+            var mailtos = new List<KeyValuePair<string, string>>();   // adresse, texte du lien
+            foreach (var l in e.Links)
+            {
+                string href = (l.Href ?? "").Trim();
+                if (!href.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase)) continue;
+                if (UnsubscribeRe.IsMatch(href) || UnsubscribeRe.IsMatch(l.Text ?? "")) continue;   // désinscription d'une lettre d'information
+                string decoded = href;
+                try { decoded = Uri.UnescapeDataString(href); } catch (Exception) { }
+                foreach (var a in AddressesIn(decoded.Split('?')[0])) mailtos.Add(new KeyValuePair<string, string>(a, Regex.Replace(l.Text ?? "", @"\s+", " ").Trim()));
+            }
+            var all = AddressesIn(e.BodyText ?? "").Concat(mailtos.Select(m => m.Key)).Distinct().ToList();
+            // Adresses de l'expéditeur, de l'entreprise ou d'un domaine connu : rien à vérifier
+            Func<string, bool> foreign = a =>
+            {
+                string org = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(a));
+                return org.Length > 0 && org != fromOrg && !ctx.Domains.CompanyDomains.Contains(org) && !ctx.Domains.Legit.Contains(org) && !UnsubscribeRe.IsMatch(a);
+            };
+            var others = all.Where(foreign).Take(12).ToList();
+            if (others.Count == 0) return;
+            string where = L.T("Une adresse email du message");
+
+            // Sosie, liste de domaines malveillants, domaine récent, sosie d'un correspondant : une seule alerte par contrôle
+            int ages = 0;
+            bool look = false, listed = false, corr = false;
+            foreach (var a in others)
+            {
+                string dom = PhishGuard.Domains.DomainOfAddress(a);
+                string org = PhishGuard.Domains.RegistrableDomain(dom);
+                bool free = Lists.FreemailDomains.Contains(dom) || Lists.FreemailDomains.Contains(org);
+                if (!look)
+                {
+                    var lk = PhishGuard.Domains.DetectLookalike(dom, ctx.Domains);
+                    if (lk != null) { var f = LookalikeFinding(lk, where, "content"); f.Evidence.Add(a); findings.Add(f); look = true; }
+                }
+                if (!listed)
+                {
+                    var hit = Blocklists.Lookup(dom);
+                    if (hit != null) { findings.Add(BlocklistFinding(hit, L.T("Une adresse email du message utilise un domaine malveillant connu"), "content", new[] { a })); listed = true; }
+                }
+                if (!free && ages < 2) { ages++; CheckDomainAge(org, L.T("Le domaine d’une adresse du message"), "content-address-new-domain", ctx, findings); }
+                if (!free && !corr && ctx.Config.KnownCorrespondents && Correspondents.Loaded && !Correspondents.IsKnownDomain(org))
+                {
+                    int before = findings.Count;
+                    CheckCorrespondentLookalike(dom, L.T("Le domaine d’une adresse du message"), findings);
+                    corr = findings.Count > before;
+                }
+            }
+            if (ctx.Internal) return;
+
+            // Lien « Répondre » ou « Contactez-nous » vers une autre adresse que l'expéditeur
+            var reply = mailtos.FirstOrDefault(m => foreign(m.Key) && ReplyLinkTextRe.IsMatch(m.Value));
+            if (reply.Key != null)
+            {
+                bool free = Lists.FreemailDomains.Contains(PhishGuard.Domains.DomainOfAddress(reply.Key));
+                findings.Add(new Finding("content-mailto-other", "content", free ? Severity.High : Severity.Medium,
+                    L.F("Le lien « {0} » écrit à une autre adresse que l’expéditeur", reply.Value.Length > 40 ? reply.Value.Substring(0, 40) + "…" : reply.Value),
+                    free ? L.T("Votre réponse partirait vers une messagerie gratuite, pas vers l’expéditeur.") : L.T("Votre réponse partirait vers un autre domaine que celui de l’expéditeur."),
+                    new[] { L.T("Écrire à : ") + reply.Key, L.T("Expéditeur : ") + fromAddr }));
+            }
+
+            // Se présente comme une marque, mais demande d'écrire à une messagerie gratuite
+            string nameNorm = NormalizeText(e.FromName ?? ""), subjNorm = NormalizeText(e.Subject ?? "");
+            var brand = Lists.Brands.FirstOrDefault(b => b.Names.Any(n => WordMatch(nameNorm, n) || (!b.Generic && WordMatch(subjNorm, n))));
+            string freeContact = others.FirstOrDefault(a => Lists.FreemailDomains.Contains(PhishGuard.Domains.DomainOfAddress(a)));
+            if (brand != null && freeContact != null && ctx.ProvenBrand != brand.Name)
+                findings.Add(new Finding("content-brand-freemail-contact", "content", Severity.High,
+                    L.F("Se présente comme « {0} » mais demande d’écrire à une messagerie gratuite", brand.Name),
+                    L.F("Un vrai service {0} ne vous fait jamais écrire à une adresse Gmail, Outlook.com ou similaire.", brand.Name),
+                    new[] { freeContact }));
         }
 
         static void CheckDomainAge(string registrable, string where, string id, Ctx ctx, List<Finding> findings)
