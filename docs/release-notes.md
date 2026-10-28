@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.23.0** : lettres déguisées. Des escrocs écrivent « Micrоsoft » ou « mot de раsse » en remplaçant des lettres latines par des lettres cyrilliques ou grecques identiques à l'œil, pour tromper les filtres. Ces mots sont maintenant signalés (indice fort dans le nom de l'expéditeur ou l'objet, moyen dans le texte), et ramenés en latin avant les autres contrôles : « Micrоsoft » est reconnu comme Microsoft. Un texte entièrement en cyrillique ou en grec n'est pas concerné. Banc d'essai : aucune fausse alerte supplémentaire.
+
 - **v1.22.0** : les adresses email écrites dans le message ou dans un lien `mailto:` sont maintenant vérifiées (arnaques sans lien qui demandent d'écrire à une autre adresse) :
   - adresse qui imite votre entreprise, une marque ou un correspondant, domaine malveillant connu ou tout récent ;
   - lien « Répondre » ou « Contactez-nous » qui écrit à une autre adresse que l'expéditeur (indice fort s'il s'agit d'une messagerie gratuite) ;
