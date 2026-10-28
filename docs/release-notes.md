@@ -12,6 +12,13 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.22.0** : les adresses email écrites dans le message ou dans un lien `mailto:` sont maintenant vérifiées (arnaques sans lien qui demandent d'écrire à une autre adresse) :
+  - adresse qui imite votre entreprise, une marque ou un correspondant, domaine malveillant connu ou tout récent ;
+  - lien « Répondre » ou « Contactez-nous » qui écrit à une autre adresse que l'expéditeur (indice fort s'il s'agit d'une messagerie gratuite) ;
+  - message qui se présente comme une marque (Microsoft, votre banque…) mais demande d'écrire à une adresse Gmail, Outlook.com, etc.
+  
+  Les adresses de l'expéditeur, de votre entreprise et des domaines connus, ainsi que les liens de désinscription, ne sont pas signalés.
+
 - **v1.21.8** : les liens vers une adresse du réseau local (10.x, 172.16-31.x, 192.168.x), par exemple la page d'une imprimante, étaient ignorés. Ils apparaissent maintenant dans la liste des liens, sans lien de vérification en ligne (l'adresse interne ne sort pas du poste), avec un indice : simple information dans un message interne, indice faible dans un message venu de l'extérieur.
 
 - **v1.21.7** : retour du lien permanent vers la dernière version (`…/releases/latest/download/PhishGuard-Outlook-installeur.exe`, en tête du README) : chaque version publie aussi une copie de l'installeur sans numéro dans son nom.

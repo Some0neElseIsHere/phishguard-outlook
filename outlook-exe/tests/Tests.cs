@@ -913,6 +913,21 @@ namespace PhishGuard.Tests
             var rLan = withLink("http://10.0.114.13/", "");
             Check("lien vers le réseau local : listé et signalé (message externe)", rLan.Urls.Contains("http://10.0.114.13/") && hasSev(rLan, "link-local-network", Severity.Low)
                 && !Ids(rLan).Contains("link-ip") && Forensics.LookupsForUrl("http://10.0.114.13/").Count == 0, string.Join(",", Ids(rLan).ToArray()));
+            // ---------- Adresses écrites dans le message ----------
+            var eAdr = Base(); eAdr.BodyText = "Pour valider le virement, écrivez directement à direction@acrnetech.fr avant ce soir.";
+            var rAdr = Analyzer.Analyze(eAdr, cfg);
+            Check("adresse du texte : sosie de l'entreprise", Ids(rAdr).Any(i => i.StartsWith("content-lookalike-")), string.Join(",", Ids(rAdr).ToArray()));
+            var eBr = Base(); eBr.FromName = "Microsoft Support"; eBr.FromAddress = "alerte@exemple-fournisseur.fr";
+            eBr.BodyText = "Votre licence expire. Contactez notre service technique : support.licence365@gmail.com";
+            var rBr = Analyzer.Analyze(eBr, cfg);
+            Check("marque + contact sur messagerie gratuite", Ids(rBr).Contains("content-brand-freemail-contact"), string.Join(",", Ids(rBr).ToArray()));
+            var eRep = Base(); eRep.Links.Add(new LinkInfo("mailto:compta.paiement@gmail.com?subject=Facture", "Répondre"));
+            var rRep = Analyzer.Analyze(eRep, cfg);
+            Check("lien Répondre vers une autre adresse", hasSev(rRep, "content-mailto-other", Severity.High), string.Join(",", Ids(rRep).ToArray()));
+            var eNl = Base(); eNl.Links.Add(new LinkInfo("mailto:unsubscribe@lettre-exemple.fr?subject=unsubscribe", "Se désinscrire"));
+            eNl.BodyText = "Bonjour, voici le compte rendu. Contact : claire.martin@exemple-partenaire.fr";
+            var rNl = Analyzer.Analyze(eNl, cfg);
+            Check("adresses ordinaires et désinscription : pas d'indice", !Ids(rNl).Any(i => i.StartsWith("content-mailto") || i.StartsWith("content-brand") || i.StartsWith("content-lookalike")), string.Join(",", Ids(rNl).ToArray()));
             Check("liste technique : localhost et adresse .invalid ne sont pas des indices", rtech.Level == "safe" && !Ids(rtech).Any(i => i.StartsWith("link-") || i.Contains("lookalike")),
                 rtech.Level + " " + string.Join(",", Ids(rtech).ToArray()));
             // Vrai code de connexion (service inconnu, boîte Orange : DMARC dans ARC) et ses imitations
