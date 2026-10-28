@@ -86,12 +86,26 @@ namespace PhishGuard
                 string href = h.Groups[1].Success ? h.Groups[1].Value : h.Groups[2].Success ? h.Groups[2].Value : h.Groups[3].Value;
                 href = WebUtility.HtmlDecode(href).Trim();
                 int len = Math.Min(close - (end + 1), MaxText);
-                string text = WebUtility.HtmlDecode(TagRe.Replace(html.Substring(end + 1, len), " "));
+                string inner = html.Substring(end + 1, len);
+                string text = WebUtility.HtmlDecode(TagRe.Replace(inner, " "));
                 text = SpaceRe.Replace(text, " ").Trim();
-                if (seen.Add(href + "|" + text)) links.Add(new LinkInfo(href, text));
+                if (seen.Add(href + "|" + text)) links.Add(new LinkInfo(href, text) { HasImage = inner.IndexOf("<img", StringComparison.OrdinalIgnoreCase) >= 0 });
                 i = close + 3;
             }
             return links;
+        }
+
+        /// <summary>Nombre de balises &lt;img&gt; du HTML.</summary>
+        public static int CountImages(string htmlIn)
+        {
+            string html = Cap(htmlIn);
+            int i = 0, n = 0;
+            while ((i = html.IndexOf("<img", i, StringComparison.OrdinalIgnoreCase)) >= 0)
+            {
+                if (TagStart(html, i + 4)) n++;
+                i += 4;
+            }
+            return n;
         }
 
         /// <summary>Le HTML contient-il une balise &lt;form&gt; ?</summary>

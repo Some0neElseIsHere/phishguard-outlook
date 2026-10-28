@@ -132,6 +132,7 @@ namespace PhishGuard.AddIn
             foreach (var l in HtmlScan.Links(html))
                 if (seen.Add(l.Href + "|" + l.Text)) e.Links.Add(l);
             e.HasForm = HtmlScan.HasForm(html);
+            e.HtmlImages = HtmlScan.CountImages(html);
             e.HasPasswordInput = HtmlScan.HasPasswordInput(html);
 
             // URL écrites en clair dans le texte
