@@ -923,6 +923,15 @@ namespace PhishGuard.Tests
             var rRu = Analyzer.Analyze(eRu, cfg);
             Check("texte cyrillique ou grec ordinaire : pas d'indice", !Ids(rRu).Any(i => i.Contains("mixed-script")), string.Join(",", Ids(rRu).ToArray()));
 
+            // ---------- Destinataires cachés ----------
+            var eBcc = Base(); eBcc.RawHeaders = "Received: from mx.exemple-pme.fr (203.0.113.5) by mx.acmetech.fr; Mon, 26 Oct 2026 10:00:00 +0100\r\nTo: paul@exemple-pme.fr\r\n" + PASS;
+            Check("destinataires cachés : expéditeur seul en « À »", hasSev(Analyzer.Analyze(eBcc, cfg), "sender-hidden-recipients", Severity.Low));
+            var eUnd = Base(); eUnd.RawHeaders = "Received: from mx.exemple-pme.fr (203.0.113.5) by mx.acmetech.fr; Mon, 26 Oct 2026 10:00:00 +0100\r\nTo: undisclosed-recipients:;\r\n" + PASS;
+            Check("destinataires cachés : non divulgués", Ids(Analyzer.Analyze(eUnd, cfg)).Contains("sender-hidden-recipients"));
+            var eNorm = Base(); eNorm.RawHeaders = "Received: from mx.exemple-pme.fr (203.0.113.5) by mx.acmetech.fr; Mon, 26 Oct 2026 10:00:00 +0100\r\nTo: claire@acmetech.fr\r\n" + PASS;
+            var eLst = Base(); eLst.RawHeaders = "Received: from mx.exemple-pme.fr (203.0.113.5) by mx.acmetech.fr; Mon, 26 Oct 2026 10:00:00 +0100\r\nTo: paul@exemple-pme.fr\r\nList-Id: <annonces.exemple-pme.fr>\r\n" + PASS;
+            Check("destinataires visibles ou liste de diffusion : pas d'indice", !Ids(Analyzer.Analyze(eNorm, cfg)).Contains("sender-hidden-recipients") && !Ids(Analyzer.Analyze(eLst, cfg)).Contains("sender-hidden-recipients"));
+
             // ---------- Adresses écrites dans le message ----------
             var eAdr = Base(); eAdr.BodyText = "Pour valider le virement, écrivez directement à direction@acrnetech.fr avant ce soir.";
             var rAdr = Analyzer.Analyze(eAdr, cfg);
