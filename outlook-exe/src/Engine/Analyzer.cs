@@ -308,9 +308,16 @@ namespace PhishGuard
             return latin && fake && w.Length >= 3;
         }
 
+        static bool HasConfusable(string s)
+        {
+            foreach (char c in s) if (c >= 0x370 && Confusables.ContainsKey(c)) return true;
+            return false;
+        }
+
         public static List<string> MixedWords(string s)
         {
             var res = new List<string>();
+            if (string.IsNullOrEmpty(s) || !HasConfusable(s)) return res;
             foreach (Match m in WordRe.Matches(s ?? ""))
                 if (IsMixedWord(m.Value) && !res.Contains(m.Value)) res.Add(m.Value);
             return res;
@@ -320,6 +327,7 @@ namespace PhishGuard
         public static string FoldConfusables(string s)
         {
             if (string.IsNullOrEmpty(s)) return s ?? "";
+            if (!HasConfusable(s)) return s;   // cas courant : texte sans lettre cyrillique ni grecque
             return WordRe.Replace(s, m =>
             {
                 if (!IsMixedWord(m.Value)) return m.Value;
@@ -338,9 +346,12 @@ namespace PhishGuard
 
         /// <summary>Mots coupés par un caractère invisible, montrés recollés. Le tiret conditionnel (césure) n'est compté
         /// que si withSoftHyphen : les lettres d'information l'emploient légitimement dans leurs textes.</summary>
+        static readonly char[] InvisibleArray = InvisibleChars.ToCharArray();
+
         public static List<string> InvisibleWords(string s, bool withSoftHyphen)
         {
             var res = new List<string>();
+            if (string.IsNullOrEmpty(s) || s.IndexOfAny(InvisibleArray) < 0) return res;   // cas courant : rien à chercher
             foreach (Match m in (withSoftHyphen ? InvisibleInWordRe : InvisibleInWordNoShyRe).Matches(s ?? ""))
             {
                 string w = m.Groups[1].Value + m.Groups[3].Value;
@@ -351,7 +362,9 @@ namespace PhishGuard
 
         public static string NormalizeText(string s)
         {
-            string t = PhishGuard.Domains.RemoveDiacritics(FoldConfusables(InvisibleRe.Replace(s ?? "", "")).ToLowerInvariant());
+            string raw = s ?? "";
+            if (raw.IndexOfAny(InvisibleArray) >= 0) raw = InvisibleRe.Replace(raw, "");
+            string t = PhishGuard.Domains.RemoveDiacritics(FoldConfusables(raw).ToLowerInvariant());
             t = Regex.Replace(t, "[’'`]", " ");
             return Regex.Replace(t, @"\s+", " ").Trim();
         }
