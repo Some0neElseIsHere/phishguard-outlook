@@ -913,6 +913,16 @@ namespace PhishGuard.Tests
             var rLan = withLink("http://10.0.114.13/", "");
             Check("lien vers le réseau local : listé et signalé (message externe)", rLan.Urls.Contains("http://10.0.114.13/") && hasSev(rLan, "link-local-network", Severity.Low)
                 && !Ids(rLan).Contains("link-ip") && Forensics.LookupsForUrl("http://10.0.114.13/").Count == 0, string.Join(",", Ids(rLan).ToArray()));
+            // ---------- Lettres cyrilliques ou grecques déguisées ----------
+            var eMx = Base(); eMx.FromName = "Micr\u043Esoft Supp\u043Ert"; eMx.FromAddress = "alerte@exemple-fournisseur.fr"; eMx.Subject = "Votre m\u043Et de passe expire";
+            var rMx = Analyzer.Analyze(eMx, cfg);
+            Check("lettres déguisées : nom, objet, et marque reconnue malgré tout", hasSev(rMx, "sender-mixed-script", Severity.High) && hasSev(rMx, "content-mixed-script", Severity.High)
+                && Ids(rMx).Contains("sender-brand-name"), string.Join(",", Ids(rMx).ToArray()));
+            Check("lettres déguisées : repli en latin", Analyzer.NormalizeText("Micr\u043Esoft") == "microsoft" && Analyzer.FoldConfusables("\u041F\u0440\u0438\u0432\u0435\u0442") == "\u041F\u0440\u0438\u0432\u0435\u0442");
+            var eRu = Base(); eRu.BodyText = "\u041F\u0440\u0438\u0432\u0435\u0442, \u043A\u0430\u043A \u0434\u0435\u043B\u0430 ? Dose : 5 \u03BCg, \u0394T = 3 K, \u03B2-bloquant.";
+            var rRu = Analyzer.Analyze(eRu, cfg);
+            Check("texte cyrillique ou grec ordinaire : pas d'indice", !Ids(rRu).Any(i => i.Contains("mixed-script")), string.Join(",", Ids(rRu).ToArray()));
+
             // ---------- Adresses écrites dans le message ----------
             var eAdr = Base(); eAdr.BodyText = "Pour valider le virement, écrivez directement à direction@acrnetech.fr avant ce soir.";
             var rAdr = Analyzer.Analyze(eAdr, cfg);
