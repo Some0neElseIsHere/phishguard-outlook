@@ -395,7 +395,9 @@ namespace PhishGuard
             return headers.Where(h => h.Key == n).Select(h => h.Value).ToList();
         }
 
-        static readonly Regex AddressRe = new Regex(@"[A-Za-z0-9._%+'-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24}");   // longueurs bornées : temps linéaire sur un en-tête piégé
+        // Le regard arrière fait partir chaque essai du début d'une suite de caractères : temps linéaire même sur un texte de
+        // 300 000 lettres sans espace (sinon chaque position de la suite était réessayée sur 64 caractères)
+        static readonly Regex AddressRe = new Regex(@"(?<![A-Za-z0-9._%+'-])[A-Za-z0-9._%+'-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24}");   // longueurs bornées : temps linéaire sur un en-tête piégé
 
         static List<string> AddressesIn(string value)
         {
