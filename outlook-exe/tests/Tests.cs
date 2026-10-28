@@ -923,6 +923,15 @@ namespace PhishGuard.Tests
             var rRu = Analyzer.Analyze(eRu, cfg);
             Check("texte cyrillique ou grec ordinaire : pas d'indice", !Ids(rRu).Any(i => i.Contains("mixed-script")), string.Join(",", Ids(rRu).ToArray()));
 
+            // ---------- Caractères invisibles dans les mots ----------
+            var eInv = Base(); eInv.FromName = "Micro\u200Bsoft Account"; eInv.FromAddress = "alerte@exemple-fournisseur.fr"; eInv.Subject = "Votre mot de pa\u200Csse expire";
+            var rInv = Analyzer.Analyze(eInv, cfg);
+            Check("caractères invisibles : nom, objet, marque reconnue malgré tout", hasSev(rInv, "sender-invisible-chars", Severity.High) && hasSev(rInv, "content-invisible-chars", Severity.High)
+                && Ids(rInv).Contains("sender-brand-name"), string.Join(",", Ids(rInv).ToArray()));
+            var eInv2 = Base(); eInv2.BodyText = "Lettre d\u2019information : d\u00E9\u00ADcou\u00ADvrez nos offres. \u200C\u00A0\u200C\u00A0\u200C Famille \uD83D\uDC68\u200D\uD83D\uDC69";
+            var rInv2 = Analyzer.Analyze(eInv2, cfg);
+            Check("caractères invisibles : césure, accroche de lettre d'information et émoji ignorés", !Ids(rInv2).Any(i => i.Contains("invisible")), string.Join(",", Ids(rInv2).ToArray()));
+
             // ---------- Adresses écrites dans le message ----------
             var eAdr = Base(); eAdr.BodyText = "Pour valider le virement, écrivez directement à direction@acrnetech.fr avant ce soir.";
             var rAdr = Analyzer.Analyze(eAdr, cfg);

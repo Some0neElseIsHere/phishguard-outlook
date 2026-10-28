@@ -123,6 +123,7 @@ namespace PhishGuard
             AnalyzeLinks(e, ctx, findings, urls, linkDomains);
             AnalyzeBodyAddresses(e, headers, ctx, findings);
             AnalyzeMixedScripts(e, ctx, findings);
+            AnalyzeInvisibleChars(e, ctx, findings);
             var attNames = new List<string>();
             AnalyzeAttachments(e, ctx, findings, attNames);
             AnalyzeContent(e, headers, ctx, findings);
@@ -328,9 +329,29 @@ namespace PhishGuard
             });
         }
 
+        // Caractères invisibles (espaces de largeur nulle, tiret conditionnel, remplissages…) glissés dans les mots
+        const string InvisibleChars = "\u200B\u200C\u200D\u2060\uFEFF\u00AD\u180E\u034F\u2061\u2062\u2063\u2064\u115F\u1160\u3164\uFFA0";
+        static readonly Regex InvisibleRe = new Regex("[" + InvisibleChars + "]");
+        // Lettre latine, caractère(s) invisible(s), lettre latine : un mot coupé pour tromper les filtres
+        static readonly Regex InvisibleInWordRe = new Regex("([A-Za-z\u00C0-\u024F]{1,40})([" + InvisibleChars + "]+)([A-Za-z\u00C0-\u024F]{1,40})");
+        static readonly Regex InvisibleInWordNoShyRe = new Regex("([A-Za-z\u00C0-\u024F]{1,40})([" + InvisibleChars.Replace("\u00AD", "") + "]+)([A-Za-z\u00C0-\u024F]{1,40})");
+
+        /// <summary>Mots coupés par un caractère invisible, montrés recollés. Le tiret conditionnel (césure) n'est compté
+        /// que si withSoftHyphen : les lettres d'information l'emploient légitimement dans leurs textes.</summary>
+        public static List<string> InvisibleWords(string s, bool withSoftHyphen)
+        {
+            var res = new List<string>();
+            foreach (Match m in (withSoftHyphen ? InvisibleInWordRe : InvisibleInWordNoShyRe).Matches(s ?? ""))
+            {
+                string w = m.Groups[1].Value + m.Groups[3].Value;
+                if (!res.Contains(w)) res.Add(w);
+            }
+            return res;
+        }
+
         public static string NormalizeText(string s)
         {
-            string t = PhishGuard.Domains.RemoveDiacritics(FoldConfusables(s ?? "").ToLowerInvariant());
+            string t = PhishGuard.Domains.RemoveDiacritics(FoldConfusables(InvisibleRe.Replace(s ?? "", "")).ToLowerInvariant());
             t = Regex.Replace(t, "[’'`]", " ");
             return Regex.Replace(t, @"\s+", " ").Trim();
         }
@@ -1036,6 +1057,23 @@ namespace PhishGuard
                     L.F("Se présente comme « {0} » mais demande d’écrire à une messagerie gratuite", brand.Name),
                     L.F("Un vrai service {0} ne vous fait jamais écrire à une adresse Gmail, Outlook.com ou similaire.", brand.Name),
                     new[] { freeContact }));
+        }
+
+        /// <summary>Mots coupés par des caractères invisibles (« Micro​soft ») : le mot paraît normal, les filtres ne le lisent plus.</summary>
+        static void AnalyzeInvisibleChars(EmailData e, Ctx ctx, List<Finding> findings)
+        {
+            var inName = InvisibleWords(e.FromName, true);
+            var inSubject = InvisibleWords(e.Subject, true);
+            var inBody = InvisibleWords(e.BodyText, false).Take(3).ToList();
+            string detail = L.T("Des caractères invisibles (espaces de largeur nulle) sont glissés à l’intérieur des mots : ils ne se voient pas, mais empêchent les filtres de reconnaître le mot. Un message légitime ne fait pas ça.");
+            Func<string, string> shown = w => w + L.T(" (coupé par un caractère invisible)");
+            if (inName.Count > 0)
+                findings.Add(new Finding("sender-invisible-chars", "sender", ctx.Internal ? Severity.Medium : Severity.High,
+                    L.T("Le nom de l’expéditeur contient des caractères invisibles"), detail, inName.Take(3).Select(shown)));
+            if (inSubject.Count > 0 || inBody.Count > 0)
+                findings.Add(new Finding("content-invisible-chars", "content", inSubject.Count > 0 && !ctx.Internal ? Severity.High : Severity.Medium,
+                    inSubject.Count > 0 ? L.T("L’objet contient des mots coupés par des caractères invisibles") : L.T("Le message contient des mots coupés par des caractères invisibles"),
+                    detail, inSubject.Concat(inBody).Distinct().Take(3).Select(shown)));
         }
 
         /// <summary>Mots écrits avec des lettres cyrilliques ou grecques déguisées en lettres latines.</summary>
