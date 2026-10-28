@@ -122,6 +122,7 @@ namespace PhishGuard
             var linkDomains = new List<string>();
             AnalyzeLinks(e, ctx, findings, urls, linkDomains);
             AnalyzeBodyAddresses(e, headers, ctx, findings);
+            AnalyzeMixedScripts(e, ctx, findings);
             var attNames = new List<string>();
             AnalyzeAttachments(e, ctx, findings, attNames);
             AnalyzeContent(e, headers, ctx, findings);
@@ -270,9 +271,66 @@ namespace PhishGuard
             return id.StartsWith("content-combo-") || id == "content-iban-change";
         }
 
+        // Lettres cyrilliques et grecques identiques à l'œil à une lettre latine (homoglyphes)
+        static readonly Dictionary<char, char> Confusables = BuildConfusables();
+
+        static Dictionary<char, char> BuildConfusables()
+        {
+            const string from = "\u0430\u0435\u043E\u0440\u0441\u0443\u0445\u0456\u0458\u0455\u0501\u04BB\u04CF\u051B\u051D"   // а е о р с у х і ј ѕ ԁ һ ӏ ԛ ԝ
+                + "\u0410\u0412\u0415\u041A\u041C\u041D\u041E\u0420\u0421\u0422\u0425\u0423\u0406\u0408\u0405"                   // А В Е К М Н О Р С Т Х У І Ј Ѕ
+                + "\u03BF\u03BD\u03C1\u03B9\u03BA\u03C7"                                                                                    // ο ν ρ ι κ χ
+                + "\u0391\u0392\u0395\u0396\u0397\u0399\u039A\u039C\u039D\u039F\u03A1\u03A4\u03A5\u03A7";                         // Α Β Ε Ζ Η Ι Κ Μ Ν Ο Ρ Τ Υ Χ
+            const string to = "aeopcyxijsdhlqw" + "ABEKMHOPCTXYIJS" + "ovpikx" + "ABEZHIKMNOPTYX";
+            var d = new Dictionary<char, char>();
+            for (int i = 0; i < from.Length; i++) d[from[i]] = to[i];
+            return d;
+        }
+
+        static readonly Regex WordRe = new Regex(@"\p{L}+");
+
+        static bool IsLatinLetter(char c) { return c < 0x250 && char.IsLetter(c); }
+
+        /// <summary>
+        /// Mot latin dont certaines lettres sont des homoglyphes cyrilliques ou grecs (« Micrоsoft » avec un « о » cyrillique) :
+        /// procédé pour tromper les filtres. Un mot entièrement cyrillique ou grec n'est pas concerné, ni une lettre grecque
+        /// sans équivalent latin (µ, Δ…).
+        /// </summary>
+        static bool IsMixedWord(string w)
+        {
+            bool latin = false, fake = false;
+            foreach (char c in w)
+            {
+                if (IsLatinLetter(c)) latin = true;
+                else if (Confusables.ContainsKey(c)) fake = true;
+                else return false;
+            }
+            return latin && fake && w.Length >= 3;
+        }
+
+        public static List<string> MixedWords(string s)
+        {
+            var res = new List<string>();
+            foreach (Match m in WordRe.Matches(s ?? ""))
+                if (IsMixedWord(m.Value) && !res.Contains(m.Value)) res.Add(m.Value);
+            return res;
+        }
+
+        /// <summary>Remplace les homoglyphes par la lettre latine qu'ils imitent, dans les mots mélangés seulement.</summary>
+        public static string FoldConfusables(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return s ?? "";
+            return WordRe.Replace(s, m =>
+            {
+                if (!IsMixedWord(m.Value)) return m.Value;
+                var sb = new StringBuilder(m.Value.Length);
+                foreach (char c in m.Value) { char l; sb.Append(Confusables.TryGetValue(c, out l) ? l : c); }
+                return sb.ToString();
+            });
+        }
+
         public static string NormalizeText(string s)
         {
-            string t = PhishGuard.Domains.RemoveDiacritics((s ?? "").ToLowerInvariant());
+            string t = PhishGuard.Domains.RemoveDiacritics(FoldConfusables(s ?? "").ToLowerInvariant());
             t = Regex.Replace(t, "[’'`]", " ");
             return Regex.Replace(t, @"\s+", " ").Trim();
         }
@@ -978,6 +1036,30 @@ namespace PhishGuard
                     L.F("Se présente comme « {0} » mais demande d’écrire à une messagerie gratuite", brand.Name),
                     L.F("Un vrai service {0} ne vous fait jamais écrire à une adresse Gmail, Outlook.com ou similaire.", brand.Name),
                     new[] { freeContact }));
+        }
+
+        /// <summary>Mots écrits avec des lettres cyrilliques ou grecques déguisées en lettres latines.</summary>
+        static void AnalyzeMixedScripts(EmailData e, Ctx ctx, List<Finding> findings)
+        {
+            Func<string, string> shown = w =>
+            {
+                var fake = w.Where(c => Confusables.ContainsKey(c)).Distinct().Select(c => "« " + c + " »").ToArray();
+                return w + L.F(" (lettre(s) {0} non latine(s))", string.Join(", ", fake));
+            };
+            var inName = MixedWords(e.FromName);
+            var inSubject = MixedWords(e.Subject);
+            var inBody = MixedWords(e.BodyText).Take(3).ToList();
+            string detail = L.T("Des lettres cyrilliques ou grecques identiques à l’œil remplacent des lettres latines : le mot paraît normal mais n’est plus reconnu par les filtres. Un message légitime ne fait jamais ça.");
+            if (inName.Count > 0)
+                findings.Add(new Finding("sender-mixed-script", "sender", ctx.Internal ? Severity.Medium : Severity.High,
+                    L.T("Le nom de l’expéditeur est écrit avec des lettres déguisées"), detail, inName.Take(3).Select(shown)));
+            if (inSubject.Count > 0 || inBody.Count > 0)
+            {
+                var words = inSubject.Concat(inBody).Distinct().Take(3).ToList();
+                findings.Add(new Finding("content-mixed-script", "content", inSubject.Count > 0 && !ctx.Internal ? Severity.High : Severity.Medium,
+                    inSubject.Count > 0 ? L.T("L’objet contient des mots écrits avec des lettres déguisées") : L.T("Le message contient des mots écrits avec des lettres déguisées"),
+                    detail, words.Select(shown)));
+            }
         }
 
         static void CheckDomainAge(string registrable, string where, string id, Ctx ctx, List<Finding> findings)

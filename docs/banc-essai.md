@@ -45,7 +45,8 @@ d'autres barèmes sans relancer le moteur.
 | v1.11.0 | 80,1 % | 43,9 % | 1,2 % (aucun rouge) | 10,5 % (0,9 % rouges) |
 | v1.12.0 | 79,8 % | 45,1 % | 3,0 % (0,2 % rouges) sur 4 459 messages | 10,5 % (0,9 % rouges) |
 | v1.19.10 | 83,8 % (Nazario 81,4 %, phishing_pot 84,2 %) | 58,1 % | 3,0 % (0,2 % rouges) | 10,6 % (0,9 % rouges) |
-| **v1.22.0** | **83,9 %** (Nazario 81,6 %, phishing_pot 84,2 %) | **58,2 %** | **3,1 %** (0,2 % rouges) | **10,6 %** (0,9 % rouges) |
+| v1.22.0 | 83,9 % (Nazario 81,6 %, phishing_pot 84,2 %) | 58,2 % | 3,1 % (0,2 % rouges) | 10,6 % (0,9 % rouges) |
+| **v1.23.0** | **84,4 %** (Nazario 81,9 %, phishing_pot 84,8 % sur 12 864 messages) | **59,3 %** | **3,1 %** (0,2 % rouges) | **10,6 %** (0,9 % rouges) |
 
 Les fausses alertes « récentes » de la v1.11.0 portaient sur 567 messages de trois listes ; celles de la v1.12.0 sur
 4 459 messages de dix listes, plus variés (questions d'utilisateurs, annonces). Avant les corrections ci-dessous, la
