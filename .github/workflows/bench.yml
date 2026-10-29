@@ -47,8 +47,10 @@ jobs:
           set "PG_FUZZ=5000"
           build\Fuzz-Tests.exe > build\fuzz.txt
           set "RC=%ERRORLEVEL%"
+          rem findstr renvoie 1 quand il ne trouve rien : sans « exit /b 0 », l'étape finissait en « code 1 » alors que tout passait
           findstr /C:"ECHEC" build\fuzz.txt
           if not "%RC%"=="0" (echo ::error::Tests de robustesse en echec & exit /b 1)
+          exit /b 0
 
       - name: Télécharger les corpus
         if: ${{ !inputs.rapide }}
