@@ -1139,6 +1139,8 @@ namespace PhishGuard
                 selfOnly ? L.T("L’expéditeur s’écrit à lui-même : vous êtes en copie cachée") : L.T("Destinataires masqués : vous êtes en copie cachée"),
                 L.T("La liste des destinataires est cachée : envoi en nombre, parfois depuis une boîte piratée. Seul, ce n’est pas grave (des associations font ainsi) ; avec d’autres indices, c’est un signe de plus."),
                 new[] { L.T("À : ") + (toRaw.Trim().Length > 0 ? toRaw.Trim() : L.T("(vide)")) }));
+        }
+
         // Bandeau ajouté par la passerelle de l'entreprise (« ATTENTION : email externe… ») : ce n'est pas le texte du message
         static readonly Regex GatewayBannerRe = new Regex(@"^.{0,300}\b(externe|external|attention|caution|prudent|careful|exp[ée]diteur inconnu|unknown sender)\b.{0,300}$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
         static readonly Regex BracketRe = new Regex(@"\[[^\]\r\n]{0,300}\]|<https?://[^>\s]{0,2000}>|https?://\S{1,2000}");
