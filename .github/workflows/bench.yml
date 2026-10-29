@@ -117,6 +117,11 @@ jobs:
             $env:PG_FUZZ_LOG = "outlook-exe\build\fuzz.txt"
             python outlook-exe\tools\bench-summary.py out\bench.csv out\summary.json out\previous.json
             if (Test-Path out\summary.json) { Compress-Archive -Force out\bench.csv, out\progress.txt, out\summary.json out\bench.zip }
+            # Résultats aussi dans les annotations du passage : ils restent lisibles même si un autre passage remplace le brouillon
+            if (Test-Path out\summary.json) {
+              $s = Get-Content out\summary.json -Raw | ConvertFrom-Json
+              foreach ($g in $s.groups.PSObject.Properties) { Write-Output "::notice::$($g.Name) : $($g.Value.n) messages, alerte $($g.Value.alert_pct) %, rouge $($g.Value.red_pct) %" }
+            }
           }
 
       - name: Ouvrir un ticket en cas de régression

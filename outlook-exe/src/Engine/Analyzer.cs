@@ -118,6 +118,7 @@ namespace PhishGuard
             AnalyzeAuth(e, headers, ctx, findings, positives);
             AnalyzeSender(e, headers, ctx, findings, positives);
             AnalyzeThread(e, headers, ctx, findings);
+            AnalyzeHiddenRecipients(e, headers, ctx, findings);
             var urls = new List<string>();
             var linkDomains = new List<string>();
             AnalyzeLinks(e, ctx, findings, urls, linkDomains);
@@ -1113,6 +1114,30 @@ namespace PhishGuard
                     inSubject.Count > 0 ? L.T("L’objet contient des mots écrits avec des lettres déguisées") : L.T("Le message contient des mots écrits avec des lettres déguisées"),
                     detail, words.Select(shown)));
             }
+        }
+
+        /// <summary>
+        /// Destinataires cachés : « À » ne contient que l'expéditeur lui-même (ou « destinataires non divulgués ») et vous
+        /// recevez le message en copie cachée. Façon d'envoyer en masse depuis une boîte piratée sans montrer la liste.
+        /// Aussi employé par des associations : indice faible, qui ne compte qu'avec d'autres.
+        /// </summary>
+        static void AnalyzeHiddenRecipients(EmailData e, List<KeyValuePair<string, string>> headers, Ctx ctx, List<Finding> findings)
+        {
+            if (ctx.Internal || e.IsExchangeInternal || headers.Count == 0) return;
+            if (HeaderValues(headers, "list-id").Any() || HeaderValues(headers, "list-post").Any() || HeaderValues(headers, "mailing-list").Any()) return;
+            if (!HeaderValues(headers, "received").Any()) return;   // copie locale (éléments envoyés…) : pas un message reçu
+            string fromAddr = (e.FromAddress ?? "").Trim().ToLowerInvariant();
+            if (fromAddr.Length == 0) return;
+            string toRaw = string.Join(",", HeaderValues(headers, "to"));
+            var toCc = AddressesIn(toRaw + "," + string.Join(",", HeaderValues(headers, "cc")));
+            bool undisclosed = Regex.IsMatch(toRaw, @"undisclosed|non divulgu|non d[ée]voil|destinataires masqu|recipient list suppressed", RegexOptions.IgnoreCase)
+                || (toRaw.Trim().Length == 0 && toCc.Count == 0);
+            bool selfOnly = toCc.Count > 0 && toCc.All(a => a == fromAddr);
+            if (!undisclosed && !selfOnly) return;
+            findings.Add(new Finding("sender-hidden-recipients", "sender", Severity.Low,
+                selfOnly ? L.T("L’expéditeur s’écrit à lui-même : vous êtes en copie cachée") : L.T("Destinataires masqués : vous êtes en copie cachée"),
+                L.T("La liste des destinataires est cachée : envoi en nombre, parfois depuis une boîte piratée. Seul, ce n’est pas grave (des associations font ainsi) ; avec d’autres indices, c’est un signe de plus."),
+                new[] { L.T("À : ") + (toRaw.Trim().Length > 0 ? toRaw.Trim() : L.T("(vide)")) }));
         }
 
         static void CheckDomainAge(string registrable, string where, string id, Ctx ctx, List<Finding> findings)
