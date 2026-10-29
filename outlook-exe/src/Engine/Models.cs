@@ -28,6 +28,7 @@ namespace PhishGuard
     {
         public string Text;
         public string Href;
+        public bool HasImage;   // le lien entoure une image (image cliquable)
         public LinkInfo(string href, string text) { Href = href; Text = text ?? ""; }
     }
 
@@ -58,6 +59,7 @@ namespace PhishGuard
         public string BodyText = "";
         public bool HasForm;
         public bool HasPasswordInput;
+        public int HtmlImages;                   // nombre d'images du HTML (<img>)
         public List<LinkInfo> Links = new List<LinkInfo>();
         public List<AttachmentInfo> Attachments = new List<AttachmentInfo>();
         public List<string> ReplyTo = new List<string>();

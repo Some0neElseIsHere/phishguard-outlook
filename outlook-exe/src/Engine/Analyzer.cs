@@ -123,6 +123,7 @@ namespace PhishGuard
             var linkDomains = new List<string>();
             AnalyzeLinks(e, ctx, findings, urls, linkDomains);
             AnalyzeBodyAddresses(e, headers, ctx, findings);
+            AnalyzeImageOnly(e, ctx, findings);
             AnalyzeMixedScripts(e, ctx, findings);
             AnalyzeInvisibleChars(e, ctx, findings);
             var attNames = new List<string>();
@@ -1138,6 +1139,28 @@ namespace PhishGuard
                 selfOnly ? L.T("L’expéditeur s’écrit à lui-même : vous êtes en copie cachée") : L.T("Destinataires masqués : vous êtes en copie cachée"),
                 L.T("La liste des destinataires est cachée : envoi en nombre, parfois depuis une boîte piratée. Seul, ce n’est pas grave (des associations font ainsi) ; avec d’autres indices, c’est un signe de plus."),
                 new[] { L.T("À : ") + (toRaw.Trim().Length > 0 ? toRaw.Trim() : L.T("(vide)")) }));
+        // Bandeau ajouté par la passerelle de l'entreprise (« ATTENTION : email externe… ») : ce n'est pas le texte du message
+        static readonly Regex GatewayBannerRe = new Regex(@"^.{0,300}\b(externe|external|attention|caution|prudent|careful|exp[ée]diteur inconnu|unknown sender)\b.{0,300}$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        static readonly Regex BracketRe = new Regex(@"\[[^\]\r\n]{0,300}\]|<https?://[^>\s]{0,2000}>|https?://\S{1,2000}");
+
+        /// <summary>
+        /// Message réduit à une image cliquable : presque aucun texte, tout le contenu est dans une image qui est un lien.
+        /// Façon d'échapper à l'analyse du texte (fausse facture, faux colis, faux Microsoft).
+        /// </summary>
+        static void AnalyzeImageOnly(EmailData e, Ctx ctx, List<Finding> findings)
+        {
+            if (ctx.Internal) return;
+            var imageLinks = e.Links.Where(l => l.HasImage && Regex.IsMatch(l.Href ?? "", "^https?://", RegexOptions.IgnoreCase)).ToList();
+            if (imageLinks.Count == 0) return;
+            string fromOrg = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(e.FromAddress ?? ""));
+            if (ctx.Domains.Legit.Contains(fromOrg) || ctx.Domains.CompanyDomains.Contains(fromOrg)) return;   // marque connue ou votre entreprise
+            string text = BracketRe.Replace(GatewayBannerRe.Replace(e.BodyText ?? "", " "), " ");
+            int letters = text.Count(char.IsLetter);
+            if (letters > 40) return;
+            string href = imageLinks[0].Href;
+            findings.Add(new Finding("content-image-only", "content", Severity.Medium, L.T("Le message n’est qu’une image cliquable"),
+                L.T("Presque aucun texte : tout le contenu est dans une image qui sert de lien. C’est une façon d’échapper aux filtres, qui ne lisent pas les images. Ne cliquez pas sans vérifier l’adresse."),
+                new[] { L.T("Lien de l’image : ") + Defang(href.Length > 100 ? href.Substring(0, 100) + "…" : href) }));
         }
 
         static void CheckDomainAge(string registrable, string where, string id, Ctx ctx, List<Finding> findings)

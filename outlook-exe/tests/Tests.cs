@@ -939,6 +939,15 @@ namespace PhishGuard.Tests
             var eNorm = Base(); eNorm.RawHeaders = "Received: from mx.exemple-pme.fr (203.0.113.5) by mx.acmetech.fr; Mon, 26 Oct 2026 10:00:00 +0100\r\nTo: claire@acmetech.fr\r\n" + PASS;
             var eLst = Base(); eLst.RawHeaders = "Received: from mx.exemple-pme.fr (203.0.113.5) by mx.acmetech.fr; Mon, 26 Oct 2026 10:00:00 +0100\r\nTo: paul@exemple-pme.fr\r\nList-Id: <annonces.exemple-pme.fr>\r\n" + PASS;
             Check("destinataires visibles ou liste de diffusion : pas d'indice", !Ids(Analyzer.Analyze(eNorm, cfg)).Contains("sender-hidden-recipients") && !Ids(Analyzer.Analyze(eLst, cfg)).Contains("sender-hidden-recipients"));
+            // ---------- Message réduit à une image cliquable ----------
+            var eImg = Base(); eImg.FromAddress = "facturation@exemple-fournisseur.fr"; eImg.BodyText = "ATTENTION : Email externe. Soyez prudent.\r\n[cid:image001.png]";
+            eImg.Links.AddRange(HtmlScan.Links("<p><a href='https://exemple-colis.xyz/suivi'><img src='https://exemple-colis.xyz/facture.png'></a></p>"));
+            eImg.HtmlImages = 1;
+            var rImg = Analyzer.Analyze(eImg, cfg);
+            Check("image cliquable seule", hasSev(rImg, "content-image-only", Severity.Medium) && eImg.Links[0].HasImage && HtmlScan.CountImages("<IMG src=a><imgx><img/>") == 2, string.Join(",", Ids(rImg).ToArray()));
+            var eImg2 = Base(); eImg2.FromAddress = "facturation@exemple-fournisseur.fr"; eImg2.BodyText = "Bonjour, vous trouverez ci-dessous notre nouveau catalogue et nos offres du mois. Bonne lecture !";
+            eImg2.Links.AddRange(HtmlScan.Links("<a href='https://exemple-fournisseur.fr/catalogue'><img src='x.png'></a>"));
+            Check("image cliquable avec du texte : pas d'indice", !Ids(Analyzer.Analyze(eImg2, cfg)).Contains("content-image-only"));
 
             // ---------- Adresses écrites dans le message ----------
             var eAdr = Base(); eAdr.BodyText = "Pour valider le virement, écrivez directement à direction@acrnetech.fr avant ce soir.";
