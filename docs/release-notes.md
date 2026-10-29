@@ -12,6 +12,13 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.24.0** : trois nouveaux indices, chacun passé sur le banc d'essai sans fausse alerte supplémentaire :
+  - **caractères invisibles dans les mots** (« Micro​soft » coupé par un espace de largeur nulle) : signalés, et retirés avant les autres contrôles ;
+  - **message réduit à une image cliquable** : presque aucun texte, tout le contenu dans une image qui est un lien ;
+  - **destinataires cachés** : l'expéditeur s'écrit à lui-même ou les destinataires sont masqués, vous êtes en copie cachée (indice faible).
+  
+  Le banc d'essai garde aussi ses résultats dans les annotations de chaque passage.
+
 - **v1.23.0** : lettres déguisées. Des escrocs écrivent « Micrоsoft » ou « mot de раsse » en remplaçant des lettres latines par des lettres cyrilliques ou grecques identiques à l'œil, pour tromper les filtres. Ces mots sont maintenant signalés (indice fort dans le nom de l'expéditeur ou l'objet, moyen dans le texte), et ramenés en latin avant les autres contrôles : « Micrоsoft » est reconnu comme Microsoft. Un texte entièrement en cyrillique ou en grec n'est pas concerné. Banc d'essai : aucune fausse alerte supplémentaire.
 
 - **v1.22.0** : les adresses email écrites dans le message ou dans un lien `mailto:` sont maintenant vérifiées (arnaques sans lien qui demandent d'écrire à une autre adresse) :

@@ -120,7 +120,7 @@ namespace PhishGuard.Tools
         {
             // L'analyse peut modifier les indices des pièces jointes : on repart d'une copie à chaque passage
             var c = new EmailData { FromName = e.FromName, FromAddress = e.FromAddress, Subject = e.Subject, BodyText = e.BodyText, HasForm = e.HasForm,
-                HasPasswordInput = e.HasPasswordInput, RawHeaders = e.RawHeaders };
+                HasPasswordInput = e.HasPasswordInput, HtmlImages = e.HtmlImages, RawHeaders = e.RawHeaders };
             c.Links.AddRange(e.Links);
             c.ReplyTo.AddRange(e.ReplyTo);
             foreach (var a in e.Attachments)
@@ -407,6 +407,7 @@ namespace PhishGuard.Tools
             foreach (var l in HtmlScan.Links(html))
                 if (seen.Add(l.Href + "|" + l.Text)) e.Links.Add(l);
             e.HasForm = HtmlScan.HasForm(html);
+            e.HtmlImages = HtmlScan.CountImages(html);
             e.HasPasswordInput = HtmlScan.HasPasswordInput(html);
             foreach (Match m in PlainUrlRe.Matches(e.BodyText))
             {

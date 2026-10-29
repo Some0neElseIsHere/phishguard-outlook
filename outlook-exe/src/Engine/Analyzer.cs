@@ -118,11 +118,14 @@ namespace PhishGuard
             AnalyzeAuth(e, headers, ctx, findings, positives);
             AnalyzeSender(e, headers, ctx, findings, positives);
             AnalyzeThread(e, headers, ctx, findings);
+            AnalyzeHiddenRecipients(e, headers, ctx, findings);
             var urls = new List<string>();
             var linkDomains = new List<string>();
             AnalyzeLinks(e, ctx, findings, urls, linkDomains);
             AnalyzeBodyAddresses(e, headers, ctx, findings);
+            AnalyzeImageOnly(e, ctx, findings);
             AnalyzeMixedScripts(e, ctx, findings);
+            AnalyzeInvisibleChars(e, ctx, findings);
             var attNames = new List<string>();
             AnalyzeAttachments(e, ctx, findings, attNames);
             AnalyzeContent(e, headers, ctx, findings);
@@ -307,9 +310,16 @@ namespace PhishGuard
             return latin && fake && w.Length >= 3;
         }
 
+        static bool HasConfusable(string s)
+        {
+            foreach (char c in s) if (c >= 0x370 && Confusables.ContainsKey(c)) return true;
+            return false;
+        }
+
         public static List<string> MixedWords(string s)
         {
             var res = new List<string>();
+            if (string.IsNullOrEmpty(s) || !HasConfusable(s)) return res;
             foreach (Match m in WordRe.Matches(s ?? ""))
                 if (IsMixedWord(m.Value) && !res.Contains(m.Value)) res.Add(m.Value);
             return res;
@@ -319,6 +329,7 @@ namespace PhishGuard
         public static string FoldConfusables(string s)
         {
             if (string.IsNullOrEmpty(s)) return s ?? "";
+            if (!HasConfusable(s)) return s;   // cas courant : texte sans lettre cyrillique ni grecque
             return WordRe.Replace(s, m =>
             {
                 if (!IsMixedWord(m.Value)) return m.Value;
@@ -328,9 +339,34 @@ namespace PhishGuard
             });
         }
 
+        // Caractères invisibles (espaces de largeur nulle, tiret conditionnel, remplissages…) glissés dans les mots
+        const string InvisibleChars = "\u200B\u200C\u200D\u2060\uFEFF\u00AD\u180E\u034F\u2061\u2062\u2063\u2064\u115F\u1160\u3164\uFFA0";
+        static readonly Regex InvisibleRe = new Regex("[" + InvisibleChars + "]");
+        // Lettre latine, caractère(s) invisible(s), lettre latine : un mot coupé pour tromper les filtres
+        static readonly Regex InvisibleInWordRe = new Regex("([A-Za-z\u00C0-\u024F]{1,40})([" + InvisibleChars + "]+)([A-Za-z\u00C0-\u024F]{1,40})");
+        static readonly Regex InvisibleInWordNoShyRe = new Regex("([A-Za-z\u00C0-\u024F]{1,40})([" + InvisibleChars.Replace("\u00AD", "") + "]+)([A-Za-z\u00C0-\u024F]{1,40})");
+
+        /// <summary>Mots coupés par un caractère invisible, montrés recollés. Le tiret conditionnel (césure) n'est compté
+        /// que si withSoftHyphen : les lettres d'information l'emploient légitimement dans leurs textes.</summary>
+        static readonly char[] InvisibleArray = InvisibleChars.ToCharArray();
+
+        public static List<string> InvisibleWords(string s, bool withSoftHyphen)
+        {
+            var res = new List<string>();
+            if (string.IsNullOrEmpty(s) || s.IndexOfAny(InvisibleArray) < 0) return res;   // cas courant : rien à chercher
+            foreach (Match m in (withSoftHyphen ? InvisibleInWordRe : InvisibleInWordNoShyRe).Matches(s ?? ""))
+            {
+                string w = m.Groups[1].Value + m.Groups[3].Value;
+                if (!res.Contains(w)) res.Add(w);
+            }
+            return res;
+        }
+
         public static string NormalizeText(string s)
         {
-            string t = PhishGuard.Domains.RemoveDiacritics(FoldConfusables(s ?? "").ToLowerInvariant());
+            string raw = s ?? "";
+            if (raw.IndexOfAny(InvisibleArray) >= 0) raw = InvisibleRe.Replace(raw, "");
+            string t = PhishGuard.Domains.RemoveDiacritics(FoldConfusables(raw).ToLowerInvariant());
             t = Regex.Replace(t, "[’'`]", " ");
             return Regex.Replace(t, @"\s+", " ").Trim();
         }
@@ -361,7 +397,9 @@ namespace PhishGuard
             return headers.Where(h => h.Key == n).Select(h => h.Value).ToList();
         }
 
-        static readonly Regex AddressRe = new Regex(@"[A-Za-z0-9._%+'-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24}");   // longueurs bornées : temps linéaire sur un en-tête piégé
+        // Le regard arrière fait partir chaque essai du début d'une suite de caractères : temps linéaire même sur un texte de
+        // 300 000 lettres sans espace (sinon chaque position de la suite était réessayée sur 64 caractères)
+        static readonly Regex AddressRe = new Regex(@"(?<![A-Za-z0-9._%+'-])[A-Za-z0-9._%+'-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24}");   // longueurs bornées : temps linéaire sur un en-tête piégé
 
         static List<string> AddressesIn(string value)
         {
@@ -1038,6 +1076,23 @@ namespace PhishGuard
                     new[] { freeContact }));
         }
 
+        /// <summary>Mots coupés par des caractères invisibles (« Micro​soft ») : le mot paraît normal, les filtres ne le lisent plus.</summary>
+        static void AnalyzeInvisibleChars(EmailData e, Ctx ctx, List<Finding> findings)
+        {
+            var inName = InvisibleWords(e.FromName, true);
+            var inSubject = InvisibleWords(e.Subject, true);
+            var inBody = InvisibleWords(e.BodyText, false).Take(3).ToList();
+            string detail = L.T("Des caractères invisibles (espaces de largeur nulle) sont glissés à l’intérieur des mots : ils ne se voient pas, mais empêchent les filtres de reconnaître le mot. Un message légitime ne fait pas ça.");
+            Func<string, string> shown = w => w + L.T(" (coupé par un caractère invisible)");
+            if (inName.Count > 0)
+                findings.Add(new Finding("sender-invisible-chars", "sender", ctx.Internal ? Severity.Medium : Severity.High,
+                    L.T("Le nom de l’expéditeur contient des caractères invisibles"), detail, inName.Take(3).Select(shown)));
+            if (inSubject.Count > 0 || inBody.Count > 0)
+                findings.Add(new Finding("content-invisible-chars", "content", inSubject.Count > 0 && !ctx.Internal ? Severity.High : Severity.Medium,
+                    inSubject.Count > 0 ? L.T("L’objet contient des mots coupés par des caractères invisibles") : L.T("Le message contient des mots coupés par des caractères invisibles"),
+                    detail, inSubject.Concat(inBody).Distinct().Take(3).Select(shown)));
+        }
+
         /// <summary>Mots écrits avec des lettres cyrilliques ou grecques déguisées en lettres latines.</summary>
         static void AnalyzeMixedScripts(EmailData e, Ctx ctx, List<Finding> findings)
         {
@@ -1060,6 +1115,54 @@ namespace PhishGuard
                     inSubject.Count > 0 ? L.T("L’objet contient des mots écrits avec des lettres déguisées") : L.T("Le message contient des mots écrits avec des lettres déguisées"),
                     detail, words.Select(shown)));
             }
+        }
+
+        /// <summary>
+        /// Destinataires cachés : « À » ne contient que l'expéditeur lui-même (ou « destinataires non divulgués ») et vous
+        /// recevez le message en copie cachée. Façon d'envoyer en masse depuis une boîte piratée sans montrer la liste.
+        /// Aussi employé par des associations : indice faible, qui ne compte qu'avec d'autres.
+        /// </summary>
+        static void AnalyzeHiddenRecipients(EmailData e, List<KeyValuePair<string, string>> headers, Ctx ctx, List<Finding> findings)
+        {
+            if (ctx.Internal || e.IsExchangeInternal || headers.Count == 0) return;
+            if (HeaderValues(headers, "list-id").Any() || HeaderValues(headers, "list-post").Any() || HeaderValues(headers, "mailing-list").Any()) return;
+            if (!HeaderValues(headers, "received").Any()) return;   // copie locale (éléments envoyés…) : pas un message reçu
+            string fromAddr = (e.FromAddress ?? "").Trim().ToLowerInvariant();
+            if (fromAddr.Length == 0) return;
+            string toRaw = string.Join(",", HeaderValues(headers, "to"));
+            var toCc = AddressesIn(toRaw + "," + string.Join(",", HeaderValues(headers, "cc")));
+            bool undisclosed = Regex.IsMatch(toRaw, @"undisclosed|non divulgu|non d[ée]voil|destinataires masqu|recipient list suppressed", RegexOptions.IgnoreCase)
+                || (toRaw.Trim().Length == 0 && toCc.Count == 0);
+            bool selfOnly = toCc.Count > 0 && toCc.All(a => a == fromAddr);
+            if (!undisclosed && !selfOnly) return;
+            findings.Add(new Finding("sender-hidden-recipients", "sender", Severity.Low,
+                selfOnly ? L.T("L’expéditeur s’écrit à lui-même : vous êtes en copie cachée") : L.T("Destinataires masqués : vous êtes en copie cachée"),
+                L.T("La liste des destinataires est cachée : envoi en nombre, parfois depuis une boîte piratée. Seul, ce n’est pas grave (des associations font ainsi) ; avec d’autres indices, c’est un signe de plus."),
+                new[] { L.T("À : ") + (toRaw.Trim().Length > 0 ? toRaw.Trim() : L.T("(vide)")) }));
+        }
+
+        // Bandeau ajouté par la passerelle de l'entreprise (« ATTENTION : email externe… ») : ce n'est pas le texte du message
+        static readonly Regex GatewayBannerRe = new Regex(@"^.{0,300}\b(externe|external|attention|caution|prudent|careful|exp[ée]diteur inconnu|unknown sender)\b.{0,300}$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        static readonly Regex BracketRe = new Regex(@"\[[^\]\r\n]{0,300}\]|<https?://[^>\s]{0,2000}>|https?://\S{1,2000}");
+
+        /// <summary>
+        /// Message réduit à une image cliquable : presque aucun texte, tout le contenu est dans une image qui est un lien.
+        /// Façon d'échapper à l'analyse du texte (fausse facture, faux colis, faux Microsoft).
+        /// </summary>
+        static void AnalyzeImageOnly(EmailData e, Ctx ctx, List<Finding> findings)
+        {
+            if (ctx.Internal) return;
+            var imageLinks = e.Links.Where(l => l.HasImage && Regex.IsMatch(l.Href ?? "", "^https?://", RegexOptions.IgnoreCase)).ToList();
+            if (imageLinks.Count == 0) return;
+            string fromOrg = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(e.FromAddress ?? ""));
+            if (ctx.Domains.Legit.Contains(fromOrg) || ctx.Domains.CompanyDomains.Contains(fromOrg)) return;   // marque connue ou votre entreprise
+            string text = BracketRe.Replace(GatewayBannerRe.Replace(e.BodyText ?? "", " "), " ");
+            int letters = text.Count(char.IsLetter);
+            if (letters > 40) return;
+            string href = imageLinks[0].Href;
+            findings.Add(new Finding("content-image-only", "content", Severity.Medium, L.T("Le message n’est qu’une image cliquable"),
+                L.T("Presque aucun texte : tout le contenu est dans une image qui sert de lien. C’est une façon d’échapper aux filtres, qui ne lisent pas les images. Ne cliquez pas sans vérifier l’adresse."),
+                new[] { L.T("Lien de l’image : ") + Defang(href.Length > 100 ? href.Substring(0, 100) + "…" : href) }));
         }
 
         static void CheckDomainAge(string registrable, string where, string id, Ctx ctx, List<Finding> findings)
