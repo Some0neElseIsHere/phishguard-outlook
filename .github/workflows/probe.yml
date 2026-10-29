@@ -1,0 +1,27 @@
+name: probe
+on:
+  push:
+    branches: [probe]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: cmd
+        working-directory: outlook-exe
+        run: |
+          mkdir build
+          set "CSC=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          "%CSC%" /nologo /codepage:65001 /target:exe /out:build\Fuzz-Tests.exe /r:System.Drawing.dll /r:System.Core.dll /r:Microsoft.CSharp.dll /r:System.Security.dll /r:System.IO.Compression.dll /r:System.Web.Extensions.dll src\Engine\*.cs /recurse:src\ThirdParty\*.cs /recurse:tests\ZXingEncoder\*.cs tests\Tests.cs tests\Fuzz.cs > ..\probe-result.txt 2>&1
+          set "PG_FUZZ_SEED=202610"
+          set "PG_FUZZ=5000"
+          build\Fuzz-Tests.exe > build\fuzz.txt 2>&1
+          echo exit=%ERRORLEVEL% >> ..\probe-result.txt
+          findstr /i "ECHEC robustesse Tests :" build\fuzz.txt >> ..\probe-result.txt
+          exit 0
+      - shell: pwsh
+        run: |
+          git config user.name "probe"; git config user.email "probe@users.noreply.github.com"
+          git add -f probe-result.txt; git commit -m "probe result"; git push -f origin HEAD:probe
