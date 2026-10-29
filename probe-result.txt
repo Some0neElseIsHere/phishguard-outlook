@@ -1,0 +1,2 @@
+exit=0 
+Tests : 387 réussis, 0 en échec.
