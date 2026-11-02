@@ -228,6 +228,9 @@ namespace PhishGuard.Tests
             Check("DKIM sélecteur", det.Auth.DkimSelector == "sel1" && det.Auth.DkimDomain == "evil-sender.xyz", det.Auth.DkimSelector + "/" + det.Auth.DkimDomain);
             Check("SPF mailfrom", det.Auth.Spf == "fail" && det.Auth.SpfMailFrom == "evil-sender.xyz");
             Check("champs principaux", det.Fields.Any(f => f.Key == "Message-ID"));
+            Check("parcours : adresse annoncée [127.0.0.1], adresse réelle entre parenthèses", Forensics.ParseReceived("from [127.0.0.1] (10.0.54.160) by SRV2.acmetech.local (10.0.0.2) with Microsoft SMTP Server id 15.2.2562.37 via Frontend Transport; Mon, 2 Nov 2026 09:51:33 +0100").FromIp == "10.0.54.160");
+            Check("parcours : Exim « from [IP] (helo=…) »", Forensics.ParseReceived("from [203.0.113.5] (helo=poste) by mx.exemple-pme.fr with esmtp; Mon, 2 Nov 2026 09:51:33 +0100").FromIp == "203.0.113.5");
+            Check("parcours : IPv6 entre parenthèses (Microsoft 365)", Forensics.ParseReceived("from AM6PR01MB1234.eurprd01.prod.exchangelabs.com (2603:10a6:20b:1::12) by AM6PR01MB5678.eurprd01.prod.exchangelabs.com (2603:10a6:20b:2::34) with Microsoft SMTP Server; Mon, 2 Nov 2026 09:51:33 +0100").FromIp == "2603:10a6:20b:1::12");
             Check("IP privée", !Forensics.IsPublicIp("192.168.1.20") && !Forensics.IsPublicIp("10.1.2.3") && Forensics.IsPublicIp("185.220.101.4"));
 
             // Type réel des pièces jointes
@@ -384,6 +387,10 @@ namespace PhishGuard.Tests
                 && rRelayDev.Findings.First(f => f.Id == "auth-internal-relay").Evidence.Any(x => x.Contains("alertes@acmetech.fr")));
             Check("équipement déclaré : IP et adresses autorisées dans les preuves de légitimité", rRelayDev.Trust.Any(x => x.Contains("10.0.50.20") && x.Contains("alertes@acmetech.fr") && x.Contains("onduleur@acmetech.fr")),
                 string.Join(" | ", rRelayDev.Trust.ToArray()));
+            // Application qui s'annonce « [127.0.0.1] » (conteneur, script) : c'est l'adresse entre parenthèses qui compte
+            var helo = relayMail("10.0.50.20", "alertes@acmetech.fr"); helo.RawHeaders = helo.RawHeaders.Replace("from PC-COMPTA-12.acmetech.local (10.0.50.20)", "from [127.0.0.1] (10.0.50.20)");
+            var rHelo = Analyzer.Analyze(helo, cfgNet);
+            Check("équipement déclaré qui s'annonce [127.0.0.1] : reconnu", Ids(rHelo).Contains("auth-internal-relay") && rHelo.Trust.Any(x => x.Contains("10.0.50.20")), string.Join(",", Ids(rHelo).ToArray()));
             var rRelayDevBad = Analyzer.Analyze(relayMail("10.0.50.20", "direction@acmetech.fr"), cfgNet);
             Check("relais IP de confiance, équipement déclaré, autre adresse : critique", Ids(rRelayDevBad).Contains("auth-internal-relay-sender") && rRelayDevBad.Level == "dangerous");
             // Même chose au nom d'une adresse qui n'est pas celle de l'entreprise (nom de machine sans domaine, comme un outil de supervision)

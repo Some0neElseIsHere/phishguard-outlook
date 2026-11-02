@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.24.1** : parcours du message : quand une machine s'annonce avec une adresse inventée (« from [127.0.0.1] », fréquent pour une application ou un conteneur), c'est l'adresse réelle notée par le serveur qui est retenue. Un équipement déclaré qui s'annonce ainsi n'était pas reconnu (la machine d'origine était prise pour le serveur de messagerie).
+
 - **v1.24.0** : trois nouveaux indices, chacun passé sur le banc d'essai sans fausse alerte supplémentaire :
   - **caractères invisibles dans les mots** (« Micro​soft » coupé par un espace de largeur nulle) : signalés, et retirés avant les autres contrôles ;
   - **message réduit à une image cliquable** : presque aucun texte, tout le contenu dans une image qui est un lien ;

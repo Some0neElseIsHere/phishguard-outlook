@@ -225,9 +225,25 @@ namespace PhishGuard
             string fromPart = byIdx > 0 ? main.Substring(0, byIdx) : main;
             var fm = FromRe.Match(fromPart);
             if (fm.Success) { hop.FromHost = fm.Groups[1].Value; hop.FromDetail = fm.Groups[2].Success ? fm.Groups[2].Value.Trim() : ""; }
-            var im = IpRe.Match(fromPart);
-            if (im.Success) hop.FromIp = im.Groups[1].Value;
-            else { var m4 = Ipv4Re.Match(fromPart); if (m4.Success) hop.FromIp = m4.Groups[1].Value; }
+            // L'adresse réelle de la connexion est celle notée par le serveur entre parenthèses : « from nom (rdns [IP]) »,
+            // ou chez Exchange « from nom (IP) ». Le nom annoncé par l'expéditeur, lui, peut être une adresse inventée :
+            // « from [127.0.0.1] (10.0.54.160) » vient de 10.0.54.160, pas du poste lui-même.
+            string detail = hop.FromDetail;
+            System.Net.IPAddress bare;
+            var dm = IpRe.Match(detail);
+            if (dm.Success) hop.FromIp = dm.Groups[1].Value;
+            else if (System.Net.IPAddress.TryParse(detail.Trim(), out bare)) hop.FromIp = detail.Trim();
+            else
+            {
+                var d4 = Ipv4Re.Match(detail);
+                if (d4.Success) hop.FromIp = d4.Groups[1].Value;
+                else
+                {
+                    var im = IpRe.Match(fromPart);
+                    if (im.Success) hop.FromIp = im.Groups[1].Value;
+                    else { var m4 = Ipv4Re.Match(fromPart); if (m4.Success) hop.FromIp = m4.Groups[1].Value; }
+                }
+            }
             // Le nom entre parenthèses contient souvent "nom.inverse [IP]" : on ne garde que le nom
             hop.FromDetail = Regex.Replace(hop.FromDetail, @"\s*\[[^\]]*\]", "").Trim();
             var bm = ByRe.Match(main);
