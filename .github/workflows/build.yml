@@ -86,6 +86,16 @@ jobs:
         with:
           subject-path: 'dist/*'
 
+      - name: Essai - vérifier l'attestation
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $f = Get-ChildItem dist/*installeur.exe | Select-Object -First 1
+          gh attestation verify $f.FullName --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { echo "::error::Attestation invalide" ; exit 1 }
+          echo "::notice::Attestation vérifiée pour $($f.Name)"
+
       - name: Publier la release
         if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.version != ''
         uses: softprops/action-gh-release@v3
