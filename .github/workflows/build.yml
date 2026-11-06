@@ -83,7 +83,7 @@ jobs:
       # Vérification : gh attestation verify PhishGuard-Outlook-vX.Y.Z-installeur.exe --repo Some0neElseIsHere/phishguard-outlook
       - name: Attester la provenance des fichiers publiés
         if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.version != ''
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: 'dist/*'
 
