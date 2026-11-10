@@ -930,6 +930,22 @@ namespace PhishGuard.Tests
             var rRu = Analyzer.Analyze(eRu, cfg);
             Check("texte cyrillique ou grec ordinaire : pas d'indice", !Ids(rRu).Any(i => i.Contains("mixed-script")), string.Join(",", Ids(rRu).ToArray()));
 
+            // ---------- SPF, DMARC et DKIM des domaines (onglet Réputation) ----------
+            Func<string, string> spf = r => DomainMail.EvalSpf(new List<string> { r, "google-site-verification=abc" }).State;
+            Check("SPF : -all vert, ~all orange, ?all et +all rouges, absent rouge", spf("v=spf1 mx -all") == "ok" && spf("v=spf1 include:_spf.exemple-pme.fr ~all") == "mid"
+                && spf("v=spf1 ?all") == "bad" && spf("v=spf1 +all") == "bad" && DomainMail.EvalSpf(new List<string> { "autre" }).State == "bad"
+                && DomainMail.EvalSpf(new List<string> { "v=spf1 -all", "v=spf1 mx -all" }).State == "bad" && spf("v=spf1 redirect=_spf.exemple-pme.fr") == "ok");
+            Func<string, string> dm = r => DomainMail.EvalDmarc(new List<string> { r }).State;
+            Check("DMARC : reject et quarantine verts, none orange, pct partiel orange, absent rouge", dm("v=DMARC1; p=reject; rua=mailto:x@exemple-pme.fr") == "ok" && dm("v=DMARC1; p=quarantine") == "ok"
+                && dm("v=DMARC1; p=none") == "mid" && dm("v=DMARC1; p=reject; pct=20") == "mid" && DomainMail.EvalDmarc(new List<string>()).State == "bad" && dm("v=DMARC1") == "bad");
+            Check("DKIM : Ed25519 vert, clé révoquée rouge, signature sans clé rouge, aucun sélecteur courant gris",
+                DomainMail.EvalDkim(new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("selector1", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=") }, true).State == "ok"
+                && DomainMail.EvalDkim(new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("s1", "v=DKIM1; p=") }, false).State == "bad"
+                && DomainMail.EvalDkim(new List<KeyValuePair<string, string>>(), true).State == "bad" && DomainMail.EvalDkim(new List<KeyValuePair<string, string>>(), false).State == "na");
+            var sigSel = DomainMail.SignatureSelectors("DKIM-Signature: v=1; a=rsa-sha256; d=news.exemple-pme.fr; s=k2; h=from; bh=x; b=y\r\nDKIM-Signature: v=1; d=exemple-pme.fr; s=selector1; b=z\r\n");
+            Check("DKIM : sélecteurs lus dans les signatures du message", sigSel.ContainsKey("exemple-pme.fr") && sigSel["exemple-pme.fr"].Count == 2
+                && sigSel["exemple-pme.fr"].Any(p => p.Key == "k2" && p.Value == "news.exemple-pme.fr"));
+
             // ---------- Caractères invisibles dans les mots ----------
             var eInv = Base(); eInv.FromName = "Micro\u200Bsoft Account"; eInv.FromAddress = "alerte@exemple-fournisseur.fr"; eInv.Subject = "Votre mot de pa\u200Csse expire";
             var rInv = Analyzer.Analyze(eInv, cfg);

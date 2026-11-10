@@ -174,6 +174,18 @@ namespace PhishGuard.AddIn
             status.Text = n == 0 ? L.T("L’âge des domaines est déjà connu.") : L.F("Recherche de l’âge de {0} domaine(s) auprès des registres…", n);
         }
 
+        /// <summary>SPF, DMARC et DKIM des domaines du message : lus à l'ouverture de l'onglet Réputation, une fois par session.</summary>
+        void FetchMailAuth()
+        {
+            if (email == null || !Intel.Settings.DnsChecks) return;
+            var sigs = DomainMail.SignatureSelectors(email.RawHeaders);
+            int n = DomainMail.Fetch(DomainAge.DomainsOf(email).Select(d => d.Key),
+                d => { List<KeyValuePair<string, string>> l; return sigs.TryGetValue(d, out l) ? l : null; });
+            if (n == 0) return;   // déjà connus ou en cours : pas de nouvel affichage (sinon la page se rechargerait sans fin)
+            if (result != null) ShowResult(result, email, lastListStatus, lastShowExplanations, false);
+            status.Text = L.F("Lecture du SPF, du DMARC et du DKIM de {0} domaine(s)…", n);
+        }
+
         /// <summary>Dernier chemin par lequel une action de la page est arrivée (vérification automatique).</summary>
         internal static string LastActionVia = "";
 
@@ -181,6 +193,7 @@ namespace PhishGuard.AddIn
         {
             LastActionVia = via;
             if (action == "age") { try { FetchDomainAges(); } catch (Exception ex) { status.Text = ex.Message; } }
+            if (action == "mail") { try { FetchMailAuth(); } catch (Exception ex) { status.Text = ex.Message; } }
         }
 
         void OnNavigating(object sender, WebBrowserNavigatingEventArgs e)
@@ -227,7 +240,7 @@ namespace PhishGuard.AddIn
         /// <summary>Empreinte du résultat affiché : évite de recharger la page si rien n'a changé.</summary>
         static string Signature(AnalysisResult r)
         {
-            return r.Score + "|" + string.Join(",", r.Findings.Select(f => f.Id + ":" + f.Severity + ":" + f.Evidence.Count).ToArray()) + "|" + r.Positives.Count + "|" + r.Trust.Count + "|" + r.Verified + "|" + DomainAge.Version;
+            return r.Score + "|" + string.Join(",", r.Findings.Select(f => f.Id + ":" + f.Severity + ":" + f.Evidence.Count).ToArray()) + "|" + r.Positives.Count + "|" + r.Trust.Count + "|" + r.Verified + "|" + DomainAge.Version + "|" + DomainMail.Version;
         }
 
         /// <summary>Mise à jour silencieuse (résultats externes arrivés) : sans prendre le focus.</summary>
@@ -385,7 +398,7 @@ namespace PhishGuard.AddIn
             ".foot{font-size:11px;text-align:center;color:#8a95a3;margin:22px 0 4px}";
 
         const string Script =
-            "function show(id){var p=document.getElementsByClassName('sec');for(var i=0;i<p.length;i++){p[i].style.display=(p[i].id==id)?'block':'none';}" +
+            "function show(id){if(id=='s-beta'){try{window.external.Action('mail');}catch(x){}}var p=document.getElementsByClassName('sec');for(var i=0;i<p.length;i++){p[i].style.display=(p[i].id==id)?'block':'none';}" +
             "var t=document.getElementsByClassName('tab');for(var j=0;j<t.length;j++){t[j].className=(t[j].getAttribute('data-t')==id)?'tab on':'tab';}" +
             "window.scrollTo(0,0);return false;}" +
             "window.onload=function(){show('s-resume');};";
@@ -675,6 +688,7 @@ namespace PhishGuard.AddIn
             sb.Append("<div class='sec' id='s-beta'>");
             sb.Append("<p class='note'>" + H(L.T("Résultats des sources externes activées dans Paramètres → Réputation. Elles reçoivent seulement des domaines, des empreintes de fichiers ou une IP, jamais le contenu du message.")) + "</p>");
             DomainAgeTable(sb, e);
+            MailAuthTable(sb, e);
             if (r.Sources.Count > 0)
             {
                 sb.Append("<h2>" + H(L.T("Sources")) + "</h2><div class='tw'><table><thead><tr><th>" + H(L.T("Source")) + "</th><th>" + H(L.T("État")) + "</th><th>" + H(L.T("Détail")) + "</th></tr></thead><tbody>");
@@ -736,6 +750,47 @@ namespace PhishGuard.AddIn
             if (missing)
                 sb.Append("<p class='fd'><a href='" + AgeAction + "' onclick=\"try{window.external.Action('age');return false;}catch(x){return true;}\">" + H(L.T("Récupérer l’âge des domaines")) + "</a> <span class='muted'>"
                     + H(L.T("(seuls les noms de domaine sont envoyés au registre de chaque domaine)")) + "</span></p>");
+        }
+
+        /// <summary>SPF, DMARC et DKIM publiés par chaque domaine, avec la couleur du niveau de protection.</summary>
+        static void MailAuthTable(StringBuilder sb, EmailData e)
+        {
+            var doms = DomainAge.DomainsOf(e);
+            if (doms.Count == 0) return;
+            sb.Append("<h2>" + H(L.T("Protection contre l’usurpation (SPF, DMARC, DKIM)")) + "</h2>");
+            if (!Intel.Settings.DnsChecks)
+            {
+                sb.Append("<p class='fd muted'>" + H(L.T("Désactivé : Paramètres → Réputation → « DNS du domaine de l’expéditeur ».")) + "</p>");
+                return;
+            }
+            sb.Append("<div class='tw'><table><thead><tr><th>" + H(L.T("Domaine")) + "</th><th>SPF</th><th>DMARC</th><th>DKIM</th></tr></thead><tbody>");
+            Func<MailAuthCheck, bool, string> cell = (c, split) =>
+            {
+                if (c == null) return "";
+                // « strict (-all) : les autres serveurs… » : l'étiquette dans la pastille, la suite en dessous
+                string label = c.Summary, more = "";
+                int colon = split ? c.Summary.IndexOf(": ", StringComparison.Ordinal) : -1;
+                if (colon > 0) { label = c.Summary.Substring(0, colon).TrimEnd(); more = c.Summary.Substring(colon + 2); }
+                string s = "<span class='b " + c.State + "'>" + H(label) + "</span>";
+                if (more.Length > 0) s += "<div class='muted'>" + H(more) + "</div>";
+                if (c.Record.Length > 0)
+                    s += "<div class='mono muted' title='" + H(c.Record) + "'>" + H(c.Record.Length > 90 ? c.Record.Substring(0, 90) + "…" : c.Record) + "</div>";
+                return s;
+            };
+            foreach (var d in doms)
+            {
+                var info = DomainMail.Get(d.Key);
+                sb.Append("<tr><td class='mono'>" + H(d.Key) + "<div class='muted'>" + H(d.Value) + "</div></td>");
+                if (info == null)
+                    sb.Append("<td colspan='3'>" + (DomainMail.IsPending(d.Key) ? "<span class='b mid'>" + H(L.T("Lecture en cours…")) + "</span>" : "<span class='muted'>" + H(L.T("non lu")) + "</span>") + "</td>");
+                else if (info.Error.Length > 0)
+                    sb.Append("<td colspan='3'><span class='b bad'>" + H(L.T("lecture impossible")) + "</span> <span class='muted'>" + H(info.Error) + "</span></td>");
+                else
+                    sb.Append("<td>" + cell(info.Spf, true) + "</td><td>" + cell(info.Dmarc, true) + "</td><td>" + cell(info.Dkim, false) + "</td>");
+                sb.Append("</tr>");
+            }
+            sb.Append("</tbody></table></div>");
+            sb.Append("<p class='note'>" + H(L.T("Lu dans le DNS de votre poste (seuls les noms de domaine sont demandés). Vert : bien protégé ; orange : protection partielle ; rouge : absente ou invalide. Ce sont les réglages du domaine, pas le résultat pour ce message : un escroc peut utiliser un domaine bien protégé qu’il possède.")) + "</p>");
         }
 
         static void FindingCard(StringBuilder sb, Finding f, bool showExplanations)

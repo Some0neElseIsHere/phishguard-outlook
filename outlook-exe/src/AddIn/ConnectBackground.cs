@@ -67,6 +67,7 @@ namespace PhishGuard.AddIn
             L.SetLanguage(config.Language);
             if (ThemeUi.Refresh(config.Theme)) ThemeUi.ApplyAll();
             DomainAge.Enabled = config.DomainAgeLookup;
+            DomainMail.CompanyDomains = new HashSet<string>(config.CompanyDomains, StringComparer.OrdinalIgnoreCase);
             Intel.Settings = new IntelSettings
             {
                 DnsChecks = config.BetaDnsChecks,

@@ -14,10 +14,10 @@ namespace PhishGuard.AddIn
         readonly ResultForm form;
         internal PageBridge(ResultForm form) { this.form = form; }
 
-        /// <summary>Appelé par la page : window.external.Action('age').</summary>
+        /// <summary>Appelé par la page : window.external.Action('age') ou Action('mail').</summary>
         public void Action(string name)
         {
-            if (name != "age") return;
+            if (name != "age" && name != "mail") return;
             try { form.BeginInvoke((MethodInvoker)(() => form.PageAction(name, "script"))); }
             catch (Exception) { }
         }
