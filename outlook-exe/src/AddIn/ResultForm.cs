@@ -238,15 +238,21 @@ namespace PhishGuard.AddIn
         string shownSignature = "";
 
         /// <summary>Empreinte du résultat affiché : évite de recharger la page si rien n'a changé.</summary>
-        static string Signature(AnalysisResult r)
+        static string Signature(AnalysisResult r, EmailData e)
         {
-            return r.Score + "|" + string.Join(",", r.Findings.Select(f => f.Id + ":" + f.Severity + ":" + f.Evidence.Count).ToArray()) + "|" + r.Positives.Count + "|" + r.Trust.Count + "|" + r.Verified + "|" + DomainAge.Version + "|" + DomainMail.Version;
+            return r.Score + "|" + string.Join(",", r.Findings.Select(f => f.Id + ":" + f.Severity + ":" + f.Evidence.Count).ToArray()) + "|" + r.Positives.Count + "|" + r.Trust.Count + "|" + r.Verified + "|" + DomainAge.Version + "|" + DomainMail.Version + "|" + SlowMailAuth(e);
+        }
+
+        /// <summary>Lecture SPF/DMARC/DKIM devenue lente : l'affichage change (« Lecture lente… »).</summary>
+        static bool SlowMailAuth(EmailData e)
+        {
+            return SenderDomain(e).Any(d => DomainMail.IsSlow(d));
         }
 
         /// <summary>Mise à jour silencieuse (résultats externes arrivés) : sans prendre le focus.</summary>
         public void RefreshResult(AnalysisResult r, EmailData e, string listStatus, bool showExplanations)
         {
-            if (!Visible || Signature(r) + "|" + Expert + "|" + Theme.Dark == shownSignature) return;
+            if (!Visible || Signature(r, e) + "|" + Expert + "|" + Theme.Dark == shownSignature) return;
             ShowResult(r, e, listStatus, showExplanations, false);
         }
 
@@ -260,7 +266,7 @@ namespace PhishGuard.AddIn
             result = r; email = e;
             lastListStatus = listStatus; lastShowExplanations = showExplanations;
             ThemeUi.EnsureCurrent(this);   // avant la page : le bandeau du bas et la page ont toujours le même thème
-            shownSignature = Signature(r) + "|" + Expert + "|" + Theme.Dark;
+            shownSignature = Signature(r, e) + "|" + Expert + "|" + Theme.Dark;
             ApplyTexts();
             btnTrust.Visible = r.Level != "safe";
             status.Text = Expert ? listStatus : "";
@@ -789,7 +795,9 @@ namespace PhishGuard.AddIn
                 var info = DomainMail.Get(d.Key);
                 sb.Append("<tr><td class='mono'>" + H(d.Key) + "<div class='muted'>" + H(d.Value) + "</div></td>");
                 if (info == null)
-                    sb.Append("<td colspan='3'>" + (DomainMail.IsPending(d.Key) ? "<span class='b mid'>" + H(L.T("Lecture en cours…")) + "</span>" : "<span class='muted'>" + H(L.T("non lu")) + "</span>") + "</td>");
+                    sb.Append("<td colspan='3'>" + (!DomainMail.IsPending(d.Key) ? "<span class='muted'>" + H(L.T("non lu")) + "</span>"
+                        : DomainMail.IsSlow(d.Key) ? "<span class='b mid'>" + H(L.T("Lecture lente…")) + "</span> <span class='muted'>" + H(L.T("le DNS tarde à répondre (pare-feu ou serveur injoignable) ; le résultat s’affichera dès qu’il arrive")) + "</span>"
+                        : "<span class='b mid'>" + H(L.T("Lecture en cours…")) + "</span>") + "</td>");
                 else if (info.Error.Length > 0)
                     sb.Append("<td colspan='3'><span class='b bad'>" + H(L.T("lecture impossible")) + "</span> <span class='muted'>" + H(info.Error) + "</span></td>");
                 else

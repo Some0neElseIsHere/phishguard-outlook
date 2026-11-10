@@ -12,6 +12,8 @@ Une version déjà installée est simplement mise à jour (vos réglages sont co
 
 ### Nouveautés de cette version
 
+- **v1.25.2** : onglet Réputation : le tableau SPF / DMARC / DKIM pouvait rester sur « Lecture en cours… ». La lecture se terminait bien, mais la fenêtre n'était réaffichée que si un autre résultat arrivait. Elle l'est maintenant dès la fin de la lecture ; si le DNS tarde plus de 20 secondes, « Lecture lente… » l'indique.
+
 - **v1.25.1** : onglet Réputation : le SPF, le DMARC et le DKIM ne sont plus lus que pour le domaine de l'expéditeur, le seul qui compte pour l'authenticité du message (moins de requêtes DNS, tableau plus lisible).
 
 - **v1.25.0** : onglet Réputation : pour chaque domaine du message (expéditeur, adresse de réponse, liens), le SPF, le DMARC et le DKIM publiés, avec leur valeur et une couleur selon le niveau de protection (vert : strict, orange : partiel, rouge : absent ou invalide). Pour le DKIM, le sélecteur de la signature du message est interrogé, sinon les sélecteurs courants. Lu à l'ouverture de l'onglet seulement, dans le DNS du poste, et gardé en mémoire pour la session.
