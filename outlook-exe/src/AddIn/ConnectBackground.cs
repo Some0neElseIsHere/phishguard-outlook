@@ -100,6 +100,13 @@ namespace PhishGuard.AddIn
                     if (!config.AutoAnalyze) InvalidateRibbons();
                     RefreshDetailsIfOpen();
                 }
+                else if (DomainMail.Changed)
+                {
+                    // SPF, DMARC, DKIM lus : seul l'affichage change, pas l'analyse
+                    DomainMail.Changed = false;
+                    RefreshDetailsIfOpen();
+                }
+                else if (tickCount % 15 == 0) RefreshDetailsIfOpen();   // toutes les ~10 s : « lecture lente » affichée si le DNS tarde
                 if (sessionReady && !setupChecked && tickCount >= 12) RunSetupIfNeeded();   // ~10 s après le démarrage d'Outlook
                 if (config.KnownCorrespondents) CorrespondentsStep();
                 if (config.TagCategory && tickCount % 30 == 5) InboxStep();

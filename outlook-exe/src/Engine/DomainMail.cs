@@ -29,6 +29,9 @@ namespace PhishGuard
     public static class DomainMail
     {
         public static volatile int Version;
+        /// <summary>Une lecture vient de se terminer : la fenêtre ouverte doit être réaffichée.</summary>
+        public static volatile bool Changed;
+        static readonly Dictionary<string, DateTime> pendingSince = new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
         /// <summary>Domaines de l'entreprise : lus si besoin sur un DNS public (DNS interne « split-horizon »).</summary>
         public static HashSet<string> CompanyDomains = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         static readonly object Sync = new object();
@@ -50,6 +53,12 @@ namespace PhishGuard
             Version++;
         }
 
+        /// <summary>Lecture en cours depuis plus de 20 s : le DNS ne répond pas (pare-feu, serveur injoignable).</summary>
+        public static bool IsSlow(string domain)
+        {
+            lock (Sync) { DateTime t; return pendingSince.TryGetValue(domain ?? "", out t) && (DateTime.UtcNow - t).TotalSeconds > 20; }
+        }
+
         public static bool IsPending(string domain)
         {
             lock (Sync) return pending.Contains(domain ?? "");
@@ -65,7 +74,7 @@ namespace PhishGuard
             var todo = new List<string>();
             lock (Sync)
                 foreach (var d in domains ?? Enumerable.Empty<string>())
-                    if (!string.IsNullOrEmpty(d) && !cache.ContainsKey(d) && pending.Add(d)) todo.Add(d);
+                    if (!string.IsNullOrEmpty(d) && !cache.ContainsKey(d) && pending.Add(d)) { todo.Add(d); pendingSince[d] = DateTime.UtcNow; }
             if (todo.Count == 0) return 0;
             new Thread(() =>
             {
@@ -78,8 +87,9 @@ namespace PhishGuard
                         info = Lookup(d, selectors != null ? selectors(d) : null, server);
                     }
                     catch (Exception ex) { info = new MailAuthInfo { Error = ex.Message }; }
-                    lock (Sync) { cache[d] = info; pending.Remove(d); }
+                    lock (Sync) { cache[d] = info; pending.Remove(d); pendingSince.Remove(d); }
                     Version++;
+                    Changed = true;
                 });
             }) { IsBackground = true, Name = "PhishGuard SPF DMARC DKIM" }.Start();
             return todo.Count;
