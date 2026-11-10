@@ -80,6 +80,15 @@ namespace PhishGuard.Tools
             // Onglet Réputation : âge connu pour le premier domaine, à récupérer pour les autres
             var doms = DomainAge.DomainsOf(p);
             if (doms.Count > 0) DomainAge.SetForTests(doms[0].Key, DateTime.UtcNow.AddDays(-3));
+            // SPF, DMARC, DKIM : un domaine mal protégé, un domaine bien protégé, un en cours de lecture
+            Intel.Settings.DnsChecks = true;
+            if (doms.Count > 0) DomainMail.SetForTests(doms[0].Key, new MailAuthInfo { Spf = DomainMail.EvalSpf(new List<string> { "v=spf1 +all" }), Dmarc = DomainMail.EvalDmarc(new List<string>()),
+                Dkim = DomainMail.EvalDkim(new List<KeyValuePair<string, string>>(), false) });
+            if (doms.Count > 1) DomainMail.SetForTests(doms[1].Key, new MailAuthInfo { Spf = DomainMail.EvalSpf(new List<string> { "v=spf1 include:_spf.exemple-pme.fr -all" }),
+                Dmarc = DomainMail.EvalDmarc(new List<string> { "v=DMARC1; p=reject; rua=mailto:dmarc@exemple-pme.fr" }),
+                Dkim = DomainMail.EvalDkim(new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("selector1", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=") }, true) });
+            if (doms.Count > 2) DomainMail.SetForTests(doms[2].Key, new MailAuthInfo { Spf = DomainMail.EvalSpf(new List<string> { "v=spf1 mx ~all" }), Dmarc = DomainMail.EvalDmarc(new List<string> { "v=DMARC1; p=none" }),
+                Dkim = DomainMail.EvalDkim(new List<KeyValuePair<string, string>>(), false) });
             Write(outDir, "expert-reputation.html", ResultForm.BuildHtml(Analyzer.Analyze(p, cfg), p, true, "s-beta"));
             Console.WriteLine("Verdicts : " + rp.Level + " " + rp.Score + " / " + rs.Level + " " + rs.Score + " / " + rv.Level + " verified=" + rv.Verified);
 
