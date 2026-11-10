@@ -179,7 +179,7 @@ namespace PhishGuard.AddIn
         {
             if (email == null || !Intel.Settings.DnsChecks) return;
             var sigs = DomainMail.SignatureSelectors(email.RawHeaders);
-            int n = DomainMail.Fetch(DomainAge.DomainsOf(email).Select(d => d.Key),
+            int n = DomainMail.Fetch(SenderDomain(email),
                 d => { List<KeyValuePair<string, string>> l; return sigs.TryGetValue(d, out l) ? l : null; });
             if (n == 0) return;   // déjà connus ou en cours : pas de nouvel affichage (sinon la page se rechargerait sans fin)
             if (result != null) ShowResult(result, email, lastListStatus, lastShowExplanations, false);
@@ -752,10 +752,17 @@ namespace PhishGuard.AddIn
                     + H(L.T("(seuls les noms de domaine sont envoyés au registre de chaque domaine)")) + "</span></p>");
         }
 
-        /// <summary>SPF, DMARC et DKIM publiés par chaque domaine, avec la couleur du niveau de protection.</summary>
+        /// <summary>Domaine qui a envoyé le message (celui de l'expéditeur) : c'est le seul dont le SPF, le DMARC et le DKIM comptent.</summary>
+        static List<string> SenderDomain(EmailData e)
+        {
+            string d = PhishGuard.Domains.RegistrableDomain(PhishGuard.Domains.DomainOfAddress(e != null ? e.FromAddress : ""));
+            return string.IsNullOrEmpty(d) || PhishGuard.Domains.IsIpHost(d) ? new List<string>() : new List<string> { d };
+        }
+
+        /// <summary>SPF, DMARC et DKIM publiés par le domaine de l'expéditeur, avec la couleur du niveau de protection.</summary>
         static void MailAuthTable(StringBuilder sb, EmailData e)
         {
-            var doms = DomainAge.DomainsOf(e);
+            var doms = SenderDomain(e).Select(d => new KeyValuePair<string, string>(d, L.T("Expéditeur"))).ToList();
             if (doms.Count == 0) return;
             sb.Append("<h2>" + H(L.T("Protection contre l’usurpation (SPF, DMARC, DKIM)")) + "</h2>");
             if (!Intel.Settings.DnsChecks)
@@ -790,7 +797,7 @@ namespace PhishGuard.AddIn
                 sb.Append("</tr>");
             }
             sb.Append("</tbody></table></div>");
-            sb.Append("<p class='note'>" + H(L.T("Lu dans le DNS de votre poste (seuls les noms de domaine sont demandés). Vert : bien protégé ; orange : protection partielle ; rouge : absente ou invalide. Ce sont les réglages du domaine, pas le résultat pour ce message : un escroc peut utiliser un domaine bien protégé qu’il possède.")) + "</p>");
+            sb.Append("<p class='note'>" + H(L.T("Lu dans le DNS de votre poste (seul le nom de domaine est demandé). Vert : bien protégé ; orange : protection partielle ; rouge : absente ou invalide. Ce sont les réglages du domaine, pas le résultat pour ce message : un escroc peut utiliser un domaine bien protégé qu’il possède.")) + "</p>");
         }
 
         static void FindingCard(StringBuilder sb, Finding f, bool showExplanations)
