@@ -786,7 +786,7 @@ namespace PhishGuard.AddIn
                 else if (info.Error.Length > 0)
                     sb.Append("<td colspan='3'><span class='b bad'>" + H(L.T("lecture impossible")) + "</span> <span class='muted'>" + H(info.Error) + "</span></td>");
                 else
-                    sb.Append("<td>" + cell(info.Spf, true) + "</td><td>" + cell(info.Dmarc, true) + "</td><td>" + cell(info.Dkim, false) + "</td>");
+                    sb.Append("<td>" + cell(info.Spf, true) + "</td><td>" + cell(info.Dmarc, true) + "</td><td>" + cell(info.Dkim, !info.Dkim.Summary.Contains(" · ")) + "</td>");
                 sb.Append("</tr>");
             }
             sb.Append("</tbody></table></div>");

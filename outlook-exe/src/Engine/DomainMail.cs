@@ -157,8 +157,8 @@ namespace PhishGuard
         public static MailAuthCheck EvalDkim(List<KeyValuePair<string, string>> found, bool fromMessage)
         {
             if (found == null || found.Count == 0)
-                return fromMessage ? new MailAuthCheck("bad", L.T("clé introuvable pour le sélecteur de la signature"), "")
-                                   : new MailAuthCheck("na", L.T("aucun sélecteur courant trouvé (il peut exister sous un autre nom)"), "");
+                return fromMessage ? new MailAuthCheck("bad", L.T("introuvable : pas de clé pour le sélecteur de la signature"), "")
+                                   : new MailAuthCheck("na", L.T("inconnu : aucun sélecteur courant ne répond (il peut exister sous un autre nom)"), "");
             var parts = new List<string>();
             string worst = "ok";
             foreach (var f in found.OrderBy(x => x.Key))
